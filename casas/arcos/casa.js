@@ -62,7 +62,7 @@ function build(p) {
     Pt(m.id, `${m.id} · ${m.nombre}`, cat, A.muroGeos(M, m), { ...base(m), med }, ex(m));
   }
   /* aberturas: hoja cerrada (vidrio o panel) */
-  if (p.carp) for (const a of M.ABERTURAS) { const m = M.MUROS.find(w => w.id === a.muro); if (!m) continue;
+  if (p.carp) for (const a of M.ABERTURAS) { const m = M.MUROS.find(w => w.id === a.muro); if (!m || a.tipo === 'vano') continue;
     const vid = a.tipo === 'ventana';
     Pt(a.id, `${a.id} · ${a.nombre}`, vid ? 'glass' : a.tipo === 'portón' ? 'cerco' : 'puerta', A.hojaGeo(M, a, vid ? 2 : 4), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, ex(m)); }
   /* losas */
