@@ -162,8 +162,8 @@ function applySel(){svg.querySelectorAll('.sel').forEach(e=>e.classList.remove('
 function applyView(){const {x,y,w,h}=S.vb;if(!(w>0&&h>0))return;svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);const u=w/Math.max(1,svg.clientWidth);root.style.setProperty('--u',u);root.classList.toggle('far',u>2.3);root.classList.toggle('vfar',u>4.8);}
 let pendingFit=null;
 function fit(b,pad=.08){const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H){pendingFit=[b,pad];return;}const w=b.w*(1+2*pad),h=b.h*(1+2*pad);const k=Math.max(w/W,h/H);S.vb={w:W*k,h:H*k,x:b.cx-W*k/2,y:b.cy-H*k/2};applyView();}
-const HOUSE={cx:1440,cy:120,w:3150,h:1900};
-function fitAll(){const b=S.capas.implantacion?{cx:1900,cy:500,w:4350,h:2900}:HOUSE;fit(b,.03);}
+const HOUSE=PL&&PL.casa?PL.casa:{cx:1440,cy:120,w:3150,h:1900};
+function fitAll(){const b=PL?(S.capas.implantacion&&PL.lote?PL.lote:HOUSE):S.capas.implantacion?{cx:1900,cy:500,w:4350,h:2900}:HOUSE;fit(b,.03);}
 function clientToWorld(cx,cy){const m=root.getScreenCTM?root.getScreenCTM():null;if(m){const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;const q=pt.matrixTransform(m.inverse());return [q.x,q.y];}const r=svg.getBoundingClientRect();return [S.vb.x+(cx-r.left)/r.width*S.vb.w,S.vb.y+(cy-r.top)/r.height*S.vb.h];}
 {let drag=null,pinch=null;
   svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;svg.setPointerCapture(e.pointerId);drag={id:e.pointerId,x:e.clientX,y:e.clientY,vb:{...S.vb},moved:false};});
