@@ -1,7 +1,8 @@
 /* Aspecto realista: texturas procedurales (revoque, ladrillo visto, chapa, madera, deck, pasto…),
    cielo nublado, luz suave con sombras, como en las fotos. Se aplica sobre lo que arma el visor,
    sin tocar el modelo. Las texturas se dibujan en canvas: no hay imágenes externas. */
-export function initRealismo(visor){
+/* datos (de la casa): {piedra,ladrillo,blanco} = ids de muros con esa terminación; sin datos, los de Carhué. cats = categoría → textura extra. */
+export function initRealismo(visor,datos={}){
   const {THREE,scene,renderer}=visor;
   /* ---------- texturas ---------- */
   let seed=11;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
@@ -28,14 +29,15 @@ export function initRealismo(visor){
     agua:mk(256,256,(x,w,h)=>{x.fillStyle='#3f8fbf';x.fillRect(0,0,w,h);noise(x,w,h,400,.15,()=>'#7fc0e0');}),
   };
   /* categoría → [textura, tamaño del paño en cm] */
-  const PIEDRA=new Set(['M-05','M-27','M-06','M-07','M-22']);/* M-22: misma terminación que M-05 en su cara de afuera (norte, +x) — Maxi 14/10 *//* piedra: textura sacada de la foto de Maxi (pared de piedra partida en junta seca), ~3,3 × 2,0 m por paño; la misma imagen da el relieve */
-  const stoneTex=new THREE.TextureLoader().load('vid/piedra.jpg');stoneTex.wrapS=stoneTex.wrapT=THREE.RepeatWrapping;stoneTex.colorSpace=THREE.SRGBColorSpace;stoneTex.anisotropy=8;stoneTex.repeat.set(200/330,1);
-  const stoneBump=new THREE.TextureLoader().load('vid/piedra.jpg');stoneBump.wrapS=stoneBump.wrapT=THREE.RepeatWrapping;stoneBump.repeat.set(200/330,1);
+  const PIEDRA=new Set(datos.piedra??['M-05','M-27','M-06','M-07','M-22']);/* M-22: misma terminación que M-05 en su cara de afuera (norte, +x) — Maxi 14/10 *//* piedra: textura sacada de la foto de Maxi (pared de piedra partida en junta seca), ~3,3 × 2,0 m por paño; la misma imagen da el relieve */
+  const stoneTex=PIEDRA.size?new THREE.TextureLoader().load('vid/piedra.jpg'):new THREE.Texture();stoneTex.wrapS=stoneTex.wrapT=THREE.RepeatWrapping;stoneTex.colorSpace=THREE.SRGBColorSpace;stoneTex.anisotropy=8;stoneTex.repeat.set(200/330,1);
+  const stoneBump=PIEDRA.size?new THREE.TextureLoader().load('vid/piedra.jpg'):new THREE.Texture();stoneBump.wrapS=stoneBump.wrapT=THREE.RepeatWrapping;stoneBump.repeat.set(200/330,1);
   const stoneMat=new THREE.MeshStandardMaterial({map:stoneTex,bumpMap:stoneBump,bumpScale:2.5,roughness:.95,color:0xffffff});
   const woodMat=new THREE.MeshStandardMaterial({map:T.pino,roughness:.85,color:0xffffff});
-  const BRICK=new Set(['M-01','M-02','M-21','HOG-1','CH-1','CH-2']);
-  const BLANCO=new Set(['M-03','M-22','M-20']);/* Maxi: M-03 y M-22 van blancos (M-22 por dentro; por fuera, piedra como M-05) */
+  const BRICK=new Set(datos.ladrillo??['M-01','M-02','M-21','HOG-1','CH-1','CH-2']);
+  const BLANCO=new Set(datos.blanco??['M-03','M-22','M-20']);/* Maxi: M-03 y M-22 van blancos (M-22 por dentro; por fuera, piedra como M-05) */
   const pick=p=>{const b=p.id.replace(/[a-z]$/,'');if(BLANCO.has(b)&&(p.cat==='muro'||p.cat==='ladrillo'))return ['blanco',200];if(BRICK.has(b)&&(p.cat==='muro'||p.cat==='ladrillo'))return ['ladrillo',100];
+    if(datos.cats&&datos.cats[p.cat])return datos.cats[p.cat];
     switch(p.cat){case 'muro':return ['revoque',200];case 'tabique':return ['tabique',200];case 'ladrillo':return ['ladrillo',100];case 'techo':return ['chapa',76];case 'chapa':return ['chapaNegra',60];
       case 'cabio':case 'madera':return ['madera',120];case 'ep':return [/^L-/.test(b)?'eucalipto':'pino',/^L-/.test(b)?72:120];case 'deck':return ['deck',160];case 'piso':return ['cemento',300];
       case 'acero':return ['acero',100];case 'roble':return ['roble',80];case 'agua':return ['agua',200];default:return null;}};

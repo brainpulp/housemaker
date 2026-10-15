@@ -7,6 +7,14 @@ import { renderVideo } from './video.js';
 import * as ED from './ediciones.js';
 
 const NS='http://www.w3.org/2000/svg';
+/* datos de la planta propios de la casa (META.planta): encuadre, ejes, orden de niveles, línea de resumen. Sin ellos, valores de Carhué. */
+const PL=M.META.planta||null;
+const ORDEN=PL&&PL.nivelesOrden||Object.keys(M.NIVELES);
+const zNiv=n=>(M.NIVELES[n]||{}).z??0;
+/* un muro se ve en su nivel y en los que lista m.niveles */
+const enNivel=(m,niv)=>m.nivel===niv||(m.niveles||[]).includes(niv);
+/* una abertura se ve en la planta del nivel si su alto cae entre el piso y 2,50 por encima (casas con muros de varios pisos) */
+const abEnNivel=(a,m,niv)=>{if(!PL)return m.nivel===niv;if(!enNivel(m,niv))return false;const z0=(m.z0??zNiv(m.nivel))+(a.s||0),lo=zNiv(niv);return z0<lo+250&&z0+a.h>lo;};
 const $=id=>document.getElementById(id);
 const f1=n=>(Math.round(n*10)/10).toFixed(1).replace('.',',').replace(/,0$/,'');
 const fm=cm=>(Math.round(cm)/100).toFixed(2).replace('.',',');   // cm → "4,70"
@@ -17,12 +25,13 @@ const pts=p=>p.map(q=>q.join(',')).join(' ');
 
 /* ---------- registro de elementos ---------- */
 const REG={};   // id → {id,cat,nombre,nivel,data,bbox,el}
-const CATS={muro:'Muros',abertura:'Aberturas',local:'Locales',estructura:'Estructura',escalera:'Escaleras',deck:'Deck',techo:'Techos',chimenea:'Chimeneas y hogar',implantacion:'Implantación',eje:'Ejes'};
+const CATS={losa:'Losas y claraboyas',baranda:'Barandas',muro:'Muros',abertura:'Aberturas',local:'Locales',estructura:'Estructura',escalera:'Escaleras',deck:'Deck',techo:'Techos',chimenea:'Chimeneas y hogar',implantacion:'Implantación',eje:'Ejes'};
 function reg(id,cat,data,bbox){REG[id]={id,cat,data,bbox,nombre:data.nombre||id,nivel:data.nivel||(cat==='techo'?'TE':'PB')};return REG[id];}
 
 /* ---------- estado ---------- */
-const S={nivel:'PB',sel:null,hover:null,measure:false,mpts:[],vb:{x:-350,y:-400,w:3400,h:1800},
+const S={nivel:'PB',sel:null,hover:null,measure:false,mpts:[],vb:PL&&PL.vb?{...PL.vb}:{x:-350,y:-400,w:3400,h:1800},
   capas:{muros:true,aberturas:true,locales:true,estructura:true,escaleras:true,deck:true,techos:true,cotas:true,ejes:true,etiquetas:true,implantacion:true,calco:true}};
+if(!M.NIVELES[S.nivel])S.nivel=ORDEN[0];
 try{const s=JSON.parse(localStorage.getItem('carhue-vista')||'null');if(s&&s.capas)Object.assign(S.capas,s.capas);if(s&&s.nivel)S.nivel=s.nivel;}catch(e){}
 function persist(){try{localStorage.setItem('carhue-vista',JSON.stringify({capas:S.capas,nivel:S.nivel}));}catch(e){}}
 
@@ -36,7 +45,7 @@ for(const k of ['implantacion','techos','locales','deck','calco','muros_ghost','
 function wallPoly(m){const [ax,ay]=m.a,[bx,by]=m.b;const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);const nx=-dy/len*m.e/2,ny=dx/len*m.e/2;return [[ax+nx,ay+ny],[bx+nx,by+ny],[bx-nx,by-ny],[ax-nx,ay-ny]];}
 function wallFrame(m){const [ax,ay]=m.a,[bx,by]=m.b;const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);return {ux:dx/len,uy:dy/len,nx:-dy/len,ny:dx/len,len};}
 const cls=d=>`e-${d.estado||'existente'} c-${d.conf||'estimado'}`;
-const BELOW=new Set(['M-05','M-07','M-08','M-15','M-26','M-35']);   // muros cuya etiqueta va del lado +y
+const BELOW=new Set(PL?M.MUROS.filter(m=>m.lbl==='abajo').map(m=>m.id):['M-05','M-07','M-08','M-15','M-26','M-35']);   // muros cuya etiqueta va del lado +y
 
 function build(){
   for(const k in L)L[k].replaceChildren();for(const k in REG)delete REG[k];
@@ -46,7 +55,7 @@ function build(){
     (Array.isArray(txt)?txt:[txt]).forEach((ln,i)=>{const ts=el('tspan',{x:0,dy:i?'1.25em':0,class:i?(o.nm===i?'nm':'sub'):'main'},t);ts.textContent=ln;});return g;};
 
   /* calco del GLB */
-  if(show('calco'))for(const c of (CALCO[niv]||[]))el('polygon',{points:pts(c.pts),class:'calco'},L.calco).appendChild(Object.assign(document.createElementNS(NS,'title'),{textContent:'GLB · '+c.part}));
+  if(show('calco'))for(const c of (CALCO[niv]||[]))el(c.open?'polyline':'polygon',{points:pts(c.pts),class:'calco'+(c.open?' abierto':'')},L.calco).appendChild(Object.assign(document.createElementNS(NS,'title'),{textContent:'GLB · '+c.part}));
 
   /* implantación */
   if(show('implantacion'))for(const o of M.IMPLANTACION){let e;
@@ -70,8 +79,12 @@ function build(){
   /* deck */
   if(show('deck')&&niv!=='TE')for(const d of M.DECK){el('polygon',{points:pts(d.poly),class:'deck '+cls(d),'data-id':d.id},L.deck);const b=bboxOf(d.poly);reg(d.id,'deck',d,b);lblW(d.id,[d.id,d.nombre],1800,1045,{cls:'local'});}
 
+  /* losas con huecos (vacíos, escaleras), claraboyas y barandas del nivel */
+  if(PL&&show('estructura')){for(const l of M.LOSAS||[]){if(l.nivel!==niv)continue;for(const h of l.huecos||[]){el('polygon',{points:pts(h),class:'hueco-losa'},L.locales);}}
+    for(const c of M.CLARABOYAS||[]){if(c.nivel!==niv)continue;el('polygon',{points:pts(c.poly),class:'claraboya '+cls(c),'data-id':c.id},L.estructura);const b=bboxOf(c.poly);reg(c.id,'losa',c,b);lblW(c.id,c.id,b.cx,b.cy,{cls:'small'});}
+    for(const b of M.BARANDAS||[]){if(b.nivel!==niv)continue;el('polyline',{points:pts(b.pts),class:'baranda '+cls(b),'data-id':b.id},L.estructura);const bb=bboxOf(b.pts);reg(b.id,'baranda',b,{...bb,w:Math.max(bb.w,40),h:Math.max(bb.h,40)});}}
   /* muros: los del nivel en firme; los de PB en gris cuando estamos en EP o TE */
-  const wallsHere=M.MUROS.filter(m=>m.nivel===niv),ghosts=niv==='PB'?[]:M.MUROS.filter(m=>m.nivel==='PB');
+  const GH=PL?ORDEN[ORDEN.indexOf(niv)-1]:'PB';const wallsHere=M.MUROS.filter(m=>enNivel(m,niv)),ghosts=!GH||niv==='PB'&&!PL?[]:M.MUROS.filter(m=>enNivel(m,GH)&&!enNivel(m,niv));
   if(show('muros')){for(const m of ghosts)el('polygon',{points:pts(wallPoly(m)),class:'muro ghost'},L.muros_ghost);
     for(const m of wallsHere){const p=wallPoly(m),b=bboxOf(p);el('polygon',{points:pts(p),class:`muro t-${m.tipo} `+cls(m),'data-id':m.id},L.muros);reg(m.id,'muro',m,b);
       const fr=wallFrame(m),mx=(m.a[0]+m.b[0])/2,my=(m.a[1]+m.b[1])/2,off=m.e/2+22;const vert=Math.abs(fr.uy)>.5;
@@ -79,7 +92,7 @@ function build(){
       const sgn=BELOW.has(m.id)?1:-1;
       if(vert)lblW(m.id,m.id,mx-off,my,{cls:'muro small',rot:-90});else lblW(m.id,m.id,mx,my+off*sgn,{cls:'muro small'});}}
   /* aberturas: en los muros del nivel */
-  if(show('aberturas'))for(const a of M.ABERTURAS){const m=M.MUROS.find(w=>w.id===a.muro);if(!m||m.nivel!==niv)continue;const fr=wallFrame(m);
+  if(show('aberturas'))for(const a of M.ABERTURAS){const m=M.MUROS.find(w=>w.id===a.muro);if(!m||!abEnNivel(a,m,niv))continue;const fr=wallFrame(m);
     const p0=[m.a[0]+fr.ux*a.d,m.a[1]+fr.uy*a.d],p1=[m.a[0]+fr.ux*(a.d+a.w),m.a[1]+fr.uy*(a.d+a.w)];const n=[fr.nx*m.e/2,fr.ny*m.e/2];
     const g=el('g',{class:`abertura t-${a.tipo} `+cls(a),'data-id':a.id},L.aberturas);
     el('polygon',{points:pts([[p0[0]+n[0],p0[1]+n[1]],[p1[0]+n[0],p1[1]+n[1]],[p1[0]-n[0],p1[1]-n[1]],[p0[0]-n[0],p0[1]-n[1]]]),class:'hueco'},g);
@@ -102,7 +115,7 @@ function build(){
     else{el('polygon',{points:pts([[s.pos[0]-120,s.pos[1]+60],[s.pos[0],s.pos[1]-60],[s.pos[0]+120,s.pos[1]+60]]),class:'apunt '+cls(s),'data-id':s.id},L.estructura);reg(s.id,'estructura',s,{x0:s.pos[0]-120,y0:s.pos[1]-60,x1:s.pos[0]+120,y1:s.pos[1]+60,cx:s.pos[0],cy:s.pos[1],w:240,h:120});lblW(s.id,s.id,s.pos[0],s.pos[1]+85,{cls:'small estr'});}}
 
   /* escaleras */
-  if(show('escaleras')&&niv!=='TE')for(const e of M.ESCALERAS){const g=el('g',{class:'esc '+cls(e),'data-id':e.id},L.escaleras);
+  if(show('escaleras')&&niv!=='TE')for(const e of M.ESCALERAS){if(PL&&e.nivel&&e.nivel!==niv)continue;const g=el('g',{class:'esc '+cls(e),'data-id':e.id},L.escaleras);
     el('polygon',{points:pts(e.poly),class:'tramo'},g);if(e.giro)el('polygon',{points:pts(e.giro),class:'giro'},g);
     const b=bboxOf(e.poly);const n=Math.round(b.h/24);for(let i=1;i<n;i++)el('line',{x1:b.x0,y1:b.y0+i*24,x2:b.x1,y2:b.y0+i*24,class:'pedada'},g);
     const up=e.sube==='+y';el('line',{x1:b.cx,y1:up?b.y0+20:b.y1-20,x2:b.cx,y2:up?b.y1-10:b.y0+10,class:'flecha','marker-end':'url(#arr)'},g);
@@ -116,7 +129,7 @@ function build(){
     reg(c.id,'chimenea',c,{x0:c.pos[0]-100,y0:c.pos[1]-40,x1:c.pos[0]+100,y1:c.pos[1]+40,cx:c.pos[0],cy:c.pos[1],w:200,h:80});lblW(c.id,c.id,c.pos[0],c.pos[1]+(hog?55:-52),{cls:hog?'small':''});}
 
   /* ejes */
-  if(show('ejes')){const ext=S.capas.implantacion?{x0:-260,x1:4050,y0:-920,y1:1930}:{x0:-260,x1:3050,y0:-920,y1:1300};
+  if(show('ejes')){const ext=PL&&PL.ejesExt?PL.ejesExt:S.capas.implantacion?{x0:-260,x1:4050,y0:-920,y1:1930}:{x0:-260,x1:3050,y0:-920,y1:1300};
     for(const e of M.EJES){const v=e.dir==='v';el('line',{x1:v?e.pos:ext.x0,y1:v?ext.y0:e.pos,x2:v?e.pos:ext.x1,y2:v?ext.y1:e.pos,class:'eje'},L.ejes);
       const bx=v?e.pos:ext.x0,by=v?ext.y0:e.pos;const g=el('g',{class:'ejeb','data-id':e.id,transform:`translate(${bx} ${by})`},L.ejes);el('circle',{r:22},g);const t=el('text',{'text-anchor':'middle','dominant-baseline':'central'},g);t.textContent=e.id;
       reg(e.id,'eje',{...e,nombre:`Eje ${e.id}`,nivel:niv},{x0:bx-22,y0:by-22,x1:bx+22,y1:by+22,cx:bx,cy:by,w:44,h:44});}}
@@ -126,10 +139,11 @@ function build(){
       el('line',{x1:ax+ox,y1:ay+oy,x2:bx+ox,y2:by+oy},g);el('line',{x1:ax,y1:ay,x2:ax+ox*1.15,y2:ay+oy*1.15,class:'ext'},g);el('line',{x1:bx,y1:by,x2:bx+ox*1.15,y2:by+oy*1.15,class:'ext'},g);
       for(const [x,y] of [[ax+ox,ay+oy],[bx+ox,by+oy]])el('line',{x1:x-8,y1:y+8,x2:x+8,y2:y-8,class:'tick'},g);
       const t=el('text',{x:(ax+bx)/2+ox+(v?-10:0),y:(ay+by)/2+oy+(v?0:-9),'text-anchor':'middle',transform:v?`rotate(-90 ${(ax+bx)/2+ox-10} ${(ay+by)/2+oy})`:null},g);t.textContent=txt||fm(Math.hypot(bx-ax,by-ay));};
-    if(niv!=='TE'){dim([0,8],[2527,8],-900);dim([0,8],[1322,8],-150);dim([1322,8],[1800,8],-150);dim([2400,8],[2527,8],-150);
+    if(M.COTAS){for(const c of M.COTAS)if(!c.niveles||c.niveles.includes(niv))dim(c.a,c.b,c.off||0,c.txt);}
+    else if(niv!=='TE'){dim([0,8],[2527,8],-900);dim([0,8],[1322,8],-150);dim([1322,8],[1800,8],-150);dim([2400,8],[2527,8],-150);
       dim([0,8],[0,708],-120);dim([1336,620],[1336,937],-60);dim([1800,-792],[1800,8],-120);dim([1800,-792],[2400,-792],-80);
       dim([2541,-128],[3837,-128],-70);dim([3967,-128],[3967,1864],90);dim([1027,1150],[2541,1150],70);dim([3068,210],[3837,210],-60);dim([3837,210],[3837,1747],80);}
-    else{dim([-43,-81],[-43,352],-120);dim([-43,352],[-43,738],-120);dim([1336,581],[1336,941],-60);dim([-43,738],[2523,738],60);dim([2523,38],[2903,38],-60);dim([1771,-828],[2442,-828],-60);}}
+    else if(!M.COTAS){dim([-43,-81],[-43,352],-120);dim([-43,352],[-43,738],-120);dim([1336,581],[1336,941],-60);dim([-43,738],[2523,738],60);dim([2523,38],[2903,38],-60);dim([1771,-828],[2442,-828],-60);}}
 
   /* medición */
   drawMeasure();
@@ -179,8 +193,8 @@ $('medir').addEventListener('click',e=>{S.measure=!S.measure;S.mpts=[];drawMeasu
 
 /* ---------- selección y panel ---------- */
 const ALL=()=>Object.keys(REG);
-function allIds(){const s=new Set();for(const arr of [M.MUROS,M.ABERTURAS,M.LOCALES,M.ESTRUCTURA,M.ESCALERAS,M.DECK,M.TECHOS,M.CHIMENEAS,M.IMPLANTACION,M.DUDAS])for(const o of arr)s.add(o.id);for(const e of M.EJES)s.add('Eje '+e.id);return [...s];}
-const findData=id=>{for(const [cat,arr] of [['muro',M.MUROS],['abertura',M.ABERTURAS],['local',M.LOCALES],['estructura',M.ESTRUCTURA],['escalera',M.ESCALERAS],['deck',M.DECK],['techo',M.TECHOS],['chimenea',M.CHIMENEAS],['implantacion',M.IMPLANTACION]]){const d=arr.find(o=>o.id===id);if(d)return {cat,d};}
+function allIds(){const s=new Set();for(const arr of [M.LOSAS||[],M.CLARABOYAS||[],M.BARANDAS||[],M.MUROS,M.ABERTURAS,M.LOCALES,M.ESTRUCTURA,M.ESCALERAS,M.DECK,M.TECHOS,M.CHIMENEAS,M.IMPLANTACION,M.DUDAS])for(const o of arr)s.add(o.id);for(const e of M.EJES)s.add('Eje '+e.id);return [...s];}
+const findData=id=>{for(const [cat,arr] of [['losa',M.LOSAS||[]],['losa',M.CLARABOYAS||[]],['baranda',M.BARANDAS||[]],['muro',M.MUROS],['abertura',M.ABERTURAS],['local',M.LOCALES],['estructura',M.ESTRUCTURA],['escalera',M.ESCALERAS],['deck',M.DECK],['techo',M.TECHOS],['chimenea',M.CHIMENEAS],['implantacion',M.IMPLANTACION]]){const d=arr.find(o=>o.id===id);if(d)return {cat,d};}
   const e=M.EJES.find(x=>'Eje '+x.id===id||x.id===id);if(e)return {cat:'eje',d:{...e,id:e.id,nombre:'Eje '+e.id}};const du=M.DUDAS.find(x=>x.id===id);if(du)return {cat:'duda',d:du};return null;};
 const nivelDe=(cat,d)=>d.nivel||(cat==='techo'?'TE':cat==='abertura'?(M.MUROS.find(m=>m.id===d.muro)||{}).nivel:'PB');
 
@@ -215,7 +229,7 @@ function showInfo(cat,d){const b=REG[d.id]&&REG[d.id].bbox;const rows=[];
     <dl>${rows.join('')}</dl>${d.nota?`<p class="nota">${d.nota}</p>`:''}<p class="how">Para corregirlo decime, por ejemplo: «<b>${d.id}</b> mide 4,20» o «<b>${d.id}</b> está 60 cm más hacia el patio».</p>${N.editorHTML(d.id)}`;linkify($('sel'));}
 function showDuda(du){$('sel').innerHTML=`<div class="k">${du.id} · duda</div><h2>${du.q}</h2>${du.ref.length?`<p class="nota">Elementos que dependen de la respuesta: ${du.ref.join(' · ')}</p>`:''}<p class="how">Respondé por número: «<b>${du.id}</b>: …».</p>`;linkify($('sel'));}
 function markDuda(id){PR.querySelectorAll('.duda').forEach(e=>e.classList.toggle('on',e.dataset.id===id));}
-const INTRO=`<div class="k">Selección</div><h2>Tocá cualquier cosa del plano</h2><p class="nota">O cualquier código en los textos. Todo lo dibujado tiene código: muros M-xx, puertas P-xx, ventanas V-xx, vanos A-xx, locales L-xx, vigas V-xx, columnas C-xx, escaleras ESC-x, techos T-xx, salamandra SAL-1, objetos a identificar OBJ-x, ejes 1…9 y A…E.</p>`;
+const INTRO=PL?`<div class="k">Selección</div><h2>Tocá cualquier cosa del plano</h2><p class="nota">O cualquier código en los textos. Todo lo dibujado tiene código: muros M-xx, puertas P-xx, ventanas V-xx, locales L-xx, losas LO-xx, escaleras E-xx, barandas BA-x, columnas C-xx, techos T-xx, ejes ${M.EJES.map(e=>e.id).join(' ')}.</p>`:`<div class="k">Selección</div><h2>Tocá cualquier cosa del plano</h2><p class="nota">O cualquier código en los textos. Todo lo dibujado tiene código: muros M-xx, puertas P-xx, ventanas V-xx, vanos A-xx, locales L-xx, vigas V-xx, columnas C-xx, escaleras ESC-x, techos T-xx, salamandra SAL-1, objetos a identificar OBJ-x, ejes 1…9 y A…E.</p>`;
 
 /* códigos clickeables en el texto */
 function linkify(rootEl){const toks=allIds().sort((a,b)=>b.length-a.length);const re=new RegExp('(^|[^\\w-])('+toks.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\w-])','g');
@@ -227,15 +241,21 @@ function linkify(rootEl){const toks=allIds().sort((a,b)=>b.length-a.length);cons
 document.addEventListener('click',e=>{const b=e.target.closest('.pt');if(b&&PR.contains(b)){e.preventDefault();select(b.dataset.tok);}});
 
 /* ---------- paneles ---------- */
-function renderLista(){const groups={};for(const [cat,arr] of [['muro',M.MUROS],['abertura',M.ABERTURAS],['local',M.LOCALES],['estructura',M.ESTRUCTURA],['escalera',M.ESCALERAS],['deck',M.DECK],['techo',M.TECHOS],['chimenea',M.CHIMENEAS],['implantacion',M.IMPLANTACION]])groups[cat]=arr;
+function renderLista(){const groups={};for(const [cat,arr] of [...(PL?[['losa',[...(M.LOSAS||[]),...(M.CLARABOYAS||[])]],['baranda',M.BARANDAS||[]]]:[]),['muro',M.MUROS],['abertura',M.ABERTURAS],['local',M.LOCALES],['estructura',M.ESTRUCTURA],['escalera',M.ESCALERAS],['deck',M.DECK],['techo',M.TECHOS],['chimenea',M.CHIMENEAS],['implantacion',M.IMPLANTACION]])groups[cat]=arr;
   $('pane-lista').innerHTML=Object.entries(groups).map(([cat,arr])=>`<h3>${CATS[cat]} <span class="n">${arr.length}</span></h3>`+arr.map(d=>`<div class="row" tabindex="0" data-id="${d.id}"><span class="sw e-${d.estado||'existente'}"></span><div><div class="t"><b>${d.id}</b> ${N.alias(d.id)||d.nombre||''}</div><div class="s">${(M.NIVELES[nivelDe(cat,d)]||{}).nombre||''}${d.conf==='supuesto'?' · <i>supuesto</i>':''}</div></div></div>`).join('')).join('');
   $('pane-lista').querySelectorAll('.row').forEach(r=>{const go=()=>select(r.dataset.id);r.addEventListener('click',go);r.addEventListener('keydown',e=>{if(e.key==='Enter')go();});});}
 function renderDudas(){$('pane-dudas').innerHTML=`<p class="intro">Numeradas para que puedas contestar por código, en el orden que quieras. Tocá una para ver en el plano qué cambia con la respuesta.</p>`+M.DUDAS.map(d=>`<div class="duda" tabindex="0" data-id="${d.id}"><span class="code">${d.id}</span><div>${d.q}${d.ref.length?`<div class="refs">${d.ref.join(' · ')}</div>`:''}</div></div>`).join('');
   $('pane-dudas').querySelectorAll('.duda').forEach(r=>{const go=e=>{if(e.target.closest('.pt'))return;select(r.dataset.id);};r.addEventListener('click',go);r.addEventListener('keydown',e=>{if(e.key==='Enter')go(e);});});linkify($('pane-dudas'));}
-function renderCambios(){$('pane-cambios').innerHTML=`<h3>Cómo corregir</h3><ul><li>Por código: «M-03 mide 9,60», «L-05 es baño y L-04 dormitorio», «ESC-1 sube hacia el patio».</li><li>Por duda: «D-01: 23,40 × 7,80».</li><li>Con un croquis: foto de un papel con los ejes y las medidas; los cargo yo.</li><li>Lo que no esté construido lo marco como <span class="bd e-proyecto">proyecto</span>; lo que ya se hizo nuevo, como <span class="bd e-nuevo">nuevo</span>.</li></ul>
+function renderCambios(){if(PL){$('pane-cambios').innerHTML=`<h3>Cómo corregir</h3><ul><li>Por código: «M-41 está en x 4,30», «V-03 es puerta balcón».</li><li>Por duda: «D-02: valen los del SketchUp».</li><li>Con un croquis o una foto con medidas; los cargo yo.</li></ul><h3>Versiones</h3><table><tbody>${M.CAMBIOS.map(c=>`<tr><td class="n">${c.fecha}</td><td class="n">v${c.v}</td><td>${c.txt}</td></tr>`).join('')}</tbody></table>`;linkify($('pane-cambios'));return;}
+  $('pane-cambios').innerHTML=`<h3>Cómo corregir</h3><ul><li>Por código: «M-03 mide 9,60», «L-05 es baño y L-04 dormitorio», «ESC-1 sube hacia el patio».</li><li>Por duda: «D-01: 23,40 × 7,80».</li><li>Con un croquis: foto de un papel con los ejes y las medidas; los cargo yo.</li><li>Lo que no esté construido lo marco como <span class="bd e-proyecto">proyecto</span>; lo que ya se hizo nuevo, como <span class="bd e-nuevo">nuevo</span>.</li></ul>
     <h3>Qué sigue</h3><ol><li>Vos corregís la planta (esta etapa).</li><li>Alturas y cortes: entrepiso, cumbrera, faldones.</li><li>Modelo 3D con el mismo visor de la escalera: piezas, explosión, cotas por arista.</li><li>Variantes de proyecto sobre lo no construido.</li></ol>
     <h3>Versiones</h3><table><tbody>${M.CAMBIOS.map(c=>`<tr><td class="n">${c.fecha}</td><td class="n">v${c.v}</td><td>${c.txt}</td></tr>`).join('')}</tbody></table>`;linkify($('pane-cambios'));}
-function renderLeyenda(){$('pane-leyenda').innerHTML=`<h3>Estado</h3><div class="leg"><span class="sw e-existente"></span>Existente<span class="sw e-nuevo"></span>Construido nuevo<span class="sw e-proyecto"></span>Proyecto, no construido<span class="sw e-demoler"></span>Provisorio o a demoler</div>
+function renderLeyenda(){if(PL){$('pane-leyenda').innerHTML=`<h3>Estado</h3><div class="leg"><span class="sw e-existente"></span>Existente<span class="sw e-nuevo"></span>Construido nuevo<span class="sw e-proyecto"></span>Proyecto, no construido</div>
+  <h3>Confianza</h3><div class="leg"><span class="swl c-plano"></span>Del plano (línea llena)<span class="swl c-modelo"></span>Del calco 3D (gris)<span class="swl c-estimado"></span>Interpretado<span class="swl c-supuesto"></span>Supuesto (línea de puntos)<span class="swl c-medido"></span>Medido en obra (línea gruesa)</div>
+  <h3>Calco</h3><p>La capa «Calco» dibuja en gris el corte horizontal del calco 3D a ~1,0–1,2 m sobre cada nivel. Las cotas del plano mandan; donde el calco no coincide, está en Dudas.</p>
+  <h3>Sistema de ejes</h3><p>${M.META.ejes||''} Coordenadas y espesores en cm; medidas en el panel en metros.</p>
+  <h3>Niveles</h3><p>${ORDEN.map(k=>`<b>${k}</b> ${(M.NIVELES[k]||{}).nombre||''}${k!=='TE'?` (${zNiv(k)>=0?'+':''}${fm(zNiv(k))})`:''}`).join(' · ')}. Los muros del nivel de abajo quedan en gris; en TE, la flecha va hacia donde baja cada techo.</p>`;return;}
+  $('pane-leyenda').innerHTML=`<h3>Estado</h3><div class="leg"><span class="sw e-existente"></span>Existente<span class="sw e-nuevo"></span>Construido nuevo<span class="sw e-proyecto"></span>Proyecto, no construido<span class="sw e-demoler"></span>Provisorio o a demoler</div>
   <h3>Confianza</h3><div class="leg"><span class="swl c-modelo"></span>Del modelo de Onshape (línea llena)<span class="swl c-estimado"></span>Estimado de foto o video (línea llena)<span class="swl c-supuesto"></span>Supuesto, no lo vi (línea de puntos)<span class="swl c-medido"></span>Medido en obra (línea gruesa)</div>
   <h3>Calco</h3><p>La capa «Calco GLB» dibuja en gris el corte horizontal del modelo de Onshape a 1,2 m (PB), 4,0 m (EP) y 4,6 m (TE). Si un muro mío no coincide con el calco, el calco tiene razón.</p>
   <h3>Sistema de ejes</h3><p>X corre a lo largo de la cumbrera, desde la fachada del extremo A (eje 1) hacia el extremo B. Y corre a lo ancho: 0 en la cara exterior de la pared del patio, creciendo hacia el jardín. Coordenadas y espesores en cm; medidas en el panel en metros.</p>
@@ -250,11 +270,11 @@ PR.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{PR.queryS
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){select(null);if(S.measure){S.mpts=[];drawMeasure();}}});
 
 /* arranque */
-$('spec').innerHTML=`<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>casa <b>25,2 × 7,0</b> + ala <b>6,0 × 8,0</b></span><span>entrepiso <b>${f1(area(M.LOCALES.find(l=>l.id==='L-21').poly)/1e4+area(M.LOCALES.find(l=>l.id==='L-20').poly)/1e4)} m²</b></span><span>${M.DUDAS.length} dudas abiertas</span><span>cotas en m · modelo en cm</span>`;
+$('spec').innerHTML=PL?`<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${PL.spec||''}</span><span>${M.DUDAS.length} dudas abiertas</span><span>cotas en m · modelo en cm</span>`:`<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>casa <b>25,2 × 7,0</b> + ala <b>6,0 × 8,0</b></span><span>entrepiso <b>${f1(area(M.LOCALES.find(l=>l.id==='L-21').poly)/1e4+area(M.LOCALES.find(l=>l.id==='L-20').poly)/1e4)} m²</b></span><span>${M.DUDAS.length} dudas abiertas</span><span>cotas en m · modelo en cm</span>`;
 syncCapas();document.querySelectorAll('[data-nivel]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.nivel===S.nivel));
 renderLista();renderDudas();renderCambios();renderLeyenda();renderVideo($('pane-video'));linkify($('pane-video'));$('sel').innerHTML=INTRO;linkify($('sel'));
 /* ── Dibujar en la planta: polilíneas K-xx en el nivel visible, guardadas en la colección «marcas» (las mismas que el 3D) ── */
-const PM=(()=>{const H={PB:5,EP:265,TE:520};let db=null,MK=[],cur=null,on=false;const col=['#e2462b','#1f6fd1','#1c9a5a','#c98a00','#8a3fd1'];
+const PM=(()=>{const H=PL?Object.fromEntries(Object.entries(M.NIVELES).map(([k,v])=>[k,(v.z||0)+5])):{PB:5,EP:265,TE:520};let db=null,MK=[],cur=null,on=false;const col=['#e2462b','#1f6fd1','#1c9a5a','#c98a00','#8a3fd1'];
   try{MK=JSON.parse(localStorage.getItem('carhue-marcas')||'[]');}catch(e){}
   const f2=v=>(v/100).toFixed(2).replace('.',',');
   const tb=$('medir');const bt=document.createElement('button');bt.className='btn';bt.id='dibujar';bt.textContent='✎ Dibujar';bt.setAttribute('aria-pressed','false');tb.parentNode.insertBefore(bt,tb);

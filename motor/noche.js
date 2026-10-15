@@ -38,13 +38,15 @@ export function prendida(prog,min,sr,ss){const p=prog||{modo:'prog'};if(p.modo==
   const ev=e=>e?.t==='hora'?aMin(e.h):e?.t==='amanecer'?(sr??360)+(+e.m||0):(ss??1200)+(+e.m||0);
   const a=((ev(p.on)%1440)+1440)%1440,b=((ev(p.off)%1440)+1440)%1440;if(a===b)return true;return a<b?(min>=a&&min<b):(min>=a||min<b);}
 
-export function initNoche(visor){
+/* datos (de la casa): {lugar,lat,lon,tz,norte}: lugar por defecto y desvío del norte; sin datos, Ing. Maschwitz (Carhué). */
+export function initNoche(visor,datos=null){
   const {THREE,scene,renderer,camera}=visor;
   const EXPO=1/70;/* lux → unidades de escena: ~150 lux sobre blanco queda bien expuesto */
   const hoy=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
   const S={ev:0,luna:.35,sombras:4,bloom:.55,max:24,fecha:hoy(),min:new Date().getHours()*60+new Date().getMinutes(),lat:-34.381,lon:-58.741,tz:-3,norte:0,lugar:'Ing. Maschwitz',diaMin:780,nocheMin:1290};
+  if(datos)Object.assign(S,datos);
   try{Object.assign(S,JSON.parse(localStorage.getItem('carhue-sol')||'{}'));}catch(e){}
-  if(S.lugar==='Carhué'||Math.abs(S.lat+37.178)<.01){S.lat=-34.381;S.lon=-58.741;S.lugar='Ing. Maschwitz';}/* la casa está en el pasaje Carhué, en Ingeniero Maschwitz (Maxi 14/10) */
+  if(!datos&&(S.lugar==='Carhué'||Math.abs(S.lat+37.178)<.01)){S.lat=-34.381;S.lon=-58.741;S.lugar='Ing. Maschwitz';}/* la casa está en el pasaje Carhué, en Ingeniero Maschwitz (Maxi 14/10) */
   const guardarS=()=>{try{localStorage.setItem('carhue-sol',JSON.stringify(S));}catch(e){}};
   /* prendida o no: toda la casa forzada (prender / apagar todo) o el programa de cada artefacto */
   const enc=prog=>S.forzar?S.forzar==='on':prendida(prog,S.min,horas.sr,horas.ss);
@@ -130,7 +132,7 @@ export function initNoche(visor){
   q('min').addEventListener('input',e=>{S.min=+e.target.value;cancelAnimationFrame(uT);uT=requestAnimationFrame(()=>{actualizar();});});q('min').addEventListener('change',()=>{cambio();recordar();guardarS();});q('dn').addEventListener('click',()=>diaNoche());
   q('play').addEventListener('click',()=>{play=!play;pintarBarra();if(play)(function step(){if(!play)return;S.min=(S.min+.5)%1440;actualizar();requestAnimationFrame(step);})();else cambio();});
   /* lugar */
-  const LUG={'Ing. Maschwitz':[-34.381,-58.741,-3],'Buenos Aires':[-34.603,-58.382,-3],'Bariloche':[-41.133,-71.31,-3],'Montevideo':[-34.901,-56.164,-3],'Madrid':[40.417,-3.704,2]};
+  const LUG={...(datos&&datos.lugar?{[datos.lugar]:[datos.lat,datos.lon,datos.tz??-3]}:{}),'Ing. Maschwitz':[-34.381,-58.741,-3],'Buenos Aires':[-34.603,-58.382,-3],'Bariloche':[-41.133,-71.31,-3],'Montevideo':[-34.901,-56.164,-3],'Madrid':[40.417,-3.704,2]};
   const pop=document.createElement('div');pop.hidden=true;pop.style.cssText='position:absolute;bottom:34px;left:8px;z-index:9;background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.2);width:250px';
   (document.querySelector('#modo-3d .stage')||document.body).appendChild(pop);
   function pintarPop(){pop.innerHTML=`<div style="display:flex;margin-bottom:6px"><b style="flex:1">Lugar del asoleamiento</b><button class="btn mini" data-p="x">×</button></div>
