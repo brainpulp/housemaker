@@ -86,7 +86,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
 
   /* ---------- capas: inspector flotante ---------- */
   const cp=document.createElement('div');cp.id='capasPanel';cp.hidden=!LS.get('carhue-capas-on',false);
-  cp.innerHTML=`<div class="cph"><span class="cpgrip">${icon('grip',14)}</span><b>Capas</b><button class="cpb" data-cp="fold" data-tip="Plegar">${icon('minus',14)}</button><button class="cpb" data-cp="x" data-tip="Cerrar">${icon('x',14)}</button></div><div class="cpbody"><div class="cpg">Mostrar</div><div class="cplist" id="cpShow"></div><div class="cpg">Ver</div><div class="cplist" id="cpVer"></div></div>`;
+  cp.innerHTML=`<div class="cph"><b>Capas</b><button class="cpb" data-cp="x" data-tip="Cerrar">${icon('x',14)}</button></div><div class="cpbody"><div class="cpg">Mostrar</div><div class="cplist" id="cpShow"></div><div class="cpg">Ver</div><div class="cplist" id="cpVer"></div></div>`;
   stage.appendChild(cp);
   {const take=(id,where,txt)=>{const el=$(id);const l=el&&el.closest('label');if(!l)return;if(txt){[...l.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());l.append(' '+txt);}cp.querySelector(where).appendChild(l);};
     take('q-techos','#cpShow','Techos');{const l=document.createElement('label');l.innerHTML='<input type="checkbox" id="cpMarcas"> Marcas (K-xx)';cp.querySelector('#cpShow').appendChild(l);const c=l.querySelector('input');const G=visor.marcasGrp;c.checked=!G||G.visible;c.addEventListener('change',()=>{if(visor.marcasGrp)visor.marcasGrp.visible=c.checked;try{localStorage.setItem('carhue-marcas-ver',c.checked?'1':'0');}catch(e){}});}take('q-ep','#cpShow','Entrepiso');take('q-ext','#cpShow','Deck, pileta y entorno');take('q-equip','#cpShow','Muebles');
@@ -105,11 +105,11 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     for(const [k,id] of Object.entries(ids)){const inp=document.getElementById(id);const l=inp&&inp.closest('label');if(!l)continue;l.style.display='flex';const b=document.createElement('button');b.type='button';b.className='cpb';b.textContent='◐';b.dataset.tip='En transparencia';b.style.cssText='margin-left:auto;font-size:13px;opacity:'+(TR[k]?1:.35);
       b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();TR[k]=!TR[k];LS.set('carhue-transp',TR);b.style.opacity=TR[k]?1:.35;aplicar();});l.appendChild(b);}
     let lp=null,lc=0;setInterval(()=>{if(!Object.values(TR).some(Boolean))return;const eq=visor.scene.getObjectByName('equipamiento'),vg=visor.scene.getObjectByName('vegetacion');const c=(eq?eq.children.length:0)+(vg?vg.children.length:0);if(visor.parts!==lp||c!==lc){lp=visor.parts;lc=c;aplicar();}},500);}
-  const cpPos=LS.get('carhue-capas-pos',null);if(cpPos){cp.style.left=cpPos[0]+'px';cp.style.top=cpPos[1]+'px';cp.style.right='auto';}
-  if(LS.get('carhue-capas-fold',false))cp.classList.add('fold');
-  cp.querySelector('.cph').addEventListener('pointerdown',e=>{if(e.target.closest('.cpb'))return;const r=cp.getBoundingClientRect(),s=stage.getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;cp.setPointerCapture(e.pointerId);
-    const mv=ev=>{const x=Math.max(0,Math.min(s.width-r.width,ev.clientX-s.left-dx)),y=Math.max(0,Math.min(s.height-30,ev.clientY-s.top-dy));cp.style.left=x+'px';cp.style.top=y+'px';cp.style.right='auto';};
-    const up=()=>{cp.removeEventListener('pointermove',mv);cp.removeEventListener('pointerup',up);LS.set('carhue-capas-pos',[parseFloat(cp.style.left),parseFloat(cp.style.top)]);};cp.addEventListener('pointermove',mv);cp.addEventListener('pointerup',up);});
+  /* capas al lado de la barra, a la altura de su botón (Maxi 15/10: «la opción de capas debe aparecer al lado del toolbar, no en el inspector») */
+  const posCp=()=>{const b=document.querySelector('#toolbar3d .tb[data-k="capas"]'),tb=$('toolbar3d');if(!b||!tb)return;const s=stage.getBoundingClientRect(),r=b.getBoundingClientRect(),t=tb.getBoundingClientRect();
+    cp.style.left=(t.right-s.left+8)+'px';cp.style.right='auto';const h=cp.offsetHeight||300;cp.style.top=Math.max(8,Math.min(s.height-h-8,r.top-s.top-6))+'px';};
+  addEventListener('resize',()=>{if(!cp.hidden)posCp();});requestAnimationFrame(()=>{if(!cp.hidden)posCp();});
+  cp.querySelector('.cph').style.cursor='default';
   cp.addEventListener('click',e=>{const b=e.target.closest('[data-cp]');if(!b)return;if(b.dataset.cp==='x'){cp.hidden=true;LS.set('carhue-capas-on',false);}else{cp.classList.toggle('fold');LS.set('carhue-capas-fold',cp.classList.contains('fold'));}sync();});
 
   /* ---------- variantes: tarjeta en el panel derecho + lista ---------- */
@@ -172,7 +172,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
       else if(k==='termica'){closeFly();visor.termica&&visor.termica.toggle();sync();}
       else if(k==='estructura'){closeFly();visor.estructura&&visor.estructura.toggle();sync();}
       else if(k==='personas'){closeFly();if(window.__side)window.__side.toggle('personas');}
-      else if(k==='capas'){closeFly();cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);}
+      else if(k==='capas'){closeFly();cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);if(!cp.hidden)posCp();}
       sync();return;}
     closeFly();T[k].run();sync();});
 

@@ -51,7 +51,6 @@ export function initSidebar(visor){
   sec('sel','Selección',{vis:()=>selEl&&!selEl.hidden,close:()=>visor.resetSel&&visor.resetSel()});if(selEl)S.sel.body.appendChild(selEl);
   sec('var','Opciones de diseño',{vis:()=>shown($('varCard')),close:()=>{const x=$('vzX');x&&x.click();}});
   sec('ol','Outliner',{vis:()=>!!I.abierto,close:()=>I.show&&I.show(false)});if(olEl)S.ol.body.appendChild(olEl);
-  sec('capas','Capas',{vis:()=>shown($('capasPanel')),close:()=>{const x=document.querySelector('#capasPanel [data-cp="x"]');x&&x.click();}});
   sec('equip','Equipamiento',{vis:()=>shown($('eqCard'))&&!(visor.equip&&visor.equip.capa==='cal'&&visor.termica&&visor.termica.abierta),close:()=>{visor.equip&&visor.equip.open&&visor.equip.toggle();}});
   const T=sec('term','Térmica y calefacción',{vis:()=>shown($('termCard')),close:()=>visor.termica&&visor.termica.toggle(false)});
   const tcal=document.createElement('div');tcal.id='termCal';
@@ -63,14 +62,13 @@ export function initSidebar(visor){
   sec('ed','Editar',{vis:()=>shown($('edPanel')),close:()=>{const x=document.querySelector('#edPanel .mx');x&&x.click();}});
   sec('mk','Marcas',{vis:()=>shown($('marcasPanel')),close:()=>{const x=document.querySelector('#marcasPanel .mx');x&&x.click();}});
 
-  function adopt(){dock(S.var,$('varCard'));dock(S.capas,$('capasPanel'));dock(T,$('termCard'));if(!T.body.contains(tcal))T.body.appendChild(tcal);
+  function adopt(){dock(S.var,$('varCard'));dock(T,$('termCard'));if(!T.body.contains(tcal))T.body.appendChild(tcal);
     if(visor.noche&&visor.noche.pop)dock(S.sol,visor.noche.pop);
     dock(S.med,$('medPanel'));dock(S.sen,$('senPanel'));dock(S.ed,$('edPanel'));dock(S.mk,$('marcasPanel'));
     /* el equipamiento: con la capa «Calor» y la térmica abierta vive dentro de la térmica */
     const eq=$('eqCard');if(eq){eq.classList.add('docked');const enT=visor.equip&&visor.equip.capa==='cal'&&visor.termica&&visor.termica.abierta;
       if(enT){if(!tcal.contains(eq)){tcal.innerHTML='<div class="tcalh">Calefactores por ambiente</div>';tcal.appendChild(eq);}}
-      else{if(!S.equip.body.contains(eq)){S.equip.body.appendChild(eq);tcal.innerHTML='';}}}
-    const cap=$('capasPanel');if(cap)cap.classList.remove('fold');}
+      else{if(!S.equip.body.contains(eq)){S.equip.body.appendChild(eq);tcal.innerHTML='';}}}}
   const titEq={mue:'Muebles',luz:'Luces',veg:'Plantas',cal:'Calefactores'};
   let prev={};
   function sync(){adopt();mirar();let any=false;for(const [id,r] of Object.entries(S)){const v=!!r.vis();if(r.sec.hidden!==!v)r.sec.hidden=!v;if(v)any=true;
@@ -84,7 +82,7 @@ export function initSidebar(visor){
     sync();return id==='corte'?CO.on:PE.on;}
   /* se miran sólo los paneles (no todo el 3D, que cambia estilos en cada cuadro) */
   const mo=new MutationObserver(()=>{if(mo.t)return;mo.t=setTimeout(()=>{mo.t=0;sync();},0);});const vistos=new Set();
-  const mirar=()=>{for(const el of [$('varCard'),$('capasPanel'),$('eqCard'),$('termCard'),visor.noche&&visor.noche.pop,$('medPanel'),$('senPanel'),$('edPanel'),$('marcasPanel'),selEl])if(el&&!vistos.has(el)){vistos.add(el);mo.observe(el,{attributes:true,attributeFilter:['hidden','style']});}};
+  const mirar=()=>{for(const el of [$('varCard'),$('eqCard'),$('termCard'),visor.noche&&visor.noche.pop,$('medPanel'),$('senPanel'),$('edPanel'),$('marcasPanel'),selEl])if(el&&!vistos.has(el)){vistos.add(el);mo.observe(el,{attributes:true,attributeFilter:['hidden','style']});}};
   setInterval(sync,400);sync();
   /* secciones que agregan otros módulos (p. ej. estructura): se ubican antes de «Lugar del asoleamiento» */
   function add(id,title,el,vis,close){if(S[id])return S[id];const r=sec(id,title,{vis,close});acc.insertBefore(r.sec,S.sol.sec);dock(r,el);sync();return r;}

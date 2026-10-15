@@ -3,6 +3,7 @@
 import { createVisor, geo } from './visor3d.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
+import { initCandado } from './candado.js';
 import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
 import { escaleraCompensada } from './escalera.js';
@@ -982,12 +983,17 @@ ED.onChange(()=>{visor.rebuild();applyClips();});
   for(let i=0;i<4;i++){const y0=115+i*198.75,id=`PV-${String(7+i).padStart(2,'0')}`;MIN[id]=-85-y0;/* 2 m más allá de M-03 */MAX[id]=910-198.75-y0;}MIN['PV-12']=-140;MAX['PV-12']=0;
   const EJE=id=>/^PV-0[1-6]$/.test(id)?'x':'z';const base=id=>id.replace(/[vkm]$/,'');
   const setRay=e=>{const r=visor.renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,visor.camera);};
-  view.addEventListener('pointerdown',e=>{if(e.button!==0||document.querySelector('#editarTg[aria-pressed=true]'))return;setRay(e);const ms=[];for(const p of visor.parts)if(/^H-[123]v?$|^PV-(0[1-9]|1[02])[vkm]?$/.test(p.id)&&p.grp.visible!==false)p.grp.traverse(o=>{if(o.isMesh)ms.push(o);});
-    const h=ray.intersectObjects(ms,false)[0];if(!h)return;e.stopPropagation();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const id=base(h.object.userData.id),ax=EJE(id);
-    dr={id,ax,p0:h.point.clone(),o0:HOJAS[id]||0,plane:ax==='x'?new T.Plane(new T.Vector3(0,0,1),-h.point.z):new T.Plane(new T.Vector3(1,0,0),-h.point.x),grps:visor.parts.filter(p=>p.id===id||p.id===id+'v'||p.id===id+'k'||p.id===id+'m').map(p=>p.grp),o:HOJAS[id]||0};
+  const ocupado=()=>document.querySelector('#editarTg[aria-pressed=true],#senPanel:not([hidden]),#medPanel:not([hidden]),#marcasPanel:not([hidden])');
+  view.addEventListener('pointerdown',e=>{if(e.button!==0||ocupado())return;setRay(e);const ms=[];for(const p of visor.parts)if(/^H-[123]v?$|^PV-(0[1-9]|1[02])[vkm]?$/.test(p.id)&&p.grp.visible!==false)p.grp.traverse(o=>{if(o.isMesh)ms.push(o);});
+    const h=ray.intersectObjects(ms,false)[0];if(!h)return;const id=base(h.object.userData.id),ax=EJE(id),cid=/^H-[123]$/.test(id)?'M-43':id;
+    /* bloqueada: no se mueve; la cámara orbita y el toque la elige (Maxi 15/10) */if(visor.candado&&visor.candado.bloqueada(cid)){visor.candado.mostrar(cid,h.point);return;}
+    e.stopPropagation();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;
+    dr={id,cid,pid:h.object.userData.id,sx:e.clientX,sy:e.clientY,moved:false,ax,p0:h.point.clone(),o0:HOJAS[id]||0,plane:ax==='x'?new T.Plane(new T.Vector3(0,0,1),-h.point.z):new T.Plane(new T.Vector3(1,0,0),-h.point.x),grps:visor.parts.filter(p=>p.id===id||p.id===id+'v'||p.id===id+'k'||p.id===id+'m').map(p=>p.grp),o:HOJAS[id]||0};
     if(/^H-[123]$/.test(id)){/* corrediza telescópica: las tres hojas se mueven juntas, proporcional (1 : 2 : 3), por las poleas */dr.tele=['H-1','H-2','H-3'].map(h=>({h,o0:HOJAS[h]||0,o:HOJAS[h]||0,grps:visor.parts.filter(p=>p.id===h||p.id===h+'v').map(p=>p.grp)}));for(const q of visor.parts)if(q.id==='M-43p'||q.id==='M-43z')q.grp.visible=false;}},true);
-  view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();setRay(e);const q=ray.ray.intersectPlane(dr.plane,new T.Vector3());if(!q)return;let o=dr.o0+(q[dr.ax]-dr.p0[dr.ax]);o=Math.max(MIN[dr.id],Math.min(MAX[dr.id]||0,o));dr.o=Math.round(o);if(dr.tele){const k=Math.max(0,Math.min(1,dr.o/MIN[dr.id]));for(const t of dr.tele){t.o=Math.round(k*MIN[t.h]);for(const g of t.grps)g.position.z=t.o-t.o0;}const st=document.getElementById('stTool');if(st)st.innerHTML=`<b>M-43</b> abierta ${Math.round(k*100)}%`;return;}for(const g of dr.grps)g.position[dr.ax]=dr.o-dr.o0;},true);
-  const end=e=>{if(!dr)return;e.stopPropagation();visor.controls.enabled=true;if(dr.tele)for(const t of dr.tele)HOJAS[t.h]=t.o;else HOJAS[dr.id]=dr.o;try{localStorage.setItem('carhue-hojas',JSON.stringify(HOJAS));}catch(x){}guardarAberturas();dr=null;visor.rebuild();applyClips();};
+  view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();if(!dr.moved){if(Math.hypot(e.clientX-dr.sx,e.clientY-dr.sy)<4)return;dr.moved=true;visor.candado&&visor.candado.mostrar(dr.cid,dr.p0);}setRay(e);const q=ray.ray.intersectPlane(dr.plane,new T.Vector3());if(!q)return;let o=dr.o0+(q[dr.ax]-dr.p0[dr.ax]);o=Math.max(MIN[dr.id],Math.min(MAX[dr.id]||0,o));dr.o=Math.round(o);if(dr.tele){const k=Math.max(0,Math.min(1,dr.o/MIN[dr.id]));for(const t of dr.tele){t.o=Math.round(k*MIN[t.h]);for(const g of t.grps)g.position.z=t.o-t.o0;}const st=document.getElementById('stTool');if(st)st.innerHTML=`<b>M-43</b> abierta ${Math.round(k*100)}%`;return;}for(const g of dr.grps)g.position[dr.ax]=dr.o-dr.o0;},true);
+  const end=e=>{if(!dr)return;e.stopPropagation();visor.controls.enabled=true;
+    if(!dr.moved){/* toque sin arrastre: la elige y muestra su candado */const d=dr;dr=null;if(d.tele){visor.rebuild();applyClips();}visor.showPart(d.pid);visor.candado&&visor.candado.mostrar(d.cid,d.p0);return;}
+    visor.candado&&visor.candado.mostrar(dr.cid);    if(dr.tele)for(const t of dr.tele)HOJAS[t.h]=t.o;else HOJAS[dr.id]=dr.o;try{localStorage.setItem('carhue-hojas',JSON.stringify(HOJAS));}catch(x){}guardarAberturas();dr=null;visor.rebuild();applyClips();};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);}
 /* hojas proyectantes y lucarnas: se abren arrastrando (arriba abre, abajo cierra), como las corredizas; al soltar queda guardado */
 {const view=document.getElementById('view'),T=visor.THREE,ray=new T.Raycaster(),mv=new T.Vector2();let dr=null;
@@ -996,11 +1002,12 @@ ED.onChange(()=>{visor.rebuild();applyClips();});
     const r=visor.renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,visor.camera);
     const ms=[];for(const q of visor.parts)if((/^LU-\d+(m|m2|w|w2|v2|k|k2)?$/.test(q.id)||/^(P-05|P-06|V-07|VE-\d|VG-\d)(h|d|h2|v2|k|k2)?$/.test(q.id)||/^P-03[hvk]$/.test(q.id)||/^DM-Cp\d+(h|d)?$/.test(q.id))&&q.grp.visible!==false)q.grp.traverse(o=>{if(o.isMesh)ms.push(o);});
     const h=ray.intersectObjects(ms,false)[0];if(!h)return;const id=h.object.userData.id.replace(/[a-z]\d?$/,'');const H=HINGE[id];if(!H)return;
+    if(visor.candado&&visor.candado.bloqueada(id)){visor.candado.mostrar(id,h.point);return;}
     e.stopPropagation();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;
     const grps=visor.parts.filter(p=>H.parts.includes(p.id)).map(p=>p.grp);const grps2=H.fold?visor.parts.filter(p=>H.fold.parts.includes(p.id)).map(p=>p.grp):[];grps2.forEach(g=>{g.userData.m0=g.matrix.clone();g.matrixAutoUpdate=false;});const dm=visor.parts.filter(p=>p.id===H.dm).map(p=>p.grp);dm.forEach(g=>g.visible=false);
     grps.forEach(g=>{g.userData.m0=g.matrix.clone();g.matrixAutoUpdate=false;});
-    dr={id,H,y0:e.clientY,x0:e.clientX,a0:H.ang,a:H.ang,grps,grps2};},true);
-  view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();const a=Math.max(dr.H.min??0,Math.min(dr.H.max,dr.a0+(dr.H.axisY?(e.clientX-dr.x0)*0.5:dr.H.horizDrag?(e.clientX-dr.x0)*0.4*dr.H.horizDrag:(dr.y0-e.clientY)*0.6)));dr.a=Math.round(a);
+    dr={id,H,y0:e.clientY,x0:e.clientX,a0:H.ang,a:H.ang,grps,grps2,pid:h.object.userData.id,p0:h.point.clone(),moved:false};},true);
+  view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();if(!dr.moved){if(Math.hypot(e.clientX-dr.x0,e.clientY-dr.y0)<4)return;dr.moved=true;visor.candado&&visor.candado.mostrar(dr.id,dr.p0);}const a=Math.max(dr.H.min??0,Math.min(dr.H.max,dr.a0+(dr.H.axisY?(e.clientX-dr.x0)*0.5:dr.H.horizDrag?(e.clientX-dr.x0)*0.4*dr.H.horizDrag:(dr.y0-e.clientY)*0.6)));dr.a=Math.round(a);
     if(dr.H.vec){const d=dr.H.vec(dr.a).sub(dr.H.vec(dr.H.ang)),M=new T.Matrix4().makeTranslation(d.x,d.y,d.z);for(const g of dr.grps){g.matrix.copy(M).multiply(g.userData.m0);g.matrixWorldNeedsUpdate=true;}const st=document.getElementById('stTool');if(st)st.innerHTML=`<b>${dr.id}</b> abierta ${dr.a}%`;return;}
     if(dr.H.axisY){const d=(dr.a-dr.H.ang)*Math.PI/180,M=new T.Matrix4().makeTranslation(dr.H.x,0,dr.H.y).multiply(new T.Matrix4().makeRotationY(d)).multiply(new T.Matrix4().makeTranslation(-dr.H.x,0,-dr.H.y));for(const g of dr.grps){g.matrix.copy(M).multiply(g.userData.m0);g.matrixWorldNeedsUpdate=true;}const st=document.getElementById('stTool');if(st)st.innerHTML=`<b>${dr.id}</b> girada ${dr.a}°`;return;}
     const d=(dr.a-dr.H.ang)*Math.PI/180*dr.H.s,M=new T.Matrix4().makeTranslation(0,dr.H.z,dr.H.y).multiply(new T.Matrix4().makeRotationX(d)).multiply(new T.Matrix4().makeTranslation(0,-dr.H.z,-dr.H.y));
@@ -1010,8 +1017,9 @@ ED.onChange(()=>{visor.rebuild();applyClips();});
       const sg=-(dr.H.s??-1),Lm=a=>{const r=a*Math.PI/180*sg,pm=new T.Vector3(0,F.z,F.y).applyMatrix4(RXm(-r,dr.H.y,dr.H.z));return new T.Matrix4().makeTranslation(0,pm.y-F.z,pm.z-F.y).multiply(RXm(r,F.y,F.z));};
       const M2=Lm(dr.a).multiply(Lm(dr.H.ang).invert());for(const g of dr.grps2){g.matrix.copy(M2).multiply(g.userData.m0);g.matrixWorldNeedsUpdate=true;}}
     const st=document.getElementById('stTool');if(st)st.innerHTML=`<b>${dr.id}</b> abierta ${dr.a}°`;},true);
-  const end=e=>{if(!dr)return;e.stopPropagation();visor.controls.enabled=true;const {id,a}=dr;dr=null;LUZ[id]=a;try{localStorage.setItem('carhue-lucarnas',JSON.stringify(LUZ));}catch(x){}guardarAberturas();setTimeout(()=>{visor.rebuild();applyClips();},0);};
+  const end=e=>{if(!dr)return;e.stopPropagation();visor.controls.enabled=true;if(!dr.moved){const d=dr;dr=null;setTimeout(()=>{visor.rebuild();applyClips();visor.showPart(d.pid);visor.candado&&visor.candado.mostrar(d.id,d.p0);},0);return;}visor.candado&&visor.candado.mostrar(dr.id);const {id,a}=dr;dr=null;LUZ[id]=a;try{localStorage.setItem('carhue-lucarnas',JSON.stringify(LUZ));}catch(x){}guardarAberturas();setTimeout(()=>{visor.rebuild();applyClips();},0);};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);}
+try{initCandado(visor);}catch(e){console.error('candado',e);}
 try{initRealismo(visor);}catch(e){console.error('realismo',e);}
 try{initLuz(visor);}catch(e){console.error('luz',e);}
 try{initCalidad(visor);}catch(e){console.error('calidad',e);}
