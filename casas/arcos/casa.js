@@ -21,6 +21,11 @@ import { initCalidad } from './calidad.js';
 import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
 import { CALCO3D } from './calco-3d.js';
+import { DETALLE, COLORES, ESCALA } from './detalle-su.js';
+
+/* detalle del SketchUp: triángulos ya en ejes del modelo; se decodifican una vez */
+const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = new Float32Array(q.length); for (let i = 0; i < q.length; i++) f[i] = q[i] / ESCALA; return { ...d, pos: f }; });
+const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
 
 const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.nombre]));
 const f2 = cm => (cm / 100).toFixed(2).replace('.', ',');
@@ -29,6 +34,7 @@ const zN = k => (M.NIVELES[k] || {}).z ?? 0;
 const params = [
   { id: 'techos', label: 'Techos', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'carp', label: 'Carpinterías', type: 'check', value: true, quick: true, group: 'Ver', help: 'Vidrios de ventanas y hojas de puertas, cerradas.' },
+  { id: 'detalle', label: 'Detalle del SketchUp', type: 'check', value: true, quick: true, group: 'Ver', help: 'Carpinterías, terraza, tanque, jardín del frente, cocina y baños tal como están en tu SketchUp.' },
   { id: 'calco', label: 'Calco SketchUp', type: 'check', value: false, quick: true, group: 'Ver', help: 'Tu modelo Arcos_55.dae, en gris transparente, alineado al plano.' },
   { id: 'ext', label: 'Jardines y vereda', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'corte', label: 'Corte horizontal', type: 'select', value: '0', quick: true, group: 'Ver',
@@ -47,7 +53,7 @@ function build(p) {
   for (const m of M.MUROS) {
     const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]);
     const med = `${f2(L)} × ${f2(m.e)} · de ${f2(A.zBase(M, m))} a ${Array.isArray(m.top) ? f2(m.top[0]) + '/' + f2(m.top[1]) : f2(A.zTope(M, m, 0))}`;
-    if (m.tipo === 'vidrio') { const g = A.vidrioGeos(M, m);
+    if (m.tipo === 'vidrio') { if (p.detalle) continue; const g = A.vidrioGeos(M, m);
       Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', g.vidrio, { ...base(m), med }, ex(m));
       Pt(m.id + 'p', `${m.id} · perfiles`, 'perfil', g.perfiles, { ...base(m), med }, ex(m)); continue; }
     const cat = m.tipo === 'tabique' ? 'tabique' : m.tipo === 'cerco' ? 'cerco' : /^M-0[5-9]$/.test(m.id) ? 'medianera' : 'muro';
@@ -79,14 +85,17 @@ function build(p) {
   /* jardines y vereda */
   if (p.ext) for (const o of M.IMPLANTACION) if (o.poly) Pt(o.id, `${o.id} · ${o.nombre}`, o.tipo === 'vereda' ? 'vereda' : 'pasto', A.losa(o.poly, null, (o.z || 0) - 30, o.z || 0), base(o), { group: 'Exterior' });
 
+  /* detalle del SketchUp: una pieza por grupo y color */
+  if (p.detalle) { const seen = {}; for (const d of DET) { const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+
   /* ediciones guardadas por Maxi (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
       if (!datos && e.borrado) { parts.splice(i, 1); continue; } if (!datos && e.mov) { const { x = 0, y = 0, z = 0 } = e.mov; pp.geos = pp.geos.map(g => { const c = g.clone(); c.translate(x, z, y); return c; }); } } }
 
-  const panes = { video3d: videoHTML(), ayuda: `<h3>Qué es cada cosa</h3><p>Lo que ves en color es el modelo armado del plano de regularización (hoja 01/04, escala 1:100), con los mismos códigos que la planta: muros M-xx, aberturas P-/V-xx, losas LO-xx, escaleras E-xx, techos T-xx. Los locales usan los códigos del balance (B1…B14).</p>
-    <p>En gris transparente va tu SketchUp (<b>Calco SketchUp</b>), girado 32° y subido 58 cm para que su planta baja caiga en el +0,72 del plano. Donde no coincide, lo anoté en Dudas.</p>
+  const panes = { video3d: videoHTML(), ayuda: `<h3>Qué es cada cosa</h3><p>Lo que ves en color sale de tu SketchUp (Arcos_55.dae): niveles, fachada, balcón, entrepiso, escaleras, vestidor, techo y ventanal, con los mismos códigos que la planta (muros M-xx, aberturas P-/V-xx, losas LO-xx, escaleras E-xx, techos T-xx). Lo que el SketchUp no trae (medianeras, tabiques, subsuelo, claraboyas) sale del plano de regularización y está marcado así en cada pieza.</p>
+    <p><b>Detalle del SketchUp</b> (SU-xx) son los grupos de tu modelo tal cual: ventanal repartido, terraza, tanque, jardín del frente, cocina y baños. <b>Calco SketchUp</b> pone tu modelo entero en gris transparente, para comparar.</p>
     <h3>Ejes</h3><p>x: desde el eje medianero izquierdo mirando desde Arcos. y: desde el fondo del lote hacia Arcos; la línea municipal está en 45,16. Alturas sobre el ±0,00 del plano.</p>
-    <h3>Niveles del plano</h3><ul>${Object.entries(M.NIVELES).filter(([k]) => k !== 'TE').map(([k, v]) => `<li><b>${k}</b> ${v.nombre}: ${v.z >= 0 ? '+' : ''}${f2(v.z)}${v.nota ? ' · ' + v.nota : ''}</li>`).join('')}<li>Techo de chapa al 12 %: +9,95 a +8,91.</li></ul>
+    <h3>Niveles</h3><ul>${Object.entries(M.NIVELES).filter(([k]) => k !== 'TE').map(([k, v]) => `<li><b>${k}</b> ${v.nombre}: ${v.z >= 0 ? '+' : ''}${f2(v.z)}${v.nota ? ' · ' + v.nota : ''}</li>`).join('')}<li>Techo de chapa al 10,8 %: +10,13 a +9,31.</li></ul>
     <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es y sus medidas.</li><li><b>Corte horizontal</b> saca lo que está arriba de una altura: así se ve cada planta.</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` };
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>lote <b>8,65 × 45,16</b></span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;
   const cx = 432, cy = 3100;
@@ -100,7 +109,7 @@ function build(p) {
     dims: ({ dimLine }) => { dimLine([0, 2, 4516 + 140], [865, 2, 4516 + 140], [0, 0, 8], '8,65'); dimLine([-120, 0, 3887], [-120, 857, 3887], [-8, 0, 0], '8,57'); dimLine([-120, -198, 3700], [-120, 72, 3700], [-8, 0, 0], '2,70'); } };
 }
 
-const COL = { muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
+const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#3a3f44', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
