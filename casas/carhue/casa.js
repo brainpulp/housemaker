@@ -879,7 +879,7 @@ function restablecerCortesVista(){if(!curVista)return;delete CORTES_V[curVista];
 function nombreVista(vid){if(vid.startsWith('__amb:')){const L=M.LOCALES.find(l=>l.id===vid.slice(6));return L?`${L.id} · ${L.nombre}`:vid;}const b=document.querySelector(`#viewbar [data-view="${vid.slice(4)}"]`);return b?b.textContent:vid.slice(4);}
 function pintarCV(){const el=document.getElementById('c6vista');if(!el)return;el.innerHTML=curVista?`Cortes de la vista <b>${nombreVista(curVista)}</b>${CORTES_V[curVista]?' (editados) · <a href="#" data-c6rest>restablecer</a>':' · si los movés, quedan guardados para esta vista'}`:'Sin vista predeterminada: los cortes no se guardan en ninguna vista.';}
 setTimeout(()=>pintarCV(),0);
-function irVista(vid){curVista=vid;if(vid.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${vid.slice(4)}"]`);if(b)b.click();ponerCortes(cortesDe(vid));}else aislar(vid.slice(6));pintarCV();}
+function irVista(vid){curVista=vid;/* al elegir una vista predeterminada se abre el panel de sus cortes */if(window.__side&&!window.__side.isOn('corte'))window.__side.toggle('corte',true);if(vid.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${vid.slice(4)}"]`);if(b)b.click();ponerCortes(cortesDe(vid));}else aislar(vid.slice(6));pintarCV();}
 /* aislar un ambiente: sus seis cortes (paredes incluidas, de piso a techo, o los que guardaste) y una cámara que lo mira desde arriba en diagonal */
 function aislar(id){const L=M.LOCALES.find(l=>l.id===id);if(!L)return;const vid='__amb:'+id;curVista=vid;const cs=cortesDe(vid);
   visor.params.corte='0';['q-corte','v-corte'].forEach(e=>{const el=$(e);if(el)el.value='0';});
