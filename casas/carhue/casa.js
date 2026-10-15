@@ -868,7 +868,7 @@ syncC6();
    si movés un corte mientras estás en una vista predeterminada, queda guardado como parámetro de esa vista (base del artifact) */
 const AMB_DEF={'L-08':{xmin:1810,xmax:2390,ymin:-360,ymax:140,zmin:-25,zmax:235}};/* cocina: L-08 + L-12 + desayunador */
 let CORTES_V={};try{CORTES_V=JSON.parse(localStorage.getItem('carhue-cortes-vistas')||'{}');}catch(e){}
-let curVista=null,cvDb=null,cvT=0;N.getDb().then(d=>{cvDb=d;if(!d)return;d.collection('estado').doc('cortesVistas').onSnapshot(x=>{if(x.exists){const v=x.data();delete v.ts;CORTES_V={...CORTES_V,...v};}},()=>{});});
+let curVista=null,cvDb=null,cvT=0;N.getDb().then(d=>{cvDb=d;if(!d)return;d.collection('estado').doc('cortesVistas').onSnapshot(x=>{if(x.exists){const v={...x.data()};delete v.ts;CORTES_V={...CORTES_V,...v};}},()=>{});});
 function cortesDef(vid){if(vid.startsWith('__amb:')){const id=vid.slice(6);if(AMB_DEF[id])return {...AMB_DEF[id]};const L=M.LOCALES.find(l=>l.id===id);if(!L)return {};const xs=L.poly.map(q=>q[0]),ys=L.poly.map(q=>q[1]);const f=L.nivel==='EP'?H_EP:0,m=25;
     return {xmin:Math.min(...xs)-m,xmax:Math.max(...xs)+m,ymin:Math.min(...ys)-m,ymax:Math.max(...ys)+m,zmin:f-25,zmax:f+235};}return {};}
 const cortesDe=vid=>CORTES_V[vid]||cortesDef(vid);
