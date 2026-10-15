@@ -266,7 +266,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const moved=Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;if(moved)return;
     const r=renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,camera);
     const ms=[];G0.traverse(ob=>{if(ob.isMesh&&ob.userData.id&&ob.parent.visible){const p=byId[ob.userData.id];if(p&&p.mat.opacity>.1&&!p.opt.noPick)ms.push(ob);}});
-    const cps=renderer.clippingPlanes;const hit=ray.intersectObjects(ms,false).find(h=>!cps.length||cps.every(pl=>pl.distanceToPoint(h.point)>=0));if(api.pick&&api.pick(hit,ray))return;if(hit){focusSet=null;showPart(hit.object.userData.id);}});
+    const cps=renderer.clippingPlanes;const hit=ray.intersectObjects(ms,false).find(h=>!cps.length||cps.every(pl=>pl.distanceToPoint(h.point)>=0));if(api.pick&&api.pick(hit,ray))return;if(hit){focusSet=null;showPart(hit.object.userData.id);}else{/* cielo o pasto: deselecciona todo (Maxi 15/10) */resetSel();dispatchEvent(new CustomEvent('hm:deseleccionar'));}});
 
   /* ----- piezas clickeables en el texto ----- */
   function linkify(root){const toks=Object.keys(tokens).filter(t=>t.length>1).sort((a,b)=>b.length-a.length);if(!toks.length)return;

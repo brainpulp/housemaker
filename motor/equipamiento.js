@@ -308,9 +308,10 @@ export function initEquipamiento(visor,stage){
   let egKey='';const egBB=new THREE.Box3(),egC=new THREE.Vector3(),egS=new THREE.Vector3();
   (function egl(){requestAnimationFrame(egl);const g=sel&&groups.get(sel);const on=!!(g&&g.visible&&!card.hidden);EG.visible=ER.visible=on;if(!on)return;
     const k=sel+g.position.toArray().join()+g.rotation.y;if(k!==egKey){egKey=k;egBB.setFromObject(g);egBB.getCenter(egC);egBB.getSize(egS);}
-    EG.position.set(egC.x,egBB.max.y+6,egC.z);EG.scale.setScalar(Math.max(.3,camera.position.distanceTo(EG.position)/450));
+    EG.position.set(egC.x,egBB.max.y+6,egC.z);EG.scale.setScalar(Math.max(.06,camera.position.distanceTo(EG.position)/2250));/* Maxi 15/10: 20 % del tamaño anterior */
     ER.position.set(g.position.x,egBB.min.y+2,g.position.z);ER.scale.setScalar(Math.max(egS.x,egS.z)/2+14);})();
-  view.addEventListener('pointerdown',e=>{if(e.button!==0||!card)return;const abierto=!card.hidden&&(G.visible||capa==='veg');if(!abierto&&!G.visible)return;setRay(e);
+  /* en la captura de la ventana, antes que las herramientas de edición: si se toca un mueble o su gizmo, gana el mueble aunque haya una pieza de la casa elegida (Maxi 15/10) */
+  addEventListener('pointerdown',e=>{if(e.button!==0||!card||e.target!==visor.renderer.domElement)return;const abierto=!card.hidden&&(G.visible||capa==='veg');if(!abierto&&!G.visible)return;setRay(e);
     if(EG.visible){const hh=rc.intersectObjects([...EG.children,...ER.children],true)[0];const m=hh&&item(sel),g=hh&&groups.get(sel);
       if(m&&g){e.stopPropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-hh.point.y);const p0=hh.point.clone();rc.ray.intersectPlane(pl,p0);
         dr={id:sel,pl,eg:hh.object.userData.eg,p0,mx:m.x,my:m.y,r0:m.r||0,a0:Math.atan2(p0.z-g.position.z,p0.x-g.position.x),moved:false};return;}}
@@ -321,7 +322,7 @@ export function initEquipamiento(visor,stage){
     if(h&&card.hidden){card.hidden=false;try{localStorage.setItem('carhue-equip-panel','1');}catch(e){}}
     if(h){const gk=groups.get(h.object.userData.item)?.userData.capa;if(gk&&gk!==capa){capa=gk;modo='';}}
     if(!h){return;}const id=h.object.userData.item;const m=item(id);if(!m)return;{const ga=groups.get(id).userData.amb;if(ga!==amb){amb=ga;modo='';}}e.stopPropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;
-    sel=id;marcarSel();panel();const y0=groups.get(id).position.y;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-y0);const p0=new THREE.Vector3();rc.ray.intersectPlane(pl,p0);
+    sel=id;visor.resetSel&&visor.resetSel();marcarSel();panel();const y0=groups.get(id).position.y;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-y0);const p0=new THREE.Vector3();rc.ray.intersectPlane(pl,p0);
     dr={id,pl,dx:m.x-p0.x,dy:m.y-p0.z,x0:e.clientX,r0:m.r||0,rot:e.shiftKey,moved:false};},true);
   view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();const m=item(dr.id),g=groups.get(dr.id);if(!m||!g)return;dr.moved=true;
     if(dr.eg){setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;
@@ -333,6 +334,8 @@ export function initEquipamiento(visor,stage){
     m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre · Shift: girar)`);},true);
   const end=e=>{if(!dr)return;e.stopPropagation();const mvd=dr.moved,g=groups.get(dr.id);dr=null;visor.controls.enabled=true;if(mvd){if(g&&g.userData.mount==='techo')armar();guardar(amb);panel();}};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);
+  /* tocar el cielo o el pasto deselecciona todo (Maxi 15/10) */
+  addEventListener('hm:deseleccionar',()=>{if(!sel)return;sel=null;marcarSel();panel();});
   function hint(t){const st=document.getElementById('stTool');if(st)st.innerHTML=t;}
 
   /* ---------- panel ---------- */
