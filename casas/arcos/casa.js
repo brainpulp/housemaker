@@ -1,7 +1,8 @@
 /* Arcos 4264 3D — arma las piezas con el armador genérico del motor (armador.js) a partir de modelo.js
    y arranca los módulos del motor. Lo propio de esta casa: categorías, vistas, cotas y el calco del SketchUp. */
 import * as THREE from 'three';
-import { createVisor } from './visor3d.js';
+import { createVisor, geo } from './visor3d.js';
+import { escaleraGiro, DISENOS } from './escalera-giro.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initMedir } from './medir.js';
@@ -35,6 +36,7 @@ const params = [
   { id: 'techos', label: 'Techos', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'carp', label: 'Carpinterías', type: 'check', value: true, quick: true, group: 'Ver', help: 'Vidrios de ventanas y hojas de puertas, cerradas.' },
   { id: 'detalle', label: 'Detalle del SketchUp', type: 'check', value: true, quick: true, group: 'Ver', help: 'Carpinterías, terraza, tanque, jardín del frente, cocina y baños tal como están en tu SketchUp.' },
+  { id: 'baranda', label: 'Baranda de la E-02', type: 'select', value: 'cables', group: 'Escalera', options: DISENOS.map(d => [d.id, d.name]), help: 'Los diseños de la conversación del 11/10. El de cables es el que elegiste.' },
   { id: 'calco', label: 'Calco SketchUp', type: 'check', value: false, quick: true, group: 'Ver', help: 'Tu modelo Arcos_55.dae, en gris transparente, alineado al plano.' },
   { id: 'ext', label: 'Jardines y vereda', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'corte', label: 'Corte horizontal', type: 'select', value: '0', quick: true, group: 'Ver',
@@ -64,7 +66,11 @@ function build(p) {
     const vid = a.tipo === 'ventana';
     Pt(a.id, `${a.id} · ${a.nombre}`, vid ? 'glass' : a.tipo === 'portón' ? 'cerco' : 'puerta', A.hojaGeo(M, a, vid ? 2 : 4), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, ex(m)); }
   /* losas */
-  for (const l of M.LOSAS) Pt(l.id, `${l.id} · ${l.nombre}`, l.id === 'LO-03' ? 'piso' : /^LO-(04|13)$/.test(l.id) ? 'madera' : 'losa', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `+${f2(l.z)} · ${f2(l.e)} de espesor` }, ex(l));
+  /* LO-02 y LO-03: piso de tablas en toda la planta baja (nota de Maxi en SU-11). LO-12 es el giro de la E-02, que se arma pieza por pieza abajo.
+     LO-01 abre el suelo sobre el subsuelo y la escalera descubierta, para que se vea (nota en M-22). */
+  const HUECO_SS = [[297, 2868], [850, 2868], [850, 4216], [745, 4216], [745, 3887], [297, 3887]];
+  for (const l of M.LOSAS) { if (l.id === 'LO-12') continue; const e = ex(l); if (l.id === 'LO-01') e.opt = { ...e.opt, hueco: HUECO_SS };
+    Pt(l.id, `${l.id} · ${l.nombre}`, /^LO-(02|03|04|11|13)$/.test(l.id) ? 'madera' : 'losa', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `+${f2(l.z)} · ${f2(l.e)} de espesor` }, e); }
   for (const c of M.CLARABOYAS || []) {
     const g = [A.losa(c.poly, null, c.z - 1, c.z)]; const xs = c.poly.map(q => q[0]), ys = c.poly.map(q => q[1]);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), zb = zN('TZ'), e = 10;
@@ -72,11 +78,17 @@ function build(p) {
       A.losa([[x0 - e, y0], [x0, y0], [x0, y1], [x0 - e, y1]], null, zb, c.z), A.losa([[x1, y0], [x1 + e, y0], [x1 + e, y1], [x1, y1]], null, zb, c.z)];
     Pt(c.id, `${c.id} · ${c.nombre}`, 'glass', g, base(c), ex(c)); Pt(c.id + 'b', `${c.id} · cuello`, 'muro', cord, base(c), ex(c)); }
   /* escaleras y barandas */
-  for (const e of M.ESCALERAS) { const g = A.escaleraGeos(e);
+  for (const e of M.ESCALERAS) { if (e.id === 'E-02') continue; const g = A.escaleraGeos(e);
     Pt(e.id, `${e.id} · ${e.nombre}`, e.exterior ? 'escext' : 'escalera', g.ped, { ...base(e), med: `${e.n} alzadas · de ${f2(e.z[0])} a ${f2(e.z[1])}` }, ex(e));
     Pt(e.id + 'z', `${e.id} · zancas`, 'zanca', g.zan, base(e), ex(e)); }
-  for (const b of M.BARANDAS || []) { const E = b.sigue ? M.ESCALERAS.find(e => e.id === b.sigue) : null;
+  for (const b of M.BARANDAS || []) { if (b.id === 'BA-2') continue; const E = b.sigue ? M.ESCALERAS.find(e => e.id === b.sigue) : null;
     Pt(b.id, `${b.id} · ${b.nombre}`, b.tipo === 'madera' ? 'madera' : 'perfil', A.barandaGeos(b, E), base(b), ex(b)); }
+  /* E-02 al detalle (escalera-giro.js): ejes de la escalera → ejes de la casa. Tramo contra la medianera derecha (z 92 = x 850),
+     sube hacia el fondo; el fondo del giro queda en y 2825. 15 alzadas de PB al entrepiso. */
+  { const E2 = M.ESCALERAS.find(e => e.id === 'E-02'), nA = 15, R = (zN('EP') - zN('PB')) / nA, X0 = 758, Y0 = 2825 + 12 * 24 + 92;
+    const eg = escaleraGiro(geo, { N: nA, R, G: 24, zF: -20, LR4: 850 - 659, design: p.baranda });
+    const map = g => { const h = geo.mapGeo(g, (x, y, z) => [X0 + z, zN('PB') + y, Y0 - x]); delete h.userData.rod; return h; };
+    for (const q of eg.parts) Pt('E2-' + q.id, `E2-${q.id.replace(/(t|pi|b|f|s)$/, '')} · ${q.name.replace(/^[A-Z0-9]+ · /, '')}`, q.cat, q.geos.map(map), { ...q.info, fn: (q.info.fn || '') + ' <i>Diseño del 11/10 («Escalera al entrepiso»).</i>', u: [q.info.u, 'D-11'].filter(Boolean).join(' · ') }, { group: 'Escalera E-02', tags: ['E-02'], opt: { noEdges: /^(inox|steel|glass)$/.test(q.cat) } }); }
   /* estructura */
   for (const s of M.ESTRUCTURA) { const g = s.tipo === 'columna' ? A.columnaGeo(s) : s.tipo === 'viga' ? A.vigaGeo(s) : null;
     Pt(s.id, `${s.id} · ${s.nombre}`, 'col', g, { ...base(s), sec: s.sec || '' }, ex(s)); }
@@ -86,7 +98,7 @@ function build(p) {
   if (p.ext) for (const o of M.IMPLANTACION) if (o.poly) Pt(o.id, `${o.id} · ${o.nombre}`, o.tipo === 'vereda' ? 'vereda' : 'pasto', A.losa(o.poly, null, (o.z || 0) - 30, o.z || 0), base(o), { group: 'Exterior' });
 
   /* detalle del SketchUp: una pieza por grupo y color */
-  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11') continue; /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: 'Detalle del SketchUp', opt: { noEdges: true } }); } }
 
   /* ediciones guardadas por Maxi (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
@@ -110,7 +122,8 @@ function build(p) {
 }
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
-  escalera: '#a8865c', escext: '#9a9a96', zanca: '#3a3f44', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad' };
+  escalera: '#a8865c', escext: '#9a9a96', zanca: '#3a3f44', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
+  poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 
@@ -198,7 +211,7 @@ N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); 
       visor.controls.update(); } requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
 
 try { initMarcas(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('marcas', e); }
-try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { medianera: ['revoque', 200], losa: ['cemento', 300], escalera: ['madera', 120], escext: ['cemento', 200], pasto: ['pasto', 300], vereda: ['cemento', 200] } }); } catch (e) { console.error('realismo', e); }
+try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera: ['madera', 120], medianera: ['revoque', 200], losa: ['cemento', 300], escalera: ['madera', 120], escext: ['cemento', 200], pasto: ['pasto', 300], vereda: ['cemento', 200] } }); } catch (e) { console.error('realismo', e); }
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
