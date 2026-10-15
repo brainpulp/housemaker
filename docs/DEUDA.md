@@ -16,3 +16,4 @@ Hoy una casa nueva se arma copiando `casas/carhue` y reescribiendo `modelo.js` y
 3. **Piezas especiales como catálogo configurable por datos:** lucarna (4 tipos), dormer (simple, corrido o de una agua), corrediza tipo granero, proyectante, barn door M-43 con poleas, cercha vidriada, deck elevado con trampolín. Hoy están escritas a mano para sus ids.
 4. **Importar un calco:** cargar un .glb, .dae u .obj de SketchUp u Onshape como referencia (hoy `calco-glb.js` es de Carhué) y herramientas para tomar medidas del calco.
 5. **Quitar prefijos `carhue-`** de las claves de `localStorage`. No molestan, porque cada artifact tiene su propio origen, pero confunden.
+6. **Cortes, vistas y aislar ambientes al motor:** hoy viven en `casas/carhue/casa.js`; tienen que pasar a un módulo del motor que reciba los locales de la casa.

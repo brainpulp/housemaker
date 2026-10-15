@@ -848,30 +848,46 @@ function applyCalco(){calco.visible=!!visor.params.calco;}
 root.addEventListener('change',e=>{if(e.target.id==='q-calco'||e.target.id==='v-calco')applyCalco();});
 /* ---------- cortes dinámicos ---------- */
 const $=id=>document.getElementById(id);
-const CL={x:{on:$('cxOn'),v:$('cxV'),side:-1,axis:'x'},y:{on:$('cyOn'),v:$('cyV'),side:-1,axis:'z'}};
+/* seis cortes (Maxi 15/10): dos opuestos por eje para aislar una porción de la casa. X sur→norte, Y oeste→este (planta), Z altura. */
+const C6=[['xmin','X desde','x',1,-100,4700,0],['xmax','X hasta','x',-1,-100,4700,3000],['ymin','Y desde','z',1,-1000,2000,-800],['ymax','Y hasta','z',-1,-1000,2000,1000],['zmin','Z desde','y',1,-100,900,0],['zmax','Z hasta','y',-1,-100,900,500]].map(([k,n,axis,side,mn,mx,v])=>({k,n,axis,side,mn,mx,v,on:false}));
+const CL=Object.fromEntries(C6.map(c=>[c.k,c]));
+{const bb=document.querySelector('#modo-3d .bottombar');const sp=document.createElement('span');sp.className='clip clip6';
+  sp.innerHTML=C6.map(c=>`<div class="c6r"><label><input type="checkbox" data-c6on="${c.k}"> ${c.n}</label><input type="range" data-c6v="${c.k}" min="${c.mn}" max="${c.mx}" step="5" value="${c.v}"><span class="clipv" data-c6l="${c.k}"></span></div>`).join('')+'<div class="c6r"><button class="btn mini" data-c6all="0">Sin cortes</button></div>';
+  const st=document.createElement('style');st.textContent='.clip6{display:flex;flex-direction:column;gap:3px}.c6r{display:flex;align-items:center;gap:5px}.c6r label{width:62px;flex:none;white-space:nowrap}.c6r input[type=range]{flex:1;min-width:60px}.c6r .clipv{width:46px;text-align:right;font-variant-numeric:tabular-nums}';document.head.appendChild(st);
+  if(bb)bb.appendChild(sp);
+  sp.addEventListener('input',e=>{const k=e.target.dataset.c6v;if(k){CL[k].v=+e.target.value;CL[k].on=true;syncC6();applyClips();}});
+  sp.addEventListener('change',e=>{const k=e.target.dataset.c6on;if(k){CL[k].on=e.target.checked;applyClips();}});
+  sp.addEventListener('click',e=>{if(e.target.closest('[data-c6all]')){C6.forEach(c=>c.on=false);visor.params.corte='0';['q-corte','v-corte'].forEach(id=>{const el=$(id);if(el)el.value='0';});syncC6();applyClips();}});}
+function syncC6(){for(const c of C6){const a=document.querySelector(`[data-c6on="${c.k}"]`),b=document.querySelector(`[data-c6v="${c.k}"]`),l=document.querySelector(`[data-c6l="${c.k}"]`);if(a)a.checked=c.on;if(b)b.value=c.v;if(l)l.textContent=(c.v/100).toFixed(2).replace('.',',');}}
 function applyClips(){const list=[];const h=+visor.params.corte;if(h>0)list.push({axis:'y',value:h,side:-1});
-  for(const k of ['x','y']){const c=CL[k];if(c.on.checked)list.push({axis:c.axis,value:+c.v.value,side:c.side});$('c'+k+'Lbl').textContent=(+c.v.value/100).toFixed(2).replace('.',',')+' m';}
-  visor.setClips(list);}
-for(const k of ['x','y']){CL[k].on.addEventListener('change',applyClips);CL[k].v.addEventListener('input',()=>{CL[k].on.checked=true;applyClips();});$('c'+k+'Flip').addEventListener('click',()=>{CL[k].side*=-1;CL[k].on.checked=true;applyClips();});}
+  for(const c of C6)if(c.on)list.push({axis:c.axis,value:c.v,side:c.side});syncC6();visor.setClips(list);window.__despertar&&window.__despertar();}
+syncC6();
+/* aislar un ambiente: los seis cortes alrededor del local (paredes incluidas) y una cámara que lo mira desde arriba en diagonal */
+function aislar(id){const L=M.LOCALES.find(l=>l.id===id);if(!L)return;const xs=L.poly.map(q=>q[0]),ys=L.poly.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const f=L.nivel==='EP'?H_EP:0,m=25;const V={xmin:x0-m,xmax:x1+m,ymin:y0-m,ymax:y1+m,zmin:f-25,zmax:f+235};for(const c of C6){c.v=Math.round(V[c.k]/5)*5;c.on=true;}
+  visor.params.corte='0';['q-corte','v-corte'].forEach(e=>{const el=$(e);if(el)el.value='0';});
+  /* el techo en pendiente no se deja cortar a una altura: para ver adentro se esconde la capa de techos */if(visor.params.techos!==false){visor.setParams({techos:false});['q-techos','v-techos'].forEach(e=>{const el=$(e);if(el)el.checked=false;});}applyClips();
+  const cx=(x0+x1)/2,cy=(y0+y1)/2,R=Math.max(x1-x0,y1-y0,300);visor.fly([cx-R*.45,f+R*.95+180,cy+R*.95],[cx,f+60,cy]);}
 root.addEventListener('change',e=>{if(e.target.id==='q-corte'||e.target.id==='v-corte')applyClips();});
 /* ocultar / mostrar piezas */
 root.addEventListener('click',e=>{const h=e.target.closest('[data-hide]');if(h){visor.toggleHidden(h.dataset.hide,true);visor.resetSel();renderVistas();return;}if(e.target.closest('[data-showall]')){visor.setHidden([]);renderVistas();}});
 /* ---------- vistas guardadas ---------- */
 let VISTAS=[];let vdb=null;
-function snapshot(){return {cam:visor.getView(),corte:visor.params.corte,cx:CL.x.on.checked?{v:+CL.x.v.value,side:CL.x.side}:null,cy:CL.y.on.checked?{v:+CL.y.v.value,side:CL.y.side}:null,hidden:visor.hidden,params:{techos:visor.params.techos,ep:visor.params.ep,calco:visor.params.calco,ext:visor.params.ext}};}
+function snapshot(){return {cam:visor.getView(),corte:visor.params.corte,c6:Object.fromEntries(C6.filter(c=>c.on).map(c=>[c.k,c.v])),hidden:visor.hidden,params:{techos:visor.params.techos,ep:visor.params.ep,calco:visor.params.calco,ext:visor.params.ext}};}
 function applySnapshot(v){for(const k of ['techos','ep','calco','ext']){if(v.params&&v.params[k]!=null&&visor.params[k]!==v.params[k]){visor.params[k]=v.params[k];['q-','v-'].forEach(pre=>{const el=$(pre+k);if(el)el.checked=v.params[k];});}}
   visor.params.corte=v.corte||'0';['q-corte','v-corte'].forEach(id=>{const el=$(id);if(el)el.value=visor.params.corte;});visor.rebuild();applyCalco();
-  for(const k of ['x','y']){const c=v['c'+k];CL[k].on.checked=!!c;if(c){CL[k].v.value=c.v;CL[k].side=c.side;}}applyClips();
+  for(const c of C6){c.on=false;}if(v.c6)for(const [k,val] of Object.entries(v.c6)){CL[k].on=true;CL[k].v=val;}
+  /* vistas viejas con cortes X / Y de un lado */for(const [o,ax] of [['cx','x'],['cy','y']]){const q=v[o];if(q){const c=CL[ax+(q.side>0?'min':'max')];c.on=true;c.v=q.v;}}applyClips();
   visor.setHidden(v.hidden||[]);if(v.cam)visor.fly(v.cam.p,v.cam.t);renderVistas();}
-function renderVistas(){const sel=document.getElementById('vistasSel');if(sel){const cur=sel.value;const FIX=[...document.querySelectorAll('#viewbar [data-view]')].map(b=>[b.dataset.view,b.textContent]);const fixOpts=(FIX.length?FIX:[['iso','Iso'],['planta','Planta'],['jardin','Jardín (E)'],['patio','Patio (O)'],['norte','Pileta (N)'],['sur','Fondo (S)']]).map(([k,l])=>`<option value="__v:${k}">${l}</option>`).join('')+'<option value="__all">Ver todo</option>';
-    sel.innerHTML='<option value="">Vistas…</option><optgroup label="Vistas fijas">'+fixOpts+'</optgroup><optgroup label="Guardadas">'+VISTAS.map(v=>`<option value="${v.id}">${v.nombre}</option>`).join('')+'</optgroup><option disabled>──────</option><option value="__save">＋ Guardar vista actual…</option><option value="__del">− Borrar la vista elegida…</option><option value="__upd" hidden>Actualizar</option>';sel.value=VISTAS.some(v=>v.id===cur)?cur:'';if(!sel.dataset.bound){sel.dataset.bound='1';
+function renderVistas(){const sel=document.getElementById('vistasSel');if(sel){const cur=sel.value;const FIX=[...document.querySelectorAll('#viewbar [data-view]')].map(b=>[b.dataset.view,b.textContent]);const fixOpts=(FIX.length?FIX:[['iso','Iso'],['planta','Planta'],['jardin','Jardín (E)'],['patio','Patio (O)'],['norte','Pileta (N)'],['sur','Fondo (S)']]).map(([k,l])=>`<option value="__v:${k}">${l}</option>`).join('')+'<option value="__all">Ver todo</option>';const ambOpts=M.LOCALES.filter(l=>l.poly).map(l=>`<option value="__amb:${l.id}">${l.id} · ${l.nombre}</option>`).join('');
+    sel.innerHTML='<option value="">Vistas…</option><optgroup label="Vistas fijas">'+fixOpts+'</optgroup><optgroup label="Ambientes (aislados con los cortes)">'+ambOpts+'</optgroup><optgroup label="Guardadas">'+VISTAS.map(v=>`<option value="${v.id}">${v.nombre}</option>`).join('')+'</optgroup><option disabled>──────</option><option value="__save">＋ Guardar vista actual…</option><option value="__del">− Borrar la vista elegida…</option><option value="__upd" hidden>Actualizar</option>';sel.value=VISTAS.some(v=>v.id===cur)?cur:'';if(!sel.dataset.bound){sel.dataset.bound='1';
       const F=document.createElement('div');F.id='vistaForm';F.hidden=true;F.innerHTML='<span id="vfLbl"></span><input type="text" id="vfNom" maxlength="60" placeholder="nombre de la vista"><button class="btn" id="vfOk">Guardar</button><button class="btn" id="vfNo">×</button>';sel.parentNode.insertBefore(F,sel.nextSibling);
       const vfNom=F.querySelector('#vfNom'),vfOk=F.querySelector('#vfOk'),vfLbl=F.querySelector('#vfLbl');let fMode=null;
       const closeF=()=>{F.hidden=true;fMode=null;sel.hidden=false;sel.value=sel.dataset.cur||'';};
       const openF=(mode)=>{fMode=mode;F.hidden=false;sel.hidden=true;if(mode==='save'){vfLbl.textContent='';vfNom.hidden=false;vfNom.value='';vfOk.textContent='Guardar';setTimeout(()=>vfNom.focus(),0);}else{const v=VISTAS.find(x=>x.id===sel.dataset.cur);vfLbl.textContent='¿Borrar «'+v.nombre+'»?';vfNom.hidden=true;vfOk.textContent='Borrar';}};
       vfOk.addEventListener('click',async()=>{if(fMode==='save'){const nm=vfNom.value.trim();closeF();await guardarVista(nm);}else if(fMode==='del'){const cur=sel.dataset.cur;VISTAS=VISTAS.filter(x=>x.id!==cur);if(vdb)try{await vdb.doc('vistas/'+cur).delete();}catch(e){}persistLocal();sel.dataset.cur='';closeF();renderVistas();}});
       F.querySelector('#vfNo').addEventListener('click',closeF);vfNom.addEventListener('keydown',e=>{if(e.key==='Enter')vfOk.click();if(e.key==='Escape')closeF();});
-      sel.addEventListener('change',()=>{const val=sel.value;if(val.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`);if(b)b.click();sel.value='';return;}if(val==='__all'){const b=document.getElementById('clearSel');if(b)b.click();sel.value='';return;}if(val==='__save'){openF('save');return;}
+      sel.addEventListener('change',()=>{const val=sel.value;if(val.startsWith('__amb:')){aislar(val.slice(6));sel.value='';return;}if(val.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`);if(b)b.click();sel.value='';return;}if(val==='__all'){const b=document.getElementById('clearSel');if(b)b.click();sel.value='';return;}if(val==='__save'){openF('save');return;}
       if(val==='__upd'){const id=sel.dataset.cur;actualizarVista(id);sel.value=VISTAS.some(x=>x.id===id)?id:'';return;}
       if(val==='__del'){if(!VISTAS.find(x=>x.id===sel.dataset.cur)){sel.value='';const o=sel.querySelector('option[value="__del"]');o.textContent='− Primero elegí una vista';setTimeout(()=>{o.textContent='− Borrar la vista elegida…';},2500);return;}openF('del');return;}
       sel.dataset.cur=val;const v=VISTAS.find(x=>x.id===val);if(v)applySnapshot(v);});}}

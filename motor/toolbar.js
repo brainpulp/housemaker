@@ -80,10 +80,10 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   /* cortes: muevo acá los controles que ya existen (corte por nivel y cortes X / Y) */
   const corteBox=document.createElement('div');corteBox.className='fypanel';const corteHold=document.createElement('div');corteHold.hidden=true;corteHold.appendChild(corteBox);stage.appendChild(corteHold);visor.corteBox=corteBox;
   {const lv=$('q-corte');const l=lv&&lv.closest('label');
-    corteBox.innerHTML='<div class="fyg">Corte horizontal</div><div class="fyrowc" id="cLv"></div><div class="fyg">Cortes verticales</div><div class="fyrowc" id="cXY"></div><p class="fyh">X corta de sur a norte (fondo → pileta), Y de oeste a este (patio → jardín). ⇄ cambia el lado que queda.</p>';
+    corteBox.innerHTML='<div class="fyg">Corte horizontal</div><div class="fyrowc" id="cLv"></div><div class="fyg">Cortes por eje</div><div class="fyrowc" id="cXY"></div><p class="fyh">Seis cortes, dos por eje: X de sur a norte (fondo → pileta), Y de oeste a este (patio → jardín), Z en altura. Lo que queda es lo que está entre «desde» y «hasta». En Vistas → Ambientes, cada local se aísla solo.</p>';
     if(l){l.firstChild&&l.firstChild.nodeType===3&&(l.firstChild.textContent='Nivel ');corteBox.querySelector('#cLv').appendChild(l);}
     document.querySelectorAll('#modo-3d .bottombar .clip').forEach(s=>corteBox.querySelector('#cXY').appendChild(s));}
-  const corteActivo=()=>{const v=$('q-corte');return (v&&v.value!=='0')||($('cxOn')&&$('cxOn').checked)||($('cyOn')&&$('cyOn').checked);};
+  const corteActivo=()=>{const v=$('q-corte');return (v&&v.value!=='0')||!!document.querySelector('.clip input[type=checkbox]:checked');};
 
   /* ---------- capas: inspector flotante ---------- */
   const cp=document.createElement('div');cp.id='capasPanel';cp.hidden=!LS.get('carhue-capas-on',false);
