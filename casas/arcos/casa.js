@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { createVisor, geo } from './visor3d.js';
 import { escaleraGiro, DISENOS } from './escalera-giro.js';
+import { tablones } from './tablones.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initMedir } from './medir.js';
@@ -25,7 +26,11 @@ import { CALCO3D } from './calco-3d.js';
 import { DETALLE, COLORES, ESCALA } from './detalle-su.js';
 
 /* detalle del SketchUp: triángulos ya en ejes del modelo; se decodifican una vez */
-const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = new Float32Array(q.length); for (let i = 0; i < q.length; i++) f[i] = q[i] / ESCALA; return { ...d, pos: f }; });
+/* sin los pisos del SketchUp en PB, 1P y 2P (triángulos horizontales a ras de piso): ahí va el piso de tablones */
+const PISOS_Z = [72, 409, 607], esPiso = (a, b, c) => Math.max(a, b, c) - Math.min(a, b, c) < 0.5 && PISOS_Z.some(z => a > z - 4 && a < z + 12);
+const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = [];
+  for (let i = 0; i < q.length; i += 9) { if (esPiso(q[i + 1] / ESCALA, q[i + 4] / ESCALA, q[i + 7] / ESCALA)) continue; for (let k = 0; k < 9; k++) f.push(q[i + k] / ESCALA); }
+  return { ...d, pos: new Float32Array(f) }; }).filter(d => d.pos.length);
 const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
 
 const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.nombre]));
@@ -66,24 +71,33 @@ function build(p) {
     const vid = a.tipo === 'ventana';
     Pt(a.id, `${a.id} · ${a.nombre}`, vid ? 'glass' : a.tipo === 'portón' ? 'cerco' : 'puerta', A.hojaGeo(M, a, vid ? 2 : 4), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, ex(m)); }
   /* losas */
-  /* LO-02 y LO-03: piso de tablas en toda la planta baja (nota de Maxi en SU-11). LO-12 es el giro de la E-02, que se arma pieza por pieza abajo.
+  /* LO-12 es el giro de la E-02, que se arma pieza por pieza abajo.
      LO-01 abre el suelo sobre el subsuelo y la escalera descubierta, para que se vea (nota en M-22). */
   const HUECO_SS = [[297, 2868], [850, 2868], [850, 4216], [745, 4216], [745, 3887], [297, 3887]];
   for (const l of M.LOSAS) { if (l.id === 'LO-12') continue; const e = ex(l); if (l.id === 'LO-01') e.opt = { ...e.opt, hueco: HUECO_SS };
-    Pt(l.id, `${l.id} · ${l.nombre}`, /^LO-(02|03|04|11|13)$/.test(l.id) ? 'madera' : 'losa', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `+${f2(l.z)} · ${f2(l.e)} de espesor` }, e); }
+    Pt(l.id, `${l.id} · ${l.nombre}`, /^LO-(04|11|13)$/.test(l.id) ? 'madera' : 'losa', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `+${f2(l.z)} · ${f2(l.e)} de espesor` }, e); }
   for (const c of M.CLARABOYAS || []) {
     const g = [A.losa(c.poly, null, c.z - 1, c.z)]; const xs = c.poly.map(q => q[0]), ys = c.poly.map(q => q[1]);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), zb = zN('TZ'), e = 10;
     const cord = [A.losa([[x0 - e, y0 - e], [x1 + e, y0 - e], [x1 + e, y0], [x0 - e, y0]], null, zb, c.z), A.losa([[x0 - e, y1], [x1 + e, y1], [x1 + e, y1 + e], [x0 - e, y1 + e]], null, zb, c.z),
       A.losa([[x0 - e, y0], [x0, y0], [x0, y1], [x0 - e, y1]], null, zb, c.z), A.losa([[x1, y0], [x1 + e, y0], [x1 + e, y1], [x1, y1]], null, zb, c.z)];
     Pt(c.id, `${c.id} · ${c.nombre}`, 'glass', g, base(c), ex(c)); Pt(c.id + 'b', `${c.id} · cuello`, 'muro', cord, base(c), ex(c)); }
+  /* pisos de tablones de 20, transversales (de medianera a medianera), en PB, 1P y 2P (Maxi, 15/10) */
+  { const PISOS = [['PB', ['LO-02', 'LO-03']], ['P1', ['LO-05']], ['P2', ['LO-07']]];
+    for (const [nv, ids] of PISOS) { const T = [[], [], []]; ids.forEach((id, k) => { const l = M.LOSAS.find(x => x.id === id); if (!l) return;
+        tablones(geo, A, { poly: l.poly, huecos: l.huecos || [], z: l.z, seed: k + nv.length * 7 + l.z }).forEach((g, i) => T[i].push(...g)); });
+      T.forEach((g, i) => Pt(`PT-${nv}${'abc'[i]}`, `PT-${nv} · Piso de tablones de ${NIV[nv].toLowerCase()}`, 'tabla' + (i + 1), g, { fn: 'Tablones de 20 de ancho, transversales: corren de medianera a medianera (S–N), con juntas escalonadas.', sec: 'tablón 20 × 2', med: '' }, { group: NIV[nv], tags: ['pisos'], opt: { noEdges: true } })); } }
+  /* escalón del estar hundido: cierra el frente entre su piso (+0,19) y la losa de PB (15 de espesor) */
+  { const l3 = M.LOSAS.find(x => x.id === 'LO-03'), l2 = M.LOSAS.find(x => x.id === 'LO-02');
+    if (l3 && l2) { const xs = l3.poly.map(q => q[0]), ys = l3.poly.map(q => q[1]), a0 = Math.min(...xs), a1 = Math.max(...xs), b0 = Math.min(...ys), b1 = Math.max(...ys), t = 3, zb = l3.z, zt = l2.z - l2.e + 0.5;
+      Pt('LO-03e', 'LO-03 · Escalón del estar hundido', 'losa', [[a0, a1, b0, b0 + t], [a0, a1, b1 - t, b1], [a0, a0 + t, b0, b1], [a1 - t, a1, b0, b1]].map(([x0, x1, y0, y1]) => A.losa([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], null, zb, zt)), { fn: 'Frente del escalón entre el piso del estar hundido y la losa de PB.', sec: '', med: `de +${f2(zb)} a +${f2(l2.z)}` }, { group: NIV.PB }); } }
   /* escaleras y barandas */
   for (const e of M.ESCALERAS) { if (e.id === 'E-02') continue; const g = A.escaleraGeos(e);
     Pt(e.id, `${e.id} · ${e.nombre}`, e.exterior ? 'escext' : 'escalera', g.ped, { ...base(e), med: `${e.n} alzadas · de ${f2(e.z[0])} a ${f2(e.z[1])}` }, ex(e));
     Pt(e.id + 'z', `${e.id} · zancas`, 'zanca', g.zan, base(e), ex(e)); }
   for (const b of M.BARANDAS || []) { if (b.id === 'BA-2') continue; const E = b.sigue ? M.ESCALERAS.find(e => e.id === b.sigue) : null;
     Pt(b.id, `${b.id} · ${b.nombre}`, b.tipo === 'madera' ? 'madera' : 'perfil', A.barandaGeos(b, E), base(b), ex(b)); }
-  /* E-02 al detalle (escalera-giro.js): ejes de la escalera → ejes de la casa. Tramo contra la medianera derecha (z 92 = x 850),
+  /* E-02 al detalle (escalera-giro.js): ejes de la escalera → ejes de la casa. Tramo contra la medianera N (z 92 = x 850),
      sube hacia el fondo; el fondo del giro queda en y 2825. 15 alzadas de PB al entrepiso. */
   { const E2 = M.ESCALERAS.find(e => e.id === 'E-02'), nA = 15, R = (zN('EP') - zN('PB')) / nA, X0 = 758, Y0 = 2825 + 12 * 24 + 92;
     const eg = escaleraGiro(geo, { N: nA, R, G: 24, zF: -20, LR4: 850 - 659, design: p.baranda });
@@ -106,7 +120,7 @@ function build(p) {
 
   const panes = { video3d: videoHTML(), ayuda: `<h3>Qué es cada cosa</h3><p>Lo que ves en color sale de tu SketchUp (Arcos_55.dae): niveles, fachada, balcón, entrepiso, escaleras, vestidor, techo y ventanal, con los mismos códigos que la planta (muros M-xx, aberturas P-/V-xx, losas LO-xx, escaleras E-xx, techos T-xx). Lo que el SketchUp no trae (medianeras, tabiques, subsuelo, claraboyas) sale del plano de regularización y está marcado así en cada pieza.</p>
     <p><b>Detalle del SketchUp</b> (SU-xx) son los grupos de tu modelo tal cual: ventanal repartido, terraza, tanque, jardín del frente, cocina y baños. <b>Calco SketchUp</b> pone tu modelo entero en gris transparente, para comparar.</p>
-    <h3>Ejes</h3><p>x: desde el eje medianero izquierdo mirando desde Arcos. y: desde el fondo del lote hacia Arcos; la línea municipal está en 45,16. Alturas sobre el ±0,00 del plano.</p>
+    <h3>Costados y ejes</h3><p>Fachada <b>E</b> (calle Arcos), jardín <b>O</b>, medianera <b>S</b> (a la izquierda mirando desde Arcos) y medianera <b>N</b>. x: desde el eje medianero S hacia el N. y: desde el fondo del lote hacia Arcos; la línea municipal está en 45,16. Alturas sobre el ±0,00 del plano.</p>
     <h3>Niveles</h3><ul>${Object.entries(M.NIVELES).filter(([k]) => k !== 'TE').map(([k, v]) => `<li><b>${k}</b> ${v.nombre}: ${v.z >= 0 ? '+' : ''}${f2(v.z)}${v.nota ? ' · ' + v.nota : ''}</li>`).join('')}<li>Techo de chapa al 10,8 %: +10,13 a +9,31.</li></ul>
     <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es y sus medidas.</li><li><b>Corte horizontal</b> saca lo que está arriba de una altura: así se ve cada planta.</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` };
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>lote <b>8,65 × 45,16</b></span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;
@@ -116,14 +130,14 @@ function build(p) {
     selIntro: '<div class="k">Selección</div><h2>Tocá una pieza</h2><p style="margin:0;color:var(--muted);font-size:13px">O un código en cualquier texto.</p>',
     defaultView: 'iso',
     views: { iso: { label: 'Iso', p: [cx + 2600, 2000, cy + 2600], t: [cx, 380, cy] }, planta: { label: 'Planta', p: [cx, 5600, cy + 0.1], t: [cx, 0, cy] },
-      frente: { label: 'Frente', p: [cx, 500, 4516 + 2600], t: [cx, 450, 3800] }, fondo: { label: 'Contrafrente', p: [cx, 500, 300], t: [cx, 450, 2700] },
-      izq: { label: 'Costado', p: [-2600, 700, cy], t: [cx, 350, cy] } },
+      frente: { label: 'Fachada E', p: [cx, 500, 4516 + 2600], t: [cx, 450, 3800] }, fondo: { label: 'Jardín O', p: [cx, 500, 300], t: [cx, 450, 2700] },
+      izq: { label: 'Medianera S', p: [-2600, 700, cy], t: [cx, 350, cy] } },
     dims: ({ dimLine }) => { dimLine([0, 2, 4516 + 140], [865, 2, 4516 + 140], [0, 0, 8], '8,65'); dimLine([-120, 0, 3887], [-120, 857, 3887], [-8, 0, 0], '8,57'); dimLine([-120, -198, 3700], [-120, 72, 3700], [-8, 0, 0], '2,70'); } };
 }
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#3a3f44', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
-  poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
+  tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 
