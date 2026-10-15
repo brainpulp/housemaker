@@ -141,16 +141,38 @@ function applySnapshot(v) { if (v.params) visor.setParams(v.params); visor.param
   for (const k of ['x', 'y']) { const c = v['c' + k]; CL[k].on.checked = !!c; if (c) { CL[k].v.value = c.v; CL[k].side = c.side; } } applyClips(); applyCalco(); visor.setHidden(v.hidden || []); if (v.cam) visor.fly(v.cam.p, v.cam.t); }
 function persistLocal() { try { localStorage.setItem('arcos-vistas', JSON.stringify(VISTAS)); } catch (e) {} }
 try { VISTAS = JSON.parse(localStorage.getItem('arcos-vistas') || '[]'); } catch (e) { VISTAS = []; }
-function renderVistas() { const sel = $('vistasSel'); if (sel) { sel.innerHTML = '<option value="">Vistas guardadas…</option>' + VISTAS.map(v => `<option value="${v.id}">${v.nombre}</option>`).join('') + '<option value="__save">＋ Guardar la vista actual</option>'; }
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function renderVistas() { const sel = $('vistasSel');
+  if (sel) { const cur = sel.dataset.cur || ''; const FIX = [...document.querySelectorAll('#viewbar [data-view]')].map(b => [b.dataset.view, b.textContent]);
+    sel.innerHTML = '<option value="">Vistas…</option><optgroup label="Vistas fijas">' + FIX.map(([k, l]) => `<option value="__v:${esc(k)}">${esc(l)}</option>`).join('') + '</optgroup><optgroup label="Guardadas">' + VISTAS.map(v => `<option value="${esc(v.id)}">${esc(v.nombre)}</option>`).join('') + '</optgroup><option value="__save">＋ Guardar vista actual…</option><option value="__del" hidden>Borrar</option><option value="__upd" hidden>Actualizar</option><option value="__cut" hidden>Cortes</option>';
+    sel.value = VISTAS.some(v => v.id === cur) ? cur : ''; vistaForm(sel); }
   const el = $('pane-vistas'); if (!el) return;
-  el.innerHTML = `<p class="intro">Una vista guarda cámara, cortes, capas y piezas ocultas. Queda en la base de la página.</p><div class="renrow"><input type="text" id="vistaNombre" placeholder="nombre de la vista" maxlength="60"><button class="btn" id="vistaGuardar">Guardar</button></div>` +
-    (VISTAS.length ? VISTAS.map(v => `<div class="row vrow" data-vista="${v.id}"><div style="flex:1;min-width:0"><div class="t"><b>${v.nombre}</b></div><div class="s">${(v.ts || '').slice(0, 10)}</div></div><button class="btn" data-vdel="${v.id}" title="Borrar">×</button></div>`).join('') : '<p class="s">Todavía no hay vistas guardadas.</p>');
-  el.querySelectorAll('.vrow').forEach(r => r.addEventListener('click', e => { if (e.target.closest('[data-vdel]')) return; const v = VISTAS.find(x => x.id === r.dataset.vista); if (v) applySnapshot(v); }));
-  el.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', async () => { const id = b.dataset.vdel; VISTAS = VISTAS.filter(x => x.id !== id); if (vdb) try { await vdb.doc('vistas/' + id).delete(); } catch (e) {} persistLocal(); renderVistas(); }));
-  $('vistaGuardar').addEventListener('click', () => guardarVista(($('vistaNombre').value || '').trim())); }
-async function guardarVista(nombre) { const id = 'v' + Date.now().toString(36); const v = { id, nombre: nombre || ('Vista ' + (VISTAS.length + 1)), ts: new Date().toISOString(), ...snapshot() }; VISTAS.push(v);
-  if (vdb) try { const { id: _i, ...body } = v; await vdb.doc('vistas/' + id).set(body); } catch (e) {} persistLocal(); renderVistas(); }
-{ const sel = $('vistasSel'); if (sel) sel.addEventListener('change', () => { const val = sel.value; if (val === '__save') { guardarVista(''); sel.value = ''; return; } const v = VISTAS.find(x => x.id === val); if (v) applySnapshot(v); }); }
+  el.innerHTML = `<p class="intro">Una vista guarda cámara, cortes, capas y piezas ocultas. Queda en la base de la página: la ves vos y la leo yo.</p><div class="renrow"><input type="text" id="vistaNombre" placeholder="nombre de la vista" maxlength="60"><button class="btn" id="vistaGuardar">Guardar</button></div><div class="renmsg" id="vistaMsg"></div>` +
+    (VISTAS.length ? VISTAS.map(v => `<div class="row vrow" data-vista="${esc(v.id)}"><div style="flex:1;min-width:0"><div class="t"><b>${esc(v.nombre)}</b></div><div class="s">${(v.ts || '').slice(0, 10)}</div></div><button class="btn" data-vupd="${esc(v.id)}" title="Actualizar con la vista de ahora">⟳</button><button class="btn" data-vdel="${esc(v.id)}" title="Borrar">×</button></div>`).join('') : '<p class="s">Todavía no hay vistas guardadas.</p>');
+  el.querySelectorAll('.vrow').forEach(r => r.addEventListener('click', e => { if (e.target.closest('[data-vdel],[data-vupd]')) return; const v = VISTAS.find(x => x.id === r.dataset.vista); if (v) applySnapshot(v); }));
+  el.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', () => borrarVista(b.dataset.vdel)));
+  el.querySelectorAll('[data-vupd]').forEach(b => b.addEventListener('click', () => actualizarVista(b.dataset.vupd)));
+  $('vistaGuardar').addEventListener('click', async () => { const msg = await guardarVista(($('vistaNombre').value || '').trim()); const m = $('vistaMsg'); if (m) m.textContent = msg; }); }
+async function escribir(v, ok) { persistLocal(); renderVistas(); if (!vdb) return ok + ' en este navegador.'; try { const { id: _i, ...body } = v; await vdb.doc('vistas/' + v.id).set(body); return ok + '.'; } catch (e) { return ok + ' sólo en este navegador (' + (e && e.code || 'sin permiso') + ').'; } }
+async function guardarVista(nombre) { const id = 'v' + Date.now().toString(36); const v = { id, nombre: nombre || ('Vista ' + (VISTAS.length + 1)), ts: new Date().toISOString(), ...snapshot() }; VISTAS.push(v); const sel = $('vistasSel'); if (sel) sel.dataset.cur = id; return escribir(v, 'Guardada'); }
+async function actualizarVista(id) { const i = VISTAS.findIndex(x => x.id === id); if (i < 0) return 'No encontré esa vista.'; VISTAS[i] = { ...VISTAS[i], ts: new Date().toISOString(), ...snapshot() }; return escribir(VISTAS[i], 'Actualizada'); }
+async function borrarVista(id) { VISTAS = VISTAS.filter(x => x.id !== id); persistLocal(); renderVistas(); if (vdb) try { await vdb.doc('vistas/' + id).delete(); } catch (e) {} }
+/* el desplegable de la barra: ir, guardar (pide nombre), actualizar, borrar (pide confirmación) */
+let toast = null; const aviso = t => { if (!toast) { toast = document.createElement('div'); toast.style.cssText = 'position:fixed;top:56px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--accent);border-radius:3px;padding:4px 10px;font-size:12px;z-index:50'; document.body.appendChild(toast); } toast.textContent = t; toast.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => toast.hidden = true, 3000); };
+function vistaForm(sel) { if (sel.dataset.bound) return; sel.dataset.bound = '1';
+  const F = document.createElement('div'); F.id = 'vistaForm'; F.hidden = true; F.innerHTML = '<span id="vfLbl"></span><input type="text" id="vfNom" maxlength="60" placeholder="nombre de la vista"><button class="btn" id="vfOk">Guardar</button><button class="btn" id="vfNo">×</button>'; sel.parentNode.insertBefore(F, sel.nextSibling);
+  const nom = F.querySelector('#vfNom'), ok = F.querySelector('#vfOk'), lbl = F.querySelector('#vfLbl'); let modo = null;
+  const cerrar = () => { F.hidden = true; modo = null; sel.value = ''; };
+  const abrir = m => { modo = m; F.hidden = false; if (m === 'save') { lbl.textContent = ''; nom.hidden = false; nom.value = ''; ok.textContent = 'Guardar'; setTimeout(() => nom.focus(), 0); } else { const v = VISTAS.find(x => x.id === sel.dataset.cur); if (!v) return cerrar(); lbl.textContent = '¿Borrar «' + v.nombre + '»?'; nom.hidden = true; ok.textContent = 'Borrar'; } };
+  ok.addEventListener('click', async () => { const m = modo, cur = sel.dataset.cur; const nm = nom.value.trim(); cerrar(); if (m === 'save') aviso(await guardarVista(nm)); else if (m === 'del') { await borrarVista(cur); aviso('Borrada.'); } });
+  F.querySelector('#vfNo').addEventListener('click', cerrar); nom.addEventListener('keydown', e => { if (e.key === 'Enter') ok.click(); if (e.key === 'Escape') cerrar(); });
+  sel.addEventListener('change', async () => { const val = sel.value;
+    if (val.startsWith('__v:')) { const b = document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`); if (b) b.click(); sel.value = ''; return; }
+    if (val === '__save') return abrir('save');
+    if (val === '__del') return abrir('del');
+    if (val === '__upd') { aviso(await actualizarVista(sel.dataset.cur)); return; }
+    if (val === '__cut') { const v = VISTAS.find(x => x.id === sel.dataset.cur); if (v) { applySnapshot(v); if (window.__side) window.__side.toggle('corte', true); } sel.value = ''; return; }
+    const v = VISTAS.find(x => x.id === val); if (v) { sel.dataset.cur = val; applySnapshot(v); } }); }
 renderVistas();
 N.getDb().then(db => { vdb = db; if (!db) return; db.collection('vistas').onSnapshot(snap => { const remote = []; snap.docs.forEach(d => { if (d.exists) remote.push({ id: d.id, ...d.data() }); }); if (remote.length || VISTAS.length === 0) { VISTAS = remote.sort((a, b) => (a.ts || '').localeCompare(b.ts || '')); persistLocal(); } renderVistas(); }, () => {}); });
 
