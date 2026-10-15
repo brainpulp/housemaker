@@ -179,7 +179,7 @@ function build(p){
     else if(m.id==='M-09'){/* sólo los rieles del retorno (Maxi: no es un muro): abajo a ras del piso y arriba sobre los paños */g=[box(1329,1342,0,1.5,638.5,918.5),box(1329,1342,241,244,638.5,918.5)];}
     else if(m.id==='M-35'){g=[box(0,1323,388,472,-91,-77)];}
     else if(m.id==='M-43'){const lu4=M.TECHOS.find(t=>t.id==='LU-4'),DXH=lu4?Math.min(...lu4.poly.map(q=>q[0]))-(m.a[0]+1):0,x0=m.a[0]+DXH,HT=472,/* toda la corrediza (4 hojas, riel y relleno) cae donde empieza la lucarna LU-4 (Maxi) */u2=y=>468+(y+46)*(27/397),u3=y=>490-(y-352)*(140/332),under=y=>y<352?u2(y):u3(y),hp=y=>Math.min(HT,under(y))-1;
-      const Y0=22,W=(625-22)/4,yC=352+(490-HT)/(140/332);
+      const Y0=27,W=(625-27)/4/* arranca en la cara de M-42, no adentro (Maxi 15/10) */,yC=352+(490-HT)/(140/332);
       const quad=(xa,xb,a0,a1,z0f,z1f)=>box8([[xa,z0f(a0),a0],[xb,z0f(a0),a0],[xb,z0f(a1),a1],[xa,z0f(a1),a1],[xa,z1f(a0),a0],[xb,z1f(a0),a0],[xb,z1f(a1),a1],[xa,z1f(a1),a1]]);
       /* riel horizontal a +4,72 y relleno fijo entre el riel y el techo */
       const tr=[box(x0-25,x0+3,HT,HT+5,Y0,yC)],inf=[];const y86=-46+(HT+5-468)*(397/27),yB=352+(490-(HT+5))/(140/332);
@@ -977,7 +977,7 @@ N.bindEditor(root,()=>{});
 N.onChange(()=>{visor.rebuild();applyClips();});
 ED.onChange(()=>{visor.rebuild();applyClips();});
 /* arrastrar las hojas H-1…H-3 a lo largo del riel (H-4 es fija) */
-{const view=document.getElementById('view'),T=visor.THREE,ray=new T.Raycaster(),mv=new T.Vector2();let dr=null;const W=(625-22)/4,MIN={'H-1':-3*W,'H-2':-2*W,'H-3':-W,'H-4':0},MAX={};
+{const view=document.getElementById('view'),T=visor.THREE,ray=new T.Raycaster(),mv=new T.Vector2();let dr=null;const W=(625-27)/4,MIN={'H-1':-3*W,'H-2':-2*W,'H-3':-W,'H-4':0},MAX={};
   /* puerta-ventanas del ventanal (PV-01…06, corren en X sobre su riel) y del tímpano norte (PV-07…10, corren a lo ancho) */
   for(let i=0;i<6;i++){const x0=1353+i*195;MIN[`PV-0${i+1}`]=1353-x0;MAX[`PV-0${i+1}`]=2523-195-x0;}
   for(let i=0;i<4;i++){const y0=115+i*198.75,id=`PV-${String(7+i).padStart(2,'0')}`;MIN[id]=-85-y0;/* 2 m más allá de M-03 */MAX[id]=910-198.75-y0;}MIN['PV-12']=-140;MAX['PV-12']=0;
