@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b=await chromium.launch({...(process.env.CHROMIUM?{executablePath:process.env.CHROMIUM}:{}),args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});
+const p=await b.newPage({viewport:{width:1100,height:700}});p.on('pageerror',e=>console.log('PE '+e.message));
+await p.addInitScript(()=>{try{localStorage.setItem('carhue-calidad','minimo');}catch(e){}});
+await p.goto((process.env.URL||'http://localhost:8765/carhue/_prueba.html')+'#3d',{waitUntil:'networkidle',timeout:120000});await p.waitForTimeout(6000);
+await p.evaluate(()=>window.__visor.showPart('LU-2m'));await p.waitForTimeout(3000);
+console.log(await p.evaluate(()=>{const c=document.getElementById('varChip');return c.hidden+' '+c.style.left+','+c.style.top+' '+[...c.querySelectorAll('select')].map(s=>s.dataset.p+'='+s.value+' ['+[...s.options].map(o=>o.value).join('|')+']').join(' ');}));
+await p.evaluate(()=>{const s=document.querySelector('#varChip select');s.value='4';s.dispatchEvent(new Event('change'));});await p.waitForTimeout(4000);
+console.log(await p.evaluate(()=>window.__visor.params.luTipo+' '+document.querySelector('#varChip select')?.value));
+await p.screenshot({path:process.argv[2]+'/s4.png'});await b.close();

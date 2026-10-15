@@ -1,0 +1,14 @@
+import { chromium } from 'playwright';
+const b=await chromium.launch({...(process.env.CHROMIUM?{executablePath:process.env.CHROMIUM}:{}),args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});
+const p=await b.newPage({viewport:{width:1000,height:640}});p.on('pageerror',e=>console.log('PE '+e.message));p.on('console',m=>{if(m.type()==='error'&&!/TUNNEL|fonts/.test(m.text()))console.log('C '+m.text().slice(0,300));});
+await p.goto((process.env.URL||'http://localhost:8765/carhue/_prueba.html')+'#3d',{waitUntil:'networkidle',timeout:120000});
+await p.evaluate(()=>{localStorage.setItem('carhue-calidad','minimo');localStorage.setItem('carhue-sol',JSON.stringify({min:600,fecha:'2026-07-15'}));localStorage.removeItem('carhue-termica');});
+await p.reload({waitUntil:'networkidle'});await p.waitForTimeout(7000);
+console.log('fps label idle:',await p.evaluate(()=>document.getElementById('fps').textContent));
+await p.evaluate(()=>document.querySelector('#toolbar3d [data-k=termica]').click());await p.waitForTimeout(5000);
+await p.evaluate(()=>document.querySelector('#termCard [data-a=todosB]').click());await p.waitForTimeout(6000);
+const rep=()=>p.evaluate(()=>{const R=window.__visor.termica.R;const pk=d=>Math.max(...d.serie)/1000;return R.Z.map(z=>z.id+' '+z.min.toFixed(1)+'..'+z.max.toFixed(1)).join(' | ')+'\nout '+R.tn+'..'+R.tx+'\n'+R.dev.map(d=>d.it.t+'@'+d.q.id+' '+d.Pmax/1000+'kW pico '+pk(d).toFixed(2)+' '+(d.E/1000).toFixed(1)+'kWh').join('\n')+'\n'+JSON.stringify(R.sist)+' picoCal '+R.picoCal.toFixed(1)+' de '+R.cald;});
+console.log('TIPICO\n'+await rep());
+await p.evaluate(()=>{const s=document.querySelector('#termCard [data-s=tipo]');s.value='frio';s.dispatchEvent(new Event('change',{bubbles:true}));});await p.waitForTimeout(6000);
+console.log('FRIO\n'+await rep());
+await b.close();

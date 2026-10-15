@@ -1,0 +1,26 @@
+import { chromium } from 'playwright';
+const b=await chromium.launch({...(process.env.CHROMIUM?{executablePath:process.env.CHROMIUM}:{}),args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});
+const p=await b.newPage({viewport:{width:1300,height:800}});p.on('pageerror',e=>console.log('PE '+e.message));p.on('console',m=>{if(m.type()==='error'&&!/TUNNEL|fonts/.test(m.text()))console.log('C '+m.text().slice(0,300));});
+await p.goto((process.env.URL||'http://localhost:8765/carhue/_prueba.html')+'#3d',{waitUntil:'networkidle',timeout:120000});
+await p.evaluate(()=>{localStorage.setItem('carhue-calidad','minimo');localStorage.setItem('carhue-capas-on','true');localStorage.removeItem('carhue-side-fold');});
+await p.reload({waitUntil:'networkidle'});await p.waitForTimeout(7000);
+const T0=Date.now();const st=()=>p.evaluate(()=>[...document.querySelectorAll('#insp .sec')].filter(s=>!s.hidden).map(s=>s.querySelector('b').textContent).join(', ')+' | side '+document.getElementById('insp').style.display+' w '+document.getElementById('insp').getBoundingClientRect().width);
+console.log(((Date.now()-T0)/1000|0)+'s','inicio:',await st());
+await p.evaluate(()=>document.querySelector('#toolbar3d [data-k=termica]').click());await p.waitForTimeout(4000);
+console.log(((Date.now()-T0)/1000|0)+'s','termica:',await st());
+await p.screenshot({path:process.argv[2]+'/s1.png'});
+await p.evaluate(()=>document.querySelector('#toolbar3d [data-k=luces]').click());await p.waitForTimeout(1500);
+console.log(((Date.now()-T0)/1000|0)+'s','luces:',await st());
+await p.evaluate(()=>document.querySelector('#toolbar3d [data-k=personas]').click());await p.evaluate(()=>document.querySelector('#toolbar3d [data-k=corte]').click());await p.waitForTimeout(800);
+console.log(((Date.now()-T0)/1000|0)+'s','pers+corte:',await st());
+await p.evaluate(()=>window.__visor.showPart&&window.__visor.showPart('M-43'));await p.waitForTimeout(800);
+console.log(((Date.now()-T0)/1000|0)+'s','sel:',await st());
+await p.screenshot({path:process.argv[2]+'/s2.png'});
+// drag width
+const r=await p.evaluate(()=>{const g=document.querySelector('#insp .sgrip').getBoundingClientRect();return [g.x+4,g.y+200];});
+await p.mouse.move(r[0],r[1]);await p.mouse.down();await p.mouse.move(r[0]-150,r[1],{steps:5});await p.mouse.up();await p.waitForTimeout(500);
+console.log(((Date.now()-T0)/1000|0)+'s','drag:',await st());
+await p.evaluate(()=>document.querySelector('#insp .sec[data-id=term] .sx').click());await p.waitForTimeout(800);
+console.log(((Date.now()-T0)/1000|0)+'s','cerrar term:',await st());
+await p.screenshot({path:process.argv[2]+'/s3.png'});
+await b.close();

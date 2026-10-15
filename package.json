@@ -1,0 +1,10 @@
+{
+  "name": "housemaker",
+  "private": true,
+  "description": "Motor de CAD/visor 3D de casas (Three.js) que se publica como artifact de claude.ai, una casa por artifact.",
+  "scripts": {
+    "armar": "bash herramientas/armar.sh",
+    "servir": "python3 -m http.server 8765 --directory dist"
+  },
+  "devDependencies": { "three": "0.160.0", "playwright": "^1.48.0" }
+}
