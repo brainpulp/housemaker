@@ -54,6 +54,7 @@ export function initInspector(visor){
       <dl><dt>Tipo</dt><dd>${esc(CAT[p.cat]||p.cat||'—')}${p.group?` · ${esc(p.group)}`:''}</dd>${i.med?`<dt>Medidas</dt><dd>${esc(txt(i.med))}</dd>`:''}${i.sec?`<dt>Sección</dt><dd>${esc(txt(i.sec))}</dd>`:''}${caja?`<dt>Caja</dt><dd>${caja}</dd><dt>Posición</dt><dd style="font-size:11px">${posi}</dd>`:''}</dl>
       ${fn?`<div class="fn${fnOpen?'':' cut'}" data-a="fn" title="${fnOpen?'':'Ver todo'}">${esc(fn)}</div>`:''}
       <textarea placeholder="Tu nota sobre ${esc(p.id)}…" data-nota>${esc(N.nota(p.id))}</textarea>
+      ${visor.borrarPieza?`<div class="acts"><button class="ib" data-a="del" title="Se puede deshacer (Ctrl/⌘ Z)">Borrar pieza</button>${visor.parteTocada&&visor.parteTocada(p.id)?`<button class="ib" data-a="delp" title="Sólo la parte que tocaste (se puede deshacer)">Borrar sólo esta parte</button>`:''}</div>`:''}
       <div class="acts"><button class="ib" data-a="eye">${oculto?EO+' Mostrar':E+' Esconder'}</button><button class="ib" data-a="fit" title="Encuadrar (F)">◎ Encuadrar</button><span style="flex:1"></span><button class="ib" data-a="desel" title="Soltar la selección (Esc)">✕</button></div>`;
     const inp=selEl.querySelector('.nm input');if(inp){inp.focus();inp.select();}}
   function pintarTree(){const f=(q.value||'').trim().toLowerCase();const G=new Map();
@@ -73,6 +74,7 @@ export function initInspector(visor){
   el.addEventListener('click',e=>{const a=e.target.closest('[data-a]');const id=visor.selected;
     if(a){const k=a.dataset.a;if(k==='x')return show(false);if(k==='fold'){olFold=!olFold;LS.set('carhue-insp-olfold',olFold);foldOl();return;}
       if(k==='ren'){ren=id;pintar();return;}if(k==='fn'){fnOpen=!fnOpen;pintarSel();return;}if(k==='eye'&&id){visor.toggleHidden(id,!visor.isHidden(id));pintar();return;}
+      if(k==='del'&&id&&visor.borrarPieza){visor.borrarPieza(id);return;}if(k==='delp'&&id&&visor.borrarParte){visor.borrarParte(id);return;}
       if(k==='fit'&&id)return fit(id);if(k==='desel'){visor.resetSel();pintar();return;}}
     const ge=e.target.closest('[data-ge]');if(ge){const g=ge.dataset.ge;const L=(visor.parts||[]).filter(p=>(p.group||'Otros')===g);const off=L.every(p=>visor.isHidden(p.id));const H=new Set(visor.hidden);for(const p of L){if(off)H.delete(p.id);else H.add(p.id);}visor.setHidden([...H]);pintar();return;}
     const ey=e.target.closest('[data-e]');if(ey){const i=ey.dataset.e;visor.toggleHidden(i,!visor.isHidden(i));pintar();return;}

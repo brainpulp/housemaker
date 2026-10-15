@@ -13,7 +13,7 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
   document.getElementById('topright').prepend(bt);
   const P=document.createElement('div');P.id='edPanel';P.hidden=true;stage.appendChild(P);
   P.innerHTML=`<div class="mh"><b>Editar</b><span class="mx" id="edX">×</span></div>
-   <div class="mrow seg"><button class="btn" data-tool="">Seleccionar</button><button class="btn" data-tool="mover">Mover</button><button class="btn" data-tool="estirar">Estirar caras</button><button class="btn" data-tool="ab">Punto a punto</button><button class="btn" data-tool="quitar">Borrar partes</button><button class="btn" id="edUndoAll" title="Deshacer (Ctrl/Cmd+Z)">↶ Deshacer</button></div>
+   <div class="mrow seg"><button class="btn" data-tool="">Seleccionar</button><button class="btn" data-tool="mover">Mover</button><button class="btn" data-tool="estirar">Estirar caras</button><button class="btn" data-tool="ab">Punto a punto</button><button class="btn" id="edUndoAll" title="Deshacer (Ctrl/Cmd+Z)">↶ Deshacer</button></div>
    <div class="mrow" id="edAxes"><span class="s">mover solo en:</span><label><input type="checkbox" data-ax="x" checked> x</label><label><input type="checkbox" data-ax="y" checked> y</label><label><input type="checkbox" data-ax="z" checked> alto</label></div>
    <div class="mhint" id="edHint"></div>
    <div class="mrow"><label>ajuste <select id="edSnap"><option value="1">1 cm</option><option value="5" selected>5 cm</option><option value="10">10 cm</option><option value="25">25 cm</option></select></label></div>
@@ -57,7 +57,14 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
     q('edList').querySelectorAll('[data-edver]').forEach(b=>b.addEventListener('click',()=>{if(!ED.E[b.dataset.edver]?.borrado)visor.highlight(b.dataset.edver);}));}
   const msg=t=>{q('edMsg').textContent=t;};
   async function guardar(id,patch){const ok=await ED.editar(id,patch);msg(ok?`${id} guardado: lo veo yo también.`:`${id} cambiado en este navegador.`);}
-  async function borrar(id){visor.resetSel();await guardar(id,{borrado:true});msg(`${id} borrada. ↺ en la lista la vuelve a poner.`);}
+  async function borrar(id){visor.resetSel();await guardar(id,{borrado:true});msg(`${id} borrada. ↶ Deshacer (Ctrl/⌘ Z) la vuelve a poner.`);}
+  /* borrar desde el inspector: la pieza entera, o sólo la parte que se tocó al elegirla (un cabio, un vidrio…) */
+  const parteDe=h=>{const pid=h.object.userData.id;const pp=visor.parts.find(p=>p.id===pid);if(!pp)return null;const meshes=[];pp.grp.traverse(o=>{if(o.isMesh)meshes.push(o);});let k=meshes.indexOf(h.object);if(k<0)return null;const rg=h.object.userData.ranges;let nG=meshes.length;
+    if(rg){nG=rg.length;const vi=h.faceIndex*3;k=rg.findIndex(([a,n])=>vi>=a&&vi<a+n);if(k<0)return null;}return {pid,k,nG};};
+  visor.borrarPieza=id=>borrar(base(id));
+  visor.parteTocada=id=>{const t=visor.__toque;if(!t||t.pid!==id)return null;const r=parteDe(t.h);return r&&r.nG>1?r:null;};
+  visor.borrarParte=async id=>{const r=visor.parteTocada(id);if(!r)return false;const prevQ=(ED.E[r.pid]&&ED.E[r.pid].quitar)||[];const orig=[...Array(r.nG+prevQ.length).keys()].filter(i=>!prevQ.includes(i));
+    visor.resetSel();await guardar(r.pid,{quitar:[orig[r.k]]});msg(`Borrada una parte de ${r.pid}. ↶ Deshacer (Ctrl/⌘ Z) la vuelve a poner.`);return true;};
   ED.onChange(()=>{lista();});
   /* refrescar el formulario cuando cambia la selección */
   let lastSel=null;setInterval(()=>{if(P.hidden)return;if(visor.selected!==lastSel){lastSel=visor.selected;form();}},250);
@@ -93,7 +100,9 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
   const doUndo=async()=>{const id=await ED.undo();msg(id?`Deshecho el último cambio en ${id}.`:'No hay nada para deshacer.');};
   q('edUndoAll').addEventListener('click',doUndo);
   addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)&&!document.getElementById('modo-3d').hidden){if(document.getElementById('marcasPanel')&&!document.getElementById('marcasPanel').hidden)return;e.preventDefault();doUndo();}});
-  /* borrar partes sueltas de una pieza */
+  /* qué parte de la pieza se tocó al elegirla (para «Borrar esta parte» del inspector) */
+  view.addEventListener('pointerdown',e=>{if(e.button!==0)return;const h=hitAny(e);visor.__toque=h?{pid:h.object.userData.id,h}:null;},true);
+  /* borrar partes sueltas de una pieza (herramienta vieja, sin botón) */
   view.addEventListener('pointerdown',async e=>{if(P.hidden||tool!=='quitar'||e.button!==0)return;const h=hitAny(e);if(!h)return;e.stopImmediatePropagation();e.preventDefault();
     const pid=h.object.userData.id;const pp=visor.parts.find(p=>p.id===pid);if(!pp)return;const meshes=[];pp.grp.traverse(o=>{if(o.isMesh)meshes.push(o);});let k=meshes.indexOf(h.object);if(k<0)return;const rg=h.object.userData.ranges;let nG=meshes.length;
     if(rg){nG=rg.length;const vi=h.faceIndex*3;k=rg.findIndex(([a,n])=>vi>=a&&vi<a+n);if(k<0)return;}
