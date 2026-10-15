@@ -23,7 +23,11 @@ Vienen de la carpeta «muebles para housemaker», en la compu de Maxi: 11 imáge
 - **Comedor:** mesa maciza de tapa gruesa sobre dos patas panel, sillas de respaldo curvo.
 - **Dormitorio:** cama baja sobre tarima con cabecero de listones verticales, mesas de luz integradas, apliques a los lados.
 
-## En el catálogo (motor/equipamiento.js y motor/luminarias.js)
+## Catálogo de muebles reutilizable
+
+Los muebles viven en `motor/muebles.js` (`catalogoMuebles(THREE)` y `MATERIALES`), sin nada de Carhué: sirven para cualquier casa. `casas/catalogo/catalogo.html` los muestra todos con sus parámetros y da el JSON para pegar en un escenario (`{t, x, y, r, p}`). Una pieza nueva va en `muebles.js` con `n`, `cat` (familia), `p` (parámetros en cm) y `g(p)`; mantener las claves y parámetros de las piezas existentes para no romper escenarios guardados.
+
+## En el catálogo (motor/muebles.js y motor/luminarias.js)
 
 | Pieza | Código |
 |---|---|

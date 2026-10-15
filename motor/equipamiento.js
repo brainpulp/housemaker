@@ -7,6 +7,7 @@ import * as N from './nombres.js';
 import { catalogoLuces, escLuces, kelvin } from './luminarias.js';
 import { progDef, hhmm } from './noche.js';
 import { catalogoCal, escCal } from './calefaccion.js';
+import { catalogoMuebles, MATERIALES } from './muebles.js';
 
 export function initEquipamiento(visor,stage){
   const {THREE,scene,camera}=visor;const view=document.getElementById('view');
@@ -30,8 +31,6 @@ export function initEquipamiento(visor,stage){
   const CAT={
     mesada:{n:'Mesada con bajo mesada',p:{L:240,D:62,H:90,fr:'blanco',top:'granito'},
       g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-6),'negro'],[B(-p.L/2,p.L/2,10,p.H-4,-p.D/2,p.D/2-2),p.fr],[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2+1),p.top],...frente(p.L,p.D-4,12,p.H-6,60,p.fr).map(([g,m])=>[g,m])]},
-    desayunador:{n:'Desayunador (barra en voladizo de la mesada)',p:{L:150,D:50,H:90,top:'granito',mad:'roble'},
-      g:p=>[[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2),p.top],[B(p.L/2-6,p.L/2-2,0,p.H-4,-p.D/2+4,p.D/2-4),p.mad],[B(p.L/2-30,p.L/2-6,2,4,-p.D/2+8,p.D/2-8),p.mad]]},/* tapa como la mesada, una pata panel en la punta y apoyapiés */
     isla:{n:'Isla con barra',p:{L:200,D:90,H:90,vol:30,fr:'roble',top:'piedra'},
       g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2+p.vol,p.D/2-6),'negro'],[B(-p.L/2,p.L/2,10,p.H-4,-p.D/2+p.vol,p.D/2-2),p.fr],[B(-p.L/2-2,p.L/2+2,p.H-4,p.H,-p.D/2,p.D/2+1),p.top],...frente(p.L,p.D-4,12,p.H-6,60,p.fr)]},
     alacena:{n:'Alacena alta',p:{L:120,D:35,H:70,fr:'blanco'},z:150,
@@ -64,7 +63,6 @@ export function initEquipamiento(visor,stage){
     bidet:{n:'Bidet suspendido',p:{},g:()=>[[B(-18,18,30,42,-28,22),'loza'],[CYL(1.2,42,48,0,-20,10),'grifo']]},
     vanitorio:{n:'Vanitorio flotante con espejo',p:{L:110,D:50,H:85,fr:'roble',n:1},g:p=>{const g=[[B(-p.L/2,p.L/2,p.H-35,p.H-3,-p.D/2,p.D/2-2),p.fr],[B(-p.L/2,p.L/2,p.H-3,p.H,-p.D/2,p.D/2),'piedra'],[B(-p.L/2,p.L/2,p.H+20,p.H+100,-p.D/2,-p.D/2+1.5),'espejo']];
       const n=p.L>=140?2:1;for(let i=0;i<n;i++){const x=n===1?0:(i?1:-1)*p.L/4;g.push([B(x-22,x+22,p.H-.2,p.H+.3,-p.D/2+12,p.D/2-6),'loza'],[CYL(1.4,p.H,p.H+24,x,-p.D/2+6,12),'grifo'],[B(x-1.2,x+1.2,p.H+22,p.H+25,-p.D/2+6,-p.D/2+18),'grifo']);}return g;}},
-    ducha:{n:'Ducha (plato y mampara)',p:{L:80,D:120,H:200},g:(p0,ctx)=>{/* bajo techo en pendiente, mampara y lluvia bajan hasta 3 cm del cielorraso más bajo */const tm=ctx&&ctx.techoMin?ctx.techoMin(Math.max(p0.L,p0.D)/2):999;const p={...p0,H:Math.min(p0.H,tm-14)};return [[B(-p.L/2,p.L/2,0,4,-p.D/2,p.D/2),'loza'],[B(-p.L/2,-p.L/2+.8,4,p.H,-p.D/2,p.D/2),'vidrio'],[B(-p.L/2,p.L/2*.2,4,p.H,p.D/2-.8,p.D/2),'vidrio'],[CYL(12,p.H+2,p.H+3,0,0,24),'grifo'],[CYL(.9,p.H+3,p.H+10,0,0,8),'grifo'],[B(0,p.L/2-2,p.H+9,p.H+11,-.9,.9),'grifo'],[CYL(.9,110,p.H+11,p.L/2-2,0,8),'grifo']];}},/* lluvia con brazo a la pared (antes subía 40 al techo y bajo la lucarna lo atravesaba) */
     banera:{n:'Bañera',p:{L:160,D:75,H:55},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2),'loza'],[B(-p.L/2+8,p.L/2-8,p.H-.3,p.H+.05,-p.D/2+8,p.D/2-8),'piedra'],[CYL(1.5,p.H,p.H+20,-p.L/2+12,-p.D/2+5,12),'grifo']]},
     mesaLuz:{n:'Mesa de luz',p:{L:50,D:40,H:55,fr:'roble'},g:p=>[[B(-p.L/2,p.L/2,8,p.H,-p.D/2,p.D/2),p.fr],[B(-p.L/2+2,p.L/2-2,p.H-16,p.H-15.6,p.D/2-.1,p.D/2+.05),'junta'],...[[-1,-1],[1,-1],[-1,1],[1,1]].map(([a,b])=>[B(a*(p.L/2-3)-1.5,a*(p.L/2-3)+1.5,0,8,b*(p.D/2-3)-1.5,b*(p.D/2-3)+1.5),'madOsc'])]},
     placard:{n:'Placard',p:{L:240,D:60,H:240,fr:'blanco'},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2-1),p.fr],...frente(p.L,p.D,2,p.H-2,60,p.fr)]},
@@ -72,35 +70,6 @@ export function initEquipamiento(visor,stage){
     aparador:{n:'Aparador',p:{L:200,D:45,H:80,fr:'roble'},g:p=>[[B(-p.L/2,p.L/2,15,p.H,-p.D/2,p.D/2),p.fr],...frente(p.L,p.D,17,p.H-2,50,p.fr),...[[-1,-1],[1,-1],[-1,1],[1,1]].map(([a,b])=>[B(a*(p.L/2-5)-2,a*(p.L/2-5)+2,0,15,b*(p.D/2-5)-2,b*(p.D/2-5)+2),'negro'])]},
     escritorio:{n:'Escritorio',p:{L:140,D:65,H:75,mad:'roble'},g:p=>[[B(-p.L/2,p.L/2,p.H-3,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2,-p.L/2+3,0,p.H-3,-p.D/2,p.D/2),p.mad],[B(p.L/2-3,p.L/2,0,p.H-3,-p.D/2,p.D/2),p.mad],[B(-p.L/2+3,p.L/2-3,p.H-30,p.H-3,-p.D/2,-p.D/2+2),p.mad]]},
     biblioteca:{n:'Biblioteca',p:{L:180,D:35,H:200,mad:'roble'},g:p=>{const g=[[B(-p.L/2,-p.L/2+2.5,0,p.H,-p.D/2,p.D/2),p.mad],[B(p.L/2-2.5,p.L/2,0,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2,p.L/2,0,p.H,-p.D/2,-p.D/2+1),p.mad]];for(let z=0;z<=p.H;z+=p.H/5)g.push([B(-p.L/2+2.5,p.L/2-2.5,Math.min(z,p.H-2.5),Math.min(z,p.H-2.5)+2.5,-p.D/2,p.D/2),p.mad]);return g;}},
-    /* ---- catálogo de las referencias de Maxi (14/10): estilo cálido y bajo, madera maciza, lino, piedra oscura ---- */
-    sofaPlat:{n:'Sofá bajo sobre plataforma de madera',p:{L:280,D:100,esq:0,Le:200,tela:'lino',mad:'roble'},
-      g:p=>{/* tarima de madera maciza que sobresale 12 alrededor; almohadones de asiento y de respaldo sueltos; esq=1 arma la L hacia −x */const g=[],R=12,H0=18;
-        const tramo=(x0,x1,z0,z1,dirZ)=>{g.push([B(x0-R,x1+R,0,H0,z0-R,z1+R),p.mad]);const n=Math.max(1,Math.round((x1-x0)/90));for(let i=0;i<n;i++){const a=x0+(x1-x0)*i/n,b=x0+(x1-x0)*(i+1)/n;g.push([B(a+.6,b-.6,H0,H0+20,z0+1,z1-1),p.tela],[B(a+1.5,b-1.5,H0+20,H0+62,dirZ<0?z0:z1-24,dirZ<0?z0+24:z1),p.tela]);}};
-        tramo(-p.L/2,p.L/2,-p.D/2,p.D/2,-1);if(+p.esq){const x0=-p.L/2,x1=-p.L/2+p.D;g.push([B(x0-R,x1+R,0,H0,p.D/2,p.D/2+p.Le-p.D+R),p.mad]);const n=Math.max(1,Math.round((p.Le-p.D)/90));for(let i=0;i<n;i++){const a=p.D/2+(p.Le-p.D)*i/n,b=p.D/2+(p.Le-p.D)*(i+1)/n;g.push([B(x0+1,x1-1,H0,H0+20,a+.6,b-.6),p.tela],[B(x0,x0+24,H0+20,H0+62,a+1.5,b-1.5),p.tela]);}}
-        for(const x of [-p.L/2+40,p.L/2-40])g.push([B(x-22,x+22,H0+20,H0+58,-p.D/2+18,-p.D/2+30),'almohada']);return g;}},
-    sofaMod:{n:'Sofá modular de lino (bloques)',p:{n:3,mod:95,D:105,tela:'lino'},
-      g:p=>{const g=[],L=p.n*p.mod;for(let i=0;i<p.n;i++){const x0=-L/2+i*p.mod;g.push([B(x0+.5,x0+p.mod-.5,4,44,-p.D/2+24,p.D/2),p.tela],[B(x0+.5,x0+p.mod-.5,4,78,-p.D/2,-p.D/2+24),p.tela]);}
-        g.push([B(-L/2-26,-L/2,4,64,-p.D/2,p.D/2),p.tela],[B(L/2,L/2+26,4,64,-p.D/2,p.D/2),p.tela],[B(-L/2-26,L/2+26,0,4,-p.D/2+4,p.D/2-4),'madOsc']);return g;}},
-    ratonaTab:{n:'Mesa ratona de tablones',p:{L:160,D:90,H:38,mad:'madRust'},
-      g:p=>{const g=[],n=3,w=(p.D-2*(n-1))/n;for(let i=0;i<n;i++){const z0=-p.D/2+i*(w+2);g.push([B(-p.L/2,p.L/2,p.H-9,p.H,z0,z0+w),p.mad]);}for(const x of [-p.L/2+25,p.L/2-25])g.push([B(x-9,x+9,0,p.H-9,-p.D/2+12,p.D/2-12),p.mad]);return g;}},
-    ratonaBaja:{n:'Mesa ratona redonda baja',p:{L:110,H:30,mad:'roble'},g:p=>[[CYL(p.L/2,p.H-5,p.H,0,0,48),p.mad],[CYL(p.L/2-22,0,p.H-5,0,0,40),p.mad]]},
-    camaPlat:{n:'Cama baja sobre tarima con cabecero de listones',p:{L:180,D:205,ala:35,mad:'roble',tela:'sabana'},
-      g:p=>{const g=[],H0=16,W=p.L+2*p.ala;g.push([B(-W/2,W/2,0,H0,-p.D/2,p.D/2+p.ala),p.mad],[B(-p.L/2,p.L/2,H0,H0+22,-p.D/2+4,p.D/2),'sabana'],[B(-p.L/2-1,p.L/2+1,H0+18,H0+26,-p.D/2+60,p.D/2+1),p.tela]);
-        for(const x of p.L>=120?[-p.L/4,p.L/4]:[0])g.push([B(x-p.L/4+6,x+p.L/4-6,H0+22,H0+36,-p.D/2+8,-p.D/2+45),'almohada']);
-        for(let x=-W/2;x<=W/2-4;x+=9)g.push([B(x,x+4,0,150,-p.D/2-6,-p.D/2-2),p.mad]);g.push([B(-W/2,W/2,0,150,-p.D/2-9,-p.D/2-6),'madOsc']);return g;}},
-    mesaMaciza:{n:'Mesa maciza de tapa gruesa',p:{L:240,D:95,H:76,mad:'madOsc'},
-      g:p=>[[B(-p.L/2,p.L/2,p.H-8,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2+28,-p.L/2+38,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad],[B(p.L/2-38,p.L/2-28,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad]]},
-    sillaCurva:{n:'Silla de respaldo curvo',p:{mad:'madOsc',tela:'lino'},
-      g:p=>{const g=[[B(-22,22,42,46,-20,20),p.mad],[B(-20,20,46,48,-18,18),p.tela]];for(const sx of [-1,1])for(const sz of [-1,1])g.push([CYL(1.6,0,44,sx*18,sz*16,10),p.mad]);
-        const arco=new THREE.TorusGeometry(22,1.8,8,24,Math.PI);arco.rotateX(Math.PI/2);arco.rotateY(Math.PI);arco.translate(0,74,0);/* el respaldo abraza: medio aro horizontal a 74 */g.push([arco,p.mad]);
-        for(const sx of [-1,1])g.push([CYL(1.4,46,74,sx*19,-11,8),p.mad]);return g;}},
-    vanitorioMad:{n:'Vanitorio de madera flotante con bacha de apoyo',p:{L:160,D:50,n:2,mad:'madRust',tapa:'pizarra',bacha:'negro'},
-      g:p=>{const z0=40,z1=82,g=[[B(-p.L/2,p.L/2,z0,z1-4,-p.D/2,p.D/2-1),p.mad],[B(-p.L/2,p.L/2,z1-4,z1,-p.D/2,p.D/2+1),p.tapa],[B(-p.L/2+2,p.L/2-2,z0-.6,z0,-p.D/2+4,p.D/2-6),'ledCalido']];
-        for(const zz of [z0+19])g.push([B(-p.L/2+2,p.L/2-2,zz-.4,zz+.4,p.D/2-1,p.D/2-.6),'junta']);for(const x of p.n>1?[-p.L/4,p.L/4]:[0]){g.push([B(x-.4,x+.4,z0+2,z1-6,p.D/2-1,p.D/2-.6),'junta']);
-          const s=new THREE.SphereGeometry(21,28,12,0,Math.PI*2,Math.PI/2,Math.PI/2);s.scale(1,.55,1);s.translate(x,z1+11.5,2);g.push([s,p.bacha],[CYL(17,z1+11,z1+11.6,x,2,28),'loza']);
-          g.push([B(x-1.1,x+1.1,z1+26,z1+28.2,-p.D/2,-p.D/2+15),'negro'],[CYL(3,z1+25,z1+29,x,-p.D/2+.5,16).rotateX(0),'negro'],/* grifería de pared negra */[B(x-30,x+30,z1+42,z1+122,-p.D/2-.5,-p.D/2+1),'negro'],[B(x-28,x+28,z1+44,z1+120,-p.D/2+1,-p.D/2+1.6),'espejo']);}return g;}},
-    taburete:{n:'Taburete tronco',p:{H:45,mad:'madRust'},g:p=>[[CYL(18,0,p.H,0,0,20),p.mad]]},
-    alfombraYute:{n:'Alfombra de yute',p:{L:240,D:170},g:p=>[[B(-p.L/2,p.L/2,0,.8,-p.D/2,p.D/2),'yute']]},
     sofa:{n:'Sofá',p:{L:220,D:95,H:80,tela:'lino'},g:p=>{const g=[[B(-p.L/2,p.L/2,10,42,-p.D/2,p.D/2),p.tela],[B(-p.L/2,p.L/2,10,p.H,-p.D/2,-p.D/2+22),p.tela],[B(-p.L/2,-p.L/2+18,10,62,-p.D/2,p.D/2),p.tela],[B(p.L/2-18,p.L/2,10,62,-p.D/2,p.D/2),p.tela]];
       const n=Math.max(1,Math.round((p.L-36)/75));for(let i=0;i<n;i++){const x0=-p.L/2+18+(p.L-36)*i/n,x1=-p.L/2+18+(p.L-36)*(i+1)/n;g.push([B(x0+.5,x1-.5,42,52,-p.D/2+22,p.D/2-2),p.tela]);}
       for(const [a,b] of [[-1,-1],[1,-1],[-1,1],[1,1]])g.push([B(a*(p.L/2-6)-2,a*(p.L/2-6)+2,0,10,b*(p.D/2-6)-2,b*(p.D/2-6)+2),'negro']);return g;}},
@@ -112,6 +81,9 @@ export function initEquipamiento(visor,stage){
     silla:{n:'Silla',p:{mad:'roble'},
       g:p=>{const g=[[B(-22,22,43,46,-22,22),p.mad],[B(-22,22,46,86,-22,-19),p.mad]];for(const sx of [-1,1])for(const sz of [-1,1])g.push([B(sx*19-1.5,sx*19+1.5,0,43,sz*19-1.5,sz*19+1.5),p.mad]);return g;}},
   };
+  /* catálogo de muebles refinado (motor/muebles.js, Maxi 15/10): reemplaza las piezas en bloque con las mismas claves y parámetros; lo que no está ahí queda como estaba */
+  for(const [k,v] of Object.entries(MATERIALES))if(!MAT[k]||k==='grifo')MAT[k]=M(v[0],{r:v[1],m:v[2]||0,...(v[3]?{x:{emissive:new THREE.Color(v[3]),emissiveIntensity:1.2}}:{})});
+  Object.assign(CAT,catalogoMuebles(THREE));
 
   /* ---------- ambientes y escenarios de partida ---------- */
   const R90=90;/* contra M-20 (cara interior x 1834,5), frente hacia el este */
@@ -325,7 +297,23 @@ export function initEquipamiento(visor,stage){
   const item=id=>{const g=groups.get(id);if(!g)return null;const s=ST[g.userData.capa][g.userData.amb];return s&&s.esc[s.activo].items.find(m=>m.id===id);};
   /* elegir muebles y artefactos tocándolos aunque el panel esté cerrado (Maxi 15/10): gana lo que esté más cerca, respeta los cortes y las paredes que tapan */
   const okClip=h=>(visor.clips||[]).every(q=>{const v=q.axis==='x'?h.point.x:q.axis==='y'?h.point.y:h.point.z;return (q.side||-1)>0?v>=q.value-.5:v<=q.value+.5;});
+  /* gizmo del elegido (Maxi 15/10: «dejame mover los muebles y girarlos, como me dejás mover otras cosas»): flechas en x y en y de planta, y un aro naranja para girar */
+  const EG=new THREE.Group(),ER=new THREE.Group();EG.visible=ER.visible=false;scene.add(EG,ER);
+  const gmat=c=>new THREE.MeshBasicMaterial({color:c,depthTest:false,transparent:true,opacity:.92});
+  for(const [k,d,c] of [['x',new THREE.Vector3(1,0,0),0xd23b2a],['y',new THREE.Vector3(0,0,1),0x1f6fd1]])for(const sg of [1,-1]){const g=new THREE.Group(),m=gmat(c);
+    const sh=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,40,8),m);sh.position.y=20;const hd=new THREE.Mesh(new THREE.ConeGeometry(5.5,14,12),m);hd.position.y=46;const hit=new THREE.Mesh(new THREE.CylinderGeometry(9,9,58,6),new THREE.MeshBasicMaterial({visible:false}));hit.position.y=29;
+    for(const o of [sh,hd,hit]){o.renderOrder=2002;o.userData.eg=k;g.add(o);}g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().multiplyScalar(sg));EG.add(g);}
+  {const aro=new THREE.Mesh(new THREE.TorusGeometry(1,.022,8,72),gmat(0xe08a1e));const hit=new THREE.Mesh(new THREE.TorusGeometry(1,.09,6,48),new THREE.MeshBasicMaterial({visible:false}));
+    for(const o of [aro,hit]){o.rotation.x=Math.PI/2;o.userData.eg='r';o.renderOrder=2002;ER.add(o);}}
+  let egKey='';const egBB=new THREE.Box3(),egC=new THREE.Vector3(),egS=new THREE.Vector3();
+  (function egl(){requestAnimationFrame(egl);const g=sel&&groups.get(sel);const on=!!(g&&g.visible&&!card.hidden);EG.visible=ER.visible=on;if(!on)return;
+    const k=sel+g.position.toArray().join()+g.rotation.y;if(k!==egKey){egKey=k;egBB.setFromObject(g);egBB.getCenter(egC);egBB.getSize(egS);}
+    EG.position.set(egC.x,egBB.max.y+6,egC.z);EG.scale.setScalar(Math.max(.3,camera.position.distanceTo(EG.position)/450));
+    ER.position.set(g.position.x,egBB.min.y+2,g.position.z);ER.scale.setScalar(Math.max(egS.x,egS.z)/2+14);})();
   view.addEventListener('pointerdown',e=>{if(e.button!==0||!card)return;const abierto=!card.hidden&&(G.visible||capa==='veg');if(!abierto&&!G.visible)return;setRay(e);
+    if(EG.visible){const hh=rc.intersectObjects([...EG.children,...ER.children],true)[0];const m=hh&&item(sel),g=hh&&groups.get(sel);
+      if(m&&g){e.stopPropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-hh.point.y);const p0=hh.point.clone();rc.ray.intersectPlane(pl,p0);
+        dr={id:sel,pl,eg:hh.object.userData.eg,p0,mx:m.x,my:m.y,r0:m.r||0,a0:Math.atan2(p0.z-g.position.z,p0.x-g.position.x),moved:false};return;}}
     const ics=[];if(abierto&&iconsOn)for(const g of groups.values())if(g.visible&&g.userData.ico)ics.push(g.userData.ico);let h=rc.intersectObjects(ics,false)[0];
     if(!h){const ms=[];for(const g of groups.values())if(g.visible&&(abierto?g.userData.capa===capa||g.userData.capa==='mue'||g.userData.capa==='luz':g.userData.capa==='mue'||g.userData.capa==='luz'))g.traverse(o=>{if(o.isMesh&&!o.isSprite)ms.push(o);});
       h=rc.intersectObjects(ms,false).find(okClip)||null;
@@ -336,10 +324,14 @@ export function initEquipamiento(visor,stage){
     sel=id;marcarSel();panel();const y0=groups.get(id).position.y;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-y0);const p0=new THREE.Vector3();rc.ray.intersectPlane(pl,p0);
     dr={id,pl,dx:m.x-p0.x,dy:m.y-p0.z,x0:e.clientX,r0:m.r||0,rot:e.shiftKey,moved:false};},true);
   view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();const m=item(dr.id),g=groups.get(dr.id);if(!m||!g)return;dr.moved=true;
+    if(dr.eg){setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;
+      if(dr.eg==='r'){const a=Math.atan2(p.z-g.position.z,p.x-g.position.x);let r=dr.r0-(a-dr.a0)*180/Math.PI;r=e.altKey?Math.round(r):Math.round(r/15)*15;m.r=((r%360)+360)%360;g.rotation.y=m.r*Math.PI/180;hint(`${NOMBRE(m.t,capa)} · giro ${m.r}°  (de a 15°; Alt: libre)`);marcarSel();luces();return;}
+      let x=dr.mx,y=dr.my;if(dr.eg==='x')x+=p.x-dr.p0.x;else y+=p.z-dr.p0.z;if(!e.altKey){x=Math.round(x/5)*5;y=Math.round(y/5)*5;}else{x=Math.round(x);y=Math.round(y);}
+      m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre)`);return;}
     if(dr.rot||e.shiftKey){let r=dr.r0+(e.clientX-dr.x0)*.5;if(!e.altKey)r=Math.round(r/15)*15;m.r=((r%360)+360)%360;g.rotation.y=m.r*Math.PI/180;hint(`${NOMBRE(m.t,capa)} · giro ${m.r}°`);marcarSel();luces();return;}
     setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;let x=p.x+dr.dx,y=p.z+dr.dy;if(!e.altKey){x=Math.round(x/5)*5;y=Math.round(y/5)*5;}
     m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre · Shift: girar)`);},true);
-  const end=e=>{if(!dr)return;e.stopPropagation();const mvd=dr.moved,g=groups.get(dr.id);dr=null;visor.controls.enabled=true;if(mvd){if(g&&g.userData.mount==='techo')armar();guardar(amb);}};
+  const end=e=>{if(!dr)return;e.stopPropagation();const mvd=dr.moved,g=groups.get(dr.id);dr=null;visor.controls.enabled=true;if(mvd){if(g&&g.userData.mount==='techo')armar();guardar(amb);panel();}};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);
   function hint(t){const st=document.getElementById('stTool');if(st)st.innerHTML=t;}
 
@@ -394,7 +386,7 @@ export function initEquipamiento(visor,stage){
         <div style="color:var(--muted);font-size:10px;margin:1px 0 5px">x ${(m.x/100).toFixed(2)} · y ${(m.y/100).toFixed(2)} · ${m.r||0}°${capa==='luz'&&catOf(m.t,'luz').mount==='techo'?' · al cielorraso':''}</div>
         ${campos(m)}
         <div style="display:flex;gap:3px;margin-top:6px">${ib('rotL','⟲','Girar 90° a la izquierda')}${ib('rotR','⟳','Girar 90° a la derecha')}${ib('dupM','⧉','Duplicar')}${ib('delM','🗑','Quitar')}${ib('irM','◎','Ir hasta el artefacto')}</div>
-        <div style="color:var(--muted);font-size:10px;margin-top:4px">Flechas: mover 5 cm (Shift 1 cm) · Shift + arrastrar: girar</div></div>`
+        <div style="color:var(--muted);font-size:10px;margin-top:4px">Arrastrá el mueble o sus flechas para moverlo; el aro naranja lo gira de a 15° (Alt: libre). Teclado: flechas 5 cm (Shift 1 cm).</div></div>`
        :`<div style="color:var(--muted);font-size:10px">Tocá un ${capa==='luz'?'ícono o artefacto':'mueble'} o elegilo de la lista. Arrastrá para moverlo (imán 5 cm; Alt libre).</div>`}`;}
   card.addEventListener('input',ev=>{const t=ev.target;if(t.matches('[data-hora]')&&visor.noche){const l=card.querySelector('[data-horal]');if(l)l.textContent=visor.noche.hhmm(+t.value);visor.noche.setMin(+t.value);return;}if(t.dataset.n&&visor.noche&&t.type==='range'){visor.noche.set(t.dataset.n,+t.value);const sm=t.parentElement.querySelector('small');if(sm&&t.dataset.n==='exp')sm.textContent=`${t.value>0?'+':''}${(+t.value).toFixed(1)} EV`;}});
   card.addEventListener('change',ev=>{const t=ev.target;

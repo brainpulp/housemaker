@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catálogo de muebles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ec;--panel:#fbfaf7;--ink:#26282a;--muted:#7a776f;--rule:#dcd7cd;--acc:#b5532c;--thumb:#ebe7df}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1c1d;--panel:#232526;--ink:#e9e6df;--muted:#9a968d;--rule:#3a3c3e;--acc:#e07a4f;--thumb:#2b2d2f}}
+:root[data-theme="dark"]{--bg:#1b1c1d;--panel:#232526;--ink:#e9e6df;--muted:#9a968d;--rule:#3a3c3e;--acc:#e07a4f;--thumb:#2b2d2f}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:14px/1.45 "IBM Plex Sans",system-ui,sans-serif}
+header{padding:28px 24px 10px;max-width:1280px;margin:0 auto}h1{font-size:22px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:720px}
+.fam{display:flex;gap:6px;flex-wrap:wrap;padding:14px 24px;max-width:1280px;margin:0 auto}
+.fam button{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer}
+.fam button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+main{display:grid;grid-template-columns:1fr;gap:20px;max-width:1280px;margin:0 auto;padding:0 24px 40px}
+@media (min-width:980px){main{grid-template-columns:1fr 420px}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;align-content:start}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;padding:0}
+.card[aria-current=true]{outline:2px solid var(--acc);outline-offset:-1px}
+.card img{display:block;width:100%;aspect-ratio:4/3;background:var(--thumb);object-fit:cover}
+.card div{padding:8px 10px 10px}.card b{display:block;font-weight:500;font-size:13px;line-height:1.3}
+.k{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted)}
+aside{background:var(--panel);border:1px solid var(--rule);border-radius:6px;align-self:start;position:sticky;top:12px;overflow:hidden}
+#vw{display:block;width:100%;aspect-ratio:4/3;background:var(--thumb);touch-action:none}
+.det{padding:12px 14px 14px}.det h2{font-size:16px;margin:0 0 2px;font-weight:600}
+.ps{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin:12px 0}
+.ps label{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap:2px}
+.ps input,.ps select{font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:4px 6px;width:100%}
+pre{font:12px/1.4 "IBM Plex Mono",monospace;background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:8px;white-space:pre-wrap;word-break:break-all;margin:0}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px}.row button{font:inherit;font-size:12px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:4px;padding:4px 10px;cursor:pointer}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+@media (max-width:600px){header,.fam{padding-left:16px;padding-right:16px}main{padding:0 16px 32px}.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<header><h1>Catálogo de muebles</h1><p>Las piezas del motor de housemaker, en la línea de las referencias: bajas, madera maciza, lino, piedra oscura y negro mate. Cada una se arma por parámetros (cm) y se usa en cualquier casa con su clave.</p></header>
+<nav class="fam" id="fam"></nav>
+<main><section class="grid" id="grid"></section>
+<aside><canvas id="vw"></canvas><div class="det" id="det"></div></aside></main>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { catalogoMuebles, MATERIALES } from './muebles.js';
+const CAT=catalogoMuebles(THREE);
+const mats={};const mat=k=>{if(mats[k])return mats[k];const v=MATERIALES[k]||(k==='vidrio'?['#d8e6ea',.05,0]:['#999',.7]);
+  const m=new THREE.MeshStandardMaterial({color:v[0],roughness:v[1]??.7,metalness:v[2]||0});if(v[3]){m.emissive=new THREE.Color(v[3]);m.emissiveIntensity=1.2;}if(k==='vidrio'){m.transparent=true;m.opacity=.3;m.depthWrite=false;}return mats[k]=m;};
+const ORD=['estar','comedor','dormitorio','cocina','baño','trabajo','exterior','otros'];
+const keys=Object.keys(CAT).sort((a,b)=>ORD.indexOf(CAT[a].cat)-ORD.indexOf(CAT[b].cat)||CAT[a].n.localeCompare(CAT[b].n));
+function armar(k,p){const c=CAT[k],g=new THREE.Group();for(const [geo,m] of c.g({...c.p,...p},{techoMin:()=>260,techo:()=>260}))if(geo)g.add(new THREE.Mesh(geo,mat(m)));return g;}
+function escena(){const s=new THREE.Scene();s.add(new THREE.HemisphereLight(0xfff6ea,0x8a8377,1.6));const d=new THREE.DirectionalLight(0xffffff,2.2);d.position.set(-200,400,300);s.add(d);
+  const f=new THREE.Mesh(new THREE.CircleGeometry(600,48),new THREE.MeshStandardMaterial({color:'#d9d3c8',roughness:1}));f.rotation.x=-Math.PI/2;f.position.y=-.2;s.add(f);return s;}
+const encuadre=(cam,obj,ctl)=>{const bb=new THREE.Box3().setFromObject(obj);const c=bb.getCenter(new THREE.Vector3()),r=bb.getSize(new THREE.Vector3()).length()/2;
+  cam.position.set(c.x+r*1.35,c.y+r*1.05,c.z+r*1.6);cam.near=1;cam.far=r*20;cam.updateProjectionMatrix();cam.lookAt(c);if(ctl){ctl.target.copy(c);ctl.update();}};
+/* miniaturas: un solo renderer */
+const rT=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});rT.setSize(400,300);rT.setPixelRatio(1);rT.outputColorSpace=THREE.SRGBColorSpace;
+const cT=new THREE.PerspectiveCamera(32,4/3,1,5000);
+const grid=document.getElementById('grid'),fam=document.getElementById('fam');let filtro='todo',actual=null,pAct={};
+for(const k of keys){const c=CAT[k];const s=escena();const o=armar(k,{});s.add(o);s.background=new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--thumb').trim()||'#ebe7df');encuadre(cT,o);rT.render(s,cT);
+  const b=document.createElement('button');b.className='card';b.dataset.k=k;b.dataset.cat=c.cat;b.innerHTML=`<img alt="" src="${rT.domElement.toDataURL('image/jpeg',.85)}"><div><b>${c.n}</b><span class="k">${k} · ${c.cat}</span></div>`;b.onclick=()=>elegir(k);grid.appendChild(b);}
+const fams=['todo',...ORD.filter(f=>keys.some(k=>CAT[k].cat===f))];
+fam.innerHTML=fams.map(f=>`<button data-f="${f}" aria-pressed="${f==='todo'}">${f==='todo'?'Todo':f[0].toUpperCase()+f.slice(1)}</button>`).join('');
+fam.onclick=e=>{const f=e.target.dataset.f;if(!f)return;filtro=f;fam.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));grid.querySelectorAll('.card').forEach(c=>c.hidden=f!=='todo'&&c.dataset.cat!==f);};
+/* visor de detalle */
+const cv=document.getElementById('vw'),rV=new THREE.WebGLRenderer({canvas:cv,antialias:true});rV.outputColorSpace=THREE.SRGBColorSpace;rV.setPixelRatio(Math.min(2,devicePixelRatio));
+const sV=escena(),camV=new THREE.PerspectiveCamera(32,4/3,1,5000),ctl=new OrbitControls(camV,cv);let objV=null;
+function tam(){const w=cv.clientWidth,h=cv.clientHeight;if(cv.width!==Math.round(w*rV.getPixelRatio())){rV.setSize(w,h,false);camV.aspect=w/h;camV.updateProjectionMatrix();}}
+(function loop(){requestAnimationFrame(loop);tam();sV.background=new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--thumb').trim()||'#ebe7df');rV.render(sV,camV);})();
+const MNOM=Object.keys(MATERIALES);const det=document.getElementById('det');
+function poner(re){if(objV){sV.remove(objV);objV.traverse(o=>o.geometry&&o.geometry.dispose());}objV=armar(actual,pAct);sV.add(objV);if(re)encuadre(camV,objV,ctl);
+  const c=CAT[actual];const dif=Object.fromEntries(Object.entries(pAct).filter(([k,v])=>v!==c.p[k]));
+  det.querySelector('pre').textContent=JSON.stringify({t:actual,x:0,y:0,r:0,p:dif});}
+function elegir(k){actual=k;pAct={...CAT[k].p};grid.querySelectorAll('.card').forEach(c=>c.setAttribute('aria-current',c.dataset.k===k));const c=CAT[k];
+  det.innerHTML=`<h2>${c.n}</h2><div class="k">${k} · ${c.cat}</div><div class="ps">${Object.entries(c.p).map(([n,v])=>typeof v==='number'?`<label>${n}<input type="number" data-p="${n}" value="${v}"></label>`:
+    `<label>${n}<select data-p="${n}">${MNOM.map(m=>`<option${m===v?' selected':''}>${m}</option>`).join('')}</select></label>`).join('')||'<span class="k">sin parámetros</span>'}</div>
+    <div class="k" style="margin-bottom:4px">Para usarlo en un escenario de equipamiento:</div><pre></pre><div class="row"><button id="cp">Copiar</button><button id="rs">Valores por defecto</button></div>
+    <p class="note">Medidas en cm. Origen al centro de la planta, apoyado en el piso, frente hacia +z.${c.z?` Va a ${c.z} cm del piso.`:''}</p>`;
+  det.querySelectorAll('[data-p]').forEach(i=>i.oninput=()=>{pAct[i.dataset.p]=i.type==='number'?+i.value:i.value;poner(false);});
+  det.querySelector('#cp').onclick=e=>{navigator.clipboard?.writeText(det.querySelector('pre').textContent).then(()=>{e.target.textContent='Copiado';setTimeout(()=>e.target.textContent='Copiar',1200);}).catch(()=>{});};
+  det.querySelector('#rs').onclick=()=>elegir(k);poner(true);}
+elegir(keys.includes('sofa')?'sofa':keys[0]);window.__cat={n:keys.length,keys};
+</script>
+</body>
+</html>

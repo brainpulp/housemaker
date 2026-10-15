@@ -36,6 +36,7 @@ En `casa.js` también hay mucho específico de Carhué: lucarnas, dormers, la co
 | `sidebar.js` | barra derecha en acordeón. Adopta los paneles por id (`varCard`, `capasPanel`, `eqCard`, `termCard`, `medPanel`, `senPanel`, `edPanel`, `marcasPanel`, el pop del sol, cortes, personas). Un panel nuevo **no** se hace flotante: se le agrega una sección acá. |
 | `inspector.js` | selección (ficha, renombrar, nota) y outliner |
 | `equipamiento.js` | capas mue/luz/veg/cal con escenarios por ambiente (`AMB`), migraciones `MIG` (agregar) y `MUT` (corregir), y la base del artifact |
+| `muebles.js` | catálogo de muebles por parámetros, independiente de la casa (lo usa `equipamiento.js` y la página `casas/catalogo`) |
 | `luminarias.js` | catálogo de artefactos con sus luces reales; los de techo copian la pendiente del cielorraso y los de pie se acortan |
 | `calefaccion.js` | catálogo de calefactores (salamandra, tiro balanceado, fancoil, losa radiante, caldera) |
 | `termica.js` | simulación por zonas (un nodo por local, paso de 5 min, sol, vidrios, envolvente) |
