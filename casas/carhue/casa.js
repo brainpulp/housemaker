@@ -23,6 +23,7 @@ import { initTours } from './tours.js';
 import { initCalidad } from './calidad.js';
 import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
+import { initEstructura } from './estructura.js';
 import { initTermica } from './termica.js';
 import { GLB64 } from './casa-carhue-glb.js';
 const {THREE,prism,box,rod,box8,f1}=geo;
@@ -34,8 +35,8 @@ const wingZ=x=>497-Math.abs(x-2103)*(238/332);
 /* dormers (Maxi 14/10): DM-1 y DM-2 al jardín entre cabios dobles de CAB-3 (cada 65 desde x 0,32); DM-3 en el faldón norte del ala */
 const DORM_ON=p=>['j','ja','c','ca'].includes(p.dormers),DORM_ALT=p=>p.dormAlt==='1'||['ja','ca'].includes(p.dormers),DORM_Y0=358,DORM_SKIP=p=>['c','ca'].includes(p.dormers)?['LU-1','LU-2']:DORM_ON(p)?['LU-1']:[];
 const DORM_J2=[{id:'DM-1',xl:97,xr:357,local:'dormitorio secundario (L-25), en lugar de LU-1'},{id:'DM-2',xl:747,xr:942,local:'dormitorio principal (L-21); 1,8 m para no tocar LU-2'}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
-/* dormer corrido (Maxi 14/10): un solo frente de x 0,97 a 9,42 sobre el dormitorio secundario, el baño y el principal; reemplaza LU-1 y LU-2; el cabezal largo apoya en dos postes sobre los tabiques M-40 y M-41 */
-const DORM_C=[{id:'DM-C',xl:97,xr:942,local:'dormitorio secundario, baño y dormitorio principal (corrido)',ventanas:[[125,380],[430,540],[600,925]],postes:[400,570],integrada:true}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
+/* dormer corrido (Maxi 14/10): un solo frente de x 0 (cara de afuera de la pared del fondo M-04, donde apoya su lateral) a 9,42 sobre el dormitorio secundario, el baño y el principal; reemplaza LU-1 y LU-2; el cabezal largo apoya en dos postes sobre los tabiques M-40 y M-41 */
+const DORM_C=[{id:'DM-C',xl:0,xr:942,local:'dormitorio secundario, baño y dormitorio principal (corrido, de punta a punta: Maxi 14/10)',ventanas:[[50,380],[430,540],[600,925]],postes:[400,570],integrada:true}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
 const DORM_J_=p=>['c','ca'].includes(p.dormers)?DORM_C:DORM_J2;
 /* lucarnas corredizas hacia el costado (Maxi 14/10): cada hoja sube 12 y corre a lo largo del faldón (paralela a la cumbrera) hacia el lado que esté libre.
    Se elige el lado sin chocar otra lucarna (con su hoja corrida), un dormer ni el borde del faldón; si ningún lado tiene lugar, esa lucarna queda corrediza hacia arriba. */
@@ -597,7 +598,7 @@ function build(p){
       Pt(d.id+'z',`${d.id} · zinguería`,'acero',fl,{fn:'Babetas a los dos costados (chapa plegada bajo la chapa del faldón y contra el lateral) y cupertina al frente.'},{...TE});
       Pt(d.id+'m',`${d.id} · marco de la ventana`,'roble',mk,{fn:d.integrada?'Contramarco de las ventanas del dormer corrido, de piso a techo: paño fijo abajo y hoja proyectante arriba.':'Ventana del dormer: paño fijo arriba y hoja proyectante abajo, sobre la franja de ventanas VE de la fachada.'},{...TE});
       Pt(d.id+'v',`${d.id} · vidrios`,'glass',gl,{fn:'Vidrios del dormer.'},{...TE,opt:{noEdges:true}});
-      if(d.integrada)Pt(d.id+'f',`${d.id} · cierre de la punta sur`,'chapa',[box(30,xa-7.5,262,352,YF-7,YF+6)],{fn:'Con el dormer corrido la franja VE-1…3 se reemplaza por las ventanas del dormer, de piso a techo; este paño cierra lo que queda de VE-1 al sur.'},{...TE});}
+      if(d.integrada&&xa-7.5>31)Pt(d.id+'f',`${d.id} · cierre de la punta sur`,'chapa',[box(30,xa-7.5,262,352,YF-7,YF+6)],{fn:'Con el dormer corrido la franja VE-1…3 se reemplaza por las ventanas del dormer, de piso a techo; este paño cierra lo que queda de VE-1 al sur.'},{...TE});}
     if(DORM_ALT(p)){/* DM-3: altillo, faldón norte del ala (hacia la pileta), un agua a 6° */
       const D=DORM_A,T6=Math.tan(6*Math.PI/180),DT=x=>495-(x-D.x0)*T6,DU=x=>DT(x)-15,RW=x=>wingZ(x)+6,RU=x=>wingZ(x)-15,XF=D.xf,ym=(D.y0+D.y1)/2,yw0=ym-120,yw1=ym+120,zw0=350,zw1=440;
       const es=[],ch=[],gl=[],mk=[],tc=[],fl=[];
@@ -988,4 +989,6 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
 try{initToolbar(document.querySelector('#modo-3d .stage'),visor,{vistas:vu,zonas:ZONAS});}catch(e){console.error('toolbar',e);}}
 try{initInspector(visor);}catch(e){console.error('inspector',e);}
 try{initSidebar(visor);}catch(e){console.error('sidebar',e);}
+/* estructura (prototipo): datos de las barras de esta casa; lo no confirmado queda marcado como supuesto en el panel */
+try{initEstructura(visor,M,{barras:{'W-1':{sec:'IPE240',acero:'F-24',trib:2.9,D:.35,apoyosExtra:[{x:0,nota:'extremo sur (x 9,00): ¿sobre qué apoya? supuesto'}],nota:'Ancho tributario supuesto: mitad del faldón hasta la cumbrera (1,4 m) + mitad del techo de vidrio hasta el riel RA-1 (1,5 m). D supuesto: chapa o vidrio + cabios + machimbre ≈ 0,35 kN/m². La sección real del perfil W no la tengo: elegí la más parecida o pasame sus medidas.'}}});}catch(e){console.error('estructura',e);}
 window.__ok3d=true;

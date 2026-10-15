@@ -42,6 +42,14 @@ export function catalogoLuces(THREE,B,CYL){
       ui:[['L','largo','num'],['drop','caída','num'],['lm','lúmenes','num'],K,DIM,['acab','terminación',ACAB]],
       g:p=>({geo:[[B(-p.L/2,p.L/2,-p.drop-4,-p.drop,-3,3),p.acab],[B(-p.L/2+2,p.L/2-2,-p.drop-4.2,-p.drop-3.9,-2.2,2.2),'@'],[CYL(.25,-p.drop,0,-p.L/2+10,0,6),'negro'],[CYL(.25,-p.drop,0,p.L/2-10,0,6),'negro']],
         luz:[{t:'rect',p:[0,-p.drop-4.5,0],d:[0,-1,0],w:p.L-4,h:4.4,lm:p.lm}]})},
+    /* de las referencias de Maxi (14/10) */
+    farol:{n:'Farol de papel (esfera)',mount:'techo',p:{drop:90,diam:45,lm:800,K:2700,dim:100},ui:[['drop','caída','num'],['diam','diámetro','num'],LM,K,DIM],
+      g:p=>{const r=p.diam/2;const sp=new THREE.SphereGeometry(r,32,18);sp.scale(1,.92,1);sp.translate(0,-p.drop-r*.92,0);const out={geo:[[CYL(.3,-p.drop,0,0,0,6),'negro'],[CYL(4,-1.2,0,0,0,16),'negro'],[sp,'pantalla']],luz:[{t:'point',p:[0,-p.drop-r,0],lm:p.lm,dist:700}]};
+        for(let i=1;i<6;i++){const y=-p.drop-r*.92+r*.92*Math.cos(i*Math.PI/6),rr=r*Math.sin(i*Math.PI/6);const t=new THREE.TorusGeometry(rr,.18,4,40);t.rotateX(Math.PI/2);t.translate(0,y,0);out.geo.push([t,'negro']);}/* nervaduras del papel */return out;}},
+    tubo:{n:'Colgante tubo vertical',mount:'techo',p:{drop:120,L:45,lm:400,K:2700,dim:100,acab:'negro'},ui:[['drop','caída','num'],['L','largo','num'],LM,K,DIM,['acab','terminación',ACAB]],
+      g:p=>({geo:[[CYL(.3,-p.drop+p.L,0,0,0,6),'negro'],[CYL(3,-1.2,0,0,0,16),p.acab],[CYL(1.4,-p.drop,-p.drop+p.L,0,0,12),'@'],[CYL(1.6,-p.drop+p.L-3,-p.drop+p.L,0,0,12),p.acab]],luz:[{t:'point',p:[0,-p.drop+p.L/2,0],lm:p.lm,dist:500}]})},
+    apliqueGlobo:{n:'Aplique con globo de vidrio',mount:'pared',p:{z:185,lm:300,K:2700,dim:100,acab:'negro'},ui:[['z','altura','num'],LM,K,DIM,['acab','terminación',ACAB]],
+      g:p=>{const gl=new THREE.SphereGeometry(7,20,14);gl.scale(1,1.3,1);gl.translate(0,0,14);return {geo:[[CYL(5,0,1.2,0,0,20).rotateX(Math.PI/2),p.acab],[B(-1,1,-1,1,0,9),p.acab],[CYL(4.5,6,9,0,14,16),p.acab],[CYL(4.5,-10,-7,0,14,16),p.acab],[gl,'pantalla']],luz:[{t:'point',p:[0,0,14],lm:p.lm,dist:500}]};}},
     plafon:{n:'Plafón',mount:'techo',p:{diam:40,lm:1800,K:3000,dim:100},ui:[['diam','diámetro','num'],['lm','lúmenes','num'],K,DIM],
       g:p=>({geo:[[CYL(p.diam/2,-6,0,0,0,32),'blanco'],[CYL(p.diam/2-1.5,-6.3,-5.9,0,0,32),'@']],luz:[{t:'rect',p:[0,-6.6,0],d:[0,-1,0],w:p.diam*.8,h:p.diam*.8,lm:p.lm}]})},
     aplique:{n:'Aplique de pared arriba/abajo',mount:'pared',p:{z:190,lm:350,beam:40,K:3000,dim:100,acab:'negro'},ui:[['z','altura','num'],LM,['beam','apertura °',[15,24,40,60]],K,DIM,['acab','terminación',ACAB]],
@@ -94,9 +102,9 @@ export function escLuces(a,I){
     case 'estudio':return {A:{nombre:'Lineal sobre el escritorio + lectura',items:[I('linea',1280,190,90,{L:150,drop:70,lm:2200,K:4000}),I('velador',1290,115,0,{z:75,lm:400}),I('pie',1060,560,0),I('emb',1180,330,90,{n:2,sep:120,lm:500})]}};
     case 'altillo':return {A:{nombre:'Colgante en la cumbrera + tira',items:[I('colgante',2103,-560,0,{drop:40,diam:35,lm:1200}),I('tira',2103,-748,0,{L:200,z:120,dir:'arriba',lmm:500})]}};
     case 'exterior':return {
-      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',45,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
+      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',22,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
         ...[1500,1800,2100,2400].map(x=>I('baliza',x,1135,0)),I('pileta',3760,700,R90,{z:-45}),I('pileta',3760,1250,R90,{z:-45})]},
-      B:{nombre:'Sólo pileta',items:[I('reflector',45,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('pileta',3760,700,R90,{z:-45}),I('pileta',3760,1250,R90,{z:-45})]}};
+      B:{nombre:'Sólo pileta',items:[I('reflector',22,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('pileta',3760,700,R90,{z:-45}),I('pileta',3760,1250,R90,{z:-45})]}};
     default:return {A:{nombre:'Sin luces',items:[]}};
   }
 }

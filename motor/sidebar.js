@@ -86,6 +86,8 @@ export function initSidebar(visor){
   const mo=new MutationObserver(()=>{if(mo.t)return;mo.t=setTimeout(()=>{mo.t=0;sync();},0);});const vistos=new Set();
   const mirar=()=>{for(const el of [$('varCard'),$('capasPanel'),$('eqCard'),$('termCard'),visor.noche&&visor.noche.pop,$('medPanel'),$('senPanel'),$('edPanel'),$('marcasPanel'),selEl])if(el&&!vistos.has(el)){vistos.add(el);mo.observe(el,{attributes:true,attributeFilter:['hidden','style']});}};
   setInterval(sync,400);sync();
-  const api={sync,toggle,get abierto(){return side.style.display!=='none';},isOn:id=>id==='corte'?CO.on:id==='personas'?PE.on:false};
+  /* secciones que agregan otros módulos (p. ej. estructura): se ubican antes de «Lugar del asoleamiento» */
+  function add(id,title,el,vis,close){if(S[id])return S[id];const r=sec(id,title,{vis,close});acc.insertBefore(r.sec,S.sol.sec);dock(r,el);sync();return r;}
+  const api={sync,toggle,add,get abierto(){return side.style.display!=='none';},isOn:id=>id==='corte'?CO.on:id==='personas'?PE.on:false};
   window.__side=api;visor.sidebar=api;return api;
 }

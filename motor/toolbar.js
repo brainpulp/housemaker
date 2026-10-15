@@ -46,7 +46,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     marcar:{ic:'marcar',n:'Marcar',d:'Dibujá líneas y puntos con una nota; quedan guardados (K-xx).',run:()=>only('marcarTg')},
   };
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['quitar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','vistas','corte','capas','variantes','equip','luces','termica','personas'];
+  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['quitar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','vistas','corte','capas','variantes','equip','luces','termica','estructura','personas'];
   const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
@@ -54,6 +54,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     equip:{ic:'sofa',n:'Equipamiento',d:'Muebles por ambiente con escenarios intercambiables: elegir, mover, girar, agregar, duplicar. Se guarda solo.'},
     luces:{ic:'lampara',n:'Luces',d:'Artefactos de iluminación por ambiente (sets de spots, tiras LED, colgantes, apliques, lámparas, exterior) con escenarios; prende la noche.'},
     termica:{ic:'termometro',n:'Térmica',d:'Simulación térmica por ambiente: temperaturas a lo largo del día, mapa en 3D, consumo de cada sistema (capa «Calor»).'},
+    estructura:{ic:'viga',n:'Estructura',d:'Cálculo estructural (prototipo): vigas de acero con sus apoyos y cargas de techo; % de uso por pieza, diagramas y mapa de uso en el 3D.'},
     personas:{ic:'persona',n:'Personas',d:'Figuras de 1,70 para controlar alturas libres: se arrastran por cualquier piso y pueden caminar solas.'}};
   const cur=LS.get('carhue-tb-cur',{});
   const bar=document.createElement('div');bar.id='toolbar3d';bar.setAttribute('role','toolbar');bar.setAttribute('aria-label','Herramientas');
@@ -158,6 +159,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
       else if(k==='equip'){closeFly();visor.equip&&visor.equip.toggle('mue');sync();}
       else if(k==='luces'){closeFly();if(visor.equip){const o=visor.equip.toggle('luz');if(o&&visor.noche&&visor.noche.sol.alt>-4){visor.noche.irA((visor.noche.horas.ss??1200)+60);}}sync();}
       else if(k==='termica'){closeFly();visor.termica&&visor.termica.toggle();sync();}
+      else if(k==='estructura'){closeFly();visor.estructura&&visor.estructura.toggle();sync();}
       else if(k==='personas'){closeFly();if(window.__side)window.__side.toggle('personas');}
       else if(k==='capas'){closeFly();cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);}
       sync();return;}
@@ -173,7 +175,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     if(on('editarTg')){const p=document.querySelector('#edPanel [data-tool][aria-pressed=true]');const t=p?p.dataset.tool:'';return ({'':'sel',mover:'mover',estirar:'estirar',ab:'ab',quitar:'quitar'})[t]||'sel';}return 'nav';}
   function sync(){const a=active();
     const g=group(a);if(g&&g.length>1&&cur[g[0]]!==a)setSub(g,a);
-    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):'false'):String(k===a));});
+    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):'false'):String(k===a));});
     st.innerHTML=`<b>${T[a].n}</b> ${HINT[a]||''}`;stage.classList.toggle('conpanel',a!=='nav');}
   setInterval(sync,400);sync();
 
