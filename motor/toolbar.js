@@ -46,7 +46,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     marcar:{ic:'marcar',n:'Marcar',d:'Dibujá líneas y puntos con una nota; quedan guardados (K-xx).',run:()=>only('marcarTg')},
   };
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['quitar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','vistas','corte','capas','variantes','equip','luces','termica','estructura','personas'];
+  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['quitar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','corte','capas','variantes','equip','luces','termica','estructura','personas'];
   const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
@@ -144,6 +144,18 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   function zonasMenu(b){openFly(b,el=>{el.className='fymenu';el.innerHTML='<div class="fyg">Zonas con variantes</div>'+zonas.map(z=>{const p=visor.params[z.params[0]];const q=(z.label||{})[p]||p;return `<button class="fyb fyrow" data-z="${z.id}">${icon('variantes',16)}<span>${z.nombre}<small>${q}</small></span></button>`;}).join('');
     el.onclick=e=>{const t=e.target.closest('[data-z]');if(!t)return;closeFly();const z=zonas.find(x=>x.id===t.dataset.z);zPinned=z;showZone(z);if(M3.classList.contains('noaside'))click('asideTg');if(z.vista)visor.fly(z.vista.p,z.vista.t);};});}
 
+  /* ---------- vistas y tours arriba a la derecha, sobre el 3D (Maxi 15/10) ---------- */
+  {const tr=document.getElementById('topright');if(tr){const st=document.createElement('style');st.textContent=`#trPop{position:absolute;z-index:20;background:var(--panel);border:1px solid var(--rule);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:4px;max-height:calc(100% - 60px);overflow:auto;min-width:220px;font-size:12px}#topright .trb{display:flex;align-items:center;gap:4px}#topright .trb[aria-pressed=true]{background:var(--accent-soft)}`;document.head.appendChild(st);
+    /* mismo estilo que el desplegable de la barra: copio sus reglas de #tbFly a #trPop */try{const add=[];for(const ss of document.styleSheets){let rs;try{rs=ss.cssRules;}catch(e){continue;}for(const r of rs)if(r.selectorText&&r.selectorText.includes('#tbFly')&&!r.selectorText.startsWith('#tbFly{')&&r.selectorText!=='#tbFly')add.push(r.cssText.replace(/#tbFly/g,'#trPop'));}const s2=document.createElement('style');s2.textContent=add.join('\n');document.head.appendChild(s2);}catch(e){}
+    const pop=document.createElement('div');pop.id='trPop';pop.hidden=true;stage.appendChild(pop);let popFor=null;
+    const mk=(k,txt,ic)=>{const b=document.createElement('button');b.className='btn trb';b.dataset.tr=k;b.innerHTML=icon(ic,15)+' '+txt;tr.prepend(b);return b;};
+    const bT=mk('tours','Tours','camera'),bV=mk('vistas','Vistas','video');tr.prepend(bV);
+    const cerrar=()=>{pop.hidden=true;popFor=null;bV.setAttribute('aria-pressed','false');bT.setAttribute('aria-pressed','false');};
+    const abrir=(b,fill)=>{if(popFor===b){cerrar();return;}cerrar();pop.innerHTML='';pop.className='fymenu fyvistas';fill(pop);pop.hidden=false;popFor=b;b.setAttribute('aria-pressed','true');
+      const s=stage.getBoundingClientRect(),r=b.getBoundingClientRect();pop.style.top=(r.bottom-s.top+6)+'px';pop.style.right=Math.max(6,s.right-r.right)+'px';};
+    bV.addEventListener('click',()=>abrir(bV,el=>{vistas&&vistas.renderInto(el,cerrar);}));
+    bT.addEventListener('click',()=>abrir(bT,el=>{visor.tours&&visor.tours.appendInto(el,cerrar);}));
+    document.addEventListener('pointerdown',e=>{if(!pop.hidden&&!pop.contains(e.target)&&!tr.contains(e.target))cerrar();});}}
   /* ---------- clics en la barra ---------- */
   let hold=null;
   bar.addEventListener('pointerdown',e=>{const b=e.target.closest('.tbfly');if(!b)return;hold=setTimeout(()=>{hold='open';subMenu(b,group(b.dataset.k));},350);});

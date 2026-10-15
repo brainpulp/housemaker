@@ -24,6 +24,7 @@ import { initCalidad } from './calidad.js';
 import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
 import { initEstructura } from './estructura.js';
+import { initViewCube } from './viewcube.js';
 import { initTermica } from './termica.js';
 import { GLB64 } from './casa-carhue-glb.js';
 const {THREE,prism,box,rod,box8,f1}=geo;
@@ -852,22 +853,38 @@ const $=id=>document.getElementById(id);
 const C6=[['xmin','X desde','x',1,-100,4700,0],['xmax','X hasta','x',-1,-100,4700,3000],['ymin','Y desde','z',1,-1000,2000,-800],['ymax','Y hasta','z',-1,-1000,2000,1000],['zmin','Z desde','y',1,-100,900,0],['zmax','Z hasta','y',-1,-100,900,500]].map(([k,n,axis,side,mn,mx,v])=>({k,n,axis,side,mn,mx,v,on:false}));
 const CL=Object.fromEntries(C6.map(c=>[c.k,c]));
 {const bb=document.querySelector('#modo-3d .bottombar');const sp=document.createElement('span');sp.className='clip clip6';
-  sp.innerHTML=C6.map(c=>`<div class="c6r"><label><input type="checkbox" data-c6on="${c.k}"> ${c.n}</label><input type="range" data-c6v="${c.k}" min="${c.mn}" max="${c.mx}" step="5" value="${c.v}"><span class="clipv" data-c6l="${c.k}"></span></div>`).join('')+'<div class="c6r"><button class="btn mini" data-c6all="0">Sin cortes</button></div>';
+  sp.innerHTML=C6.map(c=>`<div class="c6r"><label><input type="checkbox" data-c6on="${c.k}"> ${c.n}</label><input type="range" data-c6v="${c.k}" min="${c.mn}" max="${c.mx}" step="5" value="${c.v}"><span class="clipv" data-c6l="${c.k}"></span></div>`).join('')+'<div class="c6r"><button class="btn mini" data-c6all="0">Sin cortes</button></div><div id="c6vista" style="font-size:10.5px;color:var(--muted);line-height:1.35;margin-top:3px"></div>';
   const st=document.createElement('style');st.textContent='.clip6{display:flex;flex-direction:column;gap:3px}.c6r{display:flex;align-items:center;gap:5px}.c6r label{width:62px;flex:none;white-space:nowrap}.c6r input[type=range]{flex:1;min-width:60px}.c6r .clipv{width:46px;text-align:right;font-variant-numeric:tabular-nums}';document.head.appendChild(st);
   if(bb)bb.appendChild(sp);
-  sp.addEventListener('input',e=>{const k=e.target.dataset.c6v;if(k){CL[k].v=+e.target.value;CL[k].on=true;syncC6();applyClips();}});
-  sp.addEventListener('change',e=>{const k=e.target.dataset.c6on;if(k){CL[k].on=e.target.checked;applyClips();}});
-  sp.addEventListener('click',e=>{if(e.target.closest('[data-c6all]')){C6.forEach(c=>c.on=false);visor.params.corte='0';['q-corte','v-corte'].forEach(id=>{const el=$(id);if(el)el.value='0';});syncC6();applyClips();}});}
+  sp.addEventListener('input',e=>{const k=e.target.dataset.c6v;if(k){CL[k].v=+e.target.value;CL[k].on=true;syncC6();applyClips();guardarCortesVista();}});
+  sp.addEventListener('change',e=>{const k=e.target.dataset.c6on;if(k){CL[k].on=e.target.checked;applyClips();guardarCortesVista();}});
+  sp.addEventListener('click',e=>{if(e.target.closest('[data-c6rest]')){e.preventDefault();restablecerCortesVista();return;}if(e.target.closest('[data-c6all]')){C6.forEach(c=>c.on=false);setTimeout(guardarCortesVista,0);visor.params.corte='0';['q-corte','v-corte'].forEach(id=>{const el=$(id);if(el)el.value='0';});syncC6();applyClips();}});}
 function syncC6(){for(const c of C6){const a=document.querySelector(`[data-c6on="${c.k}"]`),b=document.querySelector(`[data-c6v="${c.k}"]`),l=document.querySelector(`[data-c6l="${c.k}"]`);if(a)a.checked=c.on;if(b)b.value=c.v;if(l)l.textContent=(c.v/100).toFixed(2).replace('.',',');}}
 function applyClips(){const list=[];const h=+visor.params.corte;if(h>0)list.push({axis:'y',value:h,side:-1});
   for(const c of C6)if(c.on)list.push({axis:c.axis,value:c.v,side:c.side});syncC6();visor.setClips(list);window.__despertar&&window.__despertar();}
 syncC6();
 /* aislar un ambiente: los seis cortes alrededor del local (paredes incluidas) y una cámara que lo mira desde arriba en diagonal */
-function aislar(id){const L=M.LOCALES.find(l=>l.id===id);if(!L)return;const xs=L.poly.map(q=>q[0]),ys=L.poly.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  const f=L.nivel==='EP'?H_EP:0,m=25;const V={xmin:x0-m,xmax:x1+m,ymin:y0-m,ymax:y1+m,zmin:f-25,zmax:f+235};for(const c of C6){c.v=Math.round(V[c.k]/5)*5;c.on=true;}
+/* vistas predeterminadas con cortes propios (Maxi 15/10): cada vista fija y cada ambiente tiene sus seis cortes; al cambiar de vista cambian los cortes;
+   si movés un corte mientras estás en una vista predeterminada, queda guardado como parámetro de esa vista (base del artifact) */
+const AMB_DEF={'L-08':{xmin:1810,xmax:2390,ymin:-360,ymax:140,zmin:-25,zmax:235}};/* cocina: L-08 + L-12 + desayunador */
+let CORTES_V={};try{CORTES_V=JSON.parse(localStorage.getItem('carhue-cortes-vistas')||'{}');}catch(e){}
+let curVista=null,cvDb=null,cvT=0;N.getDb().then(d=>{cvDb=d;if(!d)return;d.collection('estado').doc('cortesVistas').onSnapshot(x=>{if(x.exists){const v=x.data();delete v.ts;CORTES_V={...CORTES_V,...v};}},()=>{});});
+function cortesDef(vid){if(vid.startsWith('__amb:')){const id=vid.slice(6);if(AMB_DEF[id])return {...AMB_DEF[id]};const L=M.LOCALES.find(l=>l.id===id);if(!L)return {};const xs=L.poly.map(q=>q[0]),ys=L.poly.map(q=>q[1]);const f=L.nivel==='EP'?H_EP:0,m=25;
+    return {xmin:Math.min(...xs)-m,xmax:Math.max(...xs)+m,ymin:Math.min(...ys)-m,ymax:Math.max(...ys)+m,zmin:f-25,zmax:f+235};}return {};}
+const cortesDe=vid=>CORTES_V[vid]||cortesDef(vid);
+function ponerCortes(cs){for(const c of C6){c.on=cs[c.k]!=null;if(c.on)c.v=Math.round(cs[c.k]/5)*5;}applyClips();}
+function guardarCortesVista(){if(!curVista)return;const cs=Object.fromEntries(C6.filter(c=>c.on).map(c=>[c.k,c.v]));CORTES_V[curVista]=cs;try{localStorage.setItem('carhue-cortes-vistas',JSON.stringify(CORTES_V));}catch(e){}
+  clearTimeout(cvT);cvT=setTimeout(()=>{if(cvDb)try{cvDb.collection('estado').doc('cortesVistas').set({...CORTES_V,ts:new Date().toISOString()});}catch(e){}},600);pintarCV();}
+function restablecerCortesVista(){if(!curVista)return;delete CORTES_V[curVista];try{localStorage.setItem('carhue-cortes-vistas',JSON.stringify(CORTES_V));}catch(e){}if(cvDb)try{cvDb.collection('estado').doc('cortesVistas').set({...CORTES_V,ts:new Date().toISOString()});}catch(e){}ponerCortes(cortesDe(curVista));pintarCV();}
+function nombreVista(vid){if(vid.startsWith('__amb:')){const L=M.LOCALES.find(l=>l.id===vid.slice(6));return L?`${L.id} · ${L.nombre}`:vid;}const b=document.querySelector(`#viewbar [data-view="${vid.slice(4)}"]`);return b?b.textContent:vid.slice(4);}
+function pintarCV(){const el=document.getElementById('c6vista');if(!el)return;el.innerHTML=curVista?`Cortes de la vista <b>${nombreVista(curVista)}</b>${CORTES_V[curVista]?' (editados) · <a href="#" data-c6rest>restablecer</a>':' · si los movés, quedan guardados para esta vista'}`:'Sin vista predeterminada: los cortes no se guardan en ninguna vista.';}
+setTimeout(()=>pintarCV(),0);
+function irVista(vid){curVista=vid;if(vid.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${vid.slice(4)}"]`);if(b)b.click();ponerCortes(cortesDe(vid));}else aislar(vid.slice(6));pintarCV();}
+/* aislar un ambiente: sus seis cortes (paredes incluidas, de piso a techo, o los que guardaste) y una cámara que lo mira desde arriba en diagonal */
+function aislar(id){const L=M.LOCALES.find(l=>l.id===id);if(!L)return;const vid='__amb:'+id;curVista=vid;const cs=cortesDe(vid);
   visor.params.corte='0';['q-corte','v-corte'].forEach(e=>{const el=$(e);if(el)el.value='0';});
-  /* el techo en pendiente no se deja cortar a una altura: para ver adentro se esconde la capa de techos */if(visor.params.techos!==false){visor.setParams({techos:false});['q-techos','v-techos'].forEach(e=>{const el=$(e);if(el)el.checked=false;});}applyClips();
-  const cx=(x0+x1)/2,cy=(y0+y1)/2,R=Math.max(x1-x0,y1-y0,300);visor.fly([cx-R*.45,f+R*.95+180,cy+R*.95],[cx,f+60,cy]);}
+  /* el techo en pendiente no se deja cortar a una altura: para ver adentro se esconde la capa de techos */if(visor.params.techos!==false){visor.setParams({techos:false});}ponerCortes(cs);
+  const x0=cs.xmin??0,x1=cs.xmax??0,y0=cs.ymin??0,y1=cs.ymax??0,f=(cs.zmin??0)+25;const cx=(x0+x1)/2,cy=(y0+y1)/2,R=Math.max(x1-x0,y1-y0,300);visor.fly([cx-R*.45,f+R*.95+180,cy+R*.95],[cx,f+60,cy]);pintarCV();}
 root.addEventListener('change',e=>{if(e.target.id==='q-corte'||e.target.id==='v-corte')applyClips();});
 /* ocultar / mostrar piezas */
 root.addEventListener('click',e=>{const h=e.target.closest('[data-hide]');if(h){visor.toggleHidden(h.dataset.hide,true);visor.resetSel();renderVistas();return;}if(e.target.closest('[data-showall]')){visor.setHidden([]);renderVistas();}});
@@ -887,10 +904,10 @@ function renderVistas(){const sel=document.getElementById('vistasSel');if(sel){c
       const openF=(mode)=>{fMode=mode;F.hidden=false;sel.hidden=true;if(mode==='save'){vfLbl.textContent='';vfNom.hidden=false;vfNom.value='';vfOk.textContent='Guardar';setTimeout(()=>vfNom.focus(),0);}else{const v=VISTAS.find(x=>x.id===sel.dataset.cur);vfLbl.textContent='¿Borrar «'+v.nombre+'»?';vfNom.hidden=true;vfOk.textContent='Borrar';}};
       vfOk.addEventListener('click',async()=>{if(fMode==='save'){const nm=vfNom.value.trim();closeF();await guardarVista(nm);}else if(fMode==='del'){const cur=sel.dataset.cur;VISTAS=VISTAS.filter(x=>x.id!==cur);if(vdb)try{await vdb.doc('vistas/'+cur).delete();}catch(e){}persistLocal();sel.dataset.cur='';closeF();renderVistas();}});
       F.querySelector('#vfNo').addEventListener('click',closeF);vfNom.addEventListener('keydown',e=>{if(e.key==='Enter')vfOk.click();if(e.key==='Escape')closeF();});
-      sel.addEventListener('change',()=>{const val=sel.value;if(val.startsWith('__amb:')){aislar(val.slice(6));sel.value='';return;}if(val.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`);if(b)b.click();sel.value='';return;}if(val==='__all'){const b=document.getElementById('clearSel');if(b)b.click();sel.value='';return;}if(val==='__save'){openF('save');return;}
+      sel.addEventListener('change',()=>{const val=sel.value;if(val.startsWith('__amb:')||val.startsWith('__v:')){irVista(val);sel.value='';return;}if(val.startsWith('__v:')){const b=document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`);if(b)b.click();sel.value='';return;}if(val==='__all'){const b=document.getElementById('clearSel');if(b)b.click();sel.value='';return;}if(val==='__save'){openF('save');return;}
       if(val==='__upd'){const id=sel.dataset.cur;actualizarVista(id);sel.value=VISTAS.some(x=>x.id===id)?id:'';return;}
       if(val==='__del'){if(!VISTAS.find(x=>x.id===sel.dataset.cur)){sel.value='';const o=sel.querySelector('option[value="__del"]');o.textContent='− Primero elegí una vista';setTimeout(()=>{o.textContent='− Borrar la vista elegida…';},2500);return;}openF('del');return;}
-      sel.dataset.cur=val;const v=VISTAS.find(x=>x.id===val);if(v)applySnapshot(v);});}}
+      sel.dataset.cur=val;const v=VISTAS.find(x=>x.id===val);if(v){curVista=null;applySnapshot(v);pintarCV();}});}}
   const el=$('pane-vistas');if(!el)return;const hid=visor.hidden;
   el.innerHTML=`<p class="intro">Una vista guarda cámara, cortes, capas y piezas ocultas. Queda en la base de la página: la ves vos y la leo yo.</p><div class="renrow"><input type="text" id="vistaNombre" placeholder="nombre de la vista" maxlength="60"><button class="btn" id="vistaGuardar">Guardar</button></div><div class="renmsg" id="vistaMsg"></div>`+
     (VISTAS.length?VISTAS.map(v=>`<div class="row vrow" data-vista="${v.id}"><div style="flex:1;min-width:0"><div class="t"><b>${v.nombre}</b></div><div class="s">${v.cx?'corte X · ':''}${v.cy?'corte Y · ':''}${v.corte&&v.corte!=='0'?'corte a +'+(v.corte/100).toFixed(2).replace('.',',')+' · ':''}${(v.hidden||[]).length?(v.hidden.length+' ocultas · '):''}${(v.ts||'').slice(0,10)}</div></div><button class="btn" data-vupd="${v.id}" title="Actualizar con la vista de ahora">⟳</button><button class="btn" data-vdel="${v.id}" title="Borrar">×</button></div>`).join(''):'<p class="s">Todavía no hay vistas guardadas.</p>')+
@@ -1009,6 +1026,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
 {let vu=null;try{vu=initVistasUI();}catch(e){console.error('vistas',e);}
 try{initToolbar(document.querySelector('#modo-3d .stage'),visor,{vistas:vu,zonas:ZONAS});}catch(e){console.error('toolbar',e);}}
 try{initInspector(visor);}catch(e){console.error('inspector',e);}
+try{initViewCube(visor);}catch(e){console.error('viewcube',e);}
 try{initSidebar(visor);}catch(e){console.error('sidebar',e);}
 /* estructura (prototipo): datos de las barras de esta casa; lo no confirmado queda marcado como supuesto en el panel */
 try{initEstructura(visor,M,{barras:{'W-1':{sec:'IPE240',acero:'F-24',trib:2.9,D:.35,apoyosExtra:[{x:0,nota:'extremo sur (x 9,00): ¿sobre qué apoya? supuesto'}],nota:'Ancho tributario supuesto: mitad del faldón hasta la cumbrera (1,4 m) + mitad del techo de vidrio hasta el riel RA-1 (1,5 m). D supuesto: chapa o vidrio + cabios + machimbre ≈ 0,35 kN/m². La sección real del perfil W no la tengo: elegí la más parecida o pasame sus medidas.'}}});}catch(e){console.error('estructura',e);}
