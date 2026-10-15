@@ -94,9 +94,9 @@ export function escLuces(a,I){
     case 'estudio':return {A:{nombre:'Lineal sobre el escritorio + lectura',items:[I('linea',1280,190,90,{L:150,drop:70,lm:2200,K:4000}),I('velador',1290,115,0,{z:75,lm:400}),I('pie',1060,560,0),I('emb',1180,330,90,{n:2,sep:120,lm:500})]}};
     case 'altillo':return {A:{nombre:'Colgante en la cumbrera + tira',items:[I('colgante',2103,-560,0,{drop:40,diam:35,lm:1200}),I('tira',2103,-748,0,{L:200,z:120,dir:'arriba',lmm:500})]}};
     case 'exterior':return {
-      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',45,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:515}),I('reflector',2746,946,0,{tilt:15,beam:90}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
+      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',45,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
         ...[1500,1800,2100,2400].map(x=>I('baliza',x,1135,0)),I('pileta',3760,700,R90,{z:-45}),I('pileta',3760,1250,R90,{z:-45})]},
-      B:{nombre:'Sólo pileta',items:[I('reflector',45,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:515}),I('reflector',2746,946,0,{tilt:15,beam:90}),I('pileta',3760,700,R90,{z:-45}),I('pileta',3760,1250,R90,{z:-45})]}};
+      B:{nombre:'Sólo pileta',items:[I('reflector',45,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('pileta',3760,700,R90,{z:-45}),I('pileta',3760,1250,R90,{z:-45})]}};
     default:return {A:{nombre:'Sin luces',items:[]}};
   }
 }

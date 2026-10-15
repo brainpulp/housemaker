@@ -4,8 +4,6 @@
 - **Artifact:** https://claude.ai/artifact/Y88Y892Rach7aXSqSN5zpc
 - **Capacidades:** `db`.
 - **Página:** `carhue.html`.
-- **Versión del modelo al subir al repo:** 1.0.57 (14/10/2026).
+- **Versión publicada:** ver `META.version` en `modelo.js`.
 
-## Archivos publicados con nombres viejos
-
-Hasta la 1.0.57 se publicaba con estos nombres: `modelo-carhue.js` (ahora `modelo.js`) y `modelo-3d.js` (ahora `casa.js`). Desde que la casa se publica desde `dist/carhue`, esos dos archivos viejos quedan en el artifact sin uso. Se pueden borrar pasando `null` en `files`.
+Desde la 1.0.58 se publica desde `dist/carhue`; los archivos viejos `modelo-carhue.js` y `modelo-3d.js` se borraron del artifact.
