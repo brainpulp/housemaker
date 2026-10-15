@@ -5,7 +5,7 @@
    v0.2: lo que trae tu SketchUp (Arcos_55.dae, subido 58 cm) manda; lo que no trae sale del plano de regularización (hoja 01/04, 1:100).
    conf 'modelo' = del SketchUp; 'plano' = del plano; 'estimado' = interpretado; 'supuesto' = lo puse yo, a confirmar. */
 
-export const META = {"nombre":"Arcos 4264","version":"0.2.2","fecha":"2026-10-15","resumen":"Casa de Arcos 4264 (Núñez, CABA) armada de tu SketchUp (Arcos_55.dae); lo que el SketchUp no trae (medianeras, tabiques, subsuelo) sale del plano de regularización.","ejes":"x: 0 en el eje medianero izquierdo (mirando desde Arcos), hacia la derecha. y: 0 en el fondo del lote, hacia Arcos (L.M. en y 45,16). z: sobre el ±0,00 del plano (vereda).","planta":{"vb":{"x":-400,"y":2000,"w":1700,"h":2700},"casa":{"cx":432,"cy":3400,"w":1300,"h":2400},"lote":{"cx":432,"cy":2258,"w":1300,"h":4900},"ejesExt":{"x0":-260,"x1":1100,"y0":-100,"y1":4700},"ghost":"PB","nivelesOrden":["SS","PB","EP","P1","P2","TZ","TE"],"spec":"casa <b>8,65 × 15,78</b> · lote <b>8,65 × 45,16</b> · 5 niveles"}};
+export const META = {"nombre":"Arcos 4264","version":"0.3.0","fecha":"2026-10-15","resumen":"Casa de Arcos 4264 (Núñez, CABA) armada de tu SketchUp (Arcos_55.dae); lo que el SketchUp no trae (medianeras, tabiques, subsuelo) sale del plano de regularización.","ejes":"x: 0 en el eje medianero izquierdo (mirando desde Arcos), hacia la derecha. y: 0 en el fondo del lote, hacia Arcos (L.M. en y 45,16). z: sobre el ±0,00 del plano (vereda).","planta":{"vb":{"x":-400,"y":2000,"w":1700,"h":2700},"casa":{"cx":432,"cy":3400,"w":1300,"h":2400},"lote":{"cx":432,"cy":2258,"w":1300,"h":4900},"ejesExt":{"x0":-260,"x1":1100,"y0":-100,"y1":4700},"ghost":"PB","nivelesOrden":["SS","PB","EP","P1","P2","TZ","TE"],"spec":"casa <b>8,65 × 15,78</b> · lote <b>8,65 × 45,16</b> · 5 niveles"}};
 
 export const NIVELES = {"SS":{"nombre":"Subsuelo","z":-198,"conf":"plano"},"PB":{"nombre":"Planta baja","z":72,"conf":"modelo","nota":"El estar hundido, a +0,19."},"EP":{"nombre":"Entrepiso","z":339,"conf":"modelo","nota":"Escritorio B7."},"P1":{"nombre":"Primer piso","z":409,"conf":"modelo"},"P2":{"nombre":"Segundo piso","z":607,"conf":"modelo","nota":"Dormitorio B13 y baño B12, bajo el techo de chapa."},"TZ":{"nombre":"Terraza","z":734,"conf":"modelo","nota":"Con el vestidor B14 al mismo nivel."},"TE":{"nombre":"Techos","z":0}};
 
@@ -41,11 +41,11 @@ export const MUROS = [
   {"id":"M-23","nivel":"SS","a":[745,3068],"b":[745,2883],"e":30,"tipo":"ladrillo","carga":false,"estado":"existente","conf":"plano","nombre":"Subsuelo: muro de la escalera","top":54},
   {"id":"M-24","nivel":"SS","a":[729.9,2883],"b":[850,2883],"e":30,"tipo":"ladrillo","carga":false,"estado":"existente","conf":"plano","nombre":"Subsuelo: muro al pie de la escalera","top":54},
   {"id":"M-25","nivel":"SS","a":[745,4216],"b":[745,3887],"e":30,"tipo":"ladrillo","carga":false,"estado":"existente","conf":"supuesto","nombre":"Muro de contención de la escalera descubierta","z0":-198,"top":0,"nota":"La planta dibuja la escalera entre 7,45 y 8,50; el muro que la contiene del lado del jardín no está acotado."},
-  {"id":"M-30","nivel":"PB","a":[15,3451.6],"b":[205,3451.6],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Baño B5: pared al comedor","top":391},
-  {"id":"M-31","nivel":"PB","a":[15,3281.5],"b":[205,3281.5],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Baño B5 / depósito B6","top":391},
-  {"id":"M-32","nivel":"PB","a":[15,3071.5],"b":[205,3071.5],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Depósito B6: pared a la cocina","top":321},
-  {"id":"M-33","nivel":"PB","a":[200,3457],"b":[200,3067],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Baño B5 y depósito B6: pared al comedor","top":391},
-  {"id":"M-40","nivel":"EP","a":[15,3084],"b":[435,3084],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Baño B8: pared al escritorio","top":716,"niveles":["EP","P1"],"nota":"Divide el baño de 1P (+4,17) del escritorio del entrepiso (+3,29): arranca en el entrepiso."},
+  {"id":"M-30","nivel":"PB","a":[15,3451.6],"b":[205,3451.6],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"estimado","nombre":"Baño B5: pared al comedor","top":302,"nota":"Video 4838 (s7–s10): la caja del baño y el depósito termina en un borde a ~2,30 sobre el piso, no llega a la losa."},
+  {"id":"M-31","nivel":"PB","a":[15,3281.5],"b":[205,3281.5],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"estimado","nombre":"Baño B5 / depósito B6","top":302,"nota":"Video 4838 (s7–s10): la caja del baño y el depósito termina en un borde a ~2,30 sobre el piso, no llega a la losa."},
+  {"id":"M-32","nivel":"PB","a":[15,3071.5],"b":[205,3071.5],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"estimado","nombre":"Depósito B6: pared a la cocina","top":302,"nota":"Video 4838 (s7–s10): la caja termina a ~2,30 sobre el piso."},
+  {"id":"M-33","nivel":"PB","a":[200,3457],"b":[200,3067],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"estimado","nombre":"Baño B5 y depósito B6: pared al comedor","top":302,"nota":"Video 4838 (s7–s10): la caja del baño y el depósito termina en un borde a ~2,30 sobre el piso, no llega a la losa."},
+  {"id":"M-40","nivel":"EP","a":[15,3084],"b":[435,3084],"e":10,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Baño B8: pared al entrepiso","top":716,"niveles":["EP","P1"],"nota":"Divide el baño de 1P del entrepiso: arranca en el entrepiso."},
   {"id":"M-41","nivel":"P1","a":[426.5,3894],"b":[426.5,3079],"e":15,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Dormitorio B10 y baño B8: pared al palier","top":716},
   {"id":"M-42","nivel":"P1","a":[434,3452],"b":[850,3452],"e":12,"tipo":"tabique","carga":false,"estado":"existente","conf":"plano","nombre":"Dormitorio B11: pared al palier","top":716},
   {"id":"M-43","nivel":"P1","a":[15,3288],"b":[325,3288],"e":11,"tipo":"ladrillo","carga":false,"estado":"existente","conf":"plano","nombre":"Dormitorio B10 / baño B8","top":716,"nota":"Dibujado como «muro sin permiso». Entre 3,25 y 4,19 queda un paso sin pared: ¿es así? (D-11)"},
@@ -70,6 +70,7 @@ export const ABERTURAS = [
   {"id":"P-04","muro":"M-22","d":464.4,"w":84,"h":200,"s":0,"tipo":"puerta","estado":"existente","conf":"plano","nombre":"Puerta del subsuelo a la escalera descubierta","nota":"0,85. El corte A-A la muestra de −1,98 a ~0,00."},
   {"id":"P-05","muro":"M-30","d":90,"w":90,"h":200,"s":0,"tipo":"puerta","estado":"existente","conf":"plano","nombre":"Puerta del baño B5"},
   {"id":"P-06","muro":"M-32","d":90,"w":90,"h":200,"s":0,"tipo":"puerta","estado":"existente","conf":"plano","nombre":"Puerta del depósito B6"},
+  {"id":"V-07","muro":"M-40","d":95,"w":220,"h":120,"s":170,"tipo":"ventana","estado":"existente","conf":"estimado","nombre":"Ventana interior del baño B8 al entrepiso","nota":"Video 4839 (s34–s35): desde el baño se ve el entrepiso y el ventanal. Posición y alto estimados del video."},
   {"id":"P-07","muro":"M-41","d":451,"w":80,"h":200,"s":0,"tipo":"puerta","estado":"existente","conf":"plano","nombre":"Puerta del dormitorio B10"},
   {"id":"P-08","muro":"M-41","d":712,"w":80,"h":200,"s":0,"tipo":"puerta","estado":"existente","conf":"plano","nombre":"Puerta del baño B8","nota":"El hueco va de 13,30 a 14,18; la hoja de ~0,80."},
   {"id":"P-09","muro":"M-42","d":0,"w":89,"h":200,"s":0,"tipo":"puerta","estado":"existente","conf":"plano","nombre":"Puerta del dormitorio B11"},
@@ -88,7 +89,7 @@ export const LOCALES = [
   {"id":"L-B2","nivel":"PB","nombre":"Estar B2","poly":[[315,3067],[760,3067],[760,2865],[850,2865],[850,2351],[315,2351]],"conf":"estimado","nota":"Con el estar hundido (LO-03) y doble altura hasta la losa de 2P."},
   {"id":"L-B5","nivel":"PB","nombre":"Baño B5","poly":[[15,3446.5],[195,3446.5],[195,3286.5],[15,3286.5]],"conf":"plano","nota":"Balance: 1,80 × 1,60."},
   {"id":"L-B6","nivel":"PB","nombre":"Depósito B6","poly":[[15,3276.5],[195,3276.5],[195,3076.5],[15,3076.5]],"conf":"plano","nota":"Balance: 1,80 × 2,00."},
-  {"id":"L-B7","nivel":"EP","nombre":"Escritorio B7","poly":[[28,3079],[659,3079],[659,2858],[28,2858]],"conf":"medido","nota":"2,50 de fondo (Maxi), a +3,39."},
+  {"id":"L-B7","nivel":"EP","nombre":"Escritorio B7","poly":[[15,3079],[659,3079],[659,2858],[315,2858],[315,2366],[15,2366]],"conf":"estimado","nota":"En L: franja de 2,50 junto a la escalera (Maxi) y franja de 3,00 sobre la cocina hasta el ventanal (video y plano), a +3,39."},
   {"id":"L-B8","nivel":"P1","nombre":"Baño B8","poly":[[15,3283],[419,3283],[419,3089],[15,3089]],"conf":"plano","nota":"Balance: 4,08 × 1,89."},
   {"id":"L-B9","nivel":"P1","nombre":"Palier B9","poly":[[434,3446],[850,3446],[850,3089],[434,3089]],"conf":"plano","nota":"Balance: 4,13 × 3,56."},
   {"id":"L-B10","nivel":"P1","nombre":"Dormitorio B10","poly":[[15,3894],[419,3894],[419,3294],[15,3294]],"conf":"plano","nota":"Balance: 4,08 × 5,69 (con el placard)."},
@@ -105,7 +106,8 @@ export const LOSAS = [
   {"id":"LO-01","nivel":"SS","nombre":"Piso del subsuelo","z":-198,"e":12,"poly":[[327.5,3857],[850,3857],[850,2868],[760,2868],[760,3068],[327.5,3068]],"conf":"plano"},
   {"id":"LO-02","nivel":"PB","nombre":"Losa de planta baja","z":72,"e":18,"poly":[[15,3887],[850,3887],[850,2331],[15,2331]],"huecos":[[[760,3193],[850,3193],[850,2865],[760,2865]],[[386,2872],[831,2872],[831,2419],[386,2419]]],"conf":"modelo","nota":"SketchUp: de 6,29 a 21,85 de la L.M. Huecos: la escalera al subsuelo y el estar hundido."},
   {"id":"LO-03","nivel":"PB","nombre":"Estar hundido B2","z":19,"e":10,"poly":[[386,2872],[831,2872],[831,2419],[386,2419]],"conf":"modelo","nota":"SketchUp: 4,45 × 4,53 a +0,19 (0,53 más bajo). El plano lo da de 3,80 × 3,50 a +0,22."},
-  {"id":"LO-04","nivel":"EP","nombre":"Entrepiso (escritorio B7)","z":339,"e":18,"poly":[[28,3108],[659,3108],[659,2858],[28,2858]],"conf":"medido","nota":"Maxi (nota 15/10): 2,50 de fondo, no 6,92. Ancho del SketchUp (de la medianera izquierda a la escalera, 6,31), a +3,39. Lo pegué al frente del bloque, junto a la escalera; detrás queda la doble altura sobre el estar hundido."},
+  {"id":"LO-04","nivel":"EP","nombre":"Entrepiso (escritorio B7)","z":339,"e":18,"poly":[[15,3108],[659,3108],[659,2858],[15,2858]],"conf":"medido","nota":"Maxi (nota 15/10): 2,50 de fondo, no 6,92. Ancho del SketchUp (de la medianera izquierda a la escalera, 6,31), a +3,39. Lo pegué al frente del bloque, junto a la escalera; detrás queda la doble altura sobre el estar hundido."},
+  {"id":"LO-13","nivel":"EP","nombre":"Entrepiso sobre la cocina","z":339,"e":20,"poly":[[15,2858],[315,2858],[315,2366],[15,2366]],"conf":"estimado","nota":"Video 4838 (s7, s12–s14): tirantes de madera a la vista sobre la cocina hasta el ventanal, con un poste de madera oscura en la punta. El plano lo dibuja igual (3,00 de ancho, escritorio B7)."},
   {"id":"LO-11","nivel":"EP","nombre":"Descanso de la escalera y paso al entrepiso","z":339,"e":15,"poly":[[659,3009],[759,3009],[759,2829],[659,2829]],"conf":"modelo","nota":"SketchUp: plataforma a +3,39 entre el entrepiso y la E-03."},
   {"id":"LO-12","nivel":"EP","nombre":"Descanso de la E-02","z":322,"e":15,"poly":[[645,2918],[850,2918],[850,2825],[645,2825]],"conf":"modelo","nota":"SketchUp: +3,22, un escalón abajo del entrepiso."},
   {"id":"LO-05","nivel":"P1","nombre":"Losa del primer piso","z":409,"e":18,"poly":[[15,3887],[850,3887],[850,3084],[15,3084]],"conf":"modelo"},
@@ -125,6 +127,7 @@ export const ESTRUCTURA = [
   {"id":"C-02","tipo":"columna","nivel":"PB","pos":[25,2567],"sec":"20×20","z":[72,589],"conf":"plano","estado":"existente","nombre":"Pilastra izquierda del estar"},
   {"id":"C-03","tipo":"columna","nivel":"PB","pos":[838.5,2567],"sec":"20×20","z":[72,589],"conf":"plano","estado":"existente","nombre":"Pilastra derecha del estar"},
   {"id":"C-04","tipo":"columna","nivel":"P1","pos":[678,3079],"sec":"20×20","z":[339,589],"conf":"plano","estado":"existente","nombre":"Columna de la escalera","nota":"En el borde del palier de 1P."},
+  {"id":"C-05","tipo":"columna","nivel":"PB","pos":[300,2436],"sec":"30×30","z":[72,319],"conf":"estimado","estado":"existente","nombre":"Poste de madera oscura","nota":"Video 4838 (s12–s14): poste de madera maciza oscura bajo la punta del entrepiso, cerca del ventanal. Posición estimada del video."},
   {"id":"VG-1","tipo":"viga","nivel":"PB","a":[15,3447],"b":[850,3447],"sec":"20×40","z":389,"conf":"supuesto","estado":"existente","nombre":"Viga del comedor","nota":"La planta la marca con línea de trazos; la sección es supuesta."},
 ];
 
@@ -140,7 +143,7 @@ export const ESCALERAS = [
 ];
 
 export const BARANDAS = [
-  {"id":"BA-1","nivel":"EP","nombre":"Baranda del entrepiso sobre el vacío","pts":[[659,2825],[659,2858],[28,2858]],"z":339,"h":100,"tipo":"metal","conf":"supuesto","nota":"Borde del entrepiso sobre la doble altura; el plano pide «baranda metálica H 1,00»."},
+  {"id":"BA-1","nivel":"EP","nombre":"Baranda del entrepiso sobre el vacío","pts":[[659,2825],[659,2858],[315,2858],[315,2366]],"z":339,"h":100,"tipo":"madera","conf":"estimado","nota":"Baranda de madera sobre la doble altura (video 4839 s1–s5)."},
   {"id":"BA-2","nivel":"PB","nombre":"Baranda de la escalera E-02","pts":[[755,3226],[755,2918]],"z":72,"h":100,"tipo":"madera","sigue":"E-02","conf":"plano","nota":"«Baranda de escalera H 1,00 madera E 0,05»."},
   {"id":"BA-3","nivel":"P1","nombre":"Baranda de la escalera E-04","pts":[[755,3084],[755,2834]],"z":409,"h":100,"tipo":"madera","sigue":"E-04","conf":"plano","nota":"«Baranda de escalera H 1,00 madera»."},
   {"id":"BA-4","nivel":"P2","nombre":"Baranda del hueco de la escalera en 2P","pts":[[755,2834],[755,3069]],"z":607,"h":100,"tipo":"madera","conf":"supuesto","nota":"Protege el hueco de la E-04 desde el descanso de 2P."},
@@ -179,11 +182,15 @@ export const DUDAS = [
   {"id":"D-04","ref":["M-44","M-45","M-46","LO-06"],"q":"El balcón: en el SketchUp tiene un frente de sólo 0,62 sobre el piso (+3,83 a +4,71). El plano pide baranda de 1,00. ¿Es una jardinera, o falta la baranda?"},
   {"id":"D-06","ref":["CL-1","CL-2"],"q":"Las claraboyas de la terraza no están en el SketchUp; las dejé donde las pone el plano. ¿Existen?"},
   {"id":"D-07","ref":["T-01"],"q":"El techo de chapa del SketchUp baja 10,8 % (de +10,13 a +9,31) y termina sobre el ventanal, sin alero; el plano pide 12 % y alero de 1,00. ¿Cuál es?"},
+  {"id":"D-08","ref":["C-05","LO-13"],"q":"El poste de madera oscura junto al ventanal (video 4838): lo puse en x 3,00, a 0,85 del ventanal, de 30 × 30. ¿Dónde está exactamente y qué sección tiene?"},
+  {"id":"D-09","ref":["M-40","L-B9"],"q":"Video 4839 (s6–s11): desde el entrepiso se ven dos aberturas grandes hacia 1P, separadas por un pilar, con la escalerita E-03 subiendo por una. ¿Dónde están y cuánto miden?"},
+  {"id":"D-10","ref":["T-01"],"q":"En el video del 2P el techo tiene cabriadas metálicas reticuladas a la vista; tu SketchUp sólo trae la chapa y unas correas. ¿Cuántas cabriadas hay y cada cuánto?"},
 ];
 
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  {"fecha":"2026-10-15","v":"0.3.0","txt":"Lo que muestran tus videos de obra: entrepiso de madera en L (franja de 2,50 junto a la escalera y franja de 3,00 sobre la cocina hasta el ventanal, con baranda), poste de madera oscura bajo su punta, caja del baño y el depósito de PB hasta ~2,30, ventana interior del baño de 1P al entrepiso, chapa sinusoidal con su estructura del SketchUp en lugar del techo liso. Tres dudas nuevas (D-08 a D-10)."},
   {"fecha":"2026-10-15","v":"0.2.2","txt":"Borrar ya no es un ícono de la barra: está en el inspector, con «Borrar pieza» y, si la pieza tiene varias partes, «Borrar sólo esta parte» (la que tocaste). Se deshace con Ctrl/⌘ Z."},
   {"fecha":"2026-10-15","v":"0.2.1","txt":"Tu nota en LO-04: el entrepiso pasa a 2,50 de fondo (era 6,92), pegado al frente del bloque del fondo junto a la escalera; vuelve la doble altura sobre el estar hundido. Baranda sobre el borde nuevo."},
   {"fecha":"2026-10-15","v":"0.2.0","txt":"La casa pasa a salir de tu SketchUp: niveles (entrepiso +3,39, 1P +4,09, 2P +6,07, terraza +7,34), fachada con sus aberturas (entrada de 2,80, puerta balcón), balcón, entrepiso grande, estar hundido, escaleras, vestidor con tanque, techo al 10,8 % y ventanal. Lo que el SketchUp no trae (medianeras, tabiques, subsuelo, claraboyas) sigue del plano. Nueva capa «Detalle del SketchUp»: ventanal repartido, pantalla de listones y pérgola de la terraza, jardín del frente en pendiente, cerco, cocina y baños."},
