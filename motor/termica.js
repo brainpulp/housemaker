@@ -65,7 +65,7 @@ export function initTermica(visor,M){
       const dni=up>0?1000*Math.pow(.7,Math.pow(1/Math.max(up,.05),.678)):0,dhi=up>0?(.12*dni+40)*up:0;SOL.push({d:new V3(Math.cos(al)*Math.cos(az),up,Math.cos(al)*Math.sin(az)),dni:dni*S.sol,dhi:dhi*(1+.6*(1-S.sol))});}
     /* calefactores por zona */
     const its=(visor.equip&&visor.equip.items)?visor.equip.items('cal'):[];const dev=[];
-    for(const it of its){if(it.t==='caldera')continue;const q=zonaEn(it.x,it.y,it.z+30);if(!q)continue;let P=it.p.kW*1000;if(it.t==='radiante')P=it.p.L*it.p.D/1e4*it.p.Wm2;dev.push({it,q,Pmax:P,P:0,E:0,serie:[]});}
+    for(const it of its){if(it.t==='caldera'||it.t==='gabinete')continue;const q=zonaEn(it.x,it.y,it.z+30);if(!q)continue;let P=it.p.kW*1000;if(it.t==='radiante')P=it.p.L*it.p.D/1e4*it.p.Wm2;dev.push({it,q,Pmax:P,P:0,E:0,serie:[]});}
     const cald=its.filter(i=>i.t==='caldera').reduce((s,i)=>s+i.p.kW,0);
     const idx=Object.fromEntries(Z.map((q,i)=>[q.id,i]));const n=Z.length;
     /* conductancias W/K */

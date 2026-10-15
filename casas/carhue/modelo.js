@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.64', fecha:'2026-10-14',
+  nombre:'Carhué', version:'1.0.65', fecha:'2026-10-14',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -92,7 +92,7 @@ export const ABERTURAS = [
   {id:'V-24', muro:'M-22', d:448,  w:177, h:140, s:90,  tipo:'ventana', estado:'existente', conf:'modelo', nombre:'Ala, ventana norte este'},
   {id:'P-25', muro:'M-28', d:13,  w:70,  h:200, s:0,   tipo:'puerta',  estado:'existente', conf:'modelo', nombre:'Puerta del dormitorio 3', nota:'Maxi 15/10: girada, perpendicular a M-23, en M-28; se entra al dormitorio por el nicho, donde M-24 quedó abierta. Antes: Hueco de 0,7 en el tabique central, entre -574 y -504, desde la cocina.'},
   {id:'P-26', muro:'M-26', d:343,  w:78,  h:200, s:0,   tipo:'puerta',  estado:'existente', conf:'modelo', nombre:'Puerta del baño piletero', nota:'Fotos 12 y 13: el hueco a la derecha de la arcada, en la pared del fondo de la cocina.'},
-  {id:'A-30', muro:'M-26', d:18,   w:195, h:237, s:0,   tipo:'vano',    estado:'existente', conf:'estimado', nombre:'Arcada al fondo de la cocina', nota:'Fotos 12 y 13: abertura ancha bajo una viga de madera, a la izquierda; lleva por la franja sur del ala (L-08) al dormitorio 3. Alto estimado.'},
+  {id:'A-30', muro:'M-26', d:118,  w:95,  h:237, s:0,   tipo:'vano',    estado:'existente', conf:'estimado', nombre:'Arcada al fondo de la cocina', nota:'Maxi 15/10: no llega hasta el sur; queda 1 m de pared contra M-20 y la arcada es más chica (x 19,35 a 20,30). Fotos 12 y 13: abertura ancha bajo una viga de madera, a la izquierda; lleva por la franja sur del ala (L-08) al dormitorio 3. Alto estimado.'},
   {id:'P-34', muro:'M-26', d:246,  w:80,  h:178, s:262, tipo:'vano',    estado:'existente', conf:'estimado', nombre:'Vano de puerta del altillo', nota:'Fotos 12 y 13: vano de puerta en el hastial, centrado bajo la cumbrera, del piso del altillo (+2,62) hacia arriba; corta la pared y el tirante de la cercha, con un montante a cada lado. Ahí irá la escalera. Medidas a ojo.'},
   {id:'V-44', muro:'M-42', d:0,    w:650, h:400, s:80,  tipo:'ventana', panos:3, estado:'nuevo',     conf:'medido', nombre:'Vidrio pasillo / dormitorio principal', nota:'Sobre la pared de 0,80 de M-42, vidrio hasta el techo (Maxi).'},
 ];
@@ -265,7 +265,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-15', v:'1.0.64', txt:'Botón «Cortes» arriba a la derecha, al lado de Vistas y Tours: abre y cierra las seis reglas en la barra derecha. Al elegir una vista predeterminada se abren solas.'},
+export const CAMBIOS = [  {fecha:'2026-10-15', v:'1.0.65', txt:'Vistas: todas son editables: las fijas y las de cada ambiente quedan guardadas como cualquier otra y cada una tiene ✂ (sus cortes), ⟳ (actualizar con cámara, cortes y capas de ahora) y × (borrar). Los cortes ya no tienen botón propio en la barra ni arriba. Muebles y artefactos se eligen tocándolos aunque el panel esté cerrado (gana lo más cercano; respeta cortes y paredes). Cocina: arcada A-30 más chica, con 1 m de pared al sur; heladera contra ese metro de pared; mesada a lo largo de la pared sur; el desayunador pasa a ser una isla adosada de 2,60 × 1,10 con las hornallas y cuatro banquetas. Calderas en el sucucho del extremo oeste (L-09); opción C en la capa Calor: afuera, del lado del patio, en un gabinete de chapa.'},
+  {fecha:'2026-10-15', v:'1.0.64', txt:'Botón «Cortes» arriba a la derecha, al lado de Vistas y Tours: abre y cierra las seis reglas en la barra derecha. Al elegir una vista predeterminada se abren solas.'},
   {fecha:'2026-10-15', v:'1.0.63', txt:'Los cortes son parámetros de cada vista predeterminada: al cambiar de vista (fijas o ambientes) cambian los cortes; si movés un corte estando en una vista predeterminada, queda guardado para esa vista (el panel Cortes dice cuál y tiene «restablecer»). La cocina se aísla junto con el sector norte y el desayunador. Vistas y Tours pasan a dos botones arriba a la derecha, sobre el 3D, y salen de la barra de herramientas. Cubo de vista chico arriba a la derecha: sigue la cámara y tocando una cara, arista o esquina mira desde ahí.'},
   {fecha:'2026-10-15', v:'1.0.62', txt:'Seis cortes (botón Cortes): X desde / hasta (sur → norte), Y desde / hasta (oeste → este) y Z desde / hasta (altura), cada uno con su tilde y su regla; lo que queda es lo que está entre «desde» y «hasta». «Sin cortes» los apaga todos. Vistas → Ambientes: cada local se aísla solo con los seis cortes (paredes incluidas, piso a techo), se esconde la capa de techos y la cámara lo mira desde arriba en diagonal. Las vistas guardadas también guardan los seis cortes; las viejas con corte X / Y siguen andando.'},
   {fecha:'2026-10-15', v:'1.0.61', txt:'Cocina «como está»: las dos calderas contra la pared sur, donde estaba la heladera (junto a M-26); la heladera a continuación hacia el este; la mesada empieza después de la heladera y desde su punta este sale un desayunador ortogonal de 1,50 con tres banquetas. P-25 vuelve a quedar libre de calderas.'},

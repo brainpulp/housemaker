@@ -46,7 +46,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     marcar:{ic:'marcar',n:'Marcar',d:'Dibujá líneas y puntos con una nota; quedan guardados (K-xx).',run:()=>only('marcarTg')},
   };
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['quitar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','corte','capas','variantes','equip','luces','termica','estructura','personas'];
+  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['quitar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
   const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
@@ -149,8 +149,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     /* mismo estilo que el desplegable de la barra: copio sus reglas de #tbFly a #trPop */try{const add=[];for(const ss of document.styleSheets){let rs;try{rs=ss.cssRules;}catch(e){continue;}for(const r of rs)if(r.selectorText&&r.selectorText.includes('#tbFly')&&!r.selectorText.startsWith('#tbFly{')&&r.selectorText!=='#tbFly')add.push(r.cssText.replace(/#tbFly/g,'#trPop'));}const s2=document.createElement('style');s2.textContent=add.join('\n');document.head.appendChild(s2);}catch(e){}
     const pop=document.createElement('div');pop.id='trPop';pop.hidden=true;stage.appendChild(pop);let popFor=null;
     const mk=(k,txt,ic)=>{const b=document.createElement('button');b.className='btn trb';b.dataset.tr=k;b.innerHTML=icon(ic,15)+' '+txt;tr.prepend(b);return b;};
-    const bC=mk('cortes','Cortes','corte'),bT=mk('tours','Tours','camera'),bV=mk('vistas','Vistas','video');tr.prepend(bC);tr.prepend(bT);tr.prepend(bV);
-    bC.addEventListener('click',()=>{if(window.__side){const on=window.__side.toggle('corte');bC.setAttribute('aria-pressed',String(!!on));sync();}});setInterval(()=>{if(window.__side)bC.setAttribute('aria-pressed',String(!!window.__side.isOn('corte')));},500);
+    const bT=mk('tours','Tours','camera'),bV=mk('vistas','Vistas','video');tr.prepend(bT);tr.prepend(bV);
     const cerrar=()=>{pop.hidden=true;popFor=null;bV.setAttribute('aria-pressed','false');bT.setAttribute('aria-pressed','false');};
     const abrir=(b,fill)=>{if(popFor===b){cerrar();return;}cerrar();pop.innerHTML='';pop.className='fymenu fyvistas';fill(pop);pop.hidden=false;popFor=b;b.setAttribute('aria-pressed','true');
       const s=stage.getBoundingClientRect(),r=b.getBoundingClientRect();pop.style.top=(r.bottom-s.top+6)+'px';pop.style.right=Math.max(6,s.right-r.right)+'px';};

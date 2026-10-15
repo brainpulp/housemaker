@@ -25,6 +25,10 @@ export function catalogoCal(THREE,B,CYL){
       g:p=>{const w=60+p.kW*12;return [[B(-w/2,w/2,12,64,-11,11),'blanco'],[B(-w/2+5,w/2-5,56,62,11,11.3),'grafito'],[B(-w/2+4,-w/2+8,0,12,-8,8),'grafito'],[B(w/2-8,w/2-4,0,12,-8,8),'grafito']];}},
     radiante:{n:'Losa radiante (paño)',sist:'caldera',p:{L:400,D:300,Wm2:80},ui:[['L','largo','num'],['D','ancho','num'],['Wm2','W por m²','num']],
       g:p=>[[B(-p.L/2,p.L/2,.2,.8,-p.D/2,p.D/2),'radiante']]},
+    gabinete:{n:'Gabinete de chapa (intemperie)',sist:'nada',p:{L:130,D:55,H:210},ui:[['L','ancho','num'],['D','fondo','num'],['H','alto','num']],
+      g:p=>[[B(-p.L/2,p.L/2,0,4,-p.D/2,p.D/2),'grafito'],[B(-p.L/2,-p.L/2+1.2,4,p.H,-p.D/2,p.D/2),'grafito'],[B(p.L/2-1.2,p.L/2,4,p.H,-p.D/2,p.D/2),'grafito'],[B(-p.L/2,p.L/2,4,p.H,-p.D/2,-p.D/2+1.2),'grafito'],[B(-p.L/2-3,p.L/2+3,p.H,p.H+2,-p.D/2-3,p.D/2+5),'grafito'],
+        [B(-p.L/2,-1,8,p.H-4,p.D/2-1.2,p.D/2),'grafito'],[B(1,p.L/2,8,p.H-4,p.D/2-1.2,p.D/2),'grafito'],[B(-12,-8,p.H*.5-10,p.H*.5+10,p.D/2,p.D/2+1.5),'acero'],[B(8,12,p.H*.5-10,p.H*.5+10,p.D/2,p.D/2+1.5),'acero'],
+        ...[0,1,2,3].map(i=>[B(-p.L/2+10,p.L/2-10,p.H-30+i*5,p.H-28+i*5,p.D/2,p.D/2+.8),'negro'])]},/* puertas dobles con rejillas de ventilación arriba */
     caldera:{n:'Caldera (33.000 kcal/h)',sist:'fuente',p:{kW:38.4,eta:90},z:110,ui:[K,['eta','rendimiento %','num']],
       g:()=>[[B(-22,22,0,72,-17,15),'blanco'],[B(-20,20,8,14,15,15.4),'grafito'],[CYL(5,72,95,0,-2,16),'acero'],...[-12,-4,4,12].map(x=>[CYL(1.2,-20,0,x,0,8),'acero'])]},
   };
@@ -35,7 +39,8 @@ export function escCal(a,I){
   switch(a){
     case 'living':return {A:{nombre:'Salamandra + losa radiante bajo la galería',items:[I('salExist',2043,638,0),I('radiante',1925,810,0,{L:1140,D:230,Wm2:80})]},
       B:{nombre:'Salamandra + losa + 2 fancoils',items:[I('salExist',2043,638,0),I('radiante',1925,810,0,{L:1140,D:230,Wm2:80}),I('fancoil',1360,200,90,{kW:3.5}),I('fancoil',2490,300,-90,{kW:3.5})]}};
-    case 'cocina':return {A:{nombre:'Calderas (sin emisores)',items:[I('caldera',1852,-310,90),I('caldera',1852,-264,90)]},B:{nombre:'Calderas + fancoil',items:[I('caldera',1852,-310,90),I('caldera',1852,-264,90),I('fancoil',1940,-30,180,{kW:2.5})]}};
+    case 'cocina':return {A:{nombre:'Calderas (sin emisores)',items:[I('caldera',1852,-730,90),I('caldera',1852,-684,90)]},B:{nombre:'Calderas + fancoil',items:[I('caldera',1852,-730,90),I('caldera',1852,-684,90),I('fancoil',1940,-30,180,{kW:2.5})]},
+      C:{nombre:'Calderas afuera, en gabinete de chapa',items:[/* del lado del patio, contra M-21, detrás del sucucho */I('gabinete',1890,-822,180,{L:130,D:55,H:210}),I('caldera',1862,-815,180),I('caldera',1918,-815,180)]}};
     case 'dorm1':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',60,400,90,{kW:3.5})]},C:{nombre:'Tiro balanceado',items:[I('tiro',60,400,90,{kW:3.5})]}};
     case 'dorm2':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',700,640,180,{kW:4})]},C:{nombre:'Tiro balanceado',items:[I('tiro',700,640,180,{kW:4})]}};
     case 'dorm3':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',2200,-740,0,{kW:2})]},C:{nombre:'Tiro balanceado',items:[I('tiro',2200,-740,0,{kW:3})]}};
