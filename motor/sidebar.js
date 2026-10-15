@@ -14,7 +14,7 @@ export function initSidebar(visor){
 #insp .sh .chev{width:10px;color:var(--muted);font-size:9px;flex:none}
 #insp .sh b{flex:1;min-width:0;font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #insp .sh .sx{background:none;border:0;cursor:pointer;color:var(--muted);font-size:13px;line-height:14px;padding:1px 5px;border-radius:3px}#insp .sh .sx:hover{background:var(--accent-soft)}
-#insp .sec.fold .sb{display:none}
+#insp .sec.fold .sb{display:none}#insp .sec.drag{opacity:.6;outline:2px dashed var(--accent,#c0461f);outline-offset:-2px}#insp .sh{cursor:grab}
 #insp .sb{font-size:10.5px}
 #insp .docked{position:static!important;inset:auto!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:auto!important;max-width:none!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;border:0!important;border-radius:0!important;margin:0!important;z-index:auto!important;background:transparent!important;font-size:11px!important}
 #insp .docked .mh,#insp #capasPanel .cph,#insp #vzX,#insp #termCard .th .tx,#insp #eqCard [data-a="cerrar"]{display:none!important}
@@ -39,8 +39,20 @@ export function initSidebar(visor){
   function sec(id,title,o){const s=document.createElement('section');s.className='sec'+(fold[id]?' fold':'');s.dataset.id=id;s.hidden=true;
     s.innerHTML=`<div class="sh"><span class="chev">${fold[id]?'▸':'▾'}</span><b></b><button class="sx" title="Cerrar">×</button></div><div class="sb"></div>`;s.querySelector('b').textContent=title;
     acc.appendChild(s);const r={sec:s,body:s.querySelector('.sb'),...o};S[id]=r;
-    s.querySelector('.sh').addEventListener('click',e=>{if(e.target.closest('.sx')){r.close&&r.close();setTimeout(sync,0);return;}fold[id]=!fold[id];LS.set('carhue-side-fold',fold);s.classList.toggle('fold',!!fold[id]);s.querySelector('.chev').textContent=fold[id]?'▸':'▾';});
+    s.querySelector('.sh').addEventListener('click',e=>{if(e.target.closest('.sx')){r.close&&r.close();setTimeout(sync,0);return;}if(arrastrado){arrastrado=false;return;}if(fold[id])usar(id);else plegar(id,true);});
+    /* usar una sección la abre y pliega las demás (Maxi 15/10) */
+    s.addEventListener('pointerup',e=>{if(!arrastrado&&!e.target.closest('.sh')&&!fold[id])usar(id);});
+    /* arrastrar el título cambia el orden */
+    s.querySelector('.sh').addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('.sx'))return;const y0=e.clientY;let on=false;const sh=e.currentTarget;
+      const mv=ev=>{if(!on&&Math.abs(ev.clientY-y0)<6)return;if(!on){on=true;arrastrado=true;try{sh.setPointerCapture(e.pointerId);}catch(_){}s.classList.add('drag');}
+        const hermanos=[...acc.children].filter(x=>x!==s&&!x.hidden);let antes=null;for(const h of hermanos){const r=h.getBoundingClientRect();if(ev.clientY<r.top+Math.min(r.height,24)/2+ (r.height>24?0:0)){antes=h;break;}}
+        if(antes)acc.insertBefore(s,antes);else acc.appendChild(s);};
+      const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);if(on){s.classList.remove('drag');LS.set('carhue-side-orden',[...acc.children].map(x=>x.dataset.id));setTimeout(()=>{arrastrado=false;},0);}};
+      addEventListener('pointermove',mv);addEventListener('pointerup',up);});
     return r;}
+  let arrastrado=false;
+  function plegar(id,v){const r=S[id];if(!r)return;fold[id]=v;r.sec.classList.toggle('fold',v);r.sec.querySelector('.chev').textContent=v?'▸':'▾';}
+  function usar(id){let cambio=false;for(const k of Object.keys(S)){const v=k!==id;if(v&&k==='sel')continue;/* la selección queda siempre a la vista */if(!!fold[k]!==v&&(!S[k].sec.hidden||!v)){plegar(k,v);cambio=true;}}if(cambio){LS.set('carhue-side-fold',fold);requestAnimationFrame(()=>S[id].sec.scrollIntoView({block:'nearest'}));}}
   const shown=el=>!!el&&!el.hidden&&el.style.display!=='none';
   const dock=(r,el)=>{if(!el||r.body.contains(el))return;el.classList.add('docked');r.body.appendChild(el);};
   const $=id=>document.getElementById(id);
@@ -71,8 +83,9 @@ export function initSidebar(visor){
       else{if(!S.equip.body.contains(eq)){S.equip.body.appendChild(eq);tcal.innerHTML='';}}}}
   const titEq={mue:'Muebles',luz:'Luces',veg:'Plantas',cal:'Calefactores'};
   let prev={};
+  let inicial=false;setTimeout(()=>{inicial=true;},1500);/* al cargar no se reordena nada */
   function sync(){adopt();mirar();let any=false;for(const [id,r] of Object.entries(S)){const v=!!r.vis();if(r.sec.hidden!==!v)r.sec.hidden=!v;if(v)any=true;
-      if(v&&!prev[id]){/* recién abierta: desplegada y a la vista */if(fold[id]){fold[id]=false;LS.set('carhue-side-fold',fold);r.sec.classList.remove('fold');r.sec.querySelector('.chev').textContent='▾';}requestAnimationFrame(()=>r.sec.scrollIntoView({block:'nearest'}));}
+      if(v&&!prev[id]&&inicial)usar(id);
       prev[id]=v;}
     if(visor.equip)S.equip.sec.querySelector('b').textContent=titEq[visor.equip.capa]||'Equipamiento';
     const was=M3.classList.contains('inspon');{const d=any?'flex':'none';if(side.style.display!==d)side.style.display=d;}M3.classList.toggle('inspon',any);if(was!==any)setTimeout(()=>dispatchEvent(new Event('resize')),30);}
@@ -83,9 +96,10 @@ export function initSidebar(visor){
   /* se miran sólo los paneles (no todo el 3D, que cambia estilos en cada cuadro) */
   const mo=new MutationObserver(()=>{if(mo.t)return;mo.t=setTimeout(()=>{mo.t=0;sync();},0);});const vistos=new Set();
   const mirar=()=>{for(const el of [$('varCard'),$('eqCard'),$('termCard'),visor.noche&&visor.noche.pop,$('medPanel'),$('senPanel'),$('edPanel'),$('marcasPanel'),selEl])if(el&&!vistos.has(el)){vistos.add(el);mo.observe(el,{attributes:true,attributeFilter:['hidden','style']});}};
+  const ordenar=()=>{const o=LS.get('carhue-side-orden',null);if(!Array.isArray(o))return;for(const k of o){const r=S[k];if(r)acc.appendChild(r.sec);}for(const r of Object.values(S))if(!o.includes(r.sec.dataset.id))acc.appendChild(r.sec);};ordenar();
   setInterval(sync,400);sync();
   /* secciones que agregan otros módulos (p. ej. estructura): se ubican antes de «Lugar del asoleamiento» */
-  function add(id,title,el,vis,close){if(S[id])return S[id];const r=sec(id,title,{vis,close});acc.insertBefore(r.sec,S.sol.sec);dock(r,el);sync();return r;}
+  function add(id,title,el,vis,close){if(S[id])return S[id];const r=sec(id,title,{vis,close});acc.insertBefore(r.sec,S.sol.sec);ordenar();dock(r,el);sync();return r;}
   const api={sync,toggle,add,get abierto(){return side.style.display!=='none';},isOn:id=>id==='corte'?CO.on:id==='personas'?PE.on:false};
   window.__side=api;visor.sidebar=api;return api;
 }

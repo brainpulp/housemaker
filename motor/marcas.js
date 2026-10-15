@@ -20,7 +20,10 @@ export function initMarcas(visor,stage){
    <div class="mrow"><button class="btn" id="mkFin">Terminar</button><button class="btn" id="mkUndo">Deshacer punto</button><button class="btn" id="mkCancel">Descartar</button></div>
    <div class="mlist" id="mkList"></div><div class="mmsg" id="mkMsg"></div>`;
   const $=id=>P.querySelector('#'+id);
-  const setOn=v=>{on=v;P.hidden=!v;btn.setAttribute('aria-pressed',v);stage.classList.toggle('marcando',v);if(!v)finish(false);};
+  /* marcar con la capa apagada confunde (Maxi 15/10): al activar Marcar se prende la capa, y si se apaga la capa, Marcar se cierra */
+  const capaOn=()=>{G.visible=true;try{localStorage.setItem('carhue-marcas-ver','1');}catch(e){}const c=document.getElementById('cpMarcas');if(c)c.checked=true;};
+  setInterval(()=>{if(on&&!G.visible)setOn(false);},300);
+  const setOn=v=>{if(v&&!G.visible)capaOn();on=v;P.hidden=!v;btn.setAttribute('aria-pressed',v);stage.classList.toggle('marcando',v);if(!v)finish(false);};
   btn.addEventListener('click',()=>setOn(!on));$('mkClose').addEventListener('click',()=>setOn(false));
   P.querySelectorAll('input[name=mkModo]').forEach(r=>r.addEventListener('change',()=>{finish(true);modo=r.value;}));
   $('mkSnap').addEventListener('change',e=>snap=+e.target.value);

@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.69', fecha:'2026-10-15',
+  nombre:'Carhué', version:'1.0.70', fecha:'2026-10-15',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -265,7 +265,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-15', v:'1.0.69', txt:'Capas se abre al lado de la barra, a la altura de su botón. Los muebles se mueven sólo con su ícono activo (Muebles, Luces…); si no, un toque los elige. Hojas corredizas, proyectantes y lucarnas: un toque sin arrastrar las elige, y al tocarlas o moverlas aparece por unos segundos un candado para bloquearlas (bloqueadas no se mueven y se puede orbitar encima). Marcar, medir y señalar ya no se los comen las hojas ni los muebles. El deck de la galería sigue 1 m más al sur para pasar al deck del ala.'},
+export const CAMBIOS = [  {fecha:'2026-10-15', v:'1.0.70', txt:'Barra derecha: usar una sección la abre y pliega las demás (Selección queda siempre); arrastrando el título se cambia el orden y queda guardado. Outliner: los grupos arrancan cerrados, abrir uno cierra los otros, elegir una pieza abre su grupo, y ⊟ cierra todos. Marcar: al activarlo se prende la capa Marcas; si apagás la capa, Marcar se cierra.'},
+  {fecha:'2026-10-15', v:'1.0.69', txt:'Capas se abre al lado de la barra, a la altura de su botón. Los muebles se mueven sólo con su ícono activo (Muebles, Luces…); si no, un toque los elige. Hojas corredizas, proyectantes y lucarnas: un toque sin arrastrar las elige, y al tocarlas o moverlas aparece por unos segundos un candado para bloquearlas (bloqueadas no se mueven y se puede orbitar encima). Marcar, medir y señalar ya no se los comen las hojas ni los muebles. El deck de la galería sigue 1 m más al sur para pasar al deck del ala.'},
   {fecha:'2026-10-15', v:'1.0.68', txt:'Muebles: ahora sí se mueven y giran. Lo que guarda la base del artifact llega congelado y el arrastre no podía cambiar la posición; se copia al cargarlo.'},
   {fecha:'2026-10-15', v:'1.0.67', txt:'Muebles: el gizmo queda al 20 % del tamaño y el mueble tiene prioridad aunque haya una pieza de la casa elegida (antes la herramienta Mover se llevaba el toque). Tocar el cielo o el pasto deselecciona todo.'},
   {fecha:'2026-10-15', v:'1.0.66', txt:'Muebles: al elegir uno aparecen flechas para moverlo en x o en y y un aro naranja para girarlo (de a 15°, Alt libre), como las demás piezas. Muebles nuevos en la línea de las referencias (madera maciza, lino, piedra oscura, negro mate, zócalos rehundidos, tiradores finos), del catálogo reutilizable motor/muebles.js.'},

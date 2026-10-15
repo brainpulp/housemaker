@@ -31,12 +31,12 @@ export function initInspector(visor){
   const txt=h=>{const d=document.createElement('div');d.innerHTML=h||'';return d.textContent||'';};
   const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
   const el=document.createElement('div');el.id='insp';M3.appendChild(el);
-  el.innerHTML=`<div class="ih"><b>Inspector</b><button class="ib" data-a="fold" title="Plegar el outliner">▾</button><button class="ib" data-a="x" title="Cerrar">×</button></div><div class="sel" hidden></div><div class="ol"><div class="os"><input type="search" placeholder="Buscar pieza (código o nombre)…"></div><div class="tree"></div></div>`;
+  el.innerHTML=`<div class="ih"><b>Inspector</b><button class="ib" data-a="fold" title="Plegar el outliner">▾</button><button class="ib" data-a="x" title="Cerrar">×</button></div><div class="sel" hidden></div><div class="ol"><div class="os" style="display:flex;gap:4px;align-items:center"><input type="search" placeholder="Buscar pieza (código o nombre)…" style="flex:1;min-width:0"><button class="ib" data-a="plegarTodo" title="Cerrar todos los grupos">⊟</button></div><div class="tree"></div></div>`;
   const selEl=el.querySelector('.sel'),tree=el.querySelector('.tree'),q=el.querySelector('.os input'),ol=el.querySelector('.ol');
   /* opciones de diseño (tarjeta de variantes de la barra): vive dentro del inspector, debajo de la selección; al aparecer abre el inspector */
   /* opciones de diseño: sección propia de la barra (sidebar.js) */
   
-  let abierto=LS.get('carhue-insp-on',false);const cerr=LS.get('carhue-insp-grp',{});let olFold=LS.get('carhue-insp-olfold',false);
+  let abierto=LS.get('carhue-insp-on',false);let abiertos=LS.get('carhue-insp-abiertos',{});let selG=null;/* Maxi 15/10: grupos cerrados de entrada; abrir uno (o elegir una pieza) cierra los demás */let olFold=LS.get('carhue-insp-olfold',false);
   const show=v=>{abierto=v;LS.set('carhue-insp-on',v);pintar(true);window.__side&&window.__side.sync();};
   const T=document.getElementById('asideTg');if(T){const T2=T.cloneNode(true);T.replaceWith(T2);T2.title='Inspector y outliner';T2.addEventListener('click',()=>show(!abierto));}
   const foldOl=()=>{ol.style.display=olFold?'none':'flex';el.querySelector('[data-a="fold"]').textContent=olFold?'▸':'▾';};foldOl();
@@ -59,8 +59,8 @@ export function initInspector(visor){
     const inp=selEl.querySelector('.nm input');if(inp){inp.focus();inp.select();}}
   function pintarTree(){const f=(q.value||'').trim().toLowerCase();const G=new Map();
     for(const p of visor.parts||[]){if(!p.geos&&!p.grp)continue;const g=p.group||'Otros';const nm=nombre(p);if(f&&!(p.id.toLowerCase().includes(f)||nm.toLowerCase().includes(f)))continue;if(!G.has(g))G.set(g,[]);G.get(g).push(p);}
-    const sel=visor.selected;let h='';
-    for(const [g,L] of G){const off=L.every(p=>visor.isHidden(p.id)),c=!f&&cerr[g];
+    const sel=visor.selected;let h='';if(sel&&sel!==selG){for(const [g,L] of G)if(L.some(p=>p.id===sel)){abiertos={[g]:true};LS.set('carhue-insp-abiertos',abiertos);}}selG=sel;
+    for(const [g,L] of G){const off=L.every(p=>visor.isHidden(p.id)),c=!f&&!abiertos[g];
       h+=`<div class="g" data-g="${esc(g)}"><span>${c?'▸':'▾'}</span><span class="eye" data-ge="${esc(g)}" title="${off?'Mostrar':'Esconder'} el grupo">${off?EO:E}</span>${esc(g)}<span class="cnt">${L.length}</span></div>`;
       if(c)continue;for(const p of L){const hid=visor.isHidden(p.id);h+=`<div class="r${p.id===sel?' on':''}${hid?' off':''}" data-id="${esc(p.id)}"><span class="eye" data-e="${esc(p.id)}" title="${hid?'Mostrar':'Esconder'}">${hid?EO:E}</span><span class="rid">${esc(p.id)}</span><span class="rn">${ren===p.id?`<input value="${esc(N.alias(p.id)||nombre(p))}">`:esc(nombre(p))}</span></div>`;}}
     tree.innerHTML=h||'<div style="padding:8px 10px;color:var(--muted)">Nada con ese nombre.</div>';
@@ -72,13 +72,13 @@ export function initInspector(visor){
   function hint(t){const st=document.getElementById('stTool');if(st)st.textContent=t;}
   function fit(id){const p=byId()[id];if(!p||!p.bb)return;const T3=visor.THREE;const c=p.bb.getCenter(new T3.Vector3()),r=Math.max(60,p.bb.getSize(new T3.Vector3()).length()*.5);const d=visor.camera.position.clone().sub(visor.controls.target).normalize();visor.fly(c.clone().addScaledVector(d,r*2.2).toArray(),c.toArray());}
   el.addEventListener('click',e=>{const a=e.target.closest('[data-a]');const id=visor.selected;
-    if(a){const k=a.dataset.a;if(k==='x')return show(false);if(k==='fold'){olFold=!olFold;LS.set('carhue-insp-olfold',olFold);foldOl();return;}
+    if(a){const k=a.dataset.a;if(k==='x')return show(false);if(k==='plegarTodo'){abiertos={};LS.set('carhue-insp-abiertos',abiertos);pintarTree();return;}if(k==='fold'){olFold=!olFold;LS.set('carhue-insp-olfold',olFold);foldOl();return;}
       if(k==='ren'){ren=id;pintar();return;}if(k==='fn'){fnOpen=!fnOpen;pintarSel();return;}if(k==='eye'&&id){visor.toggleHidden(id,!visor.isHidden(id));pintar();return;}
       if(k==='del'&&id&&visor.borrarPieza){visor.borrarPieza(id);return;}if(k==='delp'&&id&&visor.borrarParte){visor.borrarParte(id);return;}
       if(k==='fit'&&id)return fit(id);if(k==='desel'){visor.resetSel();pintar();return;}}
     const ge=e.target.closest('[data-ge]');if(ge){const g=ge.dataset.ge;const L=(visor.parts||[]).filter(p=>(p.group||'Otros')===g);const off=L.every(p=>visor.isHidden(p.id));const H=new Set(visor.hidden);for(const p of L){if(off)H.delete(p.id);else H.add(p.id);}visor.setHidden([...H]);pintar();return;}
     const ey=e.target.closest('[data-e]');if(ey){const i=ey.dataset.e;visor.toggleHidden(i,!visor.isHidden(i));pintar();return;}
-    const g=e.target.closest('.g');if(g){cerr[g.dataset.g]=!cerr[g.dataset.g];LS.set('carhue-insp-grp',cerr);pintarTree();return;}
+    const g=e.target.closest('.g');if(g){const k=g.dataset.g;abiertos=abiertos[k]?{}:{[k]:true};LS.set('carhue-insp-abiertos',abiertos);pintarTree();g.parentElement&&tree.querySelector(`.g[data-g="${CSS.escape(k)}"]`)?.scrollIntoView({block:'nearest'});return;}
     const r=e.target.closest('.r');if(r&&!e.target.closest('input')){visor.showPart(r.dataset.id);pintar();}});
   el.addEventListener('dblclick',e=>{const r=e.target.closest('.r');if(r){ren=r.dataset.id;pintarTree();return;}if(e.target.closest('.nm')){ren=visor.selected;pintarSel();}});
   el.addEventListener('keydown',e=>{e.stopPropagation();const t=e.target;if(t.matches('.rn input,.nm input')){if(e.key==='Enter')renombrar(ren,t.value);if(e.key==='Escape'){ren=null;pintar();}}});
