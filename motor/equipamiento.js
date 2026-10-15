@@ -245,8 +245,10 @@ export function initEquipamiento(visor,stage){
     const key=`${x|0},${y|0}`;if(gCache.has(key))return gCache.get(key);rcT.set(new THREE.Vector3(x,600,y),new THREE.Vector3(0,-1,0));rcT.far=1000;
     const h=rcT.intersectObjects(gMeshes,false).find(i=>i.point.y<150);const v=h?h.point.y:-20;gCache.set(key,v);return v;}
   /* ---------- 3D ---------- */
-  const groups=new Map();let selBox=null,mueCache=null;
-  function mallasMue(){if(mueCache)return mueCache;mueCache=[];if(!G.visible)return mueCache;for(const g of groups.values()){if(g.userData.capa!=='mue'||!g.visible)continue;const it=item(g.userData.item);if(it&&it.t==='alfombra')continue;g.traverse(o=>{if(o.isMesh)mueCache.push(o);});}return mueCache;}let nocheOn=false,nocheK=0,prendidaFn=()=>false;
+  const groups=new Map();let selBox=null,mueCache=null,cajCache=null;
+  /* cajas de los muebles para que las personas no los atraviesen (Maxi 15/10): una por mueble, sin alfombras; no se cachea vacía */
+  let cajT=0;function cajasMue(){const now=performance.now();if(cajCache&&cajCache.length&&now-cajT<1000)return cajCache;cajT=now;/* se rehace cada segundo: así sigue a los muebles que se mueven */const r=[];if(!G.visible)return r;for(const g of groups.values()){if(g.userData.capa!=='mue'||!g.visible)continue;const it=item(g.userData.item);if(it&&/^alfombra/.test(it.t))continue;const b=new THREE.Box3().setFromObject(g);if(b.isEmpty()||b.max.y-b.min.y<4)continue;r.push(b);}cajCache=r;return r;}
+  function mallasMue(){if(mueCache&&mueCache.length)return mueCache;mueCache=[];if(!G.visible)return mueCache;for(const g of groups.values()){if(g.userData.capa!=='mue'||!g.visible)continue;const it=item(g.userData.item);if(it&&it.t==='alfombra')continue;g.traverse(o=>{if(o.isMesh)mueCache.push(o);});}return mueCache;}let nocheOn=false,nocheK=0,prendidaFn=()=>false;
   const EMIT=8;/* brillo del emisor de noche (lo agarra el bloom) */
   /* íconos de los artefactos: siempre encima, se tocan fácil aunque el artefacto esté a oscuras o tapado */
   function icoTex(col,ring){/* sólo líneas: lamparita (Maxi 14/10: chico, sin fondo) */const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.strokeStyle=ring||col;x.lineWidth=ring?7:5.5;x.lineCap=x.lineJoin='round';
@@ -289,9 +291,9 @@ export function initEquipamiento(visor,stage){
       g.userData.prog=p.prog||progDef(m.t);const onI=prendidaFn(m.id);for(const mt of g.userData.mats)mt.emissiveIntensity=onI?mt.userData.emit*nocheK:0;}
     g.rotation.y=(m.r||0)*Math.PI/180;return g;}
   function armar(){window.__despertar&&window.__despertar();for(const g of groups.values()){G.remove(g);GV.remove(g);if(g.userData.capa!=='veg')g.traverse(o=>{if(o.geometry&&!o.isSprite)o.geometry.dispose();});if(g.userData.mats)g.userData.mats.forEach(m=>m.dispose());}groups.clear();
-    for(const k in CAPA)for(const a of AMB_ORDEN){const s=ST[k][a];const e=s&&s.esc[s.activo];if(e)for(const m of e.items){const g=armarItem(m,a,k);if(g){(k==='veg'?GV:G).add(g);groups.set(m.id,g);}}}mueCache=null;marcarSel();vis();pintarIconos();}
+    for(const k in CAPA)for(const a of AMB_ORDEN){const s=ST[k][a];const e=s&&s.esc[s.activo];if(e)for(const m of e.items){const g=armarItem(m,a,k);if(g){(k==='veg'?GV:G).add(g);groups.set(m.id,g);}}}mueCache=null,cajCache=null;marcarSel();vis();pintarIconos();}
   function visOf(g){const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;return (AMB[g.userData.amb].nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
-  function vis(){mueCache=null;for(const g of groups.values())g.visible=visOf(g);luces();}
+  function vis(){mueCache=null,cajCache=null;for(const g of groups.values())g.visible=visOf(g);luces();}
   /* fuentes de luz en coordenadas del mundo → motor de noche */
   const _v=new THREE.Vector3(),_d=new THREE.Vector3();
   function luces(){window.__despertar&&window.__despertar();const L=[];for(const g of groups.values()){if(g.userData.capa!=='luz'||!g.visible||!g.userData.luz)continue;g.updateMatrixWorld(true);
@@ -433,7 +435,7 @@ export function initEquipamiento(visor,stage){
   armar();panel();
   setTimeout(()=>{/* las lucarnas corredizas de costado esquivan los reflectores del alero: se rearman cuando ya están */if(visor.params&&visor.params.luTipo==='4'&&visor.rebuild)visor.rebuild();},1500);
   const api={toggle(k){if(k&&k!==capa&&!card.hidden){capa=k;sel=null;try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}panel();return true;}if(k)capa=k;card.hidden=!card.hidden;try{localStorage.setItem('carhue-equip-panel',card.hidden?'0':'1');}catch(e){}if(card.hidden){sel=null;marcarSel();}else panel();return !card.hidden;},
-    get open(){return !card.hidden;},get capa(){return capa;},CAT,CL,ST,setNoche,luces,panel,mallasMue,rearmar:()=>armar(),vis:()=>vis(),
+    get open(){return !card.hidden;},get capa(){return capa;},CAT,CL,ST,setNoche,luces,panel,mallasMue,cajasMue,rearmar:()=>armar(),vis:()=>vis(),
     items(k){const r=[];for(const a of AMB_ORDEN){const s=ST[k]&&ST[k][a];const e=s&&s.esc[s.activo];if(!e)continue;for(const m of e.items){const c=catOf(m.t,k);if(!c)continue;r.push({id:m.id,t:m.t,amb:a,x:m.x,y:m.y,z:(AMB[a].piso??PISO),r:m.r||0,p:{...c.p,...(m.p||{})},n:c.n,sist:c.sist});}}return r;},
     escenarios(k){return Object.fromEntries(AMB_ORDEN.map(a=>[a,{activo:ST[k][a].activo,esc:Object.fromEntries(Object.entries(ST[k][a].esc).map(([i,v])=>[i,v.nombre]))}]));},
     setActivo(k,a,i){if(ST[k][a]&&ST[k][a].esc[i]){ST[k][a].activo=i;armar();guardar(a,k);if(!card.hidden)panel();}},vegOn:()=>Object.values(vegCapas).some(v=>v!==false),vegTodo(v){for(const k of ['bajo','medio','arbol'])vegCapas[k]=!!v;try{localStorage.setItem('carhue-veg-capas',JSON.stringify(vegCapas));}catch(e){}vis();if(!card.hidden&&capa==='veg')panel();}};

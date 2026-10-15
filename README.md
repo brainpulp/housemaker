@@ -41,4 +41,4 @@ URL=http://localhost:8765/carhue/_prueba.html node herramientas/pruebas/techos.m
 
 Para publicar, se publica `dist/<casa>/<casa>.html` en el artifact de la casa y se pasan los demás archivos de `dist/<casa>/` como `files`. La URL del artifact está en `casas/<casa>/ARTIFACT.md`.
 
-Más detalle: [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) · [docs/CASA-NUEVA.md](docs/CASA-NUEVA.md) · [docs/DEUDA.md](docs/DEUDA.md)
+Más detalle: [docs/GUIAS-DE-DISENO.md](docs/GUIAS-DE-DISENO.md) (leer primero) · [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) · [docs/CASA-NUEVA.md](docs/CASA-NUEVA.md) · [docs/DEUDA.md](docs/DEUDA.md)

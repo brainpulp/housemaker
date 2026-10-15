@@ -59,11 +59,13 @@ export function initPersonas(visor){
 
   /* caminar solas: 1,1 m/s; giran al encontrar pared (a 45 cm), escalón de más de 25 o caída */
   const SPD=105,STEP=25;let last=performance.now();
+  /* muebles: el cuerpo (radio 22) no entra en la caja de ningún mueble que esté a la altura del cuerpo (Maxi 15/10: los rayos pasaban entre las patas de mesas y sillas y por arriba de los muebles bajos) */
+  const R=22;function choca(p,nx,nz){const bs=visor.equip&&visor.equip.cajasMue?visor.equip.cajasMue():[];for(const b of bs){if(b.max.y<p.y+6||b.min.y>p.y+165)continue;const dentro=(x,z)=>x>b.min.x-R&&x<b.max.x+R&&z>b.min.z-R&&z<b.max.z+R;if(dentro(nx,nz)&&!dentro(p.x,p.z))return true;}return false;}
   function blocked(p,dir){const o=new V(p.x,p.y+STEP+10,p.z);for(const hh of [0,60,120]){o.y=p.y+STEP+10+hh;rc.set(o,dir);rc.far=45;if(rc.intersectObjects(meshes(),false).length)return true;/* muebles del equipamiento: no los atraviesan */const mu=visor.equip&&visor.equip.mallasMue?visor.equip.mallasMue():[];if(mu.length&&rc.intersectObjects(mu,false).length)return true;}return false;}
   function tick(now){requestAnimationFrame(tick);const dt=Math.min(.05,(now-last)/1000);last=now;/* reposo (Maxi 14/10): sin actividad las personas se quedan quietas donde están hasta que vuelva a haber movimiento */if(!dr&&now-(window.__act||0)>2500)return;objs.forEach((o,i)=>{if(o&&o.userData.mx){o.userData.mx.update(dt);if(!list[i]||!list[i].w||dr)anim(o,'idle');}});if(dr||!list.some(p=>p.w))return;
     list.forEach((p,i)=>{if(!p.w)return;const dir=new V(Math.sin(p.r),0,Math.cos(p.r));
       if(Math.random()<dt*.25)p.r+=(Math.random()-.5)*1.2;/* cada tanto cambia un poco de rumbo */
-      if(blocked(p,dir)){p.r+=Math.PI*(.5+Math.random());return;}
+      if(blocked(p,dir)||choca(p,p.x+dir.x*(SPD*dt+4),p.z+dir.z*(SPD*dt+4))){p.r+=Math.PI*(.5+Math.random());return;}
       const nx=p.x+dir.x*SPD*dt,nz=p.z+dir.z*SPD*dt,fy=floorAt(nx,nz,p.y+STEP+5,STEP*2+10);
       if(fy===null||Math.abs(fy-p.y)>STEP){p.r+=Math.PI*(.6+Math.random()*.8);return;}
       p.x=nx;p.z=nz;p.y=fy;anim(objs[i],'walk');});

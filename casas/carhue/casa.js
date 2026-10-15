@@ -109,6 +109,7 @@ const params=[
   {id:'escB2k',label:'B2 escalones arriba',type:'select',value:'7',quick:true,showIf:P=>P.escAlt==='B2',group:'Ver',options:[['2','2'],['3','3'],['4','4'],['5','5'],['6','6'],['7','7']],help:'Cuántas alzadas baja el puentecito respecto de la puerta.'},
   {id:'escAlt',label:'Escalera al altillo',type:'select',value:'B3',quick:true,group:'Ver',options:[['0','Altillo: sin escalera'],['A','Altillo A · paso alternado'],['D','Altillo D · de barco 60°'],['E','Altillo E · recta 40°'],['B2','Altillo B2 · recta contra M-22 + puentecito más bajo'],['B3','Altillo B3 · como B2, más empinada y puentecito más largo'],['S','Altillo S · caracol bajo la cumbrera']],help:'Escaleras al altillo por la puerta P-34. Todas salen derecho bajo la cumbrera: es la única franja con altura libre.'},
   {id:'ventJ',label:'Ventanas al jardín (P-05, P-06)',type:'select',value:'proy',quick:true,group:'Ver',options:[['proy','Proyectante (una hoja)'],['pleg','Plegable tipo garage (dos hojas)'],['barn','Corrediza de vidrio tipo granero']]},
+  {id:'p26',label:'Puerta del baño piletero',type:'select',value:'m26',quick:true,group:'Ver',options:[['m26','P-26 en M-26 (desde la cocina norte)'],['m24','P-26 en M-24, lado este (desde la cocina)']]},
   {id:'ventV7',label:'Ventana V-07',type:'select',value:'proy',quick:true,group:'Ver',options:[['proy','V-07 proyectante (una hoja)'],['pleg','V-07 plegable tipo garage'],['barn','V-07 corrediza tipo granero']]},
   {id:'p03Est',label:'Puerta al patio',type:'select',value:'tablas',quick:true,group:'Ver',options:[['tablas','Tablas verticales'],['hierro','Hierro y vidrio entero'],['kumiko','Kumiko japonés con washi'],['chapa','Chapa óxido con tajos'],['ojo','Maciza con ojo de buey'],['listonH','Listones horizontales']]},
   {id:'m43Est',label:'Hojas de M-43',type:'select',value:'lisa',quick:true,group:'Ver',options:[['lisa','Lisa (fenólico)'],['shoji','Japonesa (shoji)'],['tubo','Tubo cuadrado y vidrio esmerilado'],['listones','Listones verticales']]},
@@ -127,6 +128,8 @@ const params=[
 ];
 
 function build(p){
+  /* Maxi 15/10: opción de diseño para la puerta del baño piletero P-26: en M-26 (desde la cocina norte, como está) o en el tramo este de M-24 (desde la cocina, frente al baño) */
+  {const a=M.ABERTURAS.find(o=>o.id==='P-26');if(a){if(!a._orig)a._orig={muro:a.muro,d:a.d,w:a.w};Object.assign(a,p.p26==='m24'?{muro:'M-24',d:326,w:78,_var:'m24'}:{...a._orig,_var:''});}}
   const parts=[];const Pt=(id,name,cat,geos,info,ex={})=>{const al=N.alias(id);parts.push({id,name:al?`${id} · ${al}`:name,alias:al,cat,geos:[].concat(geos),info:{...info,fn:(N.nota(id)?`<b>Tu nota:</b> ${N.nota(id)}<br>`:'')+(info.fn||'')},...ex});};
   const ex=d=>({group:d.nivel?NIV[d.nivel]:undefined,opt:{op:d.estado==='proyecto'?.35:d.estado==='demoler'?.45:undefined}});
   const base=d=>({fn:d.nota||'',sec:'',med:'',u:[...M.DUDAS.filter(x=>x.ref.includes(d.id)).map(x=>x.id)].join(' · ')||''});
@@ -576,10 +579,11 @@ function build(p){
       /* 4 · cabios del dormer 2″×6″ cada ~50, del cabezal al frente con 25 de alero */
       const nr=Math.max(2,Math.round((xb-xa)/50));for(let i=0;i<=nr;i++){const x=xa-5+(xb-xa+10)*i/nr;es.push(slabY(x-2.5,x+2.5,[357,DU(357)],[YF+25,DU(YF+25)],15));}
       /* 5 · machimbre, aislación y chapa (4°), babetas y cupertina */
-      tc.push(slabY(xa-15,xb+15,[350,DT(350)+3],[YF+30,DT(YF+30)+3],3));es.push(slabY(xa-12,xb+12,[352,DT(352)],[YF+28,DT(YF+28)],2.5));
+      const punta=xa-7.5<=5,xt0=punta?-43:xa-15;/* Maxi 15/10: si el dormer llega a la pared del fondo, su chapa vuela como el alero del hastial (x −0,43) y no queda una tira de faldón al costado */
+      tc.push(slabY(xt0,xb+15,[350,DT(350)+3],[YF+30,DT(YF+30)+3],3));es.push(slabY(punta?-40:xa-12,xb+12,[352,DT(352)],[YF+28,DT(YF+28)],2.5));
       for(const [x0,x1] of [[xa-9,xa-7.5],[xb+7.5,xb+9]])ch.push(wYZ(x0,x1,352,YF+5,RT,DT));
       ch.push(box(xa-9,xb+9,Z0,zw0,YF+5,YF+6.5),box(xa-9,xb+9,zw1,DT(YF+6),YF+5,YF+6.5));{let px=xa-9;for(const [xw0,xw1] of W2){if(xw0-px>1)ch.push(box(px,xw0,zw0,zw1,YF+5,YF+6.5));px=xw1;}if(xb+9-px>1)ch.push(box(px,xb+9,zw0,zw1,YF+5,YF+6.5));}
-      for(const [x0,x1] of [[xa-14,xa-9],[xb+9,xb+14]])fl.push(wYZ(x0,x1,352,YF,RT,y=>RT(y)+10));fl.push(box(xa-12,xb+12,DT(YF+30)-2,DT(YF+30)+4,YF+29,YF+31));
+      for(const [x0,x1] of punta?[[xb+9,xb+14]]:[[xa-14,xa-9],[xb+9,xb+14]])fl.push(wYZ(x0,x1,352,YF,RT,y=>RT(y)+10));fl.push(box(punta?-43:xa-12,xb+12,DT(YF+30)-2,DT(YF+30)+4,YF+29,YF+31));
       /* 6 · ventana: paño fijo arriba y hoja proyectante abajo, marco de roble */
       for(const [xw0,xw1] of W2){mk.push(box(xw0,xw1,zw0,zw0+5,YF+1,YF+6),box(xw0,xw1,zw1-5,zw1,YF+1,YF+6),box(xw0,xw0+5,zw0,zw1,YF+1,YF+6),box(xw1-5,xw1,zw0,zw1,YF+1,YF+6),box(xw0,xw1,zwt-2.5,zwt+2.5,YF+1,YF+6));
       gl.push(box(xw0+5,xw1-5,zw0+5,zwt-2.5,YF+3,YF+3.6));if(!d.integrada)gl.push(box(xw0+5,xw1-5,zwt+2.5,zw1-5,YF+3,YF+3.6));}
@@ -621,7 +625,7 @@ function build(p){
   /* techos */
   const zT2=y=>478+(y+81)*(29/433);   // cara inferior de T-02 (faldón al patio)
   if(p.techos){for(const t of M.TECHOS){if(t.linea)continue;let g;const [x0,x1]=[Math.min(...t.poly.map(q=>q[0])),Math.max(...t.poly.map(q=>q[0]))];
-    if(t.id==='T-01'){/* faldón con los agujeros de las lucarnas (siguen a las lucarnas si se mueven) */let tp=t.poly;if(DORM_ON(p)){/* dormers al ras de la fachada: el faldón se corta de la cumbrera al borde, alero incluido */const n=[];for(const q of t.poly){n.push(q);}tp=[[-43,352],[2523,352],[2523,690],[993,690],[993,738],...[...DORM_J_(p)].reverse().flatMap(d=>[[d.xb+7.5,738],[d.xb+7.5,DORM_Y0],[d.xa-7.5,DORM_Y0],[d.xa-7.5,738]]),[-43,738]];}const sh=new THREE.Shape(tp.map(q=>new THREE.Vector2(q[0],-q[1])));
+    if(t.id==='T-01'){/* faldón con los agujeros de las lucarnas (siguen a las lucarnas si se mueven) */let tp=t.poly;if(DORM_ON(p)){/* dormers al ras de la fachada: el faldón se corta de la cumbrera al borde, alero incluido */const n=[];for(const q of t.poly){n.push(q);}tp=[[-43,352],[2523,352],[2523,690],[993,690],[993,738],...[...DORM_J_(p)].reverse().flatMap(d=>d.xa-7.5<=5?[[d.xb+7.5,738],[d.xb+7.5,DORM_Y0],[-43,DORM_Y0]]:[[d.xb+7.5,738],[d.xb+7.5,DORM_Y0],[d.xa-7.5,DORM_Y0],[d.xa-7.5,738]]),...(DORM_J_(p).some(d=>d.xa-7.5<=5)?[]:[[-43,738]])];}const sh=new THREE.Shape(tp.map(q=>new THREE.Vector2(q[0],-q[1])));
       for(const l of M.TECHOS.filter(l=>/^LU-/.test(l.id)&&!DORM_SKIP(p).includes(l.id))){const xs=l.poly.map(q=>q[0]),ys=l.poly.map(q=>q[1]);/* el agujero nunca toca el borde del faldón */const eave=Math.max(...xs)>993?690:738;if(Math.max(...ys)>eave-10)ys.push(...ys.map(()=>eave-10)),ys.splice(0,ys.length,...ys.map(y=>Math.min(y,eave-10)));if(Math.min(...xs)<x0+10||Math.max(...xs)>x1-10)continue;sh.holes.push(new THREE.Path([[Math.min(...xs),Math.min(...ys)],[Math.min(...xs),Math.max(...ys)],[Math.max(...xs),Math.max(...ys)],[Math.max(...xs),Math.min(...ys)]].map(q=>new THREE.Vector2(q[0],-q[1]))));}
       g=[geo.mapGeo(new THREE.ExtrudeGeometry(sh,{depth:6,bevelEnabled:false,curveSegments:1}),(u,v,w)=>[u,lin(ROOF.ridge,ROOF.front,-v)+w,-v])];}
     else if(t.id==='T-02'){const y0=Math.min(...t.poly.map(q=>q[1]));g=slabY(x0,x1,[y0,zT2(y0)],[352,507],6);}
@@ -979,6 +983,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
   label:Object.fromEntries((params.find(q=>q.id==='escAlt').options)),vista:{p:[1850,330,330],t:[2230,170,-230]}},
   {id:'esc-ep',nombre:'Escalera al entrepiso',piezas:/^(ESC1-[TZPB]|ESC-(ZE\d|TE|Z\d|E\d|P\d|V\d|C\d|T\d|H\d|B\d|L\d))$/,params:['escTipo','escN','escAlto','escGiro','escDy'],info:'escInfo1',label:Object.fromEntries((params.find(q=>q.id==='escTipo').options)),vista:{p:[1950,520,1000],t:[1400,120,560]}},
   {id:'ventJ',nombre:'Ventanas al jardín (P-05, P-06)',piezas:/^(P-05|P-06)(h|d|h2|v2|k|k2|c|p|m)?$/,params:['ventJ'],label:Object.fromEntries((params.find(q=>q.id==='ventJ').options)),vista:{p:[700,240,1250],t:[650,120,690]}},
+  {id:'p26',nombre:'Puerta del baño piletero',piezas:/^(P-26[a-z]*|M-24|M-26|L-11)$/,params:['p26'],label:Object.fromEntries(params.find(q=>q.id==='p26').options),vista:{p:[1700,600,-420],t:[2100,100,-420]}},
   {id:'ventV7',nombre:'Ventana V-07',piezas:/^V-07(h|d|h2|v2|k|k2|c|p|m)?$/,params:['ventV7'],label:Object.fromEntries((params.find(q=>q.id==='ventV7').options)),vista:{p:[1180,200,1000],t:[1100,110,620]}},
   {id:'p03',nombre:'Puerta al patio P-03',piezas:/^P-03[mhvk]?$/,params:['p03Est'],label:Object.fromEntries((params.find(q=>q.id==='p03Est').options)),vista:{p:[1410,170,420],t:[1410,100,27]}},
   {id:'m43',nombre:'Gran corrediza M-43',piezas:/^(H-[1-4]v?|M-43[rpz]?)$/,params:['m43Est'],label:Object.fromEntries((params.find(q=>q.id==='m43Est').options)),vista:{p:[1300,420,700],t:[1000,360,300]}},
