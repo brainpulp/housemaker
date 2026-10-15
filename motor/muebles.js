@@ -47,9 +47,9 @@ export function catalogoMuebles(THREE){
   banqueta:{n:'Banqueta alta de madera y hierro',cat:'cocina',p:{H:75,mad:'roble'},g:p=>{const g=[[C(18,p.H-4,p.H,0,0,28),p.mad]];for(const [x,z] of [[1,1],[1,-1],[-1,1],[-1,-1]])g.push([VAR([x*11,0,z*11],[x*7,p.H-4,z*7],1.1),'negro']);
     const t=new THREE.TorusGeometry(10.5,.7,6,28);t.rotateX(Math.PI/2);t.translate(0,26,0);g.push([t,'negro']);return g;}},
   /* ---------- dormitorio ---------- */
-  cama:{n:'Cama baja con cabecero tapizado',cat:'dormitorio',p:{L:160,D:200,tela:'lino',mad:'roble'},g:p=>{const g=[[B(-p.L/2-6,p.L/2+6,6,24,-p.D/2+4,p.D/2+6),p.mad],[B(-p.L/2,p.L/2,0,6,-p.D/2+14,p.D/2-6),'negro'],
-    [R(-p.L/2,p.L/2,24,46,-p.D/2+8,p.D/2+2,4),'sabana'],[R(-p.L/2-2,p.L/2+2,40,49,-p.D/2+62,p.D/2+4,3.5),p.tela==='lino'?'almohada':p.tela],[R(-p.L/2-6,p.L/2+6,6,100,-p.D/2-2,-p.D/2+8,4),p.tela]];
-    for(const x of p.L>=120?[-p.L/4,p.L/4]:[0])g.push(cojin(x-p.L/4+5,x+p.L/4-5,46,60,-p.D/2+12,-p.D/2+48,'almohada'));return g;}},
+  cama:{n:'Cama baja con cabecero tapizado',cat:'dormitorio',p:{L:160,D:200,tela:'lino',mad:'roble'},g:p=>{/* todo dentro de L × D (Maxi 15/10: chocaba con paredes y mesas de luz) */const x0=-p.L/2,x1=p.L/2,z0=-p.D/2,z1=p.D/2;
+    const g=[[B(x0,x1,6,24,z0+8,z1),p.mad],[B(x0+6,x1-6,0,6,z0+18,z1-8),'negro'],[R(x0+4,x1-4,24,46,z0+10,z1-3,4),'sabana'],[R(x0+2,x1-2,40,49,z0+64,z1-1,3.5),p.tela==='lino'?'almohada':p.tela],[R(x0,x1,6,100,z0,z0+8,4),p.tela]];
+    for(const x of p.L>=120?[-p.L/4,p.L/4]:[0])g.push(cojin(x-p.L/4+7,x+p.L/4-7,46,60,z0+14,z0+50,'almohada'));return g;}},
   cucheta:{n:'Cucheta de madera con escalera',cat:'dormitorio',p:{L:90,D:190,mad:'roble'},g:p=>{const g=[],H2=135;for(const sx of [-1,1])for(const sz of [-1,1])g.push([B(sx*(p.L/2)-(sx>0?5:0),sx*(p.L/2)+(sx<0?5:0),0,H2+40,sz*p.D/2-(sz>0?5:0),sz*p.D/2+(sz<0?5:0)),p.mad]);
     for(const y of [22,H2]){g.push([B(-p.L/2,p.L/2,y-6,y,-p.D/2,p.D/2),p.mad],[R(-p.L/2+3,p.L/2-3,y,y+18,-p.D/2+3,p.D/2-3,3),'sabana'],cojin(-p.L/2+8,p.L/2-8,y+18,y+30,-p.D/2+8,-p.D/2+40,'almohada'));}
     for(const y of [H2+20,H2+34])for(const sz of [-1,1])g.push([B(-p.L/2,p.L/2,y,y+5,sz*(p.D/2-2.5)-2.5,sz*(p.D/2-2.5)+2.5),p.mad]);
@@ -80,11 +80,11 @@ export function catalogoMuebles(THREE){
   /* ---------- baño ---------- */
   vanitorio:{n:'Vanitorio de madera flotante con bacha de apoyo',cat:'baño',p:{L:110,D:50,H:85,fr:'madRust',n:1,tapa:'pizarra',bachaM:'piedra'},g:p=>{const z0=p.H-45,z1=p.H-3,g=[[B(-p.L/2,p.L/2,z0,z1,-p.D/2,p.D/2-1),p.fr],[R(-p.L/2,p.L/2,z1,p.H,-p.D/2,p.D/2+1,.6),p.tapa],[B(-p.L/2+3,p.L/2-3,z0-.5,z0,-p.D/2+4,p.D/2-6),'ledCalido'],ran(-p.L/2+2,p.L/2-2,(z0+z1)/2-.2,(z0+z1)/2+.2,p.D/2-1)];
     const xs=+p.n>1?[-p.L/4,p.L/4]:[0];for(const x of xs){const s=new THREE.SphereGeometry(20,28,12,0,Math.PI*2,Math.PI/2,Math.PI/2);s.scale(1,.6,1);s.translate(x,p.H+12,2);g.push([s,p.bachaM],[C(16,p.H+11.4,p.H+12,x,2,28),'loza']);
-      g.push([B(x-1,x+1,p.H+26,p.H+28,-p.D/2,-p.D/2+16),'grifo'],[C(3,p.H+24.5,p.H+29.5,x,-p.D/2+.5,16),'grifo'],[B(x-30,x+30,p.H+42,p.H+122,-p.D/2-.5,-p.D/2+1.5),'negro'],[B(x-28,x+28,p.H+44,p.H+120,-p.D/2+1.5,-p.D/2+2),'espejo']);}return g;}},
+      g.push([B(x-1,x+1,p.H+26,p.H+28,-p.D/2,-p.D/2+16),'grifo'],[C(3,p.H+24.5,p.H+29.5,x,-p.D/2+3,16),'grifo'],[B(x-30,x+30,p.H+42,p.H+122,-p.D/2,-p.D/2+2),'negro'],[B(x-28,x+28,p.H+44,p.H+120,-p.D/2+2,-p.D/2+2.5),'espejo']);}return g;}},
   inodoro:{n:'Inodoro suspendido',cat:'baño',p:{},g:()=>{const s=new THREE.SphereGeometry(19,28,16);s.scale(1,.55,1.4);s.translate(0,30,4);return [[s,'loza'],[R(-18,18,38,41,-24,28,1.5),'loza'],[B(-20,20,20,80,-30,-24),'loza'],[B(-9,9,92,93,-29,-28),'grifo']];}},
   bidet:{n:'Bidet suspendido',cat:'baño',p:{},g:()=>{const s=new THREE.SphereGeometry(18,28,16);s.scale(1,.6,1.35);s.translate(0,30,4);return [[s,'loza'],[B(-18,18,22,40,-30,-24),'loza'],[C(1.5,40,46,0,-14,10),'grifo']];}},
   banera:{n:'Bañera exenta ovalada',cat:'baño',p:{L:160,D:75},g:p=>{const pts=[];for(let i=0;i<=12;i++){const t=i/12;pts.push(new THREE.Vector2(.92+.08*Math.sin(t*Math.PI/2),58*t));}const o=new THREE.LatheGeometry([new THREE.Vector2(0,0),new THREE.Vector2(.8,0),...pts,new THREE.Vector2(.9,58),new THREE.Vector2(.86,58)],40);
-    o.scale(p.L/2,1,p.D/2);const inn=new THREE.SphereGeometry(1,32,12,0,Math.PI*2,Math.PI/2,Math.PI/2);inn.scale(p.L/2-6,40,p.D/2-6);inn.translate(0,57.5,0);return [[o,'loza'],[inn,'blanco'],[C(1.4,0,95,p.L/2+12,0,10),'grifo'],[VAR([p.L/2+12,95,0],[p.L/2-2,92,0],1.2),'grifo']];}},
+    const Lb=p.L-24;o.scale(Lb/2,1,p.D/2);o.translate(-12,0,0);const inn=new THREE.SphereGeometry(1,32,12,0,Math.PI*2,Math.PI/2,Math.PI/2);inn.scale(Lb/2-6,40,p.D/2-6);inn.translate(-12,57.5,0);return [[o,'loza'],[inn,'blanco'],[C(1.4,0,95,p.L/2-4,0,10),'grifo'],[VAR([p.L/2-4,95,0],[p.L/2-18,92,0],1.2),'grifo']];/* grifería exenta dentro del largo L */}},
   /* ---------- exterior ---------- */
   reposera:{n:'Reposera de listones con colchoneta de lino',cat:'exterior',p:{L:65,D:190,mad:'madRust',tela:'lino'},g:q=>{/* L = ancho, D = largo; respaldo hacia −z */const p={...q,L:q.D,D:q.L},g=[];for(const sz of [-1,1])g.push([B(-p.L/2,p.L/2,10,16,sz*(p.D/2-3)-3,sz*(p.D/2-3)+3),p.mad]);
     for(const [x,z] of [[-1,-1],[-1,1],[1,-1],[1,1]])g.push([B(x*(p.L/2-6)-3,x*(p.L/2-6)+3,0,12,z*(p.D/2-3)-3,z*(p.D/2-3)+3),p.mad]);
