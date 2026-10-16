@@ -7,7 +7,7 @@ export function ventanalArcos(THREE) {
   const box = (x0, x1, z0, z1, y0, y1) => { const g = new THREE.BoxGeometry(x1 - x0, z1 - z0, y1 - y0); g.translate((x0 + x1) / 2, (z0 + z1) / 2, (y0 + y1) / 2); return g; };
   const P = [], marco = [];
   /* marco fijo: parantes entre módulos, travesaños entre filas, contorno */
-  for (const x of X) marco.push(box(x - 3, x + 3, 72, 956, Y - 5, Y + 5));
+  for (const x of X) marco.push(box(x - 3, x + 3, 72, 622, Y - 5, Y + 5), box(x - 3, x + 3, 622, 956, Y - 5, Y + 5));
   for (const [z0, z1] of [[72, 88], [486, 512], [607, 622], [949, 956]]) marco.push(box(X[0] - 3, X[4] + 3, z0, z1, Y - 5, Y + 5));
   P.push({ id: 'VO-M', nombre: 'Ventanal O: marco y parantes', cat: 'perfil', geos: marco, info: { fn: 'Marco fijo de hierro: cuatro módulos y tres filas, como en tu SketchUp.', sec: 'perfil de hierro', med: `${((X[4] - X[0]) / 100).toFixed(2).replace('.', ',')} de ancho, de +0,72 a +9,56` } });
   /* una hoja: vidrio + bastidor + palillos horizontales */
@@ -29,5 +29,8 @@ export function ventanalArcos(THREE) {
       [hoja(a0, b0, FILA.alta[0], FILA.alta[1], 0, pal), hoja(a3, b3, FILA.alta[0], 750, 0, pal), hoja(a3, b3, 846, FILA.alta[1], 0, pal)]); }
   for (const i of [1, 2]) { const [a, b] = m(i); pieza(`VO-C${i + 4}`, `Ventanal O: hoja corrediza alta ${i}`, 'Hoja corrediza del segundo piso; se mueven las dos del medio.', [hoja(a, b, FILA.alta[0], FILA.alta[1], i % 2 ? -4 : 0, pal)]); }
   { const [a, b] = m(3); pieza('VO-B', 'Ventanal O: ventilación del baño de 2P', 'Paño chico corredizo del baño de 2P (alto y posición supuestos dentro del módulo N).', [hoja(a, b, 750, 846, -4)]); }
+  /* la fila alta está inclinada hacia adentro (SketchUp: de y 23,70 a +6,22 a y 24,66 a +9,47, unos 16°) */
+  const K = (2466 - 2370) / (947 - 622), inclina = g => { const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const z = p.getY(i); if (z > 618) p.setZ(i, p.getZ(i) + 25 + (z - 622) * K); } g.computeVertexNormals(); return g; };
+  for (const q of P) q.geos.forEach(inclina);
   return P;
 }

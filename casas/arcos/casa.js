@@ -33,7 +33,7 @@ import { DETALLE, COLORES, ESCALA } from './detalle-su.js';
 /* sin los pisos del SketchUp en PB, 1P y 2P (triángulos horizontales a ras de piso): ahí va el piso de tablones */
 const PISOS_Z = [72, 409, 607], esPiso = (a, b, c) => Math.max(a, b, c) - Math.min(a, b, c) < 0.5 && PISOS_Z.some(z => a > z - 4 && a < z + 12);
 const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = [];
-  const fuera = (a, b, c) => (d.id === 'SU-01' && Math.max(a, b, c) < 2400) || (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* ventanal O (va ventanal.js) y cerco del frente (va fachada.js) */
+  const fuera = (a, b, c) => (d.id === 'SU-01' && Math.max(a, b, c) < 2480) || (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* ventanal O (va ventanal.js) y cerco del frente (va fachada.js) */
   for (let i = 0; i < q.length; i += 9) { if (esPiso(q[i + 1] / ESCALA, q[i + 4] / ESCALA, q[i + 7] / ESCALA) || fuera(q[i + 2] / ESCALA, q[i + 5] / ESCALA, q[i + 8] / ESCALA)) continue; for (let k = 0; k < 9; k++) f.push(q[i + k] / ESCALA); }
   return { ...d, pos: new Float32Array(f) }; }).filter(d => d.pos.length);
 const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
@@ -97,6 +97,12 @@ function build(p) {
   { const l3 = M.LOSAS.find(x => x.id === 'LO-03'), l2 = M.LOSAS.find(x => x.id === 'LO-02');
     if (l3 && l2) { const xs = l3.poly.map(q => q[0]), ys = l3.poly.map(q => q[1]), a0 = Math.min(...xs), a1 = Math.max(...xs), b0 = Math.min(...ys), b1 = Math.max(...ys), t = 3, zb = l3.z, zt = l2.z - l2.e + 0.5;
       Pt('LO-03e', 'LO-03 · Escalón del estar hundido', 'losa', [[a0, a1, b0, b0 + t], [a0, a1, b1 - t, b1], [a0, a0 + t, b0, b1], [a1 - t, a1, b0, b1]].map(([x0, x1, y0, y1]) => A.losa([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], null, zb, zt)), { fn: 'Frente del escalón entre el piso del estar hundido y la losa de PB.', sec: '', med: `de +${f2(zb)} a +${f2(l2.z)}` }, { group: NIV.PB }); } }
+  /* dinteles de hierro (pintados con antióxido) sobre los vanos sin hoja, como en las fotos F39-20 a F39-22 */
+  for (const a of M.ABERTURAS) { if (a.tipo !== 'vano') continue; const m = M.MUROS.find(w => w.id === a.muro); if (!m) continue;
+    const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]), ux = (m.b[0] - m.a[0]) / L, uy = (m.b[1] - m.a[1]) / L, z = A.zBase(M, m) + (a.s || 0) + a.h;
+    const d0 = a.d - 15, d1 = a.d + a.w + 15, w = m.e / 2 + .5, nx = -uy, ny = ux, P = (d, s) => [m.a[0] + ux * d + nx * s, m.a[1] + uy * d + ny * s];
+    const q = [P(d0, -w), P(d1, -w), P(d1, w), P(d0, w)];
+    Pt(a.id + 'd', `${a.id} · dintel de hierro`, 'dintel', A.losa(q, null, z, z + 16), { fn: 'Perfil de hierro sobre el vano, con antióxido naranja, como se ve en las fotos.', sec: 'perfil 16', med: `${f2(a.w + 30)} de largo` }, ex(m)); }
   /* fachada E como en la foto */
   for (const f of fachadaArcos(THREE, M, A)) Pt(f.id, `${f.id} · ${f.nombre.replace(/^[A-Z0-9-]+ · /, '')}`, f.cat, f.geos, f.info, { group: 'Fachada E', tags: ['fachada'], opt: { noEdges: /caño|herreria/.test(f.cat) } });
   /* ventanal O paño por paño */
@@ -149,7 +155,7 @@ function build(p) {
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
-  artefacto: '#f3f0e8', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
+  artefacto: '#f3f0e8', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 
