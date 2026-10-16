@@ -106,7 +106,7 @@ function build(p) {
     if (l3 && l2) { const xs = l3.poly.map(q => q[0]), ys = l3.poly.map(q => q[1]), a0 = Math.min(...xs), a1 = Math.max(...xs), b0 = Math.min(...ys), b1 = Math.max(...ys), t = 3, zb = l3.z, zt = l2.z - l2.e + 0.5;
       Pt('LO-03e', 'LO-03 · Escalón del estar hundido', 'losa', [[a0, a1, b0, b0 + t], [a0, a1, b1 - t, b1], [a0, a0 + t, b0, b1], [a1 - t, a1, b0, b1]].map(([x0, x1, y0, y1]) => A.losa([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], null, zb, zt)), { fn: 'Frente del escalón entre el piso del estar hundido y la losa de PB.', sec: '', med: `de +${f2(zb)} a +${f2(l2.z)}` }, { group: NIV.PB }); } }
   /* dinteles de hierro (pintados con antióxido) sobre los vanos sin hoja, como en las fotos F39-20 a F39-22 */
-  for (const a of M.ABERTURAS) { if (a.tipo !== 'vano') continue; const m = M.MUROS.find(w => w.id === a.muro); if (!m) continue;
+  for (const a of M.ABERTURAS) { if (a.tipo !== 'vano' || a.dintel === false) continue; /* dintel:false = sin perfil a la vista (revocado) */ const m = M.MUROS.find(w => w.id === a.muro); if (!m) continue;
     const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]), ux = (m.b[0] - m.a[0]) / L, uy = (m.b[1] - m.a[1]) / L, z = A.zBase(M, m) + (a.s || 0) + a.h;
     const d0 = a.d - 15, d1 = a.d + a.w + 15, w = m.e / 2 + .5, nx = -uy, ny = ux, P = (d, s) => [m.a[0] + ux * d + nx * s, m.a[1] + uy * d + ny * s];
     const q = [P(d0, -w), P(d1, -w), P(d1, w), P(d0, w)];
