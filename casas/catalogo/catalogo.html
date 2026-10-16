@@ -44,12 +44,13 @@ pre{font:12px/1.4 "IBM Plex Mono",monospace;background:var(--bg);border:1px soli
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { catalogoMuebles, MATERIALES } from './muebles.js';
-const CAT=catalogoMuebles(THREE);
+import { catalogoModelos, cargarModelo, vestirModelo, modeloListo, fuente } from './modelos.js';
+const CAT={...catalogoMuebles(THREE),...catalogoModelos(THREE)};/* modelos 3D reales (motor/modelos.js): se cargan al pedirlos */
 const mats={};const mat=k=>{if(mats[k])return mats[k];const v=MATERIALES[k]||(k==='vidrio'?['#d8e6ea',.05,0]:['#999',.7]);
   const m=new THREE.MeshStandardMaterial({color:v[0],roughness:v[1]??.7,metalness:v[2]||0});if(v[3]){m.emissive=new THREE.Color(v[3]);m.emissiveIntensity=1.2;}if(k==='vidrio'){m.transparent=true;m.opacity=.3;m.depthWrite=false;}return mats[k]=m;};
 const ORD=['estar','comedor','dormitorio','cocina','baño','trabajo','exterior','otros'];
 const keys=Object.keys(CAT).sort((a,b)=>ORD.indexOf(CAT[a].cat)-ORD.indexOf(CAT[b].cat)||CAT[a].n.localeCompare(CAT[b].n));
-function armar(k,p){const c=CAT[k],g=new THREE.Group();for(const [geo,m] of c.g({...c.p,...p},{techoMin:()=>260,techo:()=>260}))if(geo)g.add(new THREE.Mesh(geo,mat(m)));return g;}
+function armar(k,p){const c=CAT[k],g=new THREE.Group();if(c.glb&&modeloListo(c.glb)){g.add(vestirModelo(THREE,c.glb,{...c.p,...p}));return g;}for(const [geo,m] of c.g({...c.p,...p},{techoMin:()=>260,techo:()=>260}))if(geo)g.add(new THREE.Mesh(geo,mat(m)));return g;}
 function escena(){const s=new THREE.Scene();s.add(new THREE.HemisphereLight(0xfff6ea,0x8a8377,1.6));const d=new THREE.DirectionalLight(0xffffff,2.2);d.position.set(-200,400,300);s.add(d);
   const f=new THREE.Mesh(new THREE.CircleGeometry(600,48),new THREE.MeshStandardMaterial({color:'#d9d3c8',roughness:1}));f.rotation.x=-Math.PI/2;f.position.y=-.2;s.add(f);return s;}
 const encuadre=(cam,obj,ctl)=>{const bb=new THREE.Box3().setFromObject(obj);const c=bb.getCenter(new THREE.Vector3()),r=bb.getSize(new THREE.Vector3()).length()/2;
@@ -58,8 +59,10 @@ const encuadre=(cam,obj,ctl)=>{const bb=new THREE.Box3().setFromObject(obj);cons
 const rT=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});rT.setSize(400,300);rT.setPixelRatio(1);rT.outputColorSpace=THREE.SRGBColorSpace;
 const cT=new THREE.PerspectiveCamera(32,4/3,1,5000);
 const grid=document.getElementById('grid'),fam=document.getElementById('fam');let filtro='todo',actual=null,pAct={};
-for(const k of keys){const c=CAT[k];const s=escena();const o=armar(k,{});s.add(o);s.background=new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--thumb').trim()||'#ebe7df');encuadre(cT,o);rT.render(s,cT);
-  const b=document.createElement('button');b.className='card';b.dataset.k=k;b.dataset.cat=c.cat;b.innerHTML=`<img alt="" src="${rT.domElement.toDataURL('image/jpeg',.85)}"><div><b>${c.n}</b><span class="k">${k} · ${c.cat}</span></div>`;b.onclick=()=>elegir(k);grid.appendChild(b);}
+const mini=k=>{const s=escena();const o=armar(k,{});s.add(o);s.background=new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--thumb').trim()||'#ebe7df');encuadre(cT,o);rT.render(s,cT);return rT.domElement.toDataURL('image/jpeg',.85);};
+for(const k of keys){const c=CAT[k];
+  const b=document.createElement('button');b.className='card';b.dataset.k=k;b.dataset.cat=c.cat;b.innerHTML=`<img alt="" src="${mini(k)}"><div><b>${c.n}</b><span class="k">${k} · ${c.cat}</span></div>`;b.onclick=()=>elegir(k);grid.appendChild(b);
+  if(c.glb)cargarModelo(THREE,c.glb).then(()=>{b.querySelector('img').src=mini(k);if(actual===k)poner(true);}).catch(()=>{});}
 const fams=['todo',...ORD.filter(f=>keys.some(k=>CAT[k].cat===f))];
 fam.innerHTML=fams.map(f=>`<button data-f="${f}" aria-pressed="${f==='todo'}">${f==='todo'?'Todo':f[0].toUpperCase()+f.slice(1)}</button>`).join('');
 fam.onclick=e=>{const f=e.target.dataset.f;if(!f)return;filtro=f;fam.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));grid.querySelectorAll('.card').forEach(c=>c.hidden=f!=='todo'&&c.dataset.cat!==f);};
@@ -69,12 +72,13 @@ const sV=escena(),camV=new THREE.PerspectiveCamera(32,4/3,1,5000),ctl=new OrbitC
 function tam(){const w=cv.clientWidth,h=cv.clientHeight;if(cv.width!==Math.round(w*rV.getPixelRatio())){rV.setSize(w,h,false);camV.aspect=w/h;camV.updateProjectionMatrix();}}
 (function loop(){requestAnimationFrame(loop);tam();sV.background=new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--thumb').trim()||'#ebe7df');rV.render(sV,camV);})();
 const MNOM=Object.keys(MATERIALES);const det=document.getElementById('det');
-function poner(re){if(objV){sV.remove(objV);objV.traverse(o=>o.geometry&&o.geometry.dispose());}objV=armar(actual,pAct);sV.add(objV);if(re)encuadre(camV,objV,ctl);
+function poner(re){if(objV){sV.remove(objV);objV.traverse(o=>o.geometry&&!o.userData.glb&&o.geometry.dispose());}objV=armar(actual,pAct);sV.add(objV);if(re)encuadre(camV,objV,ctl);
   const c=CAT[actual];const dif=Object.fromEntries(Object.entries(pAct).filter(([k,v])=>v!==c.p[k]));
   det.querySelector('pre').textContent=JSON.stringify({t:actual,x:0,y:0,r:0,p:dif});}
 function elegir(k){actual=k;pAct={...CAT[k].p};grid.querySelectorAll('.card').forEach(c=>c.setAttribute('aria-current',c.dataset.k===k));const c=CAT[k];
-  det.innerHTML=`<h2>${c.n}</h2><div class="k">${k} · ${c.cat}</div><div class="ps">${Object.entries(c.p).map(([n,v])=>typeof v==='number'?`<label>${n}<input type="number" data-p="${n}" value="${v}"></label>`:
-    `<label>${n}<select data-p="${n}">${MNOM.map(m=>`<option${m===v?' selected':''}>${m}</option>`).join('')}</select></label>`).join('')||'<span class="k">sin parámetros</span>'}</div>
+  const opc=n=>((c.ui||[]).find(u=>u[0]===n)||[])[2];
+  det.innerHTML=`<h2>${c.n}</h2><div class="k">${k} · ${c.cat}</div>${c.glb?`<p class="note">Modelo 3D: «${c.titulo}», de ${c.autor} (<a href="${fuente(k)}" target="_blank" rel="noopener">Sketchfab</a>), licencia CC BY 4.0.</p>`:''}<div class="ps">${Object.entries(c.p).map(([n,v])=>typeof v==='number'?`<label>${n}<input type="number" data-p="${n}" value="${v}"></label>`:
+    `<label>${n}<select data-p="${n}">${(Array.isArray(opc(n))?opc(n):MNOM).map(m=>`<option${m===v?' selected':''}>${m}</option>`).join('')}</select></label>`).join('')||'<span class="k">sin parámetros</span>'}</div>
     <div class="k" style="margin-bottom:4px">Para usarlo en un escenario de equipamiento:</div><pre></pre><div class="row"><button id="cp">Copiar</button><button id="rs">Valores por defecto</button></div>
     <p class="note">Medidas en cm. Origen al centro de la planta, apoyado en el piso, frente hacia +z.${c.z?` Va a ${c.z} cm del piso.`:''}</p>`;
   det.querySelectorAll('[data-p]').forEach(i=>i.oninput=()=>{pAct[i.dataset.p]=i.type==='number'?+i.value:i.value;poner(false);});

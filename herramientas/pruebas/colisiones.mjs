@@ -11,7 +11,7 @@ const r=await p.evaluate(tol=>{const v=window.__visor,T=v.THREE;const eq=v.scene
     q.grp.traverse(o=>{if(!o.isMesh||!o.visible)return;const m=o.material;if(m&&m.transparent&&m.opacity<.3)return;const bb=new T.Box3().setFromObject(o);if(!bb.isEmpty())fijos.push({id:q.id,bb});});}
   const items=v.equip.items('mue');const muebles=[];
   for(const g of eq.children){const id=g.userData.item;const it=items.find(m=>m.id===id);if(!it||!g.visible)continue;if(/alfombra/i.test(it.t))continue;
-    const bbs=[];g.updateMatrixWorld(true);g.traverse(o=>{if(o.isMesh&&!o.isSprite){const bb=new T.Box3().setFromObject(o);if(!bb.isEmpty())bbs.push(bb);}});muebles.push({it,bbs});}
+    const bbs=[];g.updateMatrixWorld(true);/* muebles de modelo 3D: cuentan sus cajas de planta (invisibles), no la caja entera del modelo, que en una L tapa el hueco */const ph=[];g.traverse(o=>{if(o.isMesh&&o.userData.ph)ph.push(o);});if(ph.length)for(const o of ph){const bb=new T.Box3().setFromObject(o);if(!bb.isEmpty())bbs.push(bb);}else g.traverse(o=>{if(o.isMesh&&!o.isSprite){const bb=new T.Box3().setFromObject(o);if(!bb.isEmpty())bbs.push(bb);}});muebles.push({it,bbs});}
   const solapa=(a,b)=>{const i=a.clone().intersect(b);if(i.isEmpty())return 0;const s=i.getSize(new T.Vector3());return Math.min(s.x,s.y,s.z);};
   for(const M of muebles){const hits={};for(const bb of M.bbs)for(const f of fijos){const d=solapa(bb,f.bb);if(d>tol)hits[f.id]=Math.max(hits[f.id]||0,d);}
     for(const [id,d] of Object.entries(hits))out.push(`${M.it.amb} · ${M.it.t} (${M.it.id}) en ${(M.it.x/100).toFixed(2)},${(M.it.y/100).toFixed(2)} ↔ ${id}: ${d.toFixed(0)} cm`);}

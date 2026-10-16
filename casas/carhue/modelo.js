@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.76', fecha:'2026-10-15',
+  nombre:'Carhué', version:'1.0.77', fecha:'2026-10-16',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -265,7 +265,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-16', v:'1.0.76', txt:'El candado de las hojas móviles queda del mismo tamaño que la etiqueta de la pieza.'},
+export const CAMBIOS = [  {fecha:'2026-10-16', v:'1.0.77', txt:'Muebles con modelos 3D reales elegidos por Maxi: sillón en L en el living, sofá largo gris en la galería, butacas tapizadas en gris, mesas ratonas redondas encastradas, sillas de roble en el comedor y sillas de cáscara blanca en el quincho. Están también en el catálogo, con su autor (CC BY 4.0).'},
+  {fecha:'2026-10-16', v:'1.0.76', txt:'El candado de las hojas móviles queda del mismo tamaño que la etiqueta de la pieza.'},
   {fecha:'2026-10-16', v:'1.0.75', txt:'MEN-1: ménsula de tubo de hierro 100 × 40 × 3 que sale de C-03, pegada bajo el último cabio de V-11 hasta su cola (3,28 m), triangulada con un travesaño horizontal que vuelve a la columna a +2,02. Interruptor «Mover: sí / no» arriba a la derecha: en «no» ninguna ventana, puerta ni lucarna se mueve y arrastrar sobre ellas orbita.'},
   {fecha:'2026-10-16', v:'1.0.74', txt:'Mesas de comer del comedor y del quincho de 3 × 1 m, con 10 sillas (4 por lado y una en cada cabecera). Sillón frente al hogar en L, de 3,60 m más el retorno de 2 m hacia el hogar, al este de la escalera. Ambiente nuevo «Galería (bajo el techo de vidrio)»: alfombra de yute, sillón largo mirando al jardín, mesa ratona de tablones, dos butacas y dos taburetes. Cocina: vuelve la isla adosada con las hornallas (no se había aplicado a lo guardado) y queda ese escenario a la vista.'},
   {fecha:'2026-10-16', v:'1.0.73', txt:'Tocar un mueble sin su ícono activo dejaba la cámara pegada al mouse (el toque no le llegaba a la órbita). Arreglado.'},

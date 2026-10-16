@@ -27,6 +27,8 @@ Vienen de la carpeta «muebles para housemaker», en la compu de Maxi: 11 imáge
 
 Los muebles viven en `motor/muebles.js` (`catalogoMuebles(THREE)` y `MATERIALES`), sin nada de Carhué: sirven para cualquier casa. `casas/catalogo/catalogo.html` los muestra todos con sus parámetros y da el JSON para pegar en un escenario (`{t, x, y, r, p}`). Una pieza nueva va en `muebles.js` con `n`, `cat` (familia), `p` (parámetros en cm) y `g(p)`; mantener las claves y parámetros de las piezas existentes para no romper escenarios guardados.
 
+Desde el 16/10/2026 los muebles principales son modelos 3D reales (`motor/modelos.js`): Maxi rechazó los geométricos. Para sumar uno: buscar en Objaverse (Hugging Face `allenai/objaverse`, metadatos y LVIS), descartar lo antiguo, rústico, de cuero o de juego, mostrarle a Maxi una hoja con opciones y, con lo elegido, pasar el GLB a metal/rugosidad (`gltf-transform metalrough`, three no lee spec/gloss), comprimirlo (`optimize --texture-compress webp --texture-size 1024 --compress meshopt`), guardarlo en base64 como `motor/mueble-<clave>.js` y agregarlo a `MODELOS` con autor y uid (licencia CC BY: el autor tiene que figurar). El frente va hacia +z; si el modelo viene girado, se corrige antes de exportar.
+
 ## En el catálogo (motor/muebles.js y motor/luminarias.js)
 
 | Pieza | Código |

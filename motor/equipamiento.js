@@ -8,6 +8,7 @@ import { catalogoLuces, escLuces, kelvin } from './luminarias.js';
 import { progDef, hhmm } from './noche.js';
 import { catalogoCal, escCal } from './calefaccion.js';
 import { catalogoMuebles, MATERIALES } from './muebles.js';
+import { catalogoModelos, cargarModelo, vestirModelo, modeloListo } from './modelos.js';
 
 export function initEquipamiento(visor,stage){
   const {THREE,scene,camera}=visor;const view=document.getElementById('view');
@@ -84,6 +85,8 @@ export function initEquipamiento(visor,stage){
   /* catálogo de muebles refinado (motor/muebles.js, Maxi 15/10): reemplaza las piezas en bloque con las mismas claves y parámetros; lo que no está ahí queda como estaba */
   for(const [k,v] of Object.entries(MATERIALES))if(!MAT[k]||k==='grifo')MAT[k]=M(v[0],{r:v[1],m:v[2]||0,...(v[3]?{x:{emissive:new THREE.Color(v[3]),emissiveIntensity:1.2}}:{})});
   Object.assign(CAT,catalogoMuebles(THREE));
+  /* muebles de modelos 3D reales (motor/modelos.js, Maxi 16/10) */
+  Object.assign(CAT,catalogoModelos(THREE));
 
   /* ---------- ambientes y escenarios de partida ---------- */
   const R90=90;/* contra M-20 (cara interior x 1834,5), frente hacia el este */
@@ -180,7 +183,23 @@ export function initEquipamiento(visor,stage){
     for(let y=300;y<=1700;y+=130)it.push(I('bajo',4600,y,(y*3)%360,{esp:'Bush 2',seed:1+(y/130)%4,alto:60}));
     return {A:{nombre:'Jardín',items:it},B:{nombre:'Sin plantas',items:[]}};}
   const CCAL=catalogoCal(THREE,B,CYL);
-  const CAPA={mue:{CAT,col:'equipamiento',esc:a=>AMB[a].esc()},luz:{CAT:CL,col:'iluminacion',esc:a=>escLuces(a,itA('L'+a))},veg:{CAT:CV,col:'vegetacion',esc:a=>a==='exterior'?escVeg():{A:{nombre:'Sin plantas',items:[]}}},cal:{CAT:CCAL,col:'calefaccion',esc:a=>escCal(a,itA('C'+a))}};
+  /* muebles de modelos 3D reales (Maxi 16/10, eligió de la hoja de Objaverse: L-B, galería-C, butaca-C, sillas A y C, ratona D).
+     Cada cambio corre una vez sobre todo lo guardado y también sobre los escenarios de fábrica; sólo toca los tipos viejos, así que repetirlo no cambia nada */
+  const mover=(m,dz)=>{const a=(m.r||0)*Math.PI/180;m.x=Math.round(m.x+dz*Math.sin(a));m.y=Math.round(m.y+dz*Math.cos(a));};
+  const SILLAS=(items,t)=>{/* sillas alrededor de la mesa: pasan al modelo y se alejan 8 cm (son más profundas que la de cajas) */const me=items.find(m=>m.t==='mesa'||m.t==='mesaMaciza');
+    for(const s of items){if(s.t!=='silla')continue;s.t=t;s.p={};if(!me)continue;const a=(me.r||0)*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a),dx=s.x-me.x,dy=s.y-me.y,lx=dx*ca-dy*sa,lz=dx*sa+dy*ca;
+      const L=(me.p&&me.p.L)||180,D=(me.p&&me.p.D)||90;let nx=lx,nz=lz;if(Math.abs(Math.abs(lz)-(D/2+22))<4)nz=Math.sign(lz)*(D/2+30);else if(Math.abs(Math.abs(lx)-(L/2+22))<4)nx=Math.sign(lx)*(L/2+30);else continue;
+      s.x=Math.round(me.x+nx*ca+nz*sa);s.y=Math.round(me.y-nx*sa+nz*ca);}};
+  const MOD3D={living:items=>{for(let i=0;i<items.length;i++){const m=items[i];
+      if(m.t==='sofaPlat'&&+(m.p&&m.p.esq)){const n={...m,t:'sofaLcb',p:{L:360,D:182,H:76,lado:'izq'}};mover(n,41);items[i]=n;}/* misma espalda y misma chaise (−x local) que la L de tarima */
+      else if(m.t==='butaca')items[i]={...m,t:'butacaAm',p:{tela:'tela'}};
+      else if(m.t==='ratona'&&Math.abs(m.x-1650)<12&&Math.abs(m.y-290)<12)items[i]={...m,t:'ratonaJoco',y:325,p:{L:150,D:120,H:32}};}},
+    galeriaV:items=>{for(let i=0;i<items.length;i++){const m=items[i];
+      if(m.t==='sofaPlat'){const n={...m,t:'sofaRaffey',p:{L:(m.p&&m.p.L)||300,D:96,H:82}};mover(n,(96-((m.p&&m.p.D)||100))/2);items[i]=n;}/* la espalda queda donde estaba; la franja tiene 2,25 entre la pared y el ventanal */
+      else if(m.t==='butaca')items[i]={...m,t:'butacaAm',p:{tela:'tela'}};
+      else if(m.t==='ratonaTab')items[i]={...m,t:'ratonaJoco',y:868,p:{L:84,D:64,H:30}};}},
+    comedor:items=>SILLAS(items,'sillaCover'),galeria:items=>SILLAS(items,'sillaDSW')};
+  const CAPA={mue:{CAT,col:'equipamiento',esc:a=>{const e=AMB[a].esc();if(MOD3D[a])for(const x of Object.values(e))MOD3D[a](x.items);return e;}},luz:{CAT:CL,col:'iluminacion',esc:a=>escLuces(a,itA('L'+a))},veg:{CAT:CV,col:'vegetacion',esc:a=>a==='exterior'?escVeg():{A:{nombre:'Sin plantas',items:[]}}},cal:{CAT:CCAL,col:'calefaccion',esc:a=>escCal(a,itA('C'+a))}};
   let vegCapas={bajo:true,medio:true,arbol:true};try{Object.assign(vegCapas,JSON.parse(localStorage.getItem('carhue-veg-capas')||'{}'));}catch(e){}
   const catOf=(t,k)=>CAPA[k].CAT[t];
   const NOMBRE=(t,k='mue')=>catOf(t,k)?.n||t;
@@ -216,6 +235,7 @@ export function initEquipamiento(visor,stage){
     comedor:[['mesa3m',items=>MESA3(items)]],galeria:[['mesa3m',items=>MESA3(items)]],
     living:[['sofaL',items=>{/* Maxi 16/10: el sillón frente al hogar, en L y de 4–5 cuerpos */for(let i=0;i<items.length;i++){const m=items[i];if((m.t==='sofa'||m.t==='sofaPlat')&&((m.r||0)+360)%360===180&&m.y>400&&m.y<540&&m.x>1450&&m.x<1800)items[i]={...m,t:'sofaPlat',x:1712,y:470,/* al este de la escalera (x 15,15) */r:180,p:{L:360,D:100,esq:1,Le:200,tela:'lino',mad:'roble'}};}for(let i=items.length-1;i>=0;i--){const m=items[i];if(m.t==='ratona'&&Math.abs(m.x-1640)<10&&Math.abs(m.y-290)<10)m.x=1650;if(m.t==='alfombra'&&Math.abs(m.x-1640)<10&&Math.abs(m.y-300)<10){m.x=1700;m.p={...(m.p||{}),L:340};}if(m.t==='butaca'&&Math.abs(m.x-1815)<10&&Math.abs(m.y-280)<10)items.splice(i,1);}}]],
     estudio:[['armarioCorrediza',items=>{/* Maxi 15/10: la biblioteca tapaba la salida al pasillo; va un armario contra el tramo fijo de M-43 */for(let i=items.length-1;i>=0;i--){const m=items[i];if(m.t==='biblioteca'&&Math.abs(m.x-1180)<8&&Math.abs(m.y-42)<8)items.splice(i,1,{...m,t:'placard',x:1062,y:102,r:90,p:{L:150,D:60,H:200,fr:'roble'}});}}],['escritorioBajoAlto',items=>{for(const m of items){if(m.t==='escritorio'&&Math.abs(m.x-1370)<6)m.x=1280;else if(m.t==='escritorio'&&Math.abs(m.x-1395)<6)m.x=1285;else if(m.t==='silla'&&Math.abs(m.x-1305)<6)m.x=1215;else if(m.t==='silla'&&Math.abs(m.x-1340)<6)m.x=1225;}}]]};
+  for(const [a,fn] of Object.entries(MOD3D))(MUT_MUE[a]=MUT_MUE[a]||[]).push(['modelos3d',fn]);
   const MUT={mue:MUT_MUE,cal:{living:MUT_CAL,cocina:[['calderas33',items=>{for(const m of items)if(m.t==='caldera'){m.p={...(m.p||{}),kW:38.4};}}],['calderasSucucho',items=>{/* Maxi 15/10: van al sucucho del extremo oeste (L-09), en la pared sur */for(const m of items)if(m.t==='caldera'&&Math.abs(m.x-1852)<5){if(Math.abs(m.y+310)<5)m.y=-730;else if(Math.abs(m.y+264)<5)m.y=-684;}}],['calderasSur',items=>{/* Maxi 15/10: van contra la pared sur, donde estaba la heladera */for(const m of items)if(m.t==='caldera'&&Math.abs(m.x-2015)<5){if(Math.abs(m.y+560)<5){m.x=1852;m.y=-310;m.r=90;}else if(Math.abs(m.y+505)<5){m.x=1852;m.y=-264;m.r=90;}}}]]},/* Maxi 14/10: calderas de 33.000 kcal/h */luz:{dormP:[['pieBajoAlto',items=>{for(const m of items)if(m.t==='pie'&&Math.abs(m.x-940)<6&&Math.abs(m.y-620)<6){m.x=990;m.y=455;}}]],estudio:[['linealBajoAlto',items=>{for(const m of items){if(m.t==='linea'&&Math.abs(m.x-1370)<6)m.x=1280;if(m.t==='velador'&&Math.abs(m.x-1400)<6&&Math.abs(m.y-110)<6){m.x=1290;m.y=115;}}}]],exterior:[['reflEsquinaSur',items=>{/* con el dormer corrido la ventana empieza en x 0,50: el reflector va en la esquina maciza */for(const m of items)if(m.t==='reflector'&&Math.abs(m.y-732)<30&&Math.abs(m.x-45)<15)m.x=22;}],['reflBajoTecho',items=>{for(const m of items){if(m.t!=='reflector')continue;if(Math.abs(m.x-2945)<30&&Math.abs(m.y-352)<30&&(m.p?.z??0)>480)m.p={...m.p,z:478};if(Math.abs(m.x-2746)<30&&Math.abs(m.y-946)<30&&((m.p?.z)??280)>222)m.p={...(m.p||{}),z:222};}}],['reflBajoAlero',items=>{for(const m of items)if(m.t==='reflector'&&Math.abs(m.y-732)<30&&(Math.abs(m.x-45)<40||Math.abs(m.x-972)<40)){m.p={...(m.p||{}),z:318};}}],['reflAleroPuntas',items=>{for(const m of items)if(m.t==='reflector'&&Math.abs(m.y-732)<30){if(Math.abs(m.x-250)<40){m.x=45;m.r=20;}else if(Math.abs(m.x-800)<40){m.x=972;m.r=-20;}}}],['reflCumbrera',items=>{for(const m of items)if(m.t==='reflector'&&Math.abs(m.x-2955)<40&&Math.abs(m.y-480)<40){m.x=2945;m.y=352;m.r=62;m.p={...(m.p||{}),z:515,tilt:22,beam:60};}}]]}};/* Maxi 14/10: el de la pileta va en la cumbrera, en la punta del quincho */
   const migrar=[];
   function mezclar(a,k,d){/* copia profunda: lo que devuelve la base del artifact viene congelado y asignarle x/y fallaba en silencio (Maxi 15/10: «no se mueve ningún mueble») */d=JSON.parse(JSON.stringify(d||{}));/* lo guardado manda; los escenarios nuevos de fábrica que no estén ni borrados se suman */const def=CAPA[k].esc(a);const s={activo:d.activo||'A',esc:{...(d.esc||{})},borrados:d.borrados||[],migr:[...(d.migr||[])]};
@@ -243,7 +263,7 @@ export function initEquipamiento(visor,stage){
     const key=`${x|0},${y|0}`;if(gCache.has(key))return gCache.get(key);rcT.set(new THREE.Vector3(x,600,y),new THREE.Vector3(0,-1,0));rcT.far=1000;
     const h=rcT.intersectObjects(gMeshes,false).find(i=>i.point.y<150);const v=h?h.point.y:-20;gCache.set(key,v);return v;}
   /* ---------- 3D ---------- */
-  const groups=new Map();let selBox=null,mueCache=null,cajCache=null;
+  const groups=new Map();let selBox=null,mueCache=null,cajCache=null,glbN=0;
   /* cajas de los muebles para que las personas no los atraviesen (Maxi 15/10): una por mueble, sin alfombras; no se cachea vacía */
   let cajT=0;function cajasMue(){const now=performance.now();if(cajCache&&cajCache.length&&now-cajT<1000)return cajCache;cajT=now;/* se rehace cada segundo: así sigue a los muebles que se mueven */const r=[];if(!G.visible)return r;for(const g of groups.values()){if(g.userData.capa!=='mue'||!g.visible)continue;const it=item(g.userData.item);if(it&&/^alfombra/.test(it.t))continue;const b=new THREE.Box3().setFromObject(g);if(b.isEmpty()||b.max.y-b.min.y<4)continue;r.push(b);}cajCache=r;return r;}
   function mallasMue(){if(mueCache&&mueCache.length)return mueCache;mueCache=[];if(!G.visible)return mueCache;for(const g of groups.values()){if(g.userData.capa!=='mue'||!g.visible)continue;const it=item(g.userData.item);if(it&&it.t==='alfombra')continue;g.traverse(o=>{if(o.isMesh)mueCache.push(o);});}return mueCache;}let nocheOn=false,nocheK=0,prendidaFn=()=>false;
@@ -260,7 +280,9 @@ export function initEquipamiento(visor,stage){
     const piso=AMB[a].piso??PISO;
     if(k==='veg'){if(!visor.arboles)return null;const pl=visor.arboles.planta(p.esp,p.seed,Math.max(10,+p.alto||100));pl.traverse(o=>{if(o.isMesh)o.userData.item=m.id;});g.add(pl);g.userData.capaV=c.capaV;
       g.position.set(m.x,sueloEn(m.x,m.y),m.y);g.rotation.y=(m.r||0)*Math.PI/180;return g;}
-    if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{let mn=Infinity;for(const dx of [-r,0,r])for(const dz of [-r,0,r])mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));return mn;}};for(const [geo,mk] of c.g(p,ctx)){const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;g.add(mesh);}
+    if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{let mn=Infinity;for(const dx of [-r,0,r])for(const dz of [-r,0,r])mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));return mn;}};for(const [geo,mk] of c.g(p,ctx)){const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;if(c.glb)mesh.userData.ph=true;g.add(mesh);}
+      if(c.glb){/* modelo 3D real: la caja queda hasta que carga */const poner=()=>{const o=vestirModelo(THREE,c.glb,p);if(!o)return;for(const ch of g.children)if(ch.userData.ph)ch.visible=false;/* las cajas quedan invisibles: son la planta real del mueble para tocarlo, para las personas y para la prueba de colisiones */o.traverse(x=>{if(x.isMesh)x.userData.item=m.id;});g.add(o);glbN++;mueCache=null;cajCache=null;if(sel===m.id)marcarSel();window.__despertar&&window.__despertar();};
+        if(modeloListo(c.glb))poner();else cargarModelo(THREE,c.glb).then(poner).catch(e=>console.warn('modelo',c.glb,e));}
       g.position.set(m.x,piso+(m.z??c.z??0),m.y);}
     else{/* Maxi 14/10, artefactos que atravesaban el techo: los de pie se achican bajo el cielorraso; los de techo apoyan cada punto de arriba en el cielorraso real (cables y florones siguen la pendiente) */
       const tq=(x,y)=>techo(Math.round(x/4)*4,Math.round(y/4)*4,piso);const rr=(m.r||0)*Math.PI/180,cs=Math.cos(rr),sn=Math.sin(rr);
@@ -288,7 +310,7 @@ export function initEquipamiento(visor,stage){
       sp.position.set((bb.min.x+bb.max.x)/2,c.mount==='techo'?bb.min.y-6:bb.max.y+12,(bb.min.z+bb.max.z)/2);g.add(sp);g.userData.ico=sp;
       g.userData.prog=p.prog||progDef(m.t);const onI=prendidaFn(m.id);for(const mt of g.userData.mats)mt.emissiveIntensity=onI?mt.userData.emit*nocheK:0;}
     g.rotation.y=(m.r||0)*Math.PI/180;return g;}
-  function armar(){window.__despertar&&window.__despertar();for(const g of groups.values()){G.remove(g);GV.remove(g);if(g.userData.capa!=='veg')g.traverse(o=>{if(o.geometry&&!o.isSprite)o.geometry.dispose();});if(g.userData.mats)g.userData.mats.forEach(m=>m.dispose());}groups.clear();
+  function armar(){window.__despertar&&window.__despertar();for(const g of groups.values()){G.remove(g);GV.remove(g);if(g.userData.capa!=='veg')g.traverse(o=>{if(o.geometry&&!o.isSprite&&!o.userData.glb)o.geometry.dispose();});/* las geometrías de los modelos 3D se comparten entre copias */if(g.userData.mats)g.userData.mats.forEach(m=>m.dispose());}groups.clear();
     for(const k in CAPA)for(const a of AMB_ORDEN){const s=ST[k][a];const e=s&&s.esc[s.activo];if(e)for(const m of e.items){const g=armarItem(m,a,k);if(g){(k==='veg'?GV:G).add(g);groups.set(m.id,g);}}}mueCache=null,cajCache=null;marcarSel();vis();pintarIconos();}
   function visOf(g){const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;return (AMB[g.userData.amb].nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
   function vis(){mueCache=null,cajCache=null;for(const g of groups.values())g.visible=visOf(g);luces();}
@@ -326,7 +348,7 @@ export function initEquipamiento(visor,stage){
     for(const o of [aro,hit]){o.rotation.x=Math.PI/2;o.userData.eg='r';o.renderOrder=2002;ER.add(o);}}
   let egKey='';const egBB=new THREE.Box3(),egC=new THREE.Vector3(),egS=new THREE.Vector3();
   (function egl(){requestAnimationFrame(egl);const g=sel&&groups.get(sel);const on=!!(g&&g.visible&&!card.hidden&&g.userData.capa===capa);EG.visible=ER.visible=on;if(!on)return;
-    const k=sel+g.position.toArray().join()+g.rotation.y;if(k!==egKey){egKey=k;egBB.setFromObject(g);egBB.getCenter(egC);egBB.getSize(egS);}
+    const k=sel+g.position.toArray().join()+g.rotation.y+'|'+glbN;if(k!==egKey){egKey=k;egBB.setFromObject(g);egBB.getCenter(egC);egBB.getSize(egS);}
     EG.position.set(egC.x,egBB.max.y+6,egC.z);EG.scale.setScalar(Math.max(.06,camera.position.distanceTo(EG.position)/2250));/* Maxi 15/10: 20 % del tamaño anterior */
     ER.position.set(g.position.x,egBB.min.y+2,g.position.z);ER.scale.setScalar(Math.max(egS.x,egS.z)/2+14);})();
   /* en la captura de la ventana, antes que las herramientas de edición: si se toca un mueble o su gizmo, gana el mueble aunque haya una pieza de la casa elegida (Maxi 15/10) */

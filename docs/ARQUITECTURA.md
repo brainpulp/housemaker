@@ -37,6 +37,7 @@ En `casa.js` también hay mucho específico de Carhué: lucarnas, dormers, la co
 | `inspector.js` | selección (ficha, renombrar, nota) y outliner |
 | `equipamiento.js` | capas mue/luz/veg/cal con escenarios por ambiente (`AMB`), migraciones `MIG` (agregar) y `MUT` (corregir), y la base del artifact |
 | `muebles.js` | catálogo de muebles por parámetros, independiente de la casa (lo usa `equipamiento.js` y la página `casas/catalogo`) |
+| `modelos.js`, `mueble-*.js` | muebles hechos con modelos 3D reales (GLB de Objaverse/Sketchfab, CC BY, en base64); se cargan al aparecer y se llevan a la medida L × D × H |
 | `luminarias.js` | catálogo de artefactos con sus luces reales; los de techo copian la pendiente del cielorraso y los de pie se acortan |
 | `calefaccion.js` | catálogo de calefactores (salamandra, tiro balanceado, fancoil, losa radiante, caldera) |
 | `termica.js` | simulación por zonas (un nodo por local, paso de 5 min, sol, vidrios, envolvente) |
