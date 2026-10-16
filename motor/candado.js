@@ -15,7 +15,7 @@ export function initCandado(visor,{segundos=5}={}){
     if(db)db.collection('estado').doc('candados').set({ids,ts:new Date().toISOString()}).catch(()=>{});};
   N.getDb().then(d=>{db=d;if(!d)return;d.collection('estado').doc('candados').onSnapshot(x=>{if(!x.exists)return;const ids=(x.data()||{}).ids;if(Array.isArray(ids)){L=new Set(ids);pintar();}},()=>{});});
 
-  const st=document.createElement('style');st.textContent=`#candado{position:absolute;z-index:8;transform:translate(-50%,-130%);display:flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;margin:0;min-height:0;height:auto;box-sizing:border-box;
+  const st=document.createElement('style');st.textContent=`#candado{position:absolute;z-index:8;transform:translate(-50%,-130%);transform-origin:50% 100%;display:flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;margin:0;min-height:0;height:auto;box-sizing:border-box;
     background:var(--panel,#fff);color:var(--ink,#222);border:1px solid var(--rule,#ccc);border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.15);font:600 11.5px/1.3 var(--f-mono,monospace)!important;/* mismo tamaño que la etiqueta de la pieza (Maxi 16/10) */cursor:pointer;user-select:none;transition:opacity .25s}
     #candado svg{width:12px;height:12px;flex:none}#candado[hidden]{display:none}#candado.lk{background:var(--ink,#222);color:var(--panel,#fff)}#candado.fade{opacity:0}`;document.head.appendChild(st);
   const el=document.createElement('button');el.id='candado';el.type='button';el.hidden=true;stage.appendChild(el);
@@ -24,9 +24,14 @@ export function initCandado(visor,{segundos=5}={}){
   el.addEventListener('pointerdown',e=>e.stopPropagation());
   el.addEventListener('click',e=>{e.stopPropagation();if(!cur)return;if(L.has(cur))L.delete(cur);else L.add(cur);guardar();pintar();hasta=performance.now()+segundos*1000;});
   el.addEventListener('pointerenter',()=>{sobre=true;});el.addEventListener('pointerleave',()=>{sobre=false;hasta=performance.now()+1500;});
+  /* Maxi 16/10 (2.ª vez): «la etiqueta blanca del mismo tamaño que la marrón». La marrón se achica con la distancia (scale en su hijo, ver visor3d.js);
+     el candado copia esa escala: la de la etiqueta de la misma pieza si está, si no la de cualquier etiqueta marrón visible */
+  function escala(){let k=null,otra=null;for(const t of document.querySelectorAll('.lvl.tag.pick')){const m=/scale\(([\d.]+)\)/.exec(t.style.transform||'');if(!m)continue;const kk=+m[1];
+      const id=(t.firstChild&&t.firstChild.textContent||t.textContent||'').trim().split(/\s/)[0];if(cur&&(id===cur||id.startsWith(cur)))k=kk;else if(otra==null&&t.style.opacity!=='0')otra=kk;}
+    return (k??otra??.8).toFixed(3);}
   const v=new T.Vector3();
   (function loop(){requestAnimationFrame(loop);if(!cur||el.hidden)return;const now=performance.now();if(!sobre&&now>hasta){el.hidden=true;cur=null;return;}
-    el.classList.toggle('fade',!sobre&&hasta-now<400);v.copy(punto).project(visor.camera);if(v.z>1){el.style.visibility='hidden';return;}el.style.visibility='';
+    el.classList.toggle('fade',!sobre&&hasta-now<400);el.style.transform=`translate(-50%,-130%) scale(${escala()})`;v.copy(punto).project(visor.camera);if(v.z>1){el.style.visibility='hidden';return;}el.style.visibility='';
     const r=visor.renderer.domElement.getBoundingClientRect(),s=stage.getBoundingClientRect();el.style.left=(r.left-s.left+(v.x+1)/2*r.width)+'px';el.style.top=(r.top-s.top+(1-v.y)/2*r.height)+'px';})();
 
   /* interruptor general «mover / no mover» (Maxi 16/10): apagado, ninguna hoja se mueve y arrastrar sobre ellas orbita */
