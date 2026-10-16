@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import { createVisor, geo } from './visor3d.js';
 import { escaleraGiro, DISENOS } from './escalera-giro.js';
 import { tablones } from './tablones.js';
+import { lucesArcos } from './luces.js';
+const LUCES = lucesArcos(THREE, M);
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initMedir } from './medir.js';
@@ -91,6 +93,8 @@ function build(p) {
   { const l3 = M.LOSAS.find(x => x.id === 'LO-03'), l2 = M.LOSAS.find(x => x.id === 'LO-02');
     if (l3 && l2) { const xs = l3.poly.map(q => q[0]), ys = l3.poly.map(q => q[1]), a0 = Math.min(...xs), a1 = Math.max(...xs), b0 = Math.min(...ys), b1 = Math.max(...ys), t = 3, zb = l3.z, zt = l2.z - l2.e + 0.5;
       Pt('LO-03e', 'LO-03 · Escalón del estar hundido', 'losa', [[a0, a1, b0, b0 + t], [a0, a1, b1 - t, b1], [a0, a0 + t, b0, b1], [a1 - t, a1, b0, b1]].map(([x0, x1, y0, y1]) => A.losa([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], null, zb, zt)), { fn: 'Frente del escalón entre el piso del estar hundido y la losa de PB.', sec: '', med: `de +${f2(zb)} a +${f2(l2.z)}` }, { group: NIV.PB }); } }
+  /* luces: artefactos (las fuentes las maneja noche.js) */
+  for (const a of LUCES.art) Pt(a.id, `${a.id} · ${a.nombre}`, 'artefacto', a.geos.map(g => g.clone()), a.info, { group: 'Luces', tags: ['luces', a.nivel], opt: { noEdges: true } });
   /* escaleras y barandas */
   for (const e of M.ESCALERAS) { if (e.id === 'E-02') continue; const g = A.escaleraGeos(e);
     Pt(e.id, `${e.id} · ${e.nombre}`, e.exterior ? 'escext' : 'escalera', g.ped, { ...base(e), med: `${e.n} alzadas · de ${f2(e.z[0])} a ${f2(e.z[1])}` }, ex(e));
@@ -137,7 +141,7 @@ function build(p) {
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
-  tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
+  artefacto: '#f3f0e8', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 
@@ -229,7 +233,7 @@ try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
-try { initNoche(visor, { lugar: 'Núñez (CABA)', lat: -34.545, lon: -58.468, tz: -3, norte: -40, inicioDia: true }); } catch (e) { console.error('noche', e); }
+try { initNoche(visor, { lugar: 'Núñez (CABA)', lat: -34.545, lon: -58.468, tz: -3, norte: -40, inicioDia: true, max: 32 }); visor.noche && visor.noche.setFuentes(LUCES.fuentes); } catch (e) { console.error('noche', e); }
 /* cámara: se recuerda en este navegador */
 { try { const v = JSON.parse(localStorage.getItem('arcos-cam') || 'null'); if (v && v.p && v.t) { visor.camera.position.set(...v.p); visor.controls.target.set(...v.t); visor.controls.update(); } } catch (e) {}
   let last = ''; setInterval(() => { const v = visor.getView(); const k = JSON.stringify(v); if (k !== last) { last = k; try { localStorage.setItem('arcos-cam', k); } catch (e) {} } }, 1000); }

@@ -48,6 +48,7 @@ export function initNoche(visor,datos=null){
   try{Object.assign(S,JSON.parse(localStorage.getItem('carhue-sol')||'{}'));}catch(e){}
   /* casas sin luces cargadas: arrancan siempre de día (13 h de hoy); de noche quedaría todo oscuro */
   if(datos&&datos.inicioDia){S.fecha=hoy();S.min=S.diaMin;delete S.inicioDia;}
+  if(datos&&datos.max)S.max=Math.max(S.max,datos.max);/* casas con muchas luces: más lugares en el pool */
   if(!datos&&(S.lugar==='Carhué'||Math.abs(S.lat+37.178)<.01)){S.lat=-34.381;S.lon=-58.741;S.lugar='Ing. Maschwitz';}/* la casa está en el pasaje Carhué, en Ingeniero Maschwitz (Maxi 14/10) */
   const guardarS=()=>{try{localStorage.setItem('carhue-sol',JSON.stringify(S));}catch(e){}};
   /* prendida o no: toda la casa forzada (prender / apagar todo) o el programa de cada artefacto */
