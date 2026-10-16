@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.73', fecha:'2026-10-15',
+  nombre:'Carhué', version:'1.0.74', fecha:'2026-10-15',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -265,7 +265,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-16', v:'1.0.73', txt:'Tocar un mueble sin su ícono activo dejaba la cámara pegada al mouse (el toque no le llegaba a la órbita). Arreglado.'},
+export const CAMBIOS = [  {fecha:'2026-10-16', v:'1.0.74', txt:'Mesas de comer del comedor y del quincho de 3 × 1 m, con 10 sillas (4 por lado y una en cada cabecera). Sillón frente al hogar en L, de 3,60 m más el retorno de 2 m hacia el hogar, al este de la escalera. Ambiente nuevo «Galería (bajo el techo de vidrio)»: alfombra de yute, sillón largo mirando al jardín, mesa ratona de tablones, dos butacas y dos taburetes. Cocina: vuelve la isla adosada con las hornallas (no se había aplicado a lo guardado) y queda ese escenario a la vista.'},
+  {fecha:'2026-10-16', v:'1.0.73', txt:'Tocar un mueble sin su ícono activo dejaba la cámara pegada al mouse (el toque no le llegaba a la órbita). Arreglado.'},
   {fecha:'2026-10-15', v:'1.0.72', txt:'Muebles: sin su ícono activo un toque sólo los elige (caja y nombre abajo) y no se mueven; tocar el vacío u otra pieza los suelta. Estudio: la biblioteca que tapaba la salida al pasillo pasa a ser un armario de 1,50 contra el tramo fijo de M-43. Colisiones corregidas: cama del dormitorio secundario contra la chimenea, ducha del baño del EP contra M-41, cómoda del altillo entre las camas, placard del dormitorio 2 contra la mesa de luz; la cama, el vanitorio y la bañera ya no se salen de su medida. Prueba nueva: herramientas/pruebas/colisiones.mjs.'},
   {fecha:'2026-10-15', v:'1.0.71', txt:'M-43: las hojas arrancan en la cara de la pared del pasillo (M-42) y no se meten 5 cm adentro; las cuatro quedan de 1,495 m.'},
   {fecha:'2026-10-15', v:'1.0.70', txt:'Barra derecha: usar una sección la abre y pliega las demás (Selección queda siempre); arrastrando el título se cambia el orden y queda guardado. Outliner: los grupos arrancan cerrados, abrir uno cierra los otros, elegir una pieza abre su grupo, y ⊟ cierra todos. Marcar: al activarlo se prende la capa Marcas; si apagás la capa, Marcar se cierra.'},
