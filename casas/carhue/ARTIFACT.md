@@ -7,4 +7,4 @@
 - **Versión publicada:** ver `META.version` en `modelo.js`.
 
 Desde la 1.0.58 se publica desde `dist/carhue`; los archivos viejos `modelo-carhue.js` y `modelo-3d.js` se borraron del artifact.
-- **Motor publicado:** 1aab520 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** 11664d4 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
