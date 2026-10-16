@@ -106,6 +106,10 @@ function build(p) {
     const d0 = a.d - 15, d1 = a.d + a.w + 15, w = m.e / 2 + .5, nx = -uy, ny = ux, P = (d, s) => [m.a[0] + ux * d + nx * s, m.a[1] + uy * d + ny * s];
     const q = [P(d0, -w), P(d1, -w), P(d1, w), P(d0, w)];
     Pt(a.id + 'd', `${a.id} · dintel de hierro`, 'dintel', A.losa(q, null, z, z + 16), { fn: 'Perfil de hierro sobre el vano, con antióxido naranja, como se ve en las fotos.', sec: 'perfil 16', med: `${f2(a.w + 30)} de largo` }, ex(m)); }
+  /* tirantes de madera a la vista bajo el entrepiso (fotos F38-02 a F38-14): corren hacia el ventanal, cada 50 */
+  { const g = []; for (const id of ['LO-04', 'LO-13']) { const l = M.LOSAS.find(x => x.id === id); if (!l) continue; const xs = l.poly.map(q => q[0]), ys = l.poly.map(q => q[1]), zb = l.z - l.e;
+      for (let x = Math.min(...xs) + 20; x < Math.max(...xs) - 5; x += 50) g.push(A.losa([[x - 3.5, Math.min(...ys)], [x + 3.5, Math.min(...ys)], [x + 3.5, Math.max(...ys)], [x - 3.5, Math.max(...ys)]], null, zb - 20, zb)); }
+    Pt('EP-T', 'EP-T · Tirantes del entrepiso', 'madera', g, { fn: 'Tirantes de madera a la vista bajo el entrepiso, corriendo hacia el ventanal, como en las fotos F38-02 a F38-14. Sección y separación estimadas.', sec: '3″×8″ (7,5 × 20)', med: 'cada 0,50' }, { group: NIV.EP }); }
   /* fachada E como en la foto */
   for (const f of fachadaArcos(THREE, M, A)) Pt(f.id, `${f.id} · ${f.nombre.replace(/^[A-Z0-9-]+ · /, '')}`, f.cat, f.geos, f.info, { group: 'Fachada E', tags: ['fachada'], opt: { noEdges: /caño|herreria/.test(f.cat) } });
   /* luces: artefactos (las fuentes las maneja noche.js) */
@@ -160,6 +164,8 @@ const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 MOVS = initMovibles(visor, root, M);
+/* relleno desde abajo: de día ilumina cielorrasos y techos por dentro (noche.js lo maneja como luz de relleno y lo apaga de noche) */
+{ const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
 
 /* calco del SketchUp: GLB ya pasado a los ejes del modelo (cm, Y arriba) */
 const calco = new THREE.Group(); calco.name = 'calco'; visor.scene.add(calco);
