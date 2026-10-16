@@ -93,9 +93,17 @@ export function escaleraGeos(e) {
   const ped = [], zan = [];
   for (let i = 0; i < n - 1; i++) { const ya = y0 + i * g, yb = y0 + (i + 1) * g, zt = z0 + (i + 1) * r;
     ped.push(box(x0 + 4, x1 - 4, zt - 4, zt, Math.min(ya, yb), Math.max(ya, yb))); }
-  const dz = r > 0 ? 0 : 0, zs = [z0 + r - 22, z1 - 22];
-  for (const xx of [x0, x1 - 4]) zan.push(box8([[xx, zs[0], y0], [xx + 4, zs[0], y0], [xx + 4, zs[1], y1], [xx, zs[1], y1], [xx, zs[0] + 26, y0], [xx + 4, zs[0] + 26, y0], [xx + 4, zs[1] + 26, y1], [xx, zs[1] + 26, y1]]));
-  return { ped, zan, dz };
+  /* zancas apoyadas: pie con corte horizontal sobre el piso de abajo y cabeza con corte vertical contra el borde del piso de arriba
+     (antes flotaban: arrancaban a la altura de la primera alzada; Maxi 16/10, E-04z) */
+  const sg = Math.sign(y1 - y0) || 1, ga = Math.abs(g), ra = Math.abs(r), up = r > 0, L = Math.abs(y1 - y0), D = 28, sobre = 3;
+  const zt = u => z0 + r * (1 + u / ga);                       /* línea de las pedadas a lo largo del tramo */
+  const yA = u => y0 + sg * u;
+  if (up) { const uT = -ga * (1 + sobre / ra), uB = ga * ((D - sobre) / ra - 1);
+    const q = [[uT, z0], [Math.min(uB, L), z0], [L, z1 + sobre - D], [L, z1 + sobre]];
+    for (const xx of [x0, x1 - 4]) zan.push(box8([...q.map(([u, z]) => [xx, z, yA(u)]), ...q.map(([u, z]) => [xx + 4, z, yA(u)])])); }
+  else { const zs = [z0 + r - 22, z1 - 22];   /* escalera que baja (E-07): como antes */
+    for (const xx of [x0, x1 - 4]) zan.push(box8([[xx, zs[0], y0], [xx + 4, zs[0], y0], [xx + 4, zs[1], y1], [xx, zs[1], y1], [xx, zs[0] + 26, y0], [xx + 4, zs[0] + 26, y0], [xx + 4, zs[1] + 26, y1], [xx, zs[1] + 26, y1]])); }
+  return { ped, zan, dz: 0 };
 }
 export function escaleraZ(e, y) { const [y0, y1] = e.y, [z0, z1] = e.z; const t = Math.max(0, Math.min(1, (y - y0) / (y1 - y0))); return z0 + (z1 - z0) * t; }
 

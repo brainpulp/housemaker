@@ -53,6 +53,7 @@ export function initInspector(visor){
     selEl.innerHTML=`<div class="st"><span class="chip">${esc(p.id)}</span><span class="nm" title="Doble clic para renombrar">${ren===p.id?`<input value="${esc(N.alias(p.id)||nombre(p))}">`:esc(nombre(p))}</span><button class="ib" data-a="ren" title="Renombrar">✎</button></div>
       <dl><dt>Tipo</dt><dd>${esc(CAT[p.cat]||p.cat||'—')}${p.group?` · ${esc(p.group)}`:''}</dd>${i.med?`<dt>Medidas</dt><dd>${esc(txt(i.med))}</dd>`:''}${i.sec?`<dt>Sección</dt><dd>${esc(txt(i.sec))}</dd>`:''}${caja?`<dt>Caja</dt><dd>${caja}</dd><dt>Posición</dt><dd style="font-size:11px">${posi}</dd>`:''}</dl>
       ${fn?`<div class="fn${fnOpen?'':' cut'}" data-a="fn" title="${fnOpen?'':'Ver todo'}">${esc(fn)}</div>`:''}
+      ${visor.controlPieza?visor.controlPieza(p.id):''}
       <textarea placeholder="Tu nota sobre ${esc(p.id)}…" data-nota>${esc(N.nota(p.id))}</textarea>
       ${visor.borrarPieza?`<div class="acts"><button class="ib" data-a="del" title="Se puede deshacer (Ctrl/⌘ Z)">Borrar pieza</button>${visor.parteTocada&&visor.parteTocada(p.id)?`<button class="ib" data-a="delp" title="Sólo la parte que tocaste (se puede deshacer)">Borrar sólo esta parte</button>`:''}</div>`:''}
       <div class="acts"><button class="ib" data-a="eye">${oculto?EO+' Mostrar':E+' Esconder'}</button><button class="ib" data-a="fit" title="Encuadrar (F)">◎ Encuadrar</button><span style="flex:1"></span><button class="ib" data-a="desel" title="Soltar la selección (Esc)">✕</button></div>`;

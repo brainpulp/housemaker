@@ -36,8 +36,8 @@ export function initMovibles(visor, root, M) {
       else if (/^V-0[1-3]p$/.test(p.id)) { const k = p.id.slice(0, 4), f = (MOV[k] || 0) / 100, { z1 } = persiana(k), s = Math.max(.04, 1 - f); p.grp.scale.y = s; p.grp.position.y = z1 * (1 - s); } }
     window.__despertar && window.__despertar(); };
   let ult = null; setInterval(() => { if (visor.parts !== ult) { ult = visor.parts; aplicar(); } }, 250);
-  root.addEventListener('input', e => { const r = e.target.closest && e.target.closest('[data-mov]'); if (!r) return; MOV[r.dataset.mov] = +r.value; const o = root.querySelector(`[data-movv="${r.dataset.mov}"]`); if (o) o.textContent = r.dataset.fmt === '%' ? r.value + ' %' : (r.value / 100).toFixed(2).replace('.', ','); aplicar(); });
-  root.addEventListener('change', e => { if (e.target.closest && e.target.closest('[data-mov]')) guardar(); });
+  document.addEventListener('input', e => { const r = e.target.closest && e.target.closest('[data-mov]'); if (!r) return; MOV[r.dataset.mov] = +r.value; const o = document.querySelector(`[data-movv="${r.dataset.mov}"]`); if (o) o.textContent = r.dataset.fmt === '%' ? r.value + ' %' : (r.value / 100).toFixed(2).replace('.', ','); aplicar(); });
+  document.addEventListener('change', e => { if (e.target.closest && e.target.closest('[data-mov]')) guardar(); });
   /* control para el panel de la pieza */
   return { html(id) { const k = base(id);
     if (HOJAS[k]) { const h = HOJAS[k], v = MOV[k] || 0; return `<div class="renrow" style="align-items:center;gap:8px"><span>Correr</span><input type="range" data-mov="${k}" min="${h.min}" max="${h.max}" step="1" value="${v}" style="flex:1"><b data-movv="${k}">${(v / 100).toFixed(2).replace('.', ',')}</b></div>`; }
