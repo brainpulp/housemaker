@@ -340,7 +340,7 @@ export function initEquipamiento(visor,stage){
   const end=e=>{if(!dr)return;e.stopPropagation();const mvd=dr.moved,g=groups.get(dr.id);dr=null;visor.controls.enabled=true;if(mvd){if(g&&g.userData.mount==='techo')armar();guardar(amb);panel();}};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);
   /* sin el ícono activo, un toque sólo lo elige (caja y nombre abajo): no abre el panel ni lo deja moverse (Maxi 15/10) */
-  let pend=null;addEventListener('pointerup',e=>{if(!pend)return;const p=pend;pend=null;if(Math.hypot(e.clientX-p.x,e.clientY-p.y)>5)return;e.stopPropagation();visor.resetSel&&visor.resetSel();sel=p.id;marcarSel();const m=item(p.id),g=groups.get(p.id);if(m&&g)hint(`<b>${NOMBRE(m.t,g.userData.capa)}</b> · activá su ícono en la barra para moverlo o girarlo`);},true);
+  let pend=null;addEventListener('pointerup',e=>{if(!pend)return;const p=pend;pend=null;if(Math.hypot(e.clientX-p.x,e.clientY-p.y)>5)return;/* sin cortar el evento: la órbita tiene que recibir su pointerup (si no, la cámara queda pegada al mouse, Maxi 16/10); elijo después de que el visor procese el toque */setTimeout(()=>{visor.resetSel&&visor.resetSel();sel=p.id;marcarSel();const m=item(p.id),g=groups.get(p.id);if(m&&g)hint(`<b>${NOMBRE(m.t,g.userData.capa)}</b> · activá su ícono en la barra para moverlo o girarlo`);},0);},true);
   /* tocar el cielo o el pasto deselecciona todo (Maxi 15/10) */
   addEventListener('hm:deseleccionar',()=>{if(!sel)return;sel=null;marcarSel();panel();});
   function hint(t){const st=document.getElementById('stTool');if(st)st.innerHTML=t;}
