@@ -58,6 +58,8 @@ export function initPersonas(visor){
   function hint(t){const st=document.getElementById('stTool');if(st)st.innerHTML=t;}
 
   /* caminar solas: 1,1 m/s; giran al encontrar pared (a 45 cm), escalón de más de 25 o caída */
+  /* zona de paseo: la caja de los muros más 6 m (se recalcula si cambia el modelo) */
+  let zP=null,zParts=null;function zona(){if(zP&&zParts===visor.parts)return zP;zParts=visor.parts;const b=new THREE.Box3();for(const q of visor.parts||[])if(q.grp&&/^M-/.test(q.id))b.expandByObject(q.grp);if(b.isEmpty())return zP=null;const m=600;return zP={x0:b.min.x-m,x1:b.max.x+m,z0:b.min.z-m,z1:b.max.z+m,cx:(b.min.x+b.max.x)/2,cz:(b.min.z+b.max.z)/2};}
   const SPD=105,STEP=25;let last=performance.now();
   /* muebles: el cuerpo (radio 22) no entra en la caja de ningún mueble que esté a la altura del cuerpo (Maxi 15/10: los rayos pasaban entre las patas de mesas y sillas y por arriba de los muebles bajos) */
   const R=22;function choca(p,nx,nz){const bs=visor.equip&&visor.equip.cajasMue?visor.equip.cajasMue():[];for(const b of bs){if(b.max.y<p.y+6||b.min.y>p.y+165)continue;const dentro=(x,z)=>x>b.min.x-R&&x<b.max.x+R&&z>b.min.z-R&&z<b.max.z+R;if(dentro(nx,nz)&&!dentro(p.x,p.z))return true;}return false;}
@@ -65,6 +67,8 @@ export function initPersonas(visor){
   function tick(now){requestAnimationFrame(tick);const dt=Math.min(.05,(now-last)/1000);last=now;/* reposo (Maxi 14/10): sin actividad las personas se quedan quietas donde están hasta que vuelva a haber movimiento */if(!dr&&now-(window.__act||0)>2500)return;objs.forEach((o,i)=>{if(o&&o.userData.mx){o.userData.mx.update(dt);if(!list[i]||!list[i].w||dr)anim(o,'idle');}});if(dr||!list.some(p=>p.w))return;
     list.forEach((p,i)=>{if(!p.w)return;const dir=new V(Math.sin(p.r),0,Math.cos(p.r));
       if(Math.random()<dt*.25)p.r+=(Math.random()-.5)*1.2;/* cada tanto cambia un poco de rumbo */
+      /* Maxi 16/10: «la gente se va caminando lejos de la casa, hacé que siempre vuelvan»: fuera de la casa más 6 m, giran hacia el centro */
+      {const z=zona();if(z&&(p.x<z.x0||p.x>z.x1||p.z<z.z0||p.z>z.z1)){const r0=Math.atan2(z.cx-p.x,z.cz-p.z);let d=r0-p.r;d=Math.atan2(Math.sin(d),Math.cos(d));p.r+=Math.max(-2*dt,Math.min(2*dt,d));}}
       if(blocked(p,dir)||choca(p,p.x+dir.x*(SPD*dt+4),p.z+dir.z*(SPD*dt+4))){p.r+=Math.PI*(.5+Math.random());return;}
       const nx=p.x+dir.x*SPD*dt,nz=p.z+dir.z*SPD*dt,fy=floorAt(nx,nz,p.y+STEP+5,STEP*2+10);
       if(fy===null||Math.abs(fy-p.y)>STEP){p.r+=Math.PI*(.6+Math.random()*.8);return;}
