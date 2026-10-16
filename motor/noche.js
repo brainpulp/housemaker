@@ -38,7 +38,7 @@ export function prendida(prog,min,sr,ss){const p=prog||{modo:'prog'};if(p.modo==
   const ev=e=>e?.t==='hora'?aMin(e.h):e?.t==='amanecer'?(sr??360)+(+e.m||0):(ss??1200)+(+e.m||0);
   const a=((ev(p.on)%1440)+1440)%1440,b=((ev(p.off)%1440)+1440)%1440;if(a===b)return true;return a<b?(min>=a&&min<b):(min>=a||min<b);}
 
-/* datos (de la casa): {lugar,lat,lon,tz,norte}: lugar por defecto y desvío del norte; sin datos, Ing. Maschwitz (Carhué). */
+/* datos (de la casa): {lugar,lat,lon,tz,norte,inicioDia}: lugar por defecto y desvío del norte; sin datos, Ing. Maschwitz (Carhué). */
 export function initNoche(visor,datos=null){
   const {THREE,scene,renderer,camera}=visor;
   const EXPO=1/70;/* lux → unidades de escena: ~150 lux sobre blanco queda bien expuesto */
@@ -46,6 +46,8 @@ export function initNoche(visor,datos=null){
   const S={ev:0,luna:.35,sombras:4,bloom:.55,max:24,fecha:hoy(),min:new Date().getHours()*60+new Date().getMinutes(),lat:-34.381,lon:-58.741,tz:-3,norte:0,lugar:'Ing. Maschwitz',diaMin:780,nocheMin:1290};
   if(datos)Object.assign(S,datos);
   try{Object.assign(S,JSON.parse(localStorage.getItem('carhue-sol')||'{}'));}catch(e){}
+  /* casas sin luces cargadas: arrancan siempre de día (13 h de hoy); de noche quedaría todo oscuro */
+  if(datos&&datos.inicioDia){S.fecha=hoy();S.min=S.diaMin;delete S.inicioDia;}
   if(!datos&&(S.lugar==='Carhué'||Math.abs(S.lat+37.178)<.01)){S.lat=-34.381;S.lon=-58.741;S.lugar='Ing. Maschwitz';}/* la casa está en el pasaje Carhué, en Ingeniero Maschwitz (Maxi 14/10) */
   const guardarS=()=>{try{localStorage.setItem('carhue-sol',JSON.stringify(S));}catch(e){}};
   /* prendida o no: toda la casa forzada (prender / apagar todo) o el programa de cada artefacto */
