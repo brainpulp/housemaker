@@ -6,6 +6,8 @@ import { escaleraGiro, DISENOS } from './escalera-giro.js';
 import { tablones } from './tablones.js';
 import { lucesArcos } from './luces.js';
 import { fachadaArcos } from './fachada.js';
+import { HOJAS, partirSU01, initMovibles } from './movibles.js';
+let MOVS = null;
 const LUCES = lucesArcos(THREE, M);
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
@@ -35,6 +37,8 @@ const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.cha
   const fuera = (a, b, c) => (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* cerco del frente: va el de fachada.js */
   for (let i = 0; i < q.length; i += 9) { if (esPiso(q[i + 1] / ESCALA, q[i + 4] / ESCALA, q[i + 7] / ESCALA) || fuera(q[i + 2] / ESCALA, q[i + 5] / ESCALA, q[i + 8] / ESCALA)) continue; for (let k = 0; k < 9; k++) f.push(q[i + k] / ESCALA); }
   return { ...d, pos: new Float32Array(f) }; }).filter(d => d.pos.length);
+/* SU-01 (ventanal O) partido en sus hojas móviles, sin tocar la geometría */
+for (let i = DET.length - 1; i >= 0; i--) { const d = DET[i]; if (d.id !== 'SU-01') continue; const g = partirSU01(d.pos); DET.splice(i, 1, ...Object.entries(g).map(([k, pos]) => k === 'resto' ? { ...d, pos } : { ...d, id: k, nombre: HOJAS[k].nombre, pos, movil: true })); }
 const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
 
 const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.nombre]));
@@ -127,7 +131,7 @@ function build(p) {
   if (p.ext) for (const o of M.IMPLANTACION) if (o.poly) Pt(o.id, `${o.id} · ${o.nombre}`, o.tipo === 'vereda' ? 'vereda' : 'pasto', A.losa(o.poly, null, (o.z || 0) - 30, o.z || 0), base(o), { group: 'Exterior' });
 
   /* detalle del SketchUp: una pieza por grupo y color */
-  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11') continue; if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11') continue; if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
 
   /* ediciones guardadas por Maxi (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
@@ -141,7 +145,7 @@ function build(p) {
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>lote <b>8,65 × 45,16</b></span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;
   const cx = 432, cy = 3100;
   return { parts, panes, spec, joints: [], steps: [],
-    selExtra: pp => `<div class="renrow"><button class="btn" data-hide="${pp.id}">Ocultar pieza</button><button class="btn" data-showall>Mostrar todo</button></div>` + N.editorHTML(pp.id),
+    selExtra: pp => (MOVS ? MOVS.html(pp.id) : '') + `<div class="renrow"><button class="btn" data-hide="${pp.id}">Ocultar pieza</button><button class="btn" data-showall>Mostrar todo</button></div>` + N.editorHTML(pp.id),
     selIntro: '<div class="k">Selección</div><h2>Tocá una pieza</h2><p style="margin:0;color:var(--muted);font-size:13px">O un código en cualquier texto.</p>',
     defaultView: 'iso',
     views: { iso: { label: 'Iso', p: [cx + 2600, 2000, cy + 2600], t: [cx, 380, cy] }, planta: { label: 'Planta', p: [cx, 5600, cy + 0.1], t: [cx, 0, cy] },
@@ -155,6 +159,7 @@ const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0
   artefacto: '#f3f0e8', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
+MOVS = initMovibles(visor, root, M);
 
 /* calco del SketchUp: GLB ya pasado a los ejes del modelo (cm, Y arriba) */
 const calco = new THREE.Group(); calco.name = 'calco'; visor.scene.add(calco);
