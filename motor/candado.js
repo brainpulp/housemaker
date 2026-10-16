@@ -29,8 +29,14 @@ export function initCandado(visor,{segundos=5}={}){
     el.classList.toggle('fade',!sobre&&hasta-now<400);v.copy(punto).project(visor.camera);if(v.z>1){el.style.visibility='hidden';return;}el.style.visibility='';
     const r=visor.renderer.domElement.getBoundingClientRect(),s=stage.getBoundingClientRect();el.style.left=(r.left-s.left+(v.x+1)/2*r.width)+'px';el.style.top=(r.top-s.top+(1-v.y)/2*r.height)+'px';})();
 
-  const api={bloqueada:id=>L.has(id),
-    mostrar(id,p){cur=id;if(p)punto.copy(p);hasta=performance.now()+segundos*1000;el.hidden=false;el.classList.remove('fade');pintar();window.__despertar&&window.__despertar();},
+  /* interruptor general «mover / no mover» (Maxi 16/10): apagado, ninguna hoja se mueve y arrastrar sobre ellas orbita */
+  let movil=true;try{movil=localStorage.getItem('housemaker-mover')!=='0';}catch(e){}
+  const sw=document.createElement('button');sw.className='btn';sw.id='moverSw';sw.type='button';
+  const pintarSw=()=>{sw.innerHTML=`${movil?OPEN:LOCK}<span style="margin-left:5px">${movil?'Mover: sí':'Mover: no'}</span>`;sw.style.cssText='display:flex;align-items:center;'+(movil?'':'background:var(--ink);color:var(--panel);border-color:var(--ink)');sw.title=movil?'Las ventanas, puertas y lucarnas se mueven arrastrándolas. Tocá para trabarlas todas y orbitar tranquilo.':'Todo trabado: arrastrar orbita. Tocá para volver a moverlas.';};
+  sw.addEventListener('click',()=>{movil=!movil;try{localStorage.setItem('housemaker-mover',movil?'1':'0');}catch(e){}pintarSw();if(!movil){el.hidden=true;cur=null;}});pintarSw();
+  const ponerSw=()=>{const tr=document.getElementById('topright');if(tr){tr.prepend(sw);return true;}return false;};if(!ponerSw())setTimeout(ponerSw,800);
+  const api={bloqueada:id=>!movil||L.has(id),get movil(){return movil;},
+    mostrar(id,p){if(!movil)return;cur=id;if(p)punto.copy(p);hasta=performance.now()+segundos*1000;el.hidden=false;el.classList.remove('fade');pintar();window.__despertar&&window.__despertar();},
     get ids(){return [...L];}};
   visor.candado=api;return api;
 }
