@@ -47,17 +47,18 @@ export function muroGeos(M, m) {
     return box8([[x0 + nx, zlo, y0 + ny], [x1 + nx, zlo, y1 + ny], [x1 - nx, zlo, y1 - ny], [x0 - nx, zlo, y0 - ny],
                  [x0 + nx, h0, y0 + ny], [x1 + nx, h1, y1 + ny], [x1 - nx, h1, y1 - ny], [x0 - nx, h0, y0 - ny]]);
   };
-  const ops = M.ABERTURAS.filter(a => a.muro === m.id).sort((p, q) => p.d - q.d);
-  const g = []; let cur = 0;
-  for (const a of ops) {
-    if (a.d > cur) g.push(seg(cur, a.d, z0, null));
-    const s = z0 + (a.s || 0), h = s + a.h, top = Math.min(zTope(M, m, a.d / L), zTope(M, m, (a.d + a.w) / L));
-    if (s > z0) g.push(seg(a.d, a.d + a.w, z0, s));
-    if (h < top) { const [x0, y0] = P(a.d), [x1, y1] = P(a.d + a.w); const t0 = zTope(M, m, a.d / L), t1 = zTope(M, m, (a.d + a.w) / L);
-      g.push(box8([[x0 + nx, h, y0 + ny], [x1 + nx, h, y1 + ny], [x1 - nx, h, y1 - ny], [x0 - nx, h, y0 - ny], [x0 + nx, t0, y0 + ny], [x1 + nx, t1, y1 + ny], [x1 - nx, t1, y1 - ny], [x0 - nx, t0, y0 - ny]])); }
-    cur = a.d + a.w;
-  }
-  if (cur < L) g.push(seg(cur, L, z0, null));
+  /* el muro se parte en franjas entre los bordes de todas sus aberturas; en cada franja, macizo abajo, entre y arriba de las
+     aberturas que la cruzan (sirve también con aberturas apiladas en varios pisos del mismo muro) */
+  const ops = M.ABERTURAS.filter(a => a.muro === m.id);
+  const cortes = [...new Set([0, L, ...ops.flatMap(a => [a.d, a.d + a.w])].map(v => Math.min(L, Math.max(0, v))))].sort((p, q) => p - q);
+  const arriba = (d0, d1, zlo) => { const [x0, y0] = P(d0), [x1, y1] = P(d1), t0 = zTope(M, m, d0 / L), t1 = zTope(M, m, d1 / L); if (t0 - zlo < 0.5 && t1 - zlo < 0.5) return null;
+    return box8([[x0 + nx, zlo, y0 + ny], [x1 + nx, zlo, y1 + ny], [x1 - nx, zlo, y1 - ny], [x0 - nx, zlo, y0 - ny], [x0 + nx, t0, y0 + ny], [x1 + nx, t1, y1 + ny], [x1 - nx, t1, y1 - ny], [x0 - nx, t0, y0 - ny]]); };
+  const g = [];
+  for (let i = 0; i < cortes.length - 1; i++) { const d0 = cortes[i], d1 = cortes[i + 1], dm = (d0 + d1) / 2; if (d1 - d0 < 0.5) continue;
+    const hs = ops.filter(a => a.d < dm && a.d + a.w > dm).map(a => [z0 + (a.s || 0), z0 + (a.s || 0) + a.h]).sort((p, q) => p[0] - q[0]);
+    if (!hs.length) { g.push(seg(d0, d1, z0, null)); continue; }
+    let z = z0; for (const [s0, s1] of hs) { if (s0 > z + 0.5) g.push(seg(d0, d1, z, s0)); z = Math.max(z, s1); }
+    g.push(arriba(d0, d1, z)); }
   return g.filter(Boolean);
 }
 
