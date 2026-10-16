@@ -136,7 +136,7 @@ function build(p) {
 }
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
-  escalera: '#a8865c', escext: '#9a9a96', zanca: '#3a3f44', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
+  escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
   tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
@@ -225,7 +225,7 @@ N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); 
       visor.controls.update(); } requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
 
 try { initMarcas(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('marcas', e); }
-try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera: ['madera', 120], medianera: ['revoque', 200], losa: ['cemento', 300], escalera: ['madera', 120], escext: ['cemento', 200], pasto: ['pasto', 300], vereda: ['cemento', 200] } }); } catch (e) { console.error('realismo', e); }
+try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera: ['madera', 120], medianera: ['revoque', 200], losa: ['cemento', 300], escalera: ['madera', 120], zanca: ['madera', 120], escext: ['cemento', 200], pasto: ['pasto', 300], vereda: ['cemento', 200] } }); } catch (e) { console.error('realismo', e); }
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
