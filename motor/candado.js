@@ -15,9 +15,9 @@ export function initCandado(visor,{segundos=5}={}){
     if(db)db.collection('estado').doc('candados').set({ids,ts:new Date().toISOString()}).catch(()=>{});};
   N.getDb().then(d=>{db=d;if(!d)return;d.collection('estado').doc('candados').onSnapshot(x=>{if(!x.exists)return;const ids=(x.data()||{}).ids;if(Array.isArray(ids)){L=new Set(ids);pintar();}},()=>{});});
 
-  const st=document.createElement('style');st.textContent=`#candado{position:absolute;z-index:8;transform:translate(-50%,-130%);display:flex;align-items:center;gap:5px;padding:4px 8px 4px 6px;
-    background:var(--panel,#fff);color:var(--ink,#222);border:1px solid var(--rule,#ccc);border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.18);font:12px/1 var(--f-mono,monospace);cursor:pointer;user-select:none;transition:opacity .25s}
-    #candado[hidden]{display:none}#candado.lk{background:var(--ink,#222);color:var(--panel,#fff)}#candado.fade{opacity:0}`;document.head.appendChild(st);
+  const st=document.createElement('style');st.textContent=`#candado{position:absolute;z-index:8;transform:translate(-50%,-130%);display:flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;margin:0;min-height:0;height:auto;box-sizing:border-box;
+    background:var(--panel,#fff);color:var(--ink,#222);border:1px solid var(--rule,#ccc);border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.15);font:600 11.5px/1.3 var(--f-mono,monospace)!important;/* mismo tamaño que la etiqueta de la pieza (Maxi 16/10) */cursor:pointer;user-select:none;transition:opacity .25s}
+    #candado svg{width:12px;height:12px;flex:none}#candado[hidden]{display:none}#candado.lk{background:var(--ink,#222);color:var(--panel,#fff)}#candado.fade{opacity:0}`;document.head.appendChild(st);
   const el=document.createElement('button');el.id='candado';el.type='button';el.hidden=true;stage.appendChild(el);
   let cur=null,punto=new T.Vector3(),hasta=0,sobre=false;
   function pintar(){if(!cur)return;const lk=L.has(cur);el.classList.toggle('lk',lk);el.innerHTML=`${lk?LOCK:OPEN}<span>${cur}</span>`;el.title=lk?'Bloqueada: tocá para que se pueda mover':'Se puede mover: tocá para bloquearla';}
