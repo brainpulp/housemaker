@@ -6,7 +6,6 @@ import { escaleraGiro, DISENOS } from './escalera-giro.js';
 import { tablones } from './tablones.js';
 import { lucesArcos } from './luces.js';
 import { fachadaArcos } from './fachada.js';
-import { ventanalArcos } from './ventanal.js';
 const LUCES = lucesArcos(THREE, M);
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
@@ -33,7 +32,7 @@ import { DETALLE, COLORES, ESCALA } from './detalle-su.js';
 /* sin los pisos del SketchUp en PB, 1P y 2P (triángulos horizontales a ras de piso): ahí va el piso de tablones */
 const PISOS_Z = [72, 409, 607], esPiso = (a, b, c) => Math.max(a, b, c) - Math.min(a, b, c) < 0.5 && PISOS_Z.some(z => a > z - 4 && a < z + 12);
 const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = [];
-  const fuera = (a, b, c) => (d.id === 'SU-01' && Math.max(a, b, c) < 2480) || (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* ventanal O (va ventanal.js) y cerco del frente (va fachada.js) */
+  const fuera = (a, b, c) => (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* cerco del frente: va el de fachada.js */
   for (let i = 0; i < q.length; i += 9) { if (esPiso(q[i + 1] / ESCALA, q[i + 4] / ESCALA, q[i + 7] / ESCALA) || fuera(q[i + 2] / ESCALA, q[i + 5] / ESCALA, q[i + 8] / ESCALA)) continue; for (let k = 0; k < 9; k++) f.push(q[i + k] / ESCALA); }
   return { ...d, pos: new Float32Array(f) }; }).filter(d => d.pos.length);
 const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
@@ -105,8 +104,6 @@ function build(p) {
     Pt(a.id + 'd', `${a.id} · dintel de hierro`, 'dintel', A.losa(q, null, z, z + 16), { fn: 'Perfil de hierro sobre el vano, con antióxido naranja, como se ve en las fotos.', sec: 'perfil 16', med: `${f2(a.w + 30)} de largo` }, ex(m)); }
   /* fachada E como en la foto */
   for (const f of fachadaArcos(THREE, M, A)) Pt(f.id, `${f.id} · ${f.nombre.replace(/^[A-Z0-9-]+ · /, '')}`, f.cat, f.geos, f.info, { group: 'Fachada E', tags: ['fachada'], opt: { noEdges: /caño|herreria/.test(f.cat) } });
-  /* ventanal O paño por paño */
-  for (const f of ventanalArcos(THREE)) Pt(f.id, `${f.id} · ${f.nombre}`, f.cat, f.geos, f.info, { group: 'Ventanal O', tags: ['ventanal', /VO-C|VO-B/.test(f.id) ? 'corrediza' : 'fija'] });
   /* luces: artefactos (las fuentes las maneja noche.js) */
   for (const a of LUCES.art) Pt(a.id, `${a.id} · ${a.nombre}`, 'artefacto', a.geos.map(g => g.clone()), a.info, { group: 'Luces', tags: ['luces', a.nivel], opt: { noEdges: true } });
   /* escaleras y barandas */
