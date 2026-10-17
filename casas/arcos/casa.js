@@ -6,6 +6,7 @@ import { escaleraGiro, DISENOS } from './escalera-giro.js';
 import { tablones } from './tablones.js';
 import { lucesArcos } from './luces.js';
 import { fachadaArcos } from './fachada.js';
+import { banio2P } from './banio2p.js';
 import { HOJAS, partirSU01, initMovibles } from './movibles.js';
 let MOVS = null;
 const LUCES = lucesArcos(THREE, M);
@@ -126,6 +127,7 @@ function build(p) {
         for (const [a, b2] of tramos) { const q = c.dir === 'y' ? [[u - b / 2, a], [u + b / 2, a], [u + b / 2, b2], [u - b / 2, b2]] : [[a, u - b / 2], [b2, u - b / 2], [b2, u + b / 2], [a, u + b / 2]]; g.push(A.losa(q, null, zt - h, zt)); } }
       Pt(l.id + 'c', `${l.id} · cabios`, 'madera', g, { fn: `Cabios de ${c.sec.replace('×', ' × ')} de canto, cada ~${f2(du)}, clavados directo bajo las tablas de ${l.e}; van de viga a viga (plano de estructura, +3,29).`, sec: c.sec, med: `${n + 1} cabios` }, { group: NIV[l.nivel] || NIV.EP }); } }
   /* fachada E como en la foto */
+  for (const f of banio2P(THREE, M)) Pt(f.id, `${f.id} · ${f.nombre}`, f.cat, f.geos, f.info, { group: NIV.P2, tags: ['baño 2P'], opt: { noEdges: f.cat === 'herreria' } });
   for (const f of fachadaArcos(THREE, M, A)) Pt(f.id, `${f.id} · ${f.nombre.replace(/^[A-Z0-9-]+ · /, '')}`, f.cat, f.geos, f.info, { group: 'Fachada E', tags: ['fachada'], opt: { noEdges: /caño|herreria/.test(f.cat) } });
   /* luces: artefactos (las fuentes las maneja noche.js) */
   for (const a of LUCES.art) Pt(a.id, `${a.id} · ${a.nombre}`, 'artefacto', a.geos.map(g => g.clone()), a.info, { group: 'Luces', tags: ['luces', a.nivel], opt: { noEdges: true } });
@@ -150,7 +152,7 @@ function build(p) {
   if (p.ext) for (const o of M.IMPLANTACION) if (o.poly) Pt(o.id, `${o.id} · ${o.nombre}`, o.tipo === 'vereda' ? 'vereda' : 'pasto', A.losa(o.poly, null, (o.z || 0) - 30, o.z || 0), base(o), { group: 'Exterior' });
 
   /* detalle del SketchUp: una pieza por grupo y color */
-  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09') continue; /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09' || d.id === 'SU-08') continue; /* SU-08: baño de 2P del SketchUp (ducha al ventanal): va el de la obra, banio2p.js */ /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
 
   /* ediciones guardadas por Maxi (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
@@ -175,7 +177,7 @@ function build(p) {
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
-  artefacto: '#f3f0e8', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
+  artefacto: '#f3f0e8', placa: '#a9bfa3', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 MOVS = initMovibles(visor, root, M);
