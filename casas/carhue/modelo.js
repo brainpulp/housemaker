@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.82', fecha:'2026-10-18',
+  nombre:'Carhué', version:'1.0.83', fecha:'2026-10-18',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -265,7 +265,7 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-18', v:'1.0.82', txt:'Variante de diseño «Paños PV-05 y PV-06»: plegadiza de dos paños con eje vertical, que se pliega contra el marco norte hacia el jardín (se abre arrastrando). Con esa variante las corredizas PV-01…04 corren hasta el marco de la plegadiza.'},
+export const CAMBIOS = [  {fecha:'2026-10-18', v:'1.0.83', txt:'Escalera al entrepiso (ESC-1 variable), encuentros: nada se pisa. Las compensadas se recortan alrededor de la columna C-01, que hace de poste en esa esquina; los otros postes llegan justo abajo de la pedada que tienen encima. Las zancas de arriba se cortan horizontales al nivel de la primera compensada y a ras del piso del entrepiso; las de abajo, a ras del piso. El pasamanos tiene tres parantes de planchuela atornillados a la zanca. Los ajustes de la escalera (tipo, alzadas, pedadas arriba, corrimiento este–oeste y giro) se guardan en la casa, no sólo en el navegador.'},  {fecha:'2026-10-18', v:'1.0.82', txt:'Variante de diseño «Paños PV-05 y PV-06»: plegadiza de dos paños con eje vertical, que se pliega contra el marco norte hacia el jardín (se abre arrastrando). Con esa variante las corredizas PV-01…04 corren hasta el marco de la plegadiza.'},
   {fecha:'2026-10-18', v:'1.0.81', txt:'Filtro de selección siempre a la vista, arriba al centro: Objeto · Vértice · Arista · Cara. Las aristas salen de la forma real de cada pieza.'},
   {fecha:'2026-10-18', v:'1.0.80', txt:'Selección como en un CAD (en la barra, dentro de «Seleccionar»): vértices, aristas y caras, con filtro Auto / Vértice / Arista / Cara, resaltado al pasar el mouse y Shift para sumar. Da coordenadas, largos, pendientes, áreas y orientación; con dos elegidos, distancia, ángulo o separación.'},
   {fecha:'2026-10-16', v:'1.0.79', txt:'Ventanales en dos rieles: las hojas del frente (PV-01…06) y del tímpano (PV-07…10) alternan de riel, no se atraviesan y la que arrastrás empuja a la de su riel cuando la alcanza. Las personas que caminan solas vuelven hacia la casa si se alejan más de 6 m.'},

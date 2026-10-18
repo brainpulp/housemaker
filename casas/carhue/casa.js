@@ -406,21 +406,40 @@ function build(p){
     const yT=YE+u*G,tr=[],st=[],po=[],rods=[];const kT=N-u-1;/* nivel de la primera pedada del giro */
     const slabX=(y0,y1,[xa,za],[xb,zb],th)=>box8([[xa,za,y0],[xb,zb,y0],[xb,zb,y1],[xa,za,y1],[xa,za+th,y0],[xb,zb+th,y0],[xb,zb+th,y1],[xa,za+th,y1]]);
     /* tramo de arriba: baja hacia el jardín (+y) desde el borde del entrepiso */
-    for(let i=1;i<=u;i++){const k=N-i;tr.push(box(X0+f,X1-f,k*R-ti,k*R,YE+(i-1)*G-1,YE+i*G));}
-    const zTop=H_EP,zLow=(N-u)*R;for(const xa of [X0,X1-f])st.push(slabY(xa,xa+f,[YE,zTop-30],[yT,zLow-30],35));
+    /* encuentros (Maxi 18/10): nada se pisa. Pedadas recortadas alrededor de la columna C-01; zancas cortadas a ras del piso (0) y del piso del entrepiso;
+       postes que llegan justo abajo de la pedada que tienen encima; pasamanos con parantes hasta la zanca */
+    const COL={x0:1342,x1:1353,y0:627.5,y1:638.5};
+    const clip=(P,f2)=>{const o=[];for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length],fa=f2(A),fb=f2(B);if(fa>=0)o.push(A);if((fa>=0)!==(fb>=0)){const t=fa/(fa-fb);o.push([A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t]);}}return o;};
+    const area=P=>{let a=0;for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length];a+=A[0]*B[1]-B[0]*A[1];}return Math.abs(a/2);};
+    const pisada=(P,z0,z1)=>{/* pedada en planta P (convexa) menos la columna */
+      const xs=P.map(q=>q[0]),ys2=P.map(q=>q[1]);if(Math.min(...xs)>=COL.x1||Math.max(...xs)<=COL.x0||Math.min(...ys2)>=COL.y1||Math.max(...ys2)<=COL.y0){tr.push(prism(P,z0,z1,'XZ'));return;}
+      const parts=[clip(P,q=>COL.x0-q[0]),clip(P,q=>q[0]-COL.x1),clip(clip(clip(P,q=>q[0]-COL.x0),q=>COL.x1-q[0]),q=>COL.y0-q[1]),clip(clip(clip(P,q=>q[0]-COL.x0),q=>COL.x1-q[0]),q=>q[1]-COL.y1)];
+      for(const q of parts)if(q.length>=3&&area(q)>.5)tr.push(prism(q,z0,z1,'XZ'));};
+    const rect=(x0,x1,y0,y1)=>[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+    const zTop=H_EP,zLow=(N-u)*R;
+    /* zanca: perfil (largo, alto) recortado entre 0 y el piso del entrepiso, extruido en el ancho */
+    const zanca=(perf,a0,a1,eje)=>{let q=clip(clip(perf,v=>v[1]),v=>zTop-v[1]);if(q.length>=3)st.push(eje==='x'?prism(q,a0,a1,'ZY'):prism(q,a0,a1,'XY'));};
+    for(let i=1;i<=u;i++){const k=N-i;pisada(rect(X0+f,X1-f,YE+(i-1)*G-1,YE+i*G),k*R-ti,k*R);}
+    const zb=y=>zTop-30+(y-YE)*(zLow-zTop)/(yT-YE),zc=giro!=='recto'?kT*R:Infinity,ys=Math.min(yT,YE+(zc-(zTop+5))*(yT-YE)/(zLow-zTop));
+    /* zancas del tramo de arriba: con giro, se cortan horizontales al nivel de la primera compensada; arriba, a ras del piso del entrepiso */
+    for(const xa of [X0,X1-f]){const perf=ys>=yT-.5?[[YE,zb(YE)],[yT,zb(yT)],[yT,zb(yT)+35],[YE,zb(YE)+35]]:[[YE,zb(YE)],[yT,zb(yT)],[yT,zc],[ys,zc],[YE,zb(YE)+35]];zanca(perf,xa,xa+f,'x');}
     let fp={x0:X0,x1:X1,y0:YE,y1:yT};
     if(giro!=='recto'){/* giro a la izquierda del que baja: hacia la pileta (+x) */
-      if(giro==='comp'){tr.push(prism([[X0,yT],[X1,yT],[X0,yT+WD]],kT*R-ti,kT*R,'XZ'),prism([[X1,yT],[X1,yT+WD],[X0,yT+WD]],(kT-1)*R-ti,(kT-1)*R,'XZ'));}
-      else tr.push(box(X0,X1,kT*R-ti,kT*R,yT,yT+WD));
-      const zp=kT*R;for(const [x,y] of [[X0,yT+WD-9],[X1-9,yT+WD-9],[X0,yT],[X1-9,yT]])po.push(box(x,x+9,0,zp-ti,y,y+9));/* cuarto poste en la esquina del vacío (Maxi 14/10): ahí apoyan las puntas de las dos compensadas */
-      const k0=kT-w;/* primera pedada del tramo de abajo = k0 */
+      if(giro==='comp'){pisada([[X0,yT],[X1,yT],[X0,yT+WD]],kT*R-ti,kT*R);pisada([[X1,yT],[X1,yT+WD],[X0,yT+WD]],(kT-1)*R-ti,(kT-1)*R);}
+      else pisada(rect(X0,X1,yT,yT+WD),kT*R-ti,kT*R);
+      /* postes: cada uno llega justo abajo de la pedada más baja que tiene encima; donde está la columna C-01, ella hace de poste */
+      const bajo2=(x,y)=>giro==='comp'&&((x+9-X0)+(y+9-yT))>WD;
+      for(const [x,y] of [[X0,yT+WD-9],[X1-9,yT+WD-9],[X0,yT],[X1-9,yT]]){if(x<COL.x1&&x+9>COL.x0&&y<COL.y1&&y+9>COL.y0)continue;const zp=(bajo2(x,y)?kT-1:kT)*R;po.push(box(x,x+9,0,zp-ti,y,y+9));}
+      const k0=kT-w;
       for(let j=1;j<=nL;j++){const k=k0-j+1;tr.push(box(X1+(j-1)*G,X1+j*G+1,k*R-ti,k*R,yT+f,yT+WD-f));}
-      if(nL>0){for(const ya of [yT,yT+WD-f])st.push(slabX(ya,ya+f,[X1,k0*R-30],[X1+nL*G,(k0-nL+1)*R-30],35));}
+      if(nL>0){const xb=X1+nL*G,za=k0*R-30,zz=(k0-nL+1)*R-30;for(const ya of [yT,yT+WD-f])zanca([[X1,za],[xb,zz],[xb,zz+35],[X1,za+35]],ya,ya+f,'y');}
       fp={x0:X0,x1:X1+nL*G,y0:YE,y1:yT+WD};}
-    else{for(let j=1;j<=nL;j++){const k=N-u-j;tr.push(box(X0+f,X1-f,k*R-ti,k*R,yT+(j-1)*G-1,yT+j*G));}
-      if(nL>0)for(const xa of [X0,X1-f])st.push(slabY(xa,xa+f,[yT,zLow-30],[yT+nL*G,R-30],35));fp={x0:X0,x1:X1,y0:YE,y1:yT+nL*G};}
-    /* pasamanos del lado del vacío */
-    rods.push(rod([X1-2.5,zTop+90,YE],[X1-2.5,zLow+90,yT],2,10));
+    else{for(let j=1;j<=nL;j++){const k=N-u-j;pisada(rect(X0+f,X1-f,yT+(j-1)*G-1,yT+j*G),k*R-ti,k*R);}
+      if(nL>0)for(const xa of [X0,X1-f]){const yb=yT+nL*G;zanca([[yT,zLow-30],[yb,R-30],[yb,R+5],[yT,zLow+5]],xa,xa+f,'x');}fp={x0:X0,x1:X1,y0:YE,y1:yT+nL*G};}
+    /* pasamanos del lado del vacío, con parantes de planchuela que bajan a la zanca */
+    const zr=y=>zTop+90+(y-YE)*(zLow-zTop)/(yT-YE),zs=y=>Math.min(zTop,y>=ys?zc:zb(y)+35);
+    rods.push(rod([X1-2.5,zr(YE),YE],[X1-2.5,zr(yT),yT],2,10));
+    for(const y of [YE+12,(YE+yT)/2,yT-8])rods.push(box(X1-3.5,X1-1.5,zs(y),zr(y)-1.5,y-2,y+2));
     /* choques en planta con lo que está cerca */
     const hits=[];const ov=(a,b)=>a.x0<b.x1&&a.x1>b.x0&&a.y0<b.y1&&a.y1>b.y0;
     if(ov(fp,{x0:1342,x1:1353,y0:627.5,y1:638.5}))hits.push('C1');if(ov(fp,{x0:1329,x1:1342,y0:638.5,y1:918.5}))hits.push('retorno');if(fp.y1>918)hits.push('ventanal');
@@ -430,7 +449,7 @@ function build(p){
     Pt('ESC1-T','ESC-1 · pedadas','ep',tr,{fn:'Escalera al entrepiso, variable: '+info,sec:'pedadas de 2″',med:info},{group:'Escalera',tags:['PB','escalera']});
     Pt('ESC1-Z','ESC-1 · zancas','cabio',st,{fn:'Zancas de 2″×12″ a los dos lados de cada tramo.'},{group:'Escalera',tags:['PB','escalera']});
     if(po.length)Pt('ESC1-P','ESC-1 · postes del giro','cabio',po,{fn:'Postes de 9 × 9 en las cuatro esquinas del giro.'},{group:'Escalera',tags:['PB','escalera']});
-    Pt('ESC1-B','ESC-1 · pasamanos','acero',rods,{fn:'Pasamanos del lado del vacío.'},{group:'Escalera',tags:['PB','escalera']});}
+    Pt('ESC1-B','ESC-1 · pasamanos','acero',rods,{fn:'Pasamanos del lado del vacío, con tres parantes de planchuela atornillados a la zanca.'},{group:'Escalera',tags:['PB','escalera']});}
   {const es=M.ESCALERAS&&M.ESCALERAS.find(e=>e.id==='ESC-1');if(es&&p.ep&&p.escTipo==='orig'){const [ex,ey]=es.pos,rot=(es.rot??90)*Math.PI/180;let ps=[];try{ps=escaleraCompensada(geo);}catch(e){console.error('escalera',e);}
     const MAT=new THREE.Matrix4().makeTranslation(ex,0,ey).multiply(new THREE.Matrix4().makeRotationY(rot));
     const CAT={herraje:'acero',perno:'acero',pedada:'ep',c1:'ep',c2:'ep',exist:'cabio'};
@@ -996,7 +1015,7 @@ try{initMarcas(visor,document.querySelector('#modo-3d .stage'));}catch(e){consol
     requestAnimationFrame(tick);};requestAnimationFrame(tick);}
 /* aberturas (hojas corredizas, proyectantes, lucarnas): quedan en la base del artifact, así se mantienen entre sesiones y dispositivos */
 /* variables de diseño (todas menos las de «Ver») en la base: así los cambios valen en cualquier dispositivo (Maxi 14/10) */
-const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver').map(q=>q.id));const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));
+const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver'||/^esc(Tipo|N|Alto|Dy|Giro)$/.test(q.id)).map(q=>q.id));/* la escalera al entrepiso se guarda en la casa, no sólo en el navegador (Maxi 18/10) */const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));
 visor.onParam=P=>{if(vdb)vdb.doc('estado/params').set({p:pdes(P),ts:new Date().toISOString()}).catch(()=>{});};
 N.getDb().then(db=>{if(!db)return;db.collection('estado').onSnapshot(snap=>{const d=snap.docs.find(x=>x.id==='params'&&x.exists);if(!d)return;const b=(d.data()||{}).p||{};
   const cur=pdes(visor.params);if(JSON.stringify(b)===JSON.stringify(Object.fromEntries(Object.keys(b).map(k=>[k,cur[k]]))))return;visor.setParams(b);},()=>{});});
