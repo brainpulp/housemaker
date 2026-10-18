@@ -41,11 +41,11 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     estirar:{ic:'estirar',n:'Estirar',k:'P',d:'Empujá o tirá una cara plana de la pieza elegida.',run:()=>edTool('estirar')},
     undo:{ic:'undo',n:'Deshacer',k:'Ctrl/⌘ Z',d:'Deshace el último cambio de las herramientas de edición.',run:()=>{open('editarTg');click('edUndoAll');}},
     medir:{ic:'medir',n:'Medir',d:'Dos puntos: distancia real y lo que avanza en x, y y altura.',run:()=>only('medirTg')},
-    senalar:{ic:'senalar',n:'Señalar',d:'Código del punto, arista o cara que tocás, para pasármelo.',run:()=>only('senalarTg')},
+    senalar:{ic:'senalar',n:'Vértices, aristas y caras',d:'Como en un CAD: elegí vértices, aristas o caras (Shift suma). Coordenadas, largos, áreas; con dos, distancia o ángulo. Códigos para pasármelos.',run:()=>only('senalarTg')},
     marcar:{ic:'marcar',n:'Marcar',d:'Dibujá líneas y puntos con una nota; quedan guardados (K-xx).',run:()=>only('marcarTg')},
   };
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['sel'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['senalar'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
+  const BAR=[['nav'],['sel','senalar'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
   const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},

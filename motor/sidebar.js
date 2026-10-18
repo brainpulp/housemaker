@@ -70,7 +70,7 @@ export function initSidebar(visor){
   const CO=sec('corte','Cortes',{vis:()=>CO.on,close:()=>{CO.on=false;}});CO.on=false;
   const PE=sec('pers','Personas',{vis:()=>PE.on,close:()=>{PE.on=false;}});PE.on=false;
   sec('med','Medir',{vis:()=>shown($('medPanel')),close:()=>{const x=document.querySelector('#medPanel .mx');x&&x.click();}});
-  sec('sen','Señalar',{vis:()=>shown($('senPanel')),close:()=>{const x=document.querySelector('#senPanel .mx');x&&x.click();}});
+  sec('sen','Vértices, aristas y caras',{vis:()=>shown($('senPanel')),close:()=>{const x=document.querySelector('#senPanel .mx');x&&x.click();}});
   sec('ed','Editar',{vis:()=>shown($('edPanel')),close:()=>{const x=document.querySelector('#edPanel .mx');x&&x.click();}});
   sec('mk','Marcas',{vis:()=>shown($('marcasPanel')),close:()=>{const x=document.querySelector('#marcasPanel .mx');x&&x.click();}});
 

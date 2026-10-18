@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.79', fecha:'2026-10-16',
+  nombre:'Carhué', version:'1.0.80', fecha:'2026-10-18',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -265,7 +265,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-16', v:'1.0.79', txt:'Ventanales en dos rieles: las hojas del frente (PV-01…06) y del tímpano (PV-07…10) alternan de riel, no se atraviesan y la que arrastrás empuja a la de su riel cuando la alcanza. Las personas que caminan solas vuelven hacia la casa si se alejan más de 6 m.'},
+export const CAMBIOS = [  {fecha:'2026-10-18', v:'1.0.80', txt:'Selección como en un CAD (en la barra, dentro de «Seleccionar»): vértices, aristas y caras, con filtro Auto / Vértice / Arista / Cara, resaltado al pasar el mouse y Shift para sumar. Da coordenadas, largos, pendientes, áreas y orientación; con dos elegidos, distancia, ángulo o separación.'},
+  {fecha:'2026-10-16', v:'1.0.79', txt:'Ventanales en dos rieles: las hojas del frente (PV-01…06) y del tímpano (PV-07…10) alternan de riel, no se atraviesan y la que arrastrás empuja a la de su riel cuando la alcanza. Las personas que caminan solas vuelven hacia la casa si se alejan más de 6 m.'},
   {fecha:'2026-10-16', v:'1.0.78', txt:'MEN-1: los dos tramos de 14 de alto (tubo 140 × 40 × 3); el travesaño sube, llega con su canto inferior a la punta del brazo y topa en bisel contra su lado inferior (sin cierre vertical). El candado de las hojas móviles se achica con la distancia igual que la etiqueta marrón de la pieza.'},
   {fecha:'2026-10-16', v:'1.0.77', txt:'Muebles con modelos 3D reales elegidos por Maxi: sillón en L en el living, sofá largo gris en la galería, butacas tapizadas en gris, mesas ratonas redondas encastradas, sillas de roble en el comedor y sillas de cáscara blanca en el quincho. Están también en el catálogo, con su autor (CC BY 4.0).'},
   {fecha:'2026-10-16', v:'1.0.76', txt:'El candado de las hojas móviles queda del mismo tamaño que la etiqueta de la pieza.'},
