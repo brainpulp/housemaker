@@ -73,6 +73,10 @@ for (const e of ESC.filter(e => e.x && e.y && e.z)) { const [x0, x1] = e.x, [y0,
   const [yb, zb, sb, yt, zt, st] = z1 > z0 ? [y0, z0, -sg, y1, z1, sg] : [y1, z1, sg, y0, z0, -sg];
   const pie = [x0 + 5, xm, x1 - 5].every(x => apoyoEn(x, yb + sb * 3, zb) || apoyoEn(x, yb - sb * 3, zb));
   const cab = e.llega ? LOSAS.some(l => l.id === e.llega) : [x0 + 5, xm, x1 - 5].every(x => LOSAS.some(l => Math.abs(l.z - zt) <= TOL && enLosa(l, x, yt + st * 3)) || SUELO.some(o => Math.abs((o.z || 0) - zt) <= TOL && dentro(x, yt + st * 3, o.poly)));
+  /* o la cabeza llega a un umbral: el muro de la puerta a la que sube (la escalera termina contra su cara) */
+  const umbral = !cab && [x0 + 5, xm, x1 - 5].every(x => MUROS.some(w => { const [a, b] = muroZ(w); return segDist(x, yt + st * 3, w.a, w.b) <= w.e / 2 + 4 && a <= zt + TOL && b >= zt; }));
+  if (umbral && pie) { ok.push(`${e.id} apoya (cabeza en el umbral)`); continue; }
+  if (umbral) { mal(e.id, `el pie (+${(zb / 100).toFixed(2)}) no apoya en todo su ancho`); continue; }
   if (!pie) mal(e.id, `el pie (+${(zb / 100).toFixed(2)}) no apoya en todo su ancho`);
   if (!cab) mal(e.id, `la cabeza (+${(zt / 100).toFixed(2)}) no llega al borde de una losa en todo su ancho`);
   if (pie && cab) ok.push(`${e.id} apoya`); }

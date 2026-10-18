@@ -99,7 +99,7 @@ export function escaleraGeos(e) {
   const zt = u => z0 + r * (1 + u / ga);                       /* línea de las pedadas a lo largo del tramo */
   const yA = u => y0 + sg * u;
   if (up) { const uT = -ga * (1 + sobre / ra), uB = ga * ((D - sobre) / ra - 1);
-    const q = [[uT, z0], [Math.min(uB, L), z0], [L, z1 + sobre - D], [L, z1 + sobre]];
+    const q = [[uT, z0], [Math.min(uB, L), z0], [L, z1 - D], [L, z1]];   /* cabeza a ras del piso de llegada: no sobresale ni se mete en el umbral */
     for (const xx of [x0, x1 - 4]) zan.push(box8([...q.map(([u, z]) => [xx, z, yA(u)]), ...q.map(([u, z]) => [xx + 4, z, yA(u)])])); }
   else { const zs = [z0 + r - 22, z1 - 22];   /* escalera que baja (E-07): como antes */
     for (const xx of [x0, x1 - 4]) zan.push(box8([[xx, zs[0], y0], [xx + 4, zs[0], y0], [xx + 4, zs[1], y1], [xx, zs[1], y1], [xx, zs[0] + 26, y0], [xx + 4, zs[0] + 26, y0], [xx + 4, zs[1] + 26, y1], [xx, zs[1] + 26, y1]])); }

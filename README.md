@@ -26,7 +26,7 @@ casas/<casa>/     lo propio de cada casa:
   ARTIFACT.md       URL del artifact publicado y notas de publicación
 herramientas/
   armar.sh          arma dist/<casa>/ plano (motor + casa) para publicar o probar
-  pruebas/*.mjs     pruebas: apoyos (node, sin navegador: que nada flote) y headless (Playwright): techos, lucarnas/dormers, térmica, barra, alternativas
+  pruebas/*.mjs     pruebas: apoyos (node, sin navegador: que nada flote), intersecciones (que nada ocupe el lugar de otra cosa) y headless (Playwright): techos, lucarnas/dormers, térmica, barra, alternativas
 docs/             arquitectura, cómo hacer una casa nueva, deuda (lo que falta generalizar)
 ```
 

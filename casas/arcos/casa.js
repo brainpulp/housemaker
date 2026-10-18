@@ -9,7 +9,7 @@ import { fachadaArcos } from './fachada.js';
 import { banio2P } from './banio2p.js';
 import { HOJAS, partirSU01, initMovibles } from './movibles.js';
 let MOVS = null;
-const LUCES = lucesArcos(THREE, M);
+let LUCES = null;   /* se arman en el primer build, mirando la geometría (cada luz va al techo que tiene arriba) */
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initMedir } from './medir.js';
@@ -35,7 +35,7 @@ import { DETALLE, COLORES, ESCALA } from './detalle-su.js';
 /* sin los pisos del SketchUp en PB, 1P y 2P (triángulos horizontales a ras de piso): ahí va el piso de tablones */
 const SEC2 = s => String(s).split('×').map(v => parseFloat(v.replace(',', '.')));
 const PISOS_Z = [72, 409, 607], esPiso = (a, b, c) => Math.max(a, b, c) - Math.min(a, b, c) < 0.5 && PISOS_Z.some(z => a > z - 4 && a < z + 12);
-const DZ_SU = { 'SU-02': 23, 'SU-03': 23, 'SU-07': 8, 'SU-08': 6, 'SU-10': 6, 'SU-13': y => (M.NIVELES.P2.z + 396 - 0.12 * (4516 - y - 1425)) - (1013 - 0.108 * (4516 - y - 1425)) };
+const DZ_SU = { 'SU-02': 23, 'SU-03': 23, 'SU-07': 8, 'SU-08': 6, 'SU-10': 7, 'SU-13': y => (M.NIVELES.P2.z + 396 - 0.12 * (4516 - y - 1425)) - (1013 - 0.108 * (4516 - y - 1425)) };
 const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = [];
   const fuera = (a, b, c) => (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* cerco del frente: va el de fachada.js */
   for (let i = 0; i < q.length; i += 9) { if (esPiso(q[i + 1] / ESCALA, q[i + 4] / ESCALA, q[i + 7] / ESCALA) || fuera(q[i + 2] / ESCALA, q[i + 5] / ESCALA, q[i + 8] / ESCALA)) continue; for (let k = 0; k < 9; k++) f.push(q[i + k] / ESCALA); }
@@ -127,10 +127,14 @@ function build(p) {
         for (const [a, b2] of tramos) { const q = c.dir === 'y' ? [[u - b / 2, a], [u + b / 2, a], [u + b / 2, b2], [u - b / 2, b2]] : [[a, u - b / 2], [b2, u - b / 2], [b2, u + b / 2], [a, u + b / 2]]; g.push(A.losa(q, null, zt - h, zt)); } }
       Pt(l.id + 'c', `${l.id} · cabios`, 'madera', g, { fn: `Cabios de ${c.sec.replace('×', ' × ')} de canto, cada ~${f2(du)}, clavados directo bajo las tablas de ${l.e}; van de viga a viga (plano de estructura, +3,29).`, sec: c.sec, med: `${n + 1} cabios` }, { group: NIV[l.nivel] || NIV.EP }); } }
   /* fachada E como en la foto */
-  for (const f of banio2P(THREE, M)) Pt(f.id, `${f.id} · ${f.nombre}`, f.cat, f.geos, f.info, { group: NIV.P2, tags: ['baño 2P'], opt: { noEdges: f.cat === 'herreria' } });
+  /* cara interior del ventanal O (hojas del SketchUp) a cada altura, en el ancho del baño de 2P: la máxima y por franja de 10 */
+  const yVid = (() => { const F = {}; for (const d of DET) if (d.id === 'SU-01' || HOJAS[d.id]) { const q = d.pos; for (let i = 0; i < q.length; i += 3) { const k = Math.floor(q[i + 1] / 10);   /* todo el ancho: un paño grande no tiene vértices dentro del baño */ F[k] = Math.max(F[k] ?? -1e9, q[i + 2]); } }
+    return z => { let m = -1e9; for (let k = Math.floor((z - 15) / 10); k <= Math.floor((z + 15) / 10); k++) if (F[k] != null) m = Math.max(m, F[k]); return m; }; })();
+  /* fondo de la estructura del techo (SU-13) sobre una franja de y: el cajón del baño queda por debajo */
+  const zEstrTecho = (y0, y1) => { let m = 1e9; for (const d of DET) if (d.id === 'SU-13') { const q = d.pos; for (let i = 0; i < q.length; i += 3) if (q[i + 2] > y0 - 30 && q[i + 2] < y1 + 30) m = Math.min(m, q[i + 1]); } return m; };
+  for (const f of banio2P(THREE, M, { yVid, zEstrTecho })) Pt(f.id, `${f.id} · ${f.nombre}`, f.cat, f.geos, f.info, { group: NIV.P2, tags: ['baño 2P'], opt: { noEdges: f.cat === 'herreria' } });
   for (const f of fachadaArcos(THREE, M, A)) Pt(f.id, `${f.id} · ${f.nombre.replace(/^[A-Z0-9-]+ · /, '')}`, f.cat, f.geos, f.info, { group: 'Fachada E', tags: ['fachada'], opt: { noEdges: /caño|herreria/.test(f.cat) } });
   /* luces: artefactos (las fuentes las maneja noche.js) */
-  for (const a of LUCES.art) Pt(a.id, `${a.id} · ${a.nombre}`, 'artefacto', a.geos.map(g => g.clone()), a.info, { group: 'Luces', tags: ['luces', a.nivel], opt: { noEdges: true } });
   /* escaleras y barandas */
   for (const e of M.ESCALERAS) { if (e.id === 'E-02') continue; const g = A.escaleraGeos(e);
     Pt(e.id, `${e.id} · ${e.nombre}`, e.exterior ? 'escext' : 'escalera', g.ped, { ...base(e), med: `${e.n} alzadas · de ${f2(e.z[0])} a ${f2(e.z[1])}` }, ex(e));
@@ -152,7 +156,35 @@ function build(p) {
   if (p.ext) for (const o of M.IMPLANTACION) if (o.poly) Pt(o.id, `${o.id} · ${o.nombre}`, o.tipo === 'vereda' ? 'vereda' : 'pasto', A.losa(o.poly, null, (o.z || 0) - 30, o.z || 0), base(o), { group: 'Exterior' });
 
   /* detalle del SketchUp: una pieza por grupo y color */
-  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09' || d.id === 'SU-08') continue; /* SU-08: baño de 2P del SketchUp (ducha al ventanal): va el de la obra, banio2p.js */ /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09' || d.id === 'SU-08') continue; if (d.id === 'SU-06' || (d.id === 'SU-07' && d.cat === 'su000000')) continue; /* SU-06: caja del toilette del SketchUp, que llegaba a la losa vieja y atravesaba V301 (el toilette sale del video, M-30 a M-33); SU-07 negro: placa a nivel de piso en todo el 1P, debajo de los tablones */ /* SU-08: baño de 2P del SketchUp (ducha al ventanal): va el de la obra, banio2p.js */ /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+
+  /* luces: cada downlight va al primer techo real que tiene arriba (losa, viga, cabio, cielorraso); si arriba hay vidrio
+     (el ventanal O se inclina hacia adentro), se corre hacia adentro hasta salir de abajo del vidrio. Las fuentes las maneja noche.js. */
+  if (!LUCES) { const rc = new THREE.Raycaster(), UP = new THREE.Vector3(0, 1, 0), mat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+    const NO = /^(artefacto|pasto|vereda|calco)/, meshes = []; for (const q of parts) if (!NO.test(q.cat || '')) for (const g of q.geos) { const m = new THREE.Mesh(g, mat); m.userData.q = q; m.updateMatrixWorld(); meshes.push(m); }
+    const esVidrio = q => /^(SU-01|VO-)/.test(q.id) || q.cat === 'glass';
+    const TECHO_OK = /^(losa|madera|viga|placa|techo|mamposteria|tabla)/, esTecho = q => TECHO_OK.test(q.cat || '') || /^(LO-|T-|SU-13)/.test(q.id);
+    /* primer techo arriba del punto; si antes (a menos de 25 del techo) se cruza otra cosa —un revestimiento, un mueble alto— la luz no va ahí */
+    const golpe = (x, y, z0) => { rc.set(new THREE.Vector3(x, z0 + 120, y), UP); const H = rc.intersectObjects(meshes, false); for (const h of H) { const q = h.object.userData.q;
+        if (esVidrio(q)) return { z: h.point.y, q }; if (!esTecho(q) || !h.face || Math.abs(h.face.normal.y) < .7) continue;
+        const estorbo = H.some(o => o.distance < h.distance - .5 && h.point.y - o.point.y < 40);   /* cualquier cosa justo debajo del techo: cerchas, revestimientos, muebles altos */
+        return { z: h.point.y, q, estorbo }; } return null; };
+    /* rayos: el centro y dos anillos (3,5 y 7,5) que cubren el disco de 6 de radio con margen */
+    const ANILLO = [[0, 0], ...[...Array(6)].map((_, i) => [3.5 * Math.cos(i * Math.PI / 3), 3.5 * Math.sin(i * Math.PI / 3)]), ...[...Array(12)].map((_, i) => [7.5 * Math.cos(i * Math.PI / 6), 7.5 * Math.sin(i * Math.PI / 6)])];
+    /* corrimientos que se prueban, del punto de la grilla hacia afuera (no acumulativos) */
+    const CORR = [[0, 0]]; for (const r of [10, 20, 30, 45]) for (let i = 0; i < 8; i++) CORR.push([Math.round(r * Math.cos(i * Math.PI / 4)), Math.round(r * Math.sin(i * Math.PI / 4))]);
+    const techo = (x0g, y0g, z0) => { for (let k = 0; k < CORR.length; k++) { const x = x0g + CORR[k][0], y = y0g + CORR[k][1]; const hs = ANILLO.map(([dx, dy]) => golpe(x + dx, y + dy, z0)); if (hs.some(h => !h)) return null;
+        if (hs.some(h => esVidrio(h.q) || h.estorbo)) continue;
+        /* sólo sobre una superficie plana: si los cinco rayos no pegan a la misma altura (borde de viga, cabio, cercha), se corre */
+        const zs = hs.map(h => h.z), inclinado = hs.every(h => /^(SU-13|T-)/.test(h.q.id) || h.q.cat === 'techo'), sp = Math.max(...zs) - Math.min(...zs);
+        if (sp > (inclinado ? 4 : .5)) continue;
+        const z = Math.min(...zs) - (inclinado ? 2.5 : 0);   /* bajo chapa ondulada, 2,5 más abajo */
+        /* y lejos de las caras verticales (revestimientos, muros): rayos horizontales desde el borde de arriba del disco */
+        const pared = [...Array(24)].some((_, i) => { rc.set(new THREE.Vector3(x, z - [.2, 1, 1.8][i % 3], y), new THREE.Vector3(Math.cos((i >> 0) * Math.PI / 12), 0, Math.sin((i >> 0) * Math.PI / 12))); rc.far = 8; const h = rc.intersectObjects(meshes, false)[0]; rc.far = Infinity; return !!h; });
+        if (pared) continue;
+        return { z, x, y }; } return null; };   /* sin lugar limpio después de 8 intentos: esa luz no va */
+    LUCES = lucesArcos(THREE, M, techo); }
+  for (const a of LUCES.art) Pt(a.id, `${a.id} · ${a.nombre}`, 'artefacto', a.geos.map(g => g.clone()), a.info, { group: 'Luces', tags: ['luces', a.nivel], opt: { noEdges: true } });
 
   /* ediciones guardadas por Maxi (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
@@ -177,7 +209,7 @@ function build(p) {
 
 const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
-  artefacto: '#f3f0e8', placa: '#a9bfa3', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
+  artefacto: '#f3f0e8', placa: '#a9bfa3', mamposteria: '#d6d1c7', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 MOVS = initMovibles(visor, root, M);
@@ -273,6 +305,7 @@ try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
+window.__encastres = [['E2-ZE', 'E2-PA', 'la zanca ZE entra 1,5 en el poste PA (diseño del 11/10)']];
 try { initNoche(visor, { lugar: 'Núñez (CABA)', lat: -34.545, lon: -58.468, tz: -3, norte: -40, inicioDia: true, max: 32 }); visor.noche && visor.noche.setFuentes(LUCES.fuentes); } catch (e) { console.error('noche', e); }
 /* cámara: se recuerda en este navegador */
 { try { const v = JSON.parse(localStorage.getItem('arcos-cam') || 'null'); if (v && v.p && v.t) { visor.camera.position.set(...v.p); visor.controls.target.set(...v.t); visor.controls.update(); } } catch (e) {}

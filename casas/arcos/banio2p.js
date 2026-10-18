@@ -3,24 +3,26 @@
    inodoro y bidet contra la pared de la escalera (E, M-52); bacha de apoyo sobre una mesada con estructura de caño
    contra la medianera N. Las medidas de los artefactos son las comerciales; las de la bañadera y el cajón, estimadas de la foto.
    Devuelve piezas {id, nombre, cat, geos, info}. Ejes de la casa: x (S→N), y (O→E), z altura. */
-export function banio2P(THREE, M) {
+/* yVid(z): cara interior del ventanal O a la altura z (el ventanal se inclina hacia adentro desde +5,1): nada del baño puede quedar afuera. */
+export function banio2P(THREE, M, { yVid = () => -1e9, zEstrTecho = () => 1e9 } = {}) {
   const L = M.LOCALES.find(l => l.id === 'L-B12'), z0 = M.NIVELES.P2.z;
   const xs = L.poly.map(p => p[0]), ys = L.poly.map(p => p[1]);
-  const XS = Math.min(...xs), XN = Math.max(...xs), YO = Math.max(Math.min(...ys), 2357), YE = 2704;   /* caras interiores */
+  const XS = Math.min(...xs), XN = Math.max(...xs), Y0 = Math.min(...ys), YE = 2704;   /* caras interiores */
   const box = (x0, x1, za, zb, y0, y1) => { const g = new THREE.BoxGeometry(x1 - x0, zb - za, y1 - y0); g.translate((x0 + x1) / 2, (za + zb) / 2, (y0 + y1) / 2); return g; };
   const cil = (x, y, r, za, zb, sx = 1, sy = 1) => { const g = new THREE.CylinderGeometry(r, r * .92, zb - za, 28); g.scale(sx, 1, sy); g.translate(x, (za + zb) / 2, y); return g; };
   const P = [], f2 = v => (v / 100).toFixed(2).replace('.', ',');
 
   /* bañadera de mampostería: caja de 0,55 con hueco, escalón de 0,22 al frente */
-  { const yb = YO + 80, t = 10, zt = z0 + 55, g = [];
+  const zt = z0 + 55, YO = Math.max(Y0, yVid(zt) + 1);   /* la bañadera arranca donde el ventanal deja lugar a su altura */
+  { const yb = YO + 80, t = 10, g = [];
     g.push(box(XS, XN, z0, z0 + 6, YO, yb));                                          /* fondo */
     g.push(box(XS, XN, z0, zt, YO, YO + t), box(XS, XN, z0, zt, yb - t, yb));          /* lados largos */
     g.push(box(XS, XS + t, z0, zt, YO, yb), box(XN - t, XN, z0, zt, YO, yb));          /* cabeceras */
     g.push(box(XS, XN, z0, z0 + 22, yb, yb + 25));                                     /* escalón */
-    P.push({ id: 'B2-BA', nombre: 'Bañadera de mampostería', cat: 'losa', geos: g, info: { fn: 'Bañadera de mampostería a lo ancho del baño, contra el ventanal O, con un escalón al frente (foto de Maxi, 16/10).', sec: 'mampostería revocada', med: `${f2(XN - XS)} × 0,80 × 0,55 (estimado de la foto)` } }); }
+    P.push({ id: 'B2-BA', nombre: 'Bañadera de mampostería', cat: 'mamposteria', geos: g, info: { fn: 'Bañadera de mampostería a lo ancho del baño, contra el ventanal O, con un escalón al frente (foto de Maxi, 16/10).', sec: 'mampostería revocada', med: `${f2(XN - XS)} × 0,80 × 0,55 (estimado de la foto)` } }); }
   /* cajón de placa verde sobre la bañadera (pasan los caños; tapa de inspección del lado N) */
-  { const za = z0 + 230, zb = z0 + 290;
-    P.push({ id: 'B2-CJ', nombre: 'Cajón de placa sobre la bañadera', cat: 'placa', geos: [box(XS, XN, za, zb, YO, YO + 105)], info: { fn: 'Cajón de placa de yeso verde (resistente a la humedad) sobre la bañadera, con tapa de inspección del lado N por donde pasan los caños (foto de Maxi).', sec: 'placa verde', med: `de +${f2(za)} a +${f2(zb)} (estimado)` } }); }
+  { let zb = z0 + 290, yc0 = Math.max(Y0, yVid(zb) + 1); zb = Math.min(zb, zEstrTecho(yc0, yc0 + 90) - 1); yc0 = Math.max(Y0, yVid(zb) + 1); const za = zb - 60;   /* bajo la estructura del techo y dentro del ventanal */
+    P.push({ id: 'B2-CJ', nombre: 'Cajón de placa sobre la bañadera', cat: 'placa', geos: [box(XS, XN, za, zb, yc0, yc0 + 90)], info: { fn: 'Cajón de placa de yeso verde (resistente a la humedad) sobre la bañadera, con tapa de inspección del lado N por donde pasan los caños (foto de Maxi).', sec: 'placa verde', med: `de +${f2(za)} a +${f2(zb)} (estimado)` } }); }
   /* inodoro y bidet contra la pared de la escalera (E), mirando al O */
   const sanit = (x, id, nombre, mochila) => { const g = [], yp = YE;
     g.push(cil(x, yp - 33, 15, z0, z0 + 28, 1, 1.25));            /* pie */

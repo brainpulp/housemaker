@@ -7,7 +7,9 @@ const TECHO = { 'L-B1': 55, 'L-B4': 389, 'L-B3': 317, 'L-B2': (x, y) => (y > 285
   'L-B8': 700, 'L-B9': 700, 'L-B10': 700, 'L-B11': 700, 'L-B12': 860, 'L-B13': 860, 'L-B14': 1080 };
 const dentro = (x, y, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
 
-export function lucesArcos(THREE, M) {
+/* techo(x, y, zPiso): z del primer cielorraso, losa, viga o cabio que hay arriba de ese punto (lo da casa.js mirando la geometría ya armada),
+   o null; si se corre para no quedar bajo un vidrio, devuelve {z, x, y}. Sin él se usa la tabla TECHO. */
+export function lucesArcos(THREE, M, techo = null) {
   const art = [], fuentes = [], cw = new THREE.Color(0xffe2b8), cx = new THREE.Color(0xfff1d6);
   const disco = (x, z, y, r) => { const g = new THREE.CylinderGeometry(r, r, 2, 20); g.translate(x, z - 1, y); return g; };
   /* interiores */
@@ -15,9 +17,11 @@ export function lucesArcos(THREE, M) {
     const xs = l.poly.map(p => p[0]), ys = l.poly.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     const nx = Math.max(1, Math.ceil((x1 - x0) / SEP)), ny = Math.max(1, Math.ceil((y1 - y0) / SEP)), geos = []; let n = 0;
     for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const x = x0 + (x1 - x0) * (i + .5) / nx, y = y0 + (y1 - y0) * (j + .5) / ny; if (!dentro(x, y, l.poly)) continue;
-      const z = typeof T === 'function' ? T(x, y) : T; geos.push(disco(x, z, y, 6));
-      fuentes.push({ t: 'spot', p: new THREE.Vector3(x, z - 2, y), d: new THREE.Vector3(0, -1, 0), lm: 900, beam: 100, col: cw, id: 'LZ-' + l.id, prog: { modo: 'prog', on: { t: 'atardecer', m: -15 }, off: { t: 'hora', h: '23:30' } } }); n++; }
-    if (geos.length) art.push({ id: 'LZ-' + l.id.slice(2), nivel: l.nivel, nombre: `Downlights de ${l.nombre}`, geos, info: { fn: `${n} downlight${n > 1 ? 's' : ''} empotrado${n > 1 ? 's' : ''} de 900 lm, luz cálida. Prenden al atardecer y apagan a las 23:30.`, sec: 'Ø12', med: `cielorraso a +${((typeof T === 'function' ? T(x0, y0) : T) / 100).toFixed(2).replace('.', ',')}` } }); }
+      let z = typeof T === 'function' ? T(x, y) : T, X = x, Y = y;
+      if (techo) { const h = techo(x, y, (M.NIVELES[l.nivel] || {}).z ?? 0); if (h == null) continue; if (typeof h === 'number') z = h; else ({ z, x: X, y: Y } = h); }
+      geos.push(disco(X, z, Y, 6));
+      fuentes.push({ t: 'spot', p: new THREE.Vector3(X, z - 2, Y), d: new THREE.Vector3(0, -1, 0), lm: 900, beam: 100, col: cw, id: 'LZ-' + l.id, prog: { modo: 'prog', on: { t: 'atardecer', m: -15 }, off: { t: 'hora', h: '23:30' } } }); n++; }
+    if (geos.length) art.push({ id: 'LZ-' + l.id.slice(2), nivel: l.nivel, nombre: `Downlights de ${l.nombre}`, geos, info: { fn: `${n} downlight${n > 1 ? 's' : ''} empotrado${n > 1 ? 's' : ''} de 900 lm, luz cálida. Prenden al atardecer y apagan a las 23:30.`, sec: 'Ø12', med: techo ? 'al cielorraso, losa o viga que tiene arriba' : `cielorraso a +${((typeof T === 'function' ? T(x0, y0) : T) / 100).toFixed(2).replace('.', ',')}` } }); }
   /* exteriores: proyectores en pared, apuntando a cada jardín */
   const proy = (id, nombre, nivel, ps, d, lm, beam, fn) => { const geos = [], dv = new THREE.Vector3(...d).normalize();
     for (const [x, z, y] of ps) { const g = new THREE.BoxGeometry(14, 10, 10); g.translate(x, z, y); geos.push(g);
