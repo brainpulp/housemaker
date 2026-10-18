@@ -39,7 +39,7 @@ export function partir(THREE,root){root.updateMatrixWorld(true);const ms=[];root
     const orden=[...grupos.values()].sort((x,y)=>y.length-x.length);
     if(orden.length===1){m.name=`p${mi}_0`;piezas.push({nombre:m.name,tris:nt,mesh:m});return;}
     const pad=m.parent;orden.forEach((tris,j)=>{const usa=new Map(),idx=[];for(const t of tris)for(let k=0;k<3;k++){const v=I[3*t+k];let n=usa.get(v);if(n==null){n=usa.size;usa.set(v,n);}idx.push(n);}
-      const ng=new THREE.BufferGeometry();for(const [nom,at] of Object.entries(g.attributes)){const arr=new at.array.constructor(usa.size*at.itemSize);for(const [v,n] of usa)for(let c=0;c<at.itemSize;c++)arr[n*at.itemSize+c]=at.array[v*at.itemSize+c];ng.setAttribute(nom,new THREE.BufferAttribute(arr,at.itemSize,at.normalized));}
+      const ng=new THREE.BufferGeometry();const get=(at,i,c)=>c===0?at.getX(i):c===1?at.getY(i):c===2?at.getZ(i):at.getW(i);/* con getX… (no el arreglo crudo): los GLB con meshopt traen atributos cuantizados y entrelazados */for(const [nom,at] of Object.entries(g.attributes)){const arr=new Float32Array(usa.size*at.itemSize);for(const [v,n] of usa)for(let c=0;c<at.itemSize;c++)arr[n*at.itemSize+c]=get(at,v,c);ng.setAttribute(nom,new THREE.BufferAttribute(arr,at.itemSize,false));}
       ng.setIndex(idx);const nm=new THREE.Mesh(ng,m.material);nm.name=`p${mi}_${j}`;nm.position.copy(m.position);nm.quaternion.copy(m.quaternion);nm.scale.copy(m.scale);pad.add(nm);piezas.push({nombre:nm.name,tris:tris.length,mesh:nm});});
     pad.remove(m);});
   return piezas;}
