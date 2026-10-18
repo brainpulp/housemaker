@@ -1,0 +1,138 @@
+<title>Laboratorio de muebles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Banco de trabajo: lista de muebles a la izquierda, el modelo en el centro sobre una grilla de 10 cm, las herramientas a la derecha. Misma familia que el catálogo. */
+:root{--bg:#f1efea;--panel:#fbfaf7;--ink:#24272a;--muted:#77736b;--rule:#d9d4c9;--acc:#b5532c;--soft:#e9e5dd;--quita:#c23b2a;--ok:#2f6b4f;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1b1c;--panel:#222426;--ink:#e8e5de;--muted:#9b978e;--rule:#393b3d;--acc:#e07a4f;--soft:#2b2d2f;--quita:#ef6a55;--ok:#7fc9a3;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1b1c;--panel:#222426;--ink:#e8e5de;--muted:#9b978e;--rule:#393b3d;--acc:#e07a4f;--soft:#2b2d2f;--quita:#ef6a55;--ok:#7fc9a3;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:13px/1.45 var(--f-body);padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:8px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}h1{font-size:19px;font-weight:600;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);font-size:12px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:200px minmax(0,1fr) 290px;gap:10px}
+@media (max-width:900px){main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 55vh auto}body{height:auto}}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;min-width:0;min-height:0;overflow:auto}
+.lista button{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;border-bottom:1px solid var(--rule);padding:7px 10px;color:var(--ink);cursor:pointer}
+.lista button:hover{background:var(--soft)}.lista button[aria-current=true]{background:var(--soft);box-shadow:inset 3px 0 0 var(--acc)}
+.lista small{display:block;color:var(--muted);font:11px var(--f-mono)}
+.chip{display:inline-block;font:10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:0 5px;border-radius:3px;border:1px solid currentColor;margin-left:4px;vertical-align:1px}
+.chip.crudo{color:var(--acc)}.chip.listo{color:var(--ok)}
+#vista{position:relative;padding:0;overflow:hidden}#cv{display:block;width:100%;height:100%;touch-action:none}
+#info{position:absolute;left:8px;bottom:6px;font:11px var(--f-mono);color:var(--muted);pointer-events:none}
+#cargando{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
+.herr{padding:8px 10px;display:flex;flex-direction:column;gap:10px}
+.herr h2{font:600 10.5px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.fila{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+button.b{font:12px var(--f-mono);background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:4px;padding:3px 8px;cursor:pointer}
+button.b:hover{border-color:var(--ink)}button.b:focus-visible,.lista button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+button.b.pri{background:var(--acc);border-color:var(--acc);color:#fff}button.b:disabled{opacity:.45;cursor:default}
+label.n{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap:1px}label.n input{width:72px;font:12px var(--f-mono);padding:2px 4px;background:var(--bg);color:var(--ink);border:1px solid var(--rule);border-radius:3px}
+.piezas{max-height:230px;overflow:auto;border:1px solid var(--rule);border-radius:4px}
+.pz{display:flex;align-items:center;gap:6px;padding:2px 6px;font:11.5px var(--f-mono);cursor:pointer;border-bottom:1px solid var(--rule)}
+.pz:last-child{border-bottom:0}.pz.sel{background:var(--soft)}.pz.fuera{color:var(--quita);text-decoration:line-through}.pz span{flex:1}.pz small{color:var(--muted)}
+.mat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--rule);font-size:12px}
+.mat b{font:11px var(--f-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}.mat .fila{grid-column:1/-1}
+.mat input[type=range]{width:90px}
+.nota{font-size:11.5px;color:var(--muted);margin:0}
+#estado{font:11.5px var(--f-mono);color:var(--muted)}#estado.ok{color:var(--ok)}#estado.mal{color:var(--quita)}
+</style>
+<header><h1>Laboratorio de muebles</h1><p>Limpiá y ajustá los modelos 3D antes de que entren a la casa: sacá piezas sobrantes, girá, llevá a la medida y retocá los materiales.</p></header>
+<main>
+  <nav class="card lista" id="lista" aria-label="Muebles"></nav>
+  <section class="card" id="vista"><canvas id="cv"></canvas><div id="cargando">Cargando el modelo…</div><div id="info"></div></section>
+  <aside class="card herr" id="herr">
+    <div><h2>Piezas</h2>
+      <p class="nota">Tocá una pieza en el 3D o en la lista; Shift suma. Las que sacás quedan en rojo transparente para poder volver a ponerlas.</p>
+      <div class="fila" style="margin:5px 0"><button class="b" id="sacar">Sacar elegidas</button><button class="b" id="poner">Volver a poner</button><button class="b" id="chicas" title="Saca las piezas de menos del 1 % de triángulos">Sacar las chicas</button></div>
+      <div class="piezas" id="piezas"></div></div>
+    <div><h2>Orientación</h2><p class="nota">La flecha naranja es el frente del mueble (lo que mira hacia el ambiente).</p>
+      <div class="fila"><button class="b" id="izq">⟲ 90°</button><button class="b" id="der">⟳ 90°</button><button class="b" id="espejo">Espejar</button></div></div>
+    <div><h2>Medidas (cm)</h2><div class="fila"><label class="n">largo<input id="mL" type="number" step="1"></label><label class="n">fondo<input id="mD" type="number" step="1"></label><label class="n">alto<input id="mH" type="number" step="1"></label></div>
+      <label class="nota" style="display:flex;gap:5px;align-items:center;margin-top:4px"><input type="checkbox" id="prop" checked> Proporcional</label></div>
+    <div><h2>Materiales</h2><div id="mats"></div></div>
+    <div class="fila"><button class="b pri" id="guardar">Guardar receta</button><button class="b" id="deshacer">Volver a lo guardado</button><span id="estado"></span></div>
+    <p class="nota">La receta queda guardada acá. Avisale a Claude y la pasa a la casa y al catálogo.</p>
+  </aside>
+</main>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MODELOS, cargarCrudo, prepararModelo } from './modelos.js';
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+/* ---------- visor ---------- */
+const cv=$('cv'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.outputColorSpace=THREE.SRGBColorSpace;R.setPixelRatio(Math.min(2,devicePixelRatio));R.toneMapping=THREE.ACESFilmicToneMapping;
+const S=new THREE.Scene();S.add(new THREE.HemisphereLight(0xfff6ea,0x8a8377,1.7));const sol=new THREE.DirectionalLight(0xffffff,2.3);sol.position.set(-200,400,300);S.add(sol);
+const cam=new THREE.PerspectiveCamera(32,1,1,8000),ctl=new OrbitControls(cam,cv);ctl.enableDamping=true;
+let grilla=null,flecha=null;
+function suelo(L,D){if(grilla)S.remove(grilla);const n=Math.ceil(Math.max(L,D,100)/50)*50+100;grilla=new THREE.GridHelper(n,n/10,css('--muted'),css('--rule'));S.add(grilla);
+  if(flecha)S.remove(flecha);flecha=new THREE.ArrowHelper(new THREE.Vector3(0,0,1),new THREE.Vector3(0,1,D/2+8),40,new THREE.Color(css('--acc')).getHex(),14,9);S.add(flecha);}
+function tam(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;if(cv.width!==Math.round(w*R.getPixelRatio())||cv.height!==Math.round(h*R.getPixelRatio())){R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}}
+(function loop(){requestAnimationFrame(loop);tam();S.background=new THREE.Color(css('--soft'));ctl.update();R.render(S,cam);})();
+
+/* ---------- estado ---------- */
+const keys=Object.keys(MODELOS);let k=null,crudo=null,obj=null,receta=null,guardada=null,sel=new Set(),piezas=[],natural=null;
+const copia=o=>JSON.parse(JSON.stringify(o||{}));
+const recetaBase=kk=>{const r=copia(MODELOS[kk].receta);r.quitar=r.quitar||[];r.rot=r.rot||0;r.espejo=!!r.espejo;r.mats=r.mats||{};r.p=r.p||{...MODELOS[kk].p};return r;};
+let db=null,cache={};
+function lista(){$('lista').innerHTML=keys.map(kk=>{const m=MODELOS[kk];return `<button data-k="${kk}" aria-current="${kk===k}">${m.n}<small>${kk}${m.crudo?'<span class="chip crudo">crudo</span>':'<span class="chip listo">en la casa</span>'}${cache[kk]?' · receta':''}</small></button>`;}).join('');}
+$('lista').onclick=e=>{const b=e.target.closest('[data-k]');if(b)abrir(b.dataset.k);};
+function estado(t,c=''){const e=$('estado');e.textContent=t;e.className=c;}
+const sucio=()=>JSON.stringify(receta)!==JSON.stringify(guardada);
+
+async function abrir(kk){k=kk;sel.clear();lista();$('cargando').hidden=false;
+  try{crudo=await cargarCrudo(THREE,kk);}catch(e){$('cargando').textContent='No pude cargar este modelo.';return;}
+  guardada=cache[kk]?copia(cache[kk]):recetaBase(kk);receta=copia(guardada);
+  /* tamaño natural (sin escala) con la orientación de la receta, para las medidas proporcionales */
+  armar(true);$('cargando').hidden=true;estado(cache[kk]?'Receta guardada':'Sin receta guardada');}
+const ROJO=new THREE.MeshBasicMaterial({color:0xc23b2a,transparent:true,opacity:.22,depthWrite:false});
+const SEL=new THREE.MeshBasicMaterial({color:0x3a8fd6,transparent:true,opacity:.55,depthWrite:false});
+function armar(encuadrar){if(obj){S.remove(obj);}
+  const w=prepararModelo(THREE,crudo.clone(true),{...receta,quitar:[],partir:true});natural=w.userData.nat.clone();
+  const p=receta.p;w.scale.set((p.L||natural.x)/natural.x,(p.H||natural.y)/natural.y,(p.D||natural.z)/natural.z);obj=w;S.add(w);
+  piezas=[];w.traverse(m=>{if(m.isMesh&&/^p\d+_\d+$/.test(m.name)){m.userData.mat0=m.material;let tris=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)/3;piezas.push({nombre:m.name,tris,mesh:m});}});
+  piezas.sort((a,b)=>b.tris-a.tris);pintar();medidas();materiales();suelo(p.L||natural.x,p.D||natural.z);
+  if(encuadrar){const r=Math.max(p.L||natural.x,p.D||natural.z,p.H||natural.y);cam.position.set(r*.9,r*.7,r*1.2);ctl.target.set(0,(p.H||natural.y)/2,0);cam.near=1;cam.far=r*30;cam.updateProjectionMatrix();}
+  $('info').textContent=`${piezas.length} piezas · ${Math.round(piezas.reduce((s,x)=>s+x.tris,0)).toLocaleString('es-AR')} triángulos`;
+  estado(sucio()?'Cambios sin guardar':'Receta guardada',sucio()?'mal':'ok');}
+function pintar(){for(const pz of piezas){const fuera=receta.quitar.includes(pz.nombre);pz.mesh.material=fuera?ROJO:sel.has(pz.nombre)?SEL:pz.mesh.userData.mat0;pz.mesh.castShadow=!fuera;}
+  const tot=piezas.reduce((s,x)=>s+x.tris,0)||1;
+  $('piezas').innerHTML=piezas.slice(0,300).map(pz=>`<div class="pz${sel.has(pz.nombre)?' sel':''}${receta.quitar.includes(pz.nombre)?' fuera':''}" data-p="${pz.nombre}"><span>${pz.nombre}</span><small>${(pz.tris/tot*100).toFixed(pz.tris/tot<.01?2:1)} %</small></div>`).join('')+(piezas.length>300?`<div class="pz"><small>y ${piezas.length-300} piezas más, muy chicas</small></div>`:'');}
+$('piezas').onclick=e=>{const d=e.target.closest('[data-p]');if(!d)return;elegir(d.dataset.p,e.shiftKey);};
+function elegir(n,suma){if(!suma)sel.clear();if(sel.has(n)&&suma)sel.delete(n);else sel.add(n);pintar();}
+/* tocar el 3D: elige la pieza (sin arrastrar) */
+const ray=new THREE.Raycaster(),mv=new THREE.Vector2();let abajo=null;
+cv.addEventListener('pointerdown',e=>{abajo=[e.clientX,e.clientY];});
+cv.addEventListener('pointerup',e=>{if(!abajo||Math.hypot(e.clientX-abajo[0],e.clientY-abajo[1])>4)return;abajo=null;const r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,cam);
+  const h=ray.intersectObjects(piezas.map(p=>p.mesh),false)[0];if(h)elegir(h.object.name,e.shiftKey);else{sel.clear();pintar();}});
+const cambio=()=>armar(false);
+$('sacar').onclick=()=>{for(const n of sel)if(!receta.quitar.includes(n))receta.quitar.push(n);sel.clear();cambio();};
+$('poner').onclick=()=>{receta.quitar=sel.size?receta.quitar.filter(n=>!sel.has(n)):[];sel.clear();cambio();};
+$('chicas').onclick=()=>{const tot=piezas.reduce((s,x)=>s+x.tris,0);for(const pz of piezas)if(pz.tris<tot*.01&&!receta.quitar.includes(pz.nombre))receta.quitar.push(pz.nombre);cambio();};
+$('izq').onclick=()=>{receta.rot=((receta.rot||0)+90)%360;const p=receta.p;[p.L,p.D]=[p.D,p.L];cambio();};
+$('der').onclick=()=>{receta.rot=((receta.rot||0)+270)%360;const p=receta.p;[p.L,p.D]=[p.D,p.L];cambio();};
+$('espejo').onclick=()=>{receta.espejo=!receta.espejo;cambio();};
+function medidas(){const p=receta.p;$('mL').value=Math.round(p.L||natural.x);$('mD').value=Math.round(p.D||natural.z);$('mH').value=Math.round(p.H||natural.y);}
+for(const [id,ej] of [['mL','L'],['mD','D'],['mH','H']])$(id).addEventListener('change',()=>{const v=Math.max(1,+$(id).value||1),p=receta.p;const nat={L:natural.x,D:natural.z,H:natural.y};
+  if($('prop').checked){const f=v/(p[ej]||nat[ej]);for(const q of ['L','D','H'])p[q]=Math.round((p[q]||nat[q])*f);}else p[ej]=Math.round(v);cambio();});
+/* materiales: los de las piezas que quedan */
+function materiales(){const vistos=new Map();for(const pz of piezas){const ms=Array.isArray(pz.mesh.userData.mat0)?pz.mesh.userData.mat0:[pz.mesh.userData.mat0];for(const m of ms)if(m&&m.name!==undefined&&!vistos.has(m.name||'(sin nombre)'))vistos.set(m.name||'(sin nombre)',m);}
+  $('mats').innerHTML=[...vistos].map(([n,m])=>{const t=receta.mats[n]||{};const col='#'+(t.color?new THREE.Color(t.color):m.color).getHexString();
+    return `<div class="mat" data-m="${n.replace(/"/g,'&quot;')}"><b title="${n}">${n}</b><input type="color" value="${col}" aria-label="Color de ${n}"><div class="fila"><label class="nota">rugosidad <input type="range" min="0" max="1" step="0.05" value="${t.rough??m.roughness??.7}"></label><label class="nota"><input type="checkbox"${t.sinTextura?' checked':''}> sin textura</label><button class="b" data-rst>original</button></div></div>`;}).join('')||'<p class="nota">Sin materiales.</p>';}
+$('mats').addEventListener('change',e=>{const d=e.target.closest('[data-m]');if(!d)return;const n=d.dataset.m;const t=receta.mats[n]=receta.mats[n]||{};
+  if(e.target.type==='color')t.color=e.target.value;else if(e.target.type==='range')t.rough=+e.target.value;else if(e.target.type==='checkbox')t.sinTextura=e.target.checked;cambio();});
+$('mats').addEventListener('click',e=>{const b=e.target.closest('[data-rst]');if(!b)return;delete receta.mats[b.closest('[data-m]').dataset.m];cambio();});
+/* guardar en la base del artifact (colección «recetas», un documento por mueble) */
+$('guardar').onclick=async()=>{if(!db){estado('No hay base disponible: abrí el laboratorio con tu cuenta.','mal');return;}
+  try{await db.doc('recetas/'+k).set({...receta,ts:new Date().toISOString()});cache[k]=copia(receta);guardada=copia(receta);estado('Guardada','ok');lista();}catch(e){estado('No se pudo guardar: '+(e.message||e.code||e),'mal');}};
+$('deshacer').onclick=()=>{receta=copia(guardada);sel.clear();cambio();};
+addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==='Delete'||e.key==='Backspace'){$('sacar').click();e.preventDefault();}if(e.key==='Escape'){sel.clear();pintar();}});
+/* ---------- arranque ---------- */
+lista();abrir(keys.find(kk=>MODELOS[kk].crudo)||keys[0]);
+(async()=>{try{db=await window.claude?.use?.('db');}catch(e){db=null;}if(!db)return;
+  try{const qs=await db.collection('recetas').get();for(const d of qs.docs){const x=d.data();if(x){const r=copia(x);delete r.ts;cache[d.id]=r;}}}catch(e){}
+  lista();if(k&&cache[k]&&!sucio()){guardada=copia(cache[k]);receta=copia(cache[k]);armar(false);}})();
+</script>

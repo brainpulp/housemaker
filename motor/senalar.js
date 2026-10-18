@@ -10,6 +10,14 @@ export function initSenalar(visor,stage){
   document.getElementById('topright').prepend(bt);
   const P=document.createElement('div');P.id='senPanel';P.hidden=true;stage.appendChild(P);
   let modo='auto';try{modo=localStorage.getItem('carhue-sel-modo')||'auto';}catch(e){}
+  /* filtro de selección siempre a la vista, como en un CAD (Maxi 18/10: «sólo puedo seleccionar objetos»): Objeto es la selección de siempre */
+  const FB=document.createElement('div');FB.id='selFiltro';FB.setAttribute('role','radiogroup');FB.setAttribute('aria-label','Qué se selecciona');
+  FB.innerHTML=[['obj','Objeto'],['p','Vértice'],['a','Arista'],['c','Cara']].map(([k,t])=>`<button type="button" data-f="${k}">${t}</button>`).join('');stage.appendChild(FB);
+  {const st=document.createElement('style');st.textContent=`#selFiltro{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:7;display:flex;background:var(--panel,#fff);border:1px solid var(--rule,#ccc);border-radius:7px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+#selFiltro button{border:0;background:none;padding:5px 11px;font:12px var(--f-mono,monospace);color:var(--muted,#777);cursor:pointer}#selFiltro button+button{border-left:1px solid var(--rule,#ccc)}
+#selFiltro button[aria-checked=true]{background:var(--ink,#222);color:var(--panel,#fff)}#selFiltro button:focus-visible{outline:2px solid var(--accent,#c0461f);outline-offset:-2px}`;document.head.appendChild(st);}
+  const pintarFiltro=()=>FB.querySelectorAll('[data-f]').forEach(b=>b.setAttribute('aria-checked',String(P.hidden?b.dataset.f==='obj':b.dataset.f===(modo==='auto'?'':modo))));
+  FB.onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;if(b.dataset.f==='obj'){on(false);}else{modo=b.dataset.f;try{localStorage.setItem('carhue-sel-modo',modo);}catch(x){}pintarModo();if(P.hidden)on(true);}pintarFiltro();};
   P.innerHTML=`<div class="mh"><b>Vértices, aristas y caras</b><span class="mx" title="Cerrar">×</span></div>
    <div class="mrow" id="senModo">${[['auto','Auto'],['p','Vértice'],['a','Arista'],['c','Cara']].map(([k,t])=>`<button class="btn mini" data-m="${k}">${t}</button>`).join('')}</div>
    <p class="s">Pasá el mouse: se ilumina lo que tomaría. Tocá para elegir; <b>Shift</b> + toque suma a la selección (con dos elegidos te doy distancia o ángulo). Esc limpia.</p>
@@ -17,14 +25,14 @@ export function initSenalar(visor,stage){
    <div class="mrow"><button class="btn mini" id="senCopy">Copiar lista</button><button class="btn mini" id="senClear">Vaciar</button><span id="senMsg" class="s"></span></div>
    <div id="senList"></div>`;
   const q=id=>P.querySelector('#'+id);
-  const pintarModo=()=>q('senModo').querySelectorAll('[data-m]').forEach(b=>{const on=b.dataset.m===modo;b.style.background=on?'var(--ink)':'';b.style.color=on?'var(--panel)':'';});pintarModo();
+  const pintarModo=()=>{q('senModo').querySelectorAll('[data-m]').forEach(b=>{const on=b.dataset.m===modo;b.style.background=on?'var(--ink)':'';b.style.color=on?'var(--panel)':'';});if(typeof pintarFiltro==='function')pintarFiltro();};pintarModo();
   q('senModo').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;modo=b.dataset.m;try{localStorage.setItem('carhue-sel-modo',modo);}catch(x){}pintarModo();};
   let L=[];try{L=JSON.parse(localStorage.getItem('carhue-senales')||'[]');}catch(e){}
   const save=()=>{try{localStorage.setItem('carhue-senales',JSON.stringify(L));}catch(e){}};
   const lineTxt=s=>`${s.code} — ${s.txt}`;
   const draw=()=>{q('senList').innerHTML=L.length?L.map((s,i)=>`<div class="mitem"><b>${s.code}</b><span class="s">${s.txt}</span><button class="btn mini" data-sx="${i}" title="Quitar">×</button></div>`).join(''):'<p class="s">Todavía nada.</p>';};
   draw();
-  const on=v=>{P.hidden=!v;bt.setAttribute('aria-pressed',v?'true':'false');if(!v){limpiar();hov.visible=false;}
+  const on=v=>{P.hidden=!v;bt.setAttribute('aria-pressed',v?'true':'false');pintarFiltro();if(!v){limpiar();vaciar(hov);}
     if(v){for(const id of ['edPanel','marcasPanel','medPanel']){const x=document.getElementById(id);if(x&&!x.hidden){const c=x.querySelector('.mx');if(c)c.click();}}}};
   bt.onclick=()=>on(P.hidden);P.querySelector('.mx').onclick=()=>on(false);
   q('senClear').onclick=()=>{L=[];save();draw();limpiar();};
@@ -58,6 +66,7 @@ export function initSenalar(visor,stage){
           n.subVectors(c,b).cross(new V3().subVectors(a,b));if(n.lengthSq()<1e-6)continue;n.normalize();
           const nk=[n.x,n.y,n.z].map(x=>Math.round(x*100)/100),d=Math.round(n.dot(a)*2)/2;const k=nk.join(',')+'|'+d;
           if(!F.has(k))F.set(k,{n:new V3(...nk).normalize(),d,tris:[]});F.get(k).tris.push(a.x,a.y,a.z,b.x,b.y,b.z,c.x,c.y,c.z);}}
+      if(o.isMesh){/* aristas «de verdad» de la malla (donde cambia la cara más de 20°), para las piezas que no traen líneas */const eg=new THREE.EdgesGeometry(o.geometry,20),EA=eg.attributes.position;for(let i=0;i<EA.count;i+=2){const p1=new V3().fromBufferAttribute(EA,i).applyMatrix4(o.matrixWorld),p2=new V3().fromBufferAttribute(EA,i+1).applyMatrix4(o.matrixWorld);E.set([key(p1),key(p2)].sort().join('|'),[p1,p2]);}eg.dispose();}
       if(o.isLineSegments)for(let i=0;i<A.count;i+=2){const p1=new V3().fromBufferAttribute(A,i).applyMatrix4(o.matrixWorld),p2=new V3().fromBufferAttribute(A,i+1).applyMatrix4(o.matrixWorld);E.set([key(p1),key(p2)].sort().join('|'),[p1,p2]);}});
     const srt=(p,q)=>p.x-q.x||p.z-q.z||p.y-q.y;const pts=[...Vm.values()].sort(srt);const pidx=v=>pts.findIndex(q=>q.distanceTo(v)<.2)+1;
     const eds=[...E.values()].sort((m,k)=>srt(m[0].clone().add(m[1]),k[0].clone().add(k[1])));
@@ -80,7 +89,7 @@ export function initSenalar(visor,stage){
     const arista=lim=>{let best=null,bd=lim;T.eds.forEach((ed,i)=>{const a=sp(ed[0]),b=sp(ed[1]);const dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy||1;let t=((e.clientX-a[0])*dx+(e.clientY-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));const d=Math.hypot(a[0]+t*dx-e.clientX,a[1]+t*dy-e.clientY);if(d<bd){bd=d;best={k:'a',i,ed};}});return best;};
     const cara=()=>{if(!h.face)return null;const n=h.face.normal.clone().transformDirection(h.object.matrixWorld).normalize();const d=n.dot(h.point);
       let bi=-1,bs=1e9;T.caras.forEach((c,i)=>{const s=(1-c.n.dot(n))*1000+Math.abs(c.d-d);if(s<bs){bs=s;bi=i;}});return bi>=0?{k:'c',i:bi,c:T.caras[bi]}:null;};
-    const best=modo==='p'?vert(60):modo==='a'?arista(40):modo==='c'?cara():(vert(12)||arista(7)||cara());
+    const best=modo==='p'?vert(60):modo==='a'?arista(40):modo==='c'?cara():(vert(16)||arista(10)||cara());
     if(!best)return null;best.id=id;best.T=T;best.h=h.point.clone();return best;}
   const codigo=it=>`${it.id}.${it.k}${it.i+1}`;
   function datos(it){if(it.k==='p')return `vértice · ${crd(it.v)}`;
