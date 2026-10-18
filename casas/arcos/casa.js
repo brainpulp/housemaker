@@ -128,8 +128,15 @@ function build(p) {
       Pt(l.id + 'c', `${l.id} · cabios`, 'madera', g, { fn: `Cabios de ${c.sec.replace('×', ' × ')} de canto, cada ~${f2(du)}, clavados directo bajo las tablas de ${l.e}; van de viga a viga (plano de estructura, +3,29).`, sec: c.sec, med: `${n + 1} cabios` }, { group: NIV[l.nivel] || NIV.EP }); } }
   /* fachada E como en la foto */
   /* cara interior del ventanal O (hojas del SketchUp) a cada altura, en el ancho del baño de 2P: la máxima y por franja de 10 */
-  const yVid = (() => { const F = {}; for (const d of DET) if (d.id === 'SU-01' || HOJAS[d.id]) { const q = d.pos; for (let i = 0; i < q.length; i += 3) { const k = Math.floor(q[i + 1] / 10);   /* todo el ancho: un paño grande no tiene vértices dentro del baño */ F[k] = Math.max(F[k] ?? -1e9, q[i + 2]); } }
-    return z => { let m = -1e9; for (let k = Math.floor((z - 15) / 10); k <= Math.floor((z + 15) / 10); k++) if (F[k] != null) m = Math.max(m, F[k]); return m; }; })();
+  /* cara interior del ventanal O a la altura z: corte de los triángulos de sus vidrios y marcos con el plano horizontal z
+     (los paños son planos entre filas de marcos: no alcanza con mirar vértices) */
+  const VID = DET.filter(d => d.id === 'SU-01' || HOJAS[d.id]);
+  const yVid = z => { let m = -1e9; for (const d of VID) { const q = d.pos; for (let t = 0; t < q.length; t += 9) for (let e = 0; e < 3; e++) {
+        const a = t + e * 3, b = t + ((e + 1) % 3) * 3, za = q[a + 1], zb = q[b + 1];
+        const ok = (x, y) => x > 640 && x < 870 && y < 2700;   /* sólo el ventanal O, en el ancho del baño */
+        if (Math.abs(za - z) < .5 && ok(q[a], q[a + 2])) m = Math.max(m, q[a + 2]);
+        if ((za - z) * (zb - z) < 0) { const u = (z - za) / (zb - za), x = q[a] + u * (q[b] - q[a]), y = q[a + 2] + u * (q[b + 2] - q[a + 2]); if (ok(x, y)) m = Math.max(m, y); } } }
+    return m; };
   /* fondo de la estructura del techo (SU-13) sobre una franja de y: el cajón del baño queda por debajo */
   const zEstrTecho = (y0, y1) => { let m = 1e9; for (const d of DET) if (d.id === 'SU-13') { const q = d.pos; for (let i = 0; i < q.length; i += 3) if (q[i + 2] > y0 - 30 && q[i + 2] < y1 + 30) m = Math.min(m, q[i + 1]); } return m; };
   for (const f of banio2P(THREE, M, { yVid, zEstrTecho })) Pt(f.id, `${f.id} · ${f.nombre}`, f.cat, f.geos, f.info, { group: NIV.P2, tags: ['baño 2P'], opt: { noEdges: f.cat === 'herreria' } });
@@ -305,7 +312,7 @@ try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
-window.__encastres = [['E2-ZE', 'E2-PA', 'la zanca ZE entra 1,5 en el poste PA (diseño del 11/10)']];
+window.__encastres = [['E2-ZE', 'E2-PA', 'la zanca ZE entra 1,5 en el poste PA (diseño del 11/10)'], ['E2-ZI', 'E2-C1', 'la nariz de la compensada C1 apoya 1 cm sobre el remate a plomo de la zanca ZI (diseño del 11/10)']];
 try { initNoche(visor, { lugar: 'Núñez (CABA)', lat: -34.545, lon: -58.468, tz: -3, norte: -40, inicioDia: true, max: 32 }); visor.noche && visor.noche.setFuentes(LUCES.fuentes); } catch (e) { console.error('noche', e); }
 /* cámara: se recuerda en este navegador */
 { try { const v = JSON.parse(localStorage.getItem('arcos-cam') || 'null'); if (v && v.p && v.t) { visor.camera.position.set(...v.p); visor.controls.target.set(...v.t); visor.controls.update(); } } catch (e) {}

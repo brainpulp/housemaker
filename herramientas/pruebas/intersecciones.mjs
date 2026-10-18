@@ -65,7 +65,11 @@ const r = await p.evaluate(async () => {
   /* triángulo contra triángulo, con 0,5 cm de tolerancia: apoyar o tocar no cuenta */
   const triTri = (A, B) => { const ea = [A[1].clone().sub(A[0]), A[2].clone().sub(A[1]), A[0].clone().sub(A[2])], eb = [B[1].clone().sub(B[0]), B[2].clone().sub(B[1]), B[0].clone().sub(B[2])];
     const ejes = [ea[0].clone().cross(ea[1]), eb[0].clone().cross(eb[1])]; for (const x of ea) for (const y of eb) ejes.push(x.clone().cross(y));
-    for (const L of ejes) { if (L.lengthSq() < 1e-10) continue; L.normalize(); const [a0, a1] = proj(A, L), [b0, b1] = proj(B, L); if (Math.min(a1, b1) - Math.max(a0, b0) < .5) return false; }
+    for (const L of ejes) { if (L.lengthSq() < 1e-10) continue; L.normalize(); const [a0, a1] = proj(A, L), [b0, b1] = proj(B, L);
+      /* un triángulo plano proyecta un punto sobre su normal: ahí se pide que el otro lo cruce de verdad (más de 0,5 de cada lado) */
+      if (a1 - a0 < 1e-6) { if (!(b0 < a0 - .5 && b1 > a0 + .5)) return false; continue; }
+      if (b1 - b0 < 1e-6) { if (!(a0 < b0 - .5 && a1 > b0 + .5)) return false; continue; }
+      if (Math.min(a1, b1) - Math.max(a0, b0) < .5) return false; }
     return true; };
   const proj = (pts, L) => { let lo = 1e18, hi = -1e18; for (const w of pts) { const d = w.dot(L); if (d < lo) lo = d; if (d > hi) hi = d; } return [lo, hi]; };
   const choca = (S, A, B, Cc) => { const tri = [A, B, Cc], te = [B.clone().sub(A), Cc.clone().sub(B), A.clone().sub(Cc)];
