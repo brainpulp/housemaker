@@ -114,7 +114,7 @@ const params=[
   {id:'p26',label:'Puerta del baño piletero',type:'select',value:'m26',quick:true,group:'Ver',options:[['m26','P-26 en M-26 (desde la cocina norte)'],['m24','P-26 en M-24, lado este (desde la cocina)']]},
   {id:'pv56',label:'Paños PV-05 y PV-06',type:'select',value:'corr',quick:true,group:'Ver',options:[['corr','PV-05 y PV-06 corredizas (dos rieles)'],['pleg','PV-05 y PV-06 plegadiza de dos paños, eje vertical']]},
   {id:'ventV7',label:'Ventana V-07',type:'select',value:'proy',quick:true,group:'Ver',options:[['proy','V-07 proyectante (una hoja)'],['pleg','V-07 plegable tipo garage'],['barn','V-07 corrediza tipo granero']]},
-  {id:'p03Est',label:'Puerta al patio',type:'select',value:'tablas',quick:true,group:'Ver',options:[['tablas','Tablas verticales'],['hierro','Hierro y vidrio entero'],['kumiko','Kumiko japonés con washi'],['chapa','Chapa óxido con tajos'],['ojo','Maciza con ojo de buey'],['listonH','Listones horizontales']]},
+  {id:'p03Est',label:'Puerta al patio',type:'select',value:'tablas',quick:true,group:'Ver',options:[['tablas','Tablas verticales'],['hierro','Hierro y vidrio entero'],['maderaEje','Madera y vidrio, parante en el eje'],['kumiko','Kumiko japonés con washi'],['chapa','Chapa óxido con tajos'],['ojo','Maciza con ojo de buey'],['listonH','Listones horizontales']]},
   {id:'m43Est',label:'Hojas de M-43',type:'select',value:'lisa',quick:true,group:'Ver',options:[['lisa','Lisa (fenólico)'],['shoji','Japonesa (shoji)'],['tubo','Tubo cuadrado y vidrio esmerilado'],['listones','Listones verticales']]},
   {id:'escTipo',label:'Escalera al entrepiso',type:'select',value:'p',quick:true,group:'Ver',options:[['p','Variable'],['orig','Compensada original (fija)']]},
   {id:'escN',label:'Alzadas',type:'number',slider:true,value:15,min:13,max:17,step:1,quick:true,showIf:P=>P.escTipo!=='orig',group:'Ver',help:'Cantidad de alzadas hasta el piso del entrepiso (+2,62).'},
@@ -256,7 +256,7 @@ function build(p){
     const pane=(d0,d1,z0,z1)=>horiz?box(ax+d0,ax+d1,z0,z1,ay+t0,ay+t1):box(ax+t0,ax+t1,z0,z1,ay+d0,ay+d1);
     const frame=(d0,d1,z0,z1,w)=>horiz?[box(ax+d0,ax+d0+w,z0,z1,ay-(m.e/2+1),ay+(m.e/2+1)),box(ax+d1-w,ax+d1,z0,z1,ay-(m.e/2+1),ay+(m.e/2+1)),box(ax+d0,ax+d1,z1-w,z1,ay-(m.e/2+1),ay+(m.e/2+1))]:[box(ax-(m.e/2+1),ax+(m.e/2+1),z0,z1,ay+d0,ay+d0+w),box(ax-(m.e/2+1),ax+(m.e/2+1),z0,z1,ay+d1-w,ay+d1),box(ax-(m.e/2+1),ax+(m.e/2+1),z1-w,z1,ay+d0,ay+d1)];
     if(a.id==='P-34')continue;
-    if(a.id==='P-03'&&horiz){/* Puerta al patio (Maxi, 13/10): una sola hoja pivotante, eje vertical a 1/3 del ancho; seis estéticas a elegir */
+    if(a.id==='P-03'&&horiz){/* Puerta al patio (Maxi, 13/10): una sola hoja pivotante, eje vertical a 1/3 del ancho; siete estéticas a elegir */
       Pt(a.id+'m',`${a.id} · marco`,'roble',frame(a.d,a.d+a.w,s0,s1,5),{fn:'Marco del vano.'},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});
       const X0=ax+a.d+5.5,X1=ax+a.d+a.w-5.5,Z0=1,Z1=s1-5.5,Wd=X1-X0,Hd=Z1-Z0,yc=ay,T=5,xp=X0+Wd/3,EST=p.p03Est||'tablas';
       const angD=Math.max(-90,Math.min(90,LUZ[a.id]||0)),MR=new THREE.Matrix4().makeTranslation(xp,0,yc).multiply(new THREE.Matrix4().makeRotationY(angD*Math.PI/180)).multiply(new THREE.Matrix4().makeTranslation(-xp,0,-yc));
@@ -265,6 +265,7 @@ function build(p){
       const marco=(f)=>{fr.push(B(X0,X0+f,Z0,Z1),B(X1-f,X1,Z0,Z1),B(X0+f,X1-f,Z0,Z0+f),B(X0+f,X1-f,Z1-f,Z1));};
       if(EST==='tablas'){const bw=12,gp=.6;for(let x=X0;x<X1-.1;x+=bw)fr.push(B(x,Math.min(X1,x+bw-gp),Z0,Z1));for(const zb of [Z0+25,Z1-25])fr.push(B(X0+8,X1-8,zb-6,zb+6,T/2,T/2+2.5),B(X0+8,X1-8,zb-6,zb+6,-T/2-2.5,-T/2));sec='tablas verticales de 12 machihembradas, dos travesaños de 12 por cara';}
       else if(EST==='hierro'){cat='acero';marco(5);fi.push(B(X0+5,X1-5,Z0+5,Z1-5,-.4,.4));sec='bastidor de tubo 50 × 50 negro, vidrio entero de 8 mm';}
+      else if(EST==='maderaEje'){/* como la de hierro, pero todo madera y vidrio, con un parante más justo en el eje del pivote (Maxi 19/10, «p3h») */const f=8,pw=4;marco(f);fr.push(B(xp-pw,xp+pw,Z0+f,Z1-f));fi.push(B(X0+f,xp-pw,Z0+f,Z1-f,-.4,.4),B(xp+pw,X1-f,Z0+f,Z1-f,-.4,.4));sec='bastidor de madera 8 × 5 con un parante de 8 en el eje del pivote; dos vidrios de 8 mm';}
       else if(EST==='kumiko'){marco(6);const st=15;for(let x=X0+6+st;x<X1-6-1;x+=st)fr.push(B(x-.7,x+.7,Z0+6,Z1-6,-1,1));for(let z=Z0+6+st;z<Z1-6-1;z+=st)fr.push(B(X0+6,X1-6,z-.7,z+.7,-1,1));fi.push(B(X0+6,X1-6,Z0+6,Z1-6,-.15,.15));fcat='washi';fop=.72;sec='bastidor de 6, kumiko cuadrado cada 15, papel washi';}
       else if(EST==='chapa'){cat='col';const f=8,sl=3,bd=9;fr.push(B(X0,X0+f,Z0,Z1),B(X1-f,X1,Z0,Z1),B(X0+f,X1-f,Z0,Z0+30),B(X0+f,X1-f,Z1-20,Z1));for(let z=Z0+30;z<Z1-20-bd;z+=bd+sl)fr.push(B(X0+f,X1-f,z,z+bd));sec='chapa plegada color óxido con tajos horizontales de 3 cada 12';}
       else if(EST==='ojo'){const r=22,cx=(X0+X1)/2,cz=Z0+Hd*.62,dz=3;for(let z=Z0;z<Z1-.1;z+=dz){const z1=Math.min(Z1,z+dz),zm=(z+z1)/2,h=Math.abs(zm-cz)<r?Math.sqrt(r*r-(zm-cz)**2):0;if(h>0){fr.push(B(X0,cx-h,z,z1),B(cx+h,X1,z,z1));}else fr.push(B(X0,X1,z,z1));}
@@ -272,7 +273,7 @@ function build(p){
       else if(EST==='listonH'){marco(6);const lh=6,gp=3;for(let z=Z0+6;z+lh<=Z1-6;z+=lh+gp)fr.push(B(X0+6,X1-6,z,z+lh,-1.5,1.5));sec='bastidor de 6 y listones horizontales de 6 con luz de 3';}
       const hk=[];for(const sgn of [-1,1])hk.push(rod([X1-12,Z0+80,yc+sgn*(T/2+5)],[X1-12,Z0+140,yc+sgn*(T/2+5)],1.2,10).applyMatrix4(MR),rod([X1-12,Z0+85,yc+sgn*T/2],[X1-12,Z0+85,yc+sgn*(T/2+5)],.8,8).applyMatrix4(MR),rod([X1-12,Z0+135,yc+sgn*T/2],[X1-12,Z0+135,yc+sgn*(T/2+5)],.8,8).applyMatrix4(MR));
       hk.push(rod([xp,Z1,yc],[xp,Z1+5,yc],1,10),rod([xp,0,yc],[xp,Z0,yc],1,10));
-      const nm={tablas:'tablas verticales',hierro:'hierro y vidrio',kumiko:'kumiko japonés',chapa:'chapa con tajos',ojo:'ojo de buey',listonH:'listones horizontales'}[EST];
+      const nm={tablas:'tablas verticales',hierro:'hierro y vidrio',maderaEje:'madera y vidrio, parante en el eje',kumiko:'kumiko japonés',chapa:'chapa con tajos',ojo:'ojo de buey',listonH:'listones horizontales'}[EST];
       Pt(a.id+'h',`${a.id} · hoja pivotante (${nm})`,cat,fr,{...base(a),fn:'Puerta al patio de una sola hoja pivotante: el eje vertical está a 1/3 del ancho. Arrastrala a los costados para girarla.',sec,med:`${f1(Wd/100)} × ${f1(Hd/100)} m · eje a ${f1((xp-X0)/100)} m del borde`},{...ex(a),group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});
       if(fi.length)Pt(a.id+'v',`${a.id} · ${fcat==='washi'?'papel washi':'vidrio'}`,fcat,fi,{fn:'Relleno de la hoja.'},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id],opt:{op:fop,noEdges:true}});
       Pt(a.id+'k',`${a.id} · tiradores y pivotes`,'acero',hk,{fn:'Tiradores de barra de los dos lados y pivotes arriba y abajo.'},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});
@@ -1183,7 +1184,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
   {id:'p26',nombre:'Puerta del baño piletero',piezas:/^(P-26[a-z]*|M-24|M-26|L-11)$/,params:['p26'],label:Object.fromEntries(params.find(q=>q.id==='p26').options),vista:{p:[1700,600,-420],t:[2100,100,-420]}},
   {id:'pv56',nombre:'Paños PV-05 y PV-06',piezas:/^PV-0[56][vm]?$/,params:['pv56'],label:Object.fromEntries((params.find(q=>q.id==='pv56').options)),vista:{p:[2330,260,1500],t:[2330,120,920]}},
   {id:'ventV7',nombre:'Ventana V-07',piezas:/^V-07(h|d|h2|v2|k|k2|c|p|m)?$/,params:['ventV7'],label:Object.fromEntries((params.find(q=>q.id==='ventV7').options)),vista:{p:[1180,200,1000],t:[1100,110,620]}},
-  {id:'p03',nombre:'Puerta al patio P-03',piezas:/^P-03[mhvk]?$/,params:['p03Est'],label:Object.fromEntries((params.find(q=>q.id==='p03Est').options)),vista:{p:[1410,170,420],t:[1410,100,27]}},
+  {id:'p03',nombre:'Puerta al patio P-03',piezas:/^P-03[mhvk]?$/,params:['p03Est'],label:Object.fromEntries((params.find(q=>q.id==='p03Est').options)),vista:{p:[1265,170,420],t:[1265,100,27]}},
   {id:'m43',nombre:'Gran corrediza M-43',piezas:/^(H-[1-4]v?|M-43[rpz]?)$/,params:['m43Est'],label:Object.fromEntries((params.find(q=>q.id==='m43Est').options)),vista:{p:[1300,420,700],t:[1000,360,300]}},
   /* Maxi 14/10: los dormers son opciones del faldón donde van: tocando las lucarnas, sus dormers o el techo mismo; el del altillo, tocando el altillo o su techo */
   {id:'faldon',nombre:'Faldón al jardín: dormers y lucarnas',piezas:/^(T-01|CAB-3|LU-\d+(z|m|m2|w|w2|v2|d|b|c|k|k2)?|DM-(1|2|C)[a-z0-9]*|VE-\d[a-z]*)$/,params:['dormers','luTipo'],label:{...Object.fromEntries(params.find(q=>q.id==='dormers').options),...Object.fromEntries(params.find(q=>q.id==='luTipo').options)},vista:{p:[560,1050,1450],t:[560,430,560]}},

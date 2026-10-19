@@ -33,7 +33,10 @@ export function initSenalar(visor,stage){
   const draw=()=>{q('senList').innerHTML=L.length?L.map((s,i)=>`<div class="mitem"><b>${s.code}</b><span class="s">${s.txt}</span><button class="btn mini" data-sx="${i}" title="Quitar">×</button></div>`).join(''):'<p class="s">Todavía nada.</p>';};
   draw();
   const on=v=>{P.hidden=!v;bt.setAttribute('aria-pressed',v?'true':'false');pintarFiltro();if(!v){limpiar();vaciar(hov);}
+    if(v&&visor.resetSel)visor.resetSel();/* soltar la pieza elegida: su resaltado tapaba lo que se ilumina */
     if(v){for(const id of ['edPanel','marcasPanel','medPanel']){const x=document.getElementById(id);if(x&&!x.hidden){const c=x.querySelector('.mx');if(c)c.click();}}}};
+  /* con el filtro en vértice, arista o cara el toque no elige la pieza entera (Maxi 19/10: la selección de objeto tapaba la de caras y cerraba el panel) */
+  {const prev=visor.pick;visor.pick=(h,r)=>{if(!P.hidden)return true;return prev?prev(h,r):false;};}
   bt.onclick=()=>on(P.hidden);P.querySelector('.mx').onclick=()=>on(false);
   q('senClear').onclick=()=>{L=[];save();draw();limpiar();};
   q('senList').onclick=e=>{const b=e.target.closest('[data-sx]');if(!b)return;L.splice(+b.dataset.sx,1);save();draw();};
@@ -118,7 +121,7 @@ export function initSenalar(visor,stage){
   view.addEventListener('pointermove',e=>{if(P.hidden||down)return;const now=performance.now();if(now-hT<60)return;hT=now;/* resalta lo que tomaría */
     const it=elegir(e);vaciar(hov);if(it&&!SEL.some(s=>codigo(s)===codigo(it)))hov.add(marcador(it,0x2b8fd6,.25));window.__despertar&&window.__despertar();});
   view.addEventListener('pointerup',e=>{if(P.hidden||e.button!==0||!down)return;const moved=Math.hypot(e.clientX-down[0],e.clientY-down[1]);down=null;if(moved>5)return;
-    const it=elegir(e);if(!it){if(!e.shiftKey){limpiar();q('senCur').innerHTML='<span class="s">No toqué ninguna pieza.</span>';}return;}
+    const it=elegir(e);if(!it){if(!e.shiftKey){limpiar();q('senCur').innerHTML=hit(e)?`<span class="s">${modo==='p'?'Ningún vértice':modo==='a'?'Ninguna arista':'Nada'} cerca del toque: acercate a ${modo==='p'?'una esquina':'un borde'}.</span>`:'<span class="s">No toqué ninguna pieza.</span>';}return;}
     const c=codigo(it);const ya=SEL.findIndex(s=>codigo(s)===c);
     if(e.shiftKey){if(ya>=0)SEL.splice(ya,1);else SEL.push(it);}else SEL=[it];
     vaciar(hov);mostrar();window.__despertar&&window.__despertar();
