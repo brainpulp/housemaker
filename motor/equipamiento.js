@@ -161,7 +161,7 @@ export function initEquipamiento(visor,stage){
       Q:{nombre:'Cama queen',items:[I('cama',2103,-657,0,{L:160,D:200}),I('mesaLuz',1993,-737,0),I('mesaLuz',2213,-737,0),I('comoda',2300,-450,-90,{L:120,D:50,H:60})]},
       B:{nombre:'Dos camas',items:[I('cama',1960,-662,0,{L:90,D:190}),I('cama',2240,-662,0,{L:90,D:190}),I('mesaLuz',2100,-737,0,{L:45}),I('comoda',1906,-500,90,{L:120,D:50,H:60})]}};}},
   };
-  AMB.exterior={n:'Exterior (jardín y pileta)',piso:0,vista:{p:[3350,900,2300],t:[3000,0,600]},esc:()=>{const I=itA('exterior');return {A:{nombre:'Reposeras en el deck',items:[...[480,580,760,860,1040,1140].map(y=>I('reposera',3640,y,90)),I('reposera',3560,1340,90,{},25),I('reposera',3560,1440,90,{},25),I('ratona',3640,670,0,{L:50,D:50,H:40}),I('ratona',3640,950,0,{L:50,D:50,H:40})]},B:{nombre:'Sin muebles',items:[]}};}};
+  AMB.exterior={n:'Exterior (jardín y pileta)',piso:0,vista:{p:[3350,900,2300],t:[3000,0,600]},esc:()=>{const I=itA('exterior');return {A:{nombre:'Reposeras en el deck',items:[...[480,580,760,860,1040].map(y=>I('reposera',3150,y,90)),I('reposera',2877,1340,90,{},25),I('reposera',2877,1440,90,{},25),I('ratona',3150,670,0,{L:50,D:50,H:40}),I('ratona',3150,950,0,{L:50,D:50,H:40})]},B:{nombre:'Sin muebles',items:[]}};}};
   const AMB_ORDEN=['cocina','comedor','living','galeriaV','galeria','dorm1','dorm2','dorm3','dormS','dormP','banoEP','estudio','altillo','exterior'];
   /* ---------- capas: muebles y luces, cada una con sus escenarios por ambiente ---------- */
   const CL=catalogoLuces(THREE,B,CYL);

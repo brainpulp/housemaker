@@ -812,11 +812,24 @@ function build(p){
       if(o.tipo==='vecina'){const xs=o.poly.map(q=>q[0]),ys=o.poly.map(q=>q[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),hw=o.h||280,hr=o.hr||430,ym=(y0+y1)/2;Pt(o.id,`${o.id} · ${o.nombre}`,'ladrillo',[box(x0,x1,-35,hw,y0,y1),prism([[y0,hw],[y1,hw],[ym,hr]],x0,x0+1,'ZY'),prism([[y0,hw],[y1,hw],[ym,hr]],x1-1,x1,'ZY')],{...base(o)},{group:'Exterior',tags:['exterior']});
         Pt(o.id+'t',`${o.id} · techo`,'techo',[slabY(x0-30,x1+30,[y0-30,hw-14],[ym,hr],5),slabY(x0-30,x1+30,[y1+30,hw-14],[ym,hr],5)],{fn:'Techo a dos aguas (volumen supuesto).'},{group:'Exterior',tags:['exterior']});continue;}
       if(o.tipo==='arbol'){const t=arbol(o.pos[0],o.pos[1],o.r);Pt(o.id,`${o.id} · ${o.nombre}`,'corteza',t.ramas,{...base(o),med:'tronco ø 0,7 · alto ~16 m · copa ~14 m'},{group:'Exterior',tags:['exterior'],opt:{noEdges:true,merge:true}});Pt(o.id+'f',`${o.id} · follaje`,'follaje',t.hojas,{fn:'Copa del árbol AR-1, estimada del video.'},{group:'Exterior',tags:['exterior'],opt:{noEdges:true,op:1,vcol:true,merge:true,map:hojaTex(),alphaTest:.45,smooth:true}});}
-      else if(o.tipo==='pileta'){const xs=o.poly.map(q=>q[0]),ys=o.poly.map(q=>q[1]),X0=Math.min(...xs),X1=Math.max(...xs),Y0=Math.min(...ys),Y1=Math.max(...ys),B=15,P=150,e=10;
-        /* foto 10 y foto 1: pileta rectangular al norte del quincho, rodeada de deck; espejo de agua a -0,20, borde de 15 cm */
-        Pt(o.id,`${o.id} · ${o.nombre}`,'agua',[box(X0,X1,-22,-20,Y0,Y1)],{...base(o),med:`${f1((X1-X0)/100)} × ${f1((Y1-Y0)/100)} m de espejo · ~1,5 de hondo (supuesto)`},{group:'Exterior',tags:['exterior'],opt:{op:.75,noEdges:true,hueco:o.poly}});
-        Pt(o.id+'c',`${o.id} · vaso`,'pileta',[box(X0,X1,-P-e,-P,Y0,Y1),box(X0-e,X0,-P,0,Y0,Y1),box(X1,X1+e,-P,0,Y0,Y1),box(X0,X1,-P,0,Y0-e,Y0),box(X0,X1,-P,0,Y1,Y1+e)],{fn:'Paredes y fondo del vaso de la pileta.'},{group:'Exterior',tags:['exterior',o.id]});
-        Pt(o.id+'b',`${o.id} · borde`,'piso',[box(X0-B,X1+B,0,4,Y0-B,Y0),box(X0-B,X1+B,0,4,Y1,Y1+B),box(X0-B,X0,0,4,Y0,Y1),box(X1,X1+B,0,4,Y0,Y1)],{fn:'Borde (solado) de 15 cm alrededor del espejo de agua.'},{group:'Exterior',tags:['exterior',o.id]});}
+      else if(o.tipo==='pileta'){/* Maxi 18/10: forma y lugar del modelo original (Onshape) más las fotos; vaso de 2 m, sin la plataforma de la cabecera oeste */
+        const V=o.vaso,P=o.prof,t=15,zA=-(o.agua||20),tg={group:'Exterior',tags:['exterior',o.id]},rect=(x0,x1,y0,y1)=>[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+        Pt(o.id,`${o.id} · ${o.nombre}`,'agua',[box(V.x0,V.x1,zA-2,zA,V.y0,V.y1)],{...base(o),med:`vaso ${f1((V.x1-V.x0)/100)} × ${f1((V.y1-V.y0)/100)} m · ${f1(P/100)} de hondo · agua a ${f1(zA/100)}`},{...tg,opt:{op:.75,noEdges:true,hueco:o.hueco}});
+        /* vaso: fondo y paredes de 15 cm (hormigón pintado) hasta abajo del solado; escalera en la esquina noreste (fotos 7, 8 y 9) */
+        const va=[box(V.x0-t,V.x1+t,-P-t,-P,V.y0-t,V.y1+t),box(V.x0-t,V.x0,-P,-30,V.y0,V.y1),box(V.x1,V.x1+t,-P,-30,V.y0,V.y1),box(V.x0-t,V.x1+t,-P,-30,V.y0-t,V.y0),box(V.x0-t,V.x1+t,-P,-30,V.y1,V.y1+t)];
+        const E=o.escalera;if(E)for(let k=1;k<=E.n;k++)va.push(box(E.x0,E.x1,-P,-E.a*k,E.y1-E.p*k,E.y1-E.p*(k-1)));
+        Pt(o.id+'c',`${o.id} · vaso`,'pileta',va,{fn:`Fondo y paredes del vaso, hormigón pintado de azul. ${f1(P/100)} m de hondo.${E?` Escalera de ${E.n} escalones (${E.a} × ${E.p}) en la esquina noreste, bajando hacia el oeste (supuesto, de las fotos).`:''}`},tg);
+        /* solado de baldosas: el contorno del original menos el vaso y la rampa */
+        const so=o.solado.map(r=>box(r[0],r[1],-30,1,r[2],r[3]));
+        Pt(o.id+'b',`${o.id} · solado`,'baldosa',so,{fn:'Solado de baldosas cerámicas alrededor del vaso (fotos 1, 2 y 9): 1,3 m en la cabecera oeste, 0,95 al sur, 0,45 al norte (pasillo junto al cantero) y 0,8 en la cabecera este.'},tg);
+        if(o.rampa){const R=o.rampa;Pt(o.id+'r',`${o.id} · rampa`,'baldosa',[prism([[R.y0,1],[R.y1,1-R.dz],[R.y1,-30],[R.y0,-30]],R.x0,R.x1,'ZY')],{fn:`Rampa de baldosas al sur del vaso: baja ${R.dz} cm hacia el este (Maxi 18/10). En el original bajaba hacia el agua.`},tg);}
+        if(o.cantero){const C=o.cantero,w=C.muro,zt=C.tope;
+          Pt(o.id+'k',`${o.id} · cantero`,'adoquin',[box(C.x1-w,C.x1,-40,zt,C.y0,C.y1),box(C.x0,C.x1-w,-40,zt,C.y0,C.y0+w),box(C.x0,C.x1-w,-40,zt,C.y1-w,C.y1)],{fn:'Cantero corrido junto al pasillo norte, con muro de adoquines de granito (fotos 10 a 13).'},tg);
+          Pt(o.id+'kt',`${o.id} · tierra del cantero`,'tierra',[box(C.x0,C.x1-w,-40,C.fondo,C.y0+w,C.y1-w)],{fn:`Tierra a ${f1(C.fondo/100)}.`},tg);}
+        if(o.pozo){const Q=o.pozo,w=10;Pt(o.id+'p',`${o.id} · pozo`,'piso',[box(Q.x0,Q.x1,-Q.prof-w,-Q.prof,Q.y0,Q.y1),box(Q.x0,Q.x0+w,-Q.prof,4,Q.y0,Q.y1),box(Q.x1-w,Q.x1,-Q.prof,4,Q.y0,Q.y1),box(Q.x0+w,Q.x1-w,-Q.prof,4,Q.y0,Q.y0+w)],{fn:`Pozo de hormigón en la punta oeste del cantero, ${f1(Q.prof/100)} m de hondo (original y fotos 14 y 15). Del lado del cantero lo cierra su muro.`},tg);}
+        if(o.filtro){const F=o.filtro,w=12,zt=11;const fg=[box(F.x0,F.x1,-F.prof-8,-F.prof,F.y0,F.y1),box(F.x0,F.x0+w,-F.prof,zt,F.y0,F.y1),box(F.x1-w,F.x1,-F.prof,zt,F.y0,F.y1),box(F.x0+w,F.x1-w,-F.prof,zt,F.y0,F.y0+w),box(F.x0+w,F.x1-w,-F.prof,zt,F.y1-w,F.y1)];
+          Pt(o.id+'f',`${o.id} · caja del filtro`,'ladrillo',fg,{fn:'Caja de ladrillo con borde de adoquines para el filtro, junto al pozo (fotos 14, 16 y 17). Lugar y medidas a confirmar.'},tg);
+          const r=30,sg=new THREE.SphereGeometry(r,20,14);sg.translate((F.x0+F.x1)/2+8,-F.prof+r,(F.y0+F.y1)/2-8);Pt(o.id+'fs',`${o.id} · filtro`,'tabique',[sg],{fn:'Filtro de arena esférico (foto 17).'},tg);}}
       else if(o.tipo==='deckAlto'){/* deck elevado junto a la pileta (Maxi 14/10): tablas de 19 + 1 sobre vigas 2×6 y postes de 10 × 10 */
         const xs=o.poly.map(q=>q[0]),ys=o.poly.map(q=>q[1]),X0=Math.min(...xs),X1=Math.max(...xs),Y0=Math.min(...ys),Y1=Math.max(...ys),H=o.h||100,tg=['exterior',o.id],grp={group:'Exterior',tags:tg};
         Pt(o.id,`${o.id} · ${o.nombre}`,'deck',[box(X0,X1,H-4,H,Y0,Y1)],{...base(o),med:`${f1((X1-X0)/100)} × ${f1((Y1-Y0)/100)} m a +${f1(H/100)}`,sec:'tablas de 19 cm con 1 cm de luz'},grp);
@@ -859,7 +872,7 @@ function build(p){
       /* etiquetas de nombre: sólo al seleccionar (Maxi, 12/10) */}};
 }
 
-const COL={washi:'#f3eee2',esmerilado:'#e3ecef',muro:'#cdc5b7',tabique:'#e2dbcf',glass:'#9fc4cf',techo:'#737a80',lucernario:'#8fa6b0',cabio:'#a9743f',ep:'#d9b98a',piso:'#eceae4',col:'#7f4429',deck:'#c7a56f',agua:'#6fb6d6',chapon:'#17191b',arbusto:'#4f7438',pileta:'#a8d8e8',arbol:'#5c8a4f',corteza:'#6b5a48',ladrillo:'#a0705a',roble:'#8a5a32',heladera:'#b8322a',mesada:'#8fae94',follaje:'#5f8a46',obj:'#8a8f8c',madera:'#b58a5a',acero:'#3a3f44',chapa:'#2a2e31'};
+const COL={washi:'#f3eee2',esmerilado:'#e3ecef',muro:'#cdc5b7',tabique:'#e2dbcf',glass:'#9fc4cf',techo:'#737a80',lucernario:'#8fa6b0',cabio:'#a9743f',ep:'#d9b98a',piso:'#eceae4',col:'#7f4429',deck:'#c7a56f',agua:'#6fb6d6',chapon:'#17191b',arbusto:'#4f7438',pileta:'#1f9ad6',baldosa:'#b9806a',adoquin:'#8f8d88',tierra:'#4a3b2e',arbol:'#5c8a4f',corteza:'#6b5a48',ladrillo:'#a0705a',roble:'#8a5a32',heladera:'#b8322a',mesada:'#8fae94',follaje:'#5f8a46',obj:'#8a8f8c',madera:'#b58a5a',acero:'#3a3f44',chapa:'#2a2e31'};
 const LIFT={techo:380,lucernario:380,cabio:380,glass:0,ep:170};
 const root=document.getElementById('modo-3d');
 /* hojas de M-43: corrimiento guardado en este navegador */
