@@ -411,35 +411,63 @@ function build(p){
     const COL={x0:1342,x1:1353,y0:627.5,y1:638.5};
     const clip=(P,f2)=>{const o=[];for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length],fa=f2(A),fb=f2(B);if(fa>=0)o.push(A);if((fa>=0)!==(fb>=0)){const t=fa/(fa-fb);o.push([A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t]);}}return o;};
     const area=P=>{let a=0;for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length];a+=A[0]*B[1]-B[0]*A[1];}return Math.abs(a/2);};
-    const pisada=(P,z0,z1)=>{/* pedada en planta P (convexa) menos la columna */
-      const xs=P.map(q=>q[0]),ys2=P.map(q=>q[1]);if(Math.min(...xs)>=COL.x1||Math.max(...xs)<=COL.x0||Math.min(...ys2)>=COL.y1||Math.max(...ys2)<=COL.y0){tr.push(prism(P,z0,z1,'XZ'));return;}
-      const parts=[clip(P,q=>COL.x0-q[0]),clip(P,q=>q[0]-COL.x1),clip(clip(clip(P,q=>q[0]-COL.x0),q=>COL.x1-q[0]),q=>COL.y0-q[1]),clip(clip(clip(P,q=>q[0]-COL.x0),q=>COL.x1-q[0]),q=>q[1]-COL.y1)];
-      for(const q of parts)if(q.length>=3&&area(q)>.5)tr.push(prism(q,z0,z1,'XZ'));};
+    const menos=(P,H)=>{/* polígono convexo P menos el rectángulo H: piezas convexas */
+      const xs=P.map(q=>q[0]),ys2=P.map(q=>q[1]);if(Math.min(...xs)>=H.x1||Math.max(...xs)<=H.x0||Math.min(...ys2)>=H.y1||Math.max(...ys2)<=H.y0)return [P];
+      return [clip(P,q=>H.x0-q[0]),clip(P,q=>q[0]-H.x1),clip(clip(clip(P,q=>q[0]-H.x0),q=>H.x1-q[0]),q=>H.y0-q[1]),clip(clip(clip(P,q=>q[0]-H.x0),q=>H.x1-q[0]),q=>q[1]-H.y1)].filter(q=>q.length>=3&&area(q)>.5);};
+    const pisada=(P,z0,z1,huecos=[COL],dest=tr)=>{/* pedada en planta P (convexa) menos la columna (y lo que se le pase) */
+      let ps=[P];for(const H of huecos)ps=ps.flatMap(q=>menos(q,H));for(const q of ps)dest.push(prism(q,z0,z1,'XZ'));};
+    const hw=[],pe=[];/* herrajes de acero y cabezas de bulones/tornillos */
+    const cab=(x,z,y,ax,sg)=>{const d=sg*.7,a=[x,z,y],b=ax==='x'?[x+d,z,y]:ax==='y'?[x,z,y+d]:[x,z+d,y];pe.push(rod(a,b,1.1,8));};
     const rect=(x0,x1,y0,y1)=>[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
     const zTop=H_EP,zLow=(N-u)*R;
     /* zanca: perfil (largo, alto) recortado entre 0 y el piso del entrepiso, extruido en el ancho */
     const zanca=(perf,a0,a1,eje)=>{let q=clip(clip(perf,v=>v[1]),v=>zTop-v[1]);if(q.length>=3)st.push(eje==='x'?prism(q,a0,a1,'ZY'):prism(q,a0,a1,'XY'));};
-    for(let i=1;i<=u;i++){const k=N-i;pisada(rect(X0+f,X1-f,YE+(i-1)*G-1,YE+i*G),k*R-ti,k*R);}
+    for(let i=1;i<=u;i++){const k=N-i,a=YE+(i-1)*G-1,b=YE+i*G,zt=k*R-ti;pisada(rect(X0+f,X1-f,a,b),zt,k*R);
+      hw.push(box(X0+f,X0+f+.5,zt-4,zt,a+3,b-3),box(X0+f,X0+f+4,zt-.5,zt,a+3,b-3),box(X1-f-.5,X1-f,zt-4,zt,a+3,b-3),box(X1-f-4,X1-f,zt-.5,zt,a+3,b-3));
+      for(const yy of [a+7,b-7]){cab(X0+f+.5,zt-2,yy,'x',1);cab(X1-f-.5,zt-2,yy,'x',-1);}}
+    /* arriba: cada zanca sigue en un tirante del entrepiso (el de borde, x 14,37–14,42, y el de x 13,435–13,485): cubrejuntas de chapa de 6 mm con 4 bulones; del lado de la columna, suplemento de 1,5 cm */
+    {const zA=H_EP-17,zB=H_EP-3;hw.push(box(X1-f-.6,X1-f,zA,zB,YE-15,YE+15),box(X1,X1+.6,H_EP-21,H_EP-3,YE-15,YE+15),box(X0+f+1.5,X0+f+2.1,zA,zB,YE-15,YE+15));tr.push(box(X0+f,X0+f+1.5,zA,zB,YE,YE+15));
+      for(const yy of [YE-9,YE+9])for(const zz of [zA+4,zB-4]){cab(X1-f-.6,zz,yy,'x',-1);cab(X1+.6,zz,yy,'x',1);cab(X0+f+2.1,zz,yy,'x',1);}}
     const zb=y=>zTop-30+(y-YE)*(zLow-zTop)/(yT-YE),zc=giro!=='recto'?kT*R:Infinity,ys=Math.min(yT,YE+(zc-(zTop+5))*(yT-YE)/(zLow-zTop));
     /* zancas del tramo de arriba: con giro, se cortan horizontales al nivel de la primera compensada; arriba, a ras del piso del entrepiso */
     for(const xa of [X0,X1-f]){const perf=ys>=yT-.5?[[YE,zb(YE)],[yT,zb(yT)],[yT,zb(yT)+35],[YE,zb(YE)+35]]:[[YE,zb(YE)],[yT,zb(yT)],[yT,zc],[ys,zc],[YE,zb(YE)+35]];zanca(perf,xa,xa+f,'x');}
+    if(giro!=='recto'){/* abajo, las zancas de arriba se toman a la columna C-01 y al newel con un ángulo por la cara interior */const z0=kT*R-11.5,z1=kT*R-1.5;
+      hw.push(box(X0+f,X0+f+.6,z0,z1,yT-10,yT),box(X0+f,X0+11,z0,z1,yT-.6,yT),box(X1-f-.6,X1-f,z0,z1,yT-10,yT),box(X1-9,X1-f,z0,z1,yT-.6,yT));
+      for(const zz of [z0+3,z1-3]){cab(X0+f+.6,zz,yT-5,'x',1);cab(X1-f-.6,zz,yT-5,'x',-1);}}
     let fp={x0:X0,x1:X1,y0:YE,y1:yT};
     if(giro!=='recto'){/* giro a la izquierda del que baja: hacia la pileta (+x) */
-      if(giro==='comp'){pisada([[X0,yT],[X1,yT],[X0,yT+WD]],kT*R-ti,kT*R);pisada([[X1,yT],[X1,yT+WD],[X0,yT+WD]],(kT-1)*R-ti,(kT-1)*R);}
+      /* empalmes del giro (Maxi 19/10): el poste de la esquina del vacío (x 14,33 · y del giro) sube hasta la primera compensada (es el «newel»: la segunda se recorta alrededor);
+         la primera compensada vuela 5 cm sobre la segunda y apoya en una contrahuella de 2″ clavada sobre ella; del lado del tramo de arriba la sostiene un ángulo atornillado a la columna y al newel */
+      const NEW={x0:X1-9,x1:X1,y0:yT,y1:yT+9},sN=5*Math.SQRT2,colEsq=COL.x0<=X0+1&&COL.x1>X0&&Math.abs(COL.y0-yT)<2;
+      if(giro==='comp'){pisada([[X0,yT],[X1,yT],[X1,yT+sN],[X0+sN,yT+WD],[X0,yT+WD]],kT*R-ti,kT*R);pisada([[X1,yT],[X1,yT+WD],[X0,yT+WD]],(kT-1)*R-ti,(kT-1)*R,[COL,NEW]);
+        pisada([[X1,yT],[X1,yT+sN],[X0+sN,yT+WD],[X0,yT+WD]],(kT-1)*R,kT*R-ti,[COL,NEW]);/* contrahuella diagonal entre las compensadas */}
       else pisada(rect(X0,X1,yT,yT+WD),kT*R-ti,kT*R);
-      /* postes: cada uno llega justo abajo de la pedada más baja que tiene encima; donde está la columna C-01, ella hace de poste */
-      const bajo2=(x,y)=>giro==='comp'&&((x+9-X0)+(y+9-yT))>WD;
-      for(const [x,y] of [[X0,yT+WD-9],[X1-9,yT+WD-9],[X0,yT],[X1-9,yT]]){if(x<COL.x1&&x+9>COL.x0&&y<COL.y1&&y+9>COL.y0)continue;const zp=(bajo2(x,y)?kT-1:kT)*R;po.push(box(x,x+9,0,zp-ti,y,y+9));}
+      /* postes: cada uno llega justo abajo de la pedada más baja que tiene encima; donde está la columna C-01, ella hace de poste. Pie: chapa de 6 mm y estribo en U con 2 bulones por lado */
+      const bajo2=(x,y)=>giro==='comp'&&!(x===NEW.x0&&y===NEW.y0)&&((x+9-X0)+(y+9-yT))>WD;
+      for(const [x,y] of [[X0,yT+WD-9],[X1-9,yT+WD-9],[X0,yT],[X1-9,yT]]){if(x<COL.x1&&x+9>COL.x0&&y<COL.y1&&y+9>COL.y0)continue;const zp=(bajo2(x,y)?kT-1:kT)*R;po.push(box(x,x+9,.6,zp-ti,y,y+9));
+        hw.push(box(x,x+9,0,.6,y,y+9),box(x,x+9,.6,14,y-.6,y),box(x,x+9,.6,14,y+9,y+9.6));for(const zz of [5,11])for(const xx of [x+2.5,x+6.5]){cab(xx,zz,y-.6,'y',-1);cab(xx,zz,y+9.6,'y',1);}}
+      if(giro==='comp'){const zl=kT*R-ti,xa=colEsq?COL.x1:X0+9;
+        hw.push(box(xa,NEW.x0,zl-.6,zl,yT,yT+5),box(xa,NEW.x0,zl-5,zl-.6,yT,yT+.6));/* ángulo de 2″ bajo el borde de la primera compensada */
+        hw.push(box(xa,xa+.6,zl-12,zl,yT+5,yT+10),box(NEW.x0-.6,NEW.x0,zl-12,zl,yT+5,yT+9));for(const zz of [zl-9,zl-3]){cab(xa+.6,zz,yT+7.5,'x',1);cab(NEW.x0-.6,zz,yT+7,'x',-1);}
+        if(colEsq){hw.push(box(COL.x0+1,COL.x1-1,zl-12,zl,COL.y1,COL.y1+.6));for(const xx of [COL.x0+3,COL.x1-3])cab(xx,zl-6,COL.y1+.6,'y',1);}/* grampa en la cara norte de la columna */}
       const k0=kT-w;
-      for(let j=1;j<=nL;j++){const k=k0-j+1;tr.push(box(X1+(j-1)*G,X1+j*G+1,k*R-ti,k*R,yT+f,yT+WD-f));}
-      if(nL>0){const xb=X1+nL*G,za=k0*R-30,zz=(k0-nL+1)*R-30;for(const ya of [yT,yT+WD-f])zanca([[X1,za],[xb,zz],[xb,zz+35],[X1,za+35]],ya,ya+f,'y');}
+      for(let j=1;j<=nL;j++){const k=k0-j+1,xa=X1+(j-1)*G,xb2=X1+j*G+1,zt=k*R-ti;tr.push(box(xa,xb2,zt,k*R,yT+f,yT+WD-f));
+        /* tacos de ángulo bajo cada pedada, atornillados a la cara interior de las zancas */
+        hw.push(box(xa+3,xb2-3,zt-4,zt,yT+f,yT+f+.5),box(xa+3,xb2-3,zt-.5,zt,yT+f,yT+f+4),box(xa+3,xb2-3,zt-4,zt,yT+WD-f-.5,yT+WD-f),box(xa+3,xb2-3,zt-.5,zt,yT+WD-f-4,yT+WD-f));
+        for(const xx of [xa+7,xb2-7]){cab(xx,zt-2,yT+f+.5,'y',1);cab(xx,zt-2,yT+WD-f-.5,'y',-1);}}
+      if(nL>0){const xb=X1+nL*G,za=k0*R-30,zz=(k0-nL+1)*R-30;for(const ya of [yT,yT+WD-f])zanca([[X1,za],[xb,zz],[xb,zz+35],[X1,za+35]],ya,ya+f,'y');
+        /* arriba, cada zanca se toma al poste con un ángulo; abajo, zapata de ángulo anclada al piso por fuera */
+        const z0=k0*R-28,z1=k0*R-12;hw.push(box(X1,X1+10,z0,z1,yT+f,yT+f+.6),box(X1,X1+.6,z0,z1,yT+f,yT+9),box(X1,X1+10,z0,z1,yT+WD-f-.6,yT+WD-f),box(X1,X1+.6,z0,z1,yT+WD-9,yT+WD-f));
+        for(const zq of [z0+4,z1-4]){cab(X1+6,zq,yT+f+.6,'y',1);cab(X1+6,zq,yT+WD-f-.6,'y',-1);}
+        hw.push(box(xb-15,xb,0,10,yT-.6,yT),box(xb-15,xb,0,.6,yT-6,yT-.6),box(xb-15,xb,0,10,yT+WD,yT+WD+.6),box(xb-15,xb,0,.6,yT+WD+.6,yT+WD+6));
+        for(const xx of [xb-11,xb-4]){cab(xx,5,yT-.6,'y',-1);cab(xx,5,yT+WD+.6,'y',1);cab(xx,.6,yT-3.5,'z',1);cab(xx,.6,yT+WD+3.5,'z',1);}}
       fp={x0:X0,x1:X1+nL*G,y0:YE,y1:yT+WD};}
     else{for(let j=1;j<=nL;j++){const k=N-u-j;pisada(rect(X0+f,X1-f,yT+(j-1)*G-1,yT+j*G),k*R-ti,k*R);}
       if(nL>0)for(const xa of [X0,X1-f]){const yb=yT+nL*G;zanca([[yT,zLow-30],[yb,R-30],[yb,R+5],[yT,zLow+5]],xa,xa+f,'x');}fp={x0:X0,x1:X1,y0:YE,y1:yT+nL*G};}
     /* pasamanos del lado del vacío, con parantes de planchuela que bajan a la zanca */
     const zr=y=>zTop+90+(y-YE)*(zLow-zTop)/(yT-YE),zs=y=>Math.min(zTop,y>=ys?zc:zb(y)+35);
-    rods.push(rod([X1-2.5,zr(YE),YE],[X1-2.5,zr(yT),yT],2,10));
-    for(const y of [YE+12,(YE+yT)/2,yT-8])rods.push(box(X1-3.5,X1-1.5,zs(y),zr(y)-1.5,y-2,y+2));
+    rods.push(rod([X1+.3,zr(YE),YE],[X1+.3,zr(yT),yT],2,10));
+    for(const y of [YE+20,(YE+yT)/2,yT-8]){const zq=Math.max(zs(y)-18,(y>=ys?zb(y):zb(y))+2);rods.push(box(X1,X1+.64,zq,zr(y)-1.5,y-1.9,y+1.9));cab(X1+.64,zq+4,y,'x',1);cab(X1+.64,zq+12,y,'x',1);}
     /* choques en planta con lo que está cerca */
     const hits=[];const ov=(a,b)=>a.x0<b.x1&&a.x1>b.x0&&a.y0<b.y1&&a.y1>b.y0;
     if(ov(fp,{x0:1342,x1:1353,y0:627.5,y1:638.5}))hits.push('C1');if(ov(fp,{x0:1329,x1:1342,y0:638.5,y1:918.5}))hits.push('retorno');if(fp.y1>918)hits.push('ventanal');
@@ -449,7 +477,9 @@ function build(p){
     Pt('ESC1-T','ESC-1 · pedadas','ep',tr,{fn:'Escalera al entrepiso, variable: '+info,sec:'pedadas de 2″',med:info},{group:'Escalera',tags:['PB','escalera']});
     Pt('ESC1-Z','ESC-1 · zancas','cabio',st,{fn:'Zancas de 2″×12″ a los dos lados de cada tramo.'},{group:'Escalera',tags:['PB','escalera']});
     if(po.length)Pt('ESC1-P','ESC-1 · postes del giro','cabio',po,{fn:'Postes de 9 × 9 en las cuatro esquinas del giro.'},{group:'Escalera',tags:['PB','escalera']});
-    Pt('ESC1-B','ESC-1 · pasamanos','acero',rods,{fn:'Pasamanos del lado del vacío, con tres parantes de planchuela atornillados a la zanca.'},{group:'Escalera',tags:['PB','escalera']});}
+    Pt('ESC1-B','ESC-1 · pasamanos','acero',rods,{fn:'Pasamanos de caño de 40 mm del lado del vacío, sobre tres parantes de planchuela de 1/4″ × 1½″ abulonados a la cara de afuera de la zanca (2 bulones de 3/8″ cada uno).'},{group:'Escalera',tags:['PB','escalera']});
+    Pt('ESC1-H','ESC-1 · herrajes','herraje',hw,{fn:'Herrajes de acero: ángulos de 1½″ × 3/16″ bajo cada pedada (atornillados a la zanca), cubrejuntas de chapa de 6 mm entre zanca y tirante del entrepiso, ángulos zanca–columna y zanca–poste, ángulo de 2″ bajo el borde de la primera compensada, grampa en C-01, pies de poste (chapa de 6 mm y estribo en U) y zapatas de ángulo al pie de las zancas de abajo.'},{group:'Escalera',tags:['PB','escalera']});
+    Pt('ESC1-K','ESC-1 · bulones y tornillos','perno',pe,{fn:'Cabezas de bulones de 3/8″ (zanca–tirante, postes, ángulos) y tornillos de 1/4″ (tacos de las pedadas). Los anclajes al piso son químicos de 3/8″.'},{group:'Escalera',tags:['PB','escalera']});}
   {const es=M.ESCALERAS&&M.ESCALERAS.find(e=>e.id==='ESC-1');if(es&&p.ep&&p.escTipo==='orig'){const [ex,ey]=es.pos,rot=(es.rot??90)*Math.PI/180;let ps=[];try{ps=escaleraCompensada(geo);}catch(e){console.error('escalera',e);}
     const MAT=new THREE.Matrix4().makeTranslation(ex,0,ey).multiply(new THREE.Matrix4().makeRotationY(rot));
     const CAT={herraje:'acero',perno:'acero',pedada:'ep',c1:'ep',c2:'ep',exist:'cabio'};
@@ -822,7 +852,7 @@ function build(p){
         /* solado de baldosas: el contorno del original menos el vaso y la rampa */
         const so=o.solado.map(r=>box(r[0],r[1],-30,1,r[2],r[3]));
         Pt(o.id+'b',`${o.id} · solado`,'baldosa',so,{fn:'Solado de baldosas cerámicas alrededor del vaso (fotos 1, 2 y 9): 1,3 m en la cabecera oeste, 0,95 al sur, 0,45 al norte (pasillo junto al cantero) y 0,8 en la cabecera este.'},tg);
-        if(o.rampa){const R=o.rampa;Pt(o.id+'r',`${o.id} · rampa`,'baldosa',[prism([[R.y0,1],[R.y1,1-R.dz],[R.y1,-30],[R.y0,-30]],R.x0,R.x1,'ZY')],{fn:`Rampa de baldosas al sur del vaso: baja ${R.dz} cm hacia el este (Maxi 18/10). En el original bajaba hacia el agua.`},tg);}
+        if(o.rampa){const R=o.rampa;Pt(o.id+'r',`${o.id} · rampa`,'baldosa',[prism([[R.x0,1],[R.x1,1-R.dz],[R.x1,-30],[R.x0,-30]],R.y0,R.y1,'XY')],{fn:`Rampa de baldosas al sur del vaso: baja ${R.dz} cm hacia el norte y entra al agua (Maxi 19/10, como en el original).`},tg);}
         if(o.cantero){const C=o.cantero,w=C.muro,zt=C.tope;
           Pt(o.id+'k',`${o.id} · cantero`,'adoquin',[box(C.x1-w,C.x1,-40,zt,C.y0,C.y1),box(C.x0,C.x1-w,-40,zt,C.y0,C.y0+w),box(C.x0,C.x1-w,-40,zt,C.y1-w,C.y1)],{fn:'Cantero corrido junto al pasillo norte, con muro de adoquines de granito (fotos 10 a 13).'},tg);
           Pt(o.id+'kt',`${o.id} · tierra del cantero`,'tierra',[box(C.x0,C.x1-w,-40,C.fondo,C.y0+w,C.y1-w)],{fn:`Tierra a ${f1(C.fondo/100)}.`},tg);}
@@ -872,7 +902,7 @@ function build(p){
       /* etiquetas de nombre: sólo al seleccionar (Maxi, 12/10) */}};
 }
 
-const COL={washi:'#f3eee2',esmerilado:'#e3ecef',muro:'#cdc5b7',tabique:'#e2dbcf',glass:'#9fc4cf',techo:'#737a80',lucernario:'#8fa6b0',cabio:'#a9743f',ep:'#d9b98a',piso:'#eceae4',col:'#7f4429',deck:'#c7a56f',agua:'#6fb6d6',chapon:'#17191b',arbusto:'#4f7438',pileta:'#1f9ad6',baldosa:'#b9806a',adoquin:'#8f8d88',tierra:'#4a3b2e',arbol:'#5c8a4f',corteza:'#6b5a48',ladrillo:'#a0705a',roble:'#8a5a32',heladera:'#b8322a',mesada:'#8fae94',follaje:'#5f8a46',obj:'#8a8f8c',madera:'#b58a5a',acero:'#3a3f44',chapa:'#2a2e31'};
+const COL={washi:'#f3eee2',esmerilado:'#e3ecef',muro:'#cdc5b7',tabique:'#e2dbcf',glass:'#9fc4cf',techo:'#737a80',lucernario:'#8fa6b0',cabio:'#a9743f',ep:'#d9b98a',piso:'#eceae4',col:'#7f4429',deck:'#c7a56f',agua:'#6fb6d6',chapon:'#17191b',arbusto:'#4f7438',pileta:'#1f9ad6',herraje:'#2f3337',perno:'#a3a8ad',baldosa:'#b9806a',adoquin:'#8f8d88',tierra:'#4a3b2e',arbol:'#5c8a4f',corteza:'#6b5a48',ladrillo:'#a0705a',roble:'#8a5a32',heladera:'#b8322a',mesada:'#8fae94',follaje:'#5f8a46',obj:'#8a8f8c',madera:'#b58a5a',acero:'#3a3f44',chapa:'#2a2e31'};
 const LIFT={techo:380,lucernario:380,cabio:380,glass:0,ep:170};
 const root=document.getElementById('modo-3d');
 /* hojas de M-43: corrimiento guardado en este navegador */

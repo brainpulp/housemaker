@@ -110,6 +110,8 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     cp.style.left=(t.right-s.left+8)+'px';cp.style.right='auto';const h=cp.offsetHeight||300;cp.style.top=Math.max(8,Math.min(s.height-h-8,r.top-s.top-6))+'px';};
   addEventListener('resize',()=>{if(!cp.hidden)posCp();});requestAnimationFrame(()=>{if(!cp.hidden)posCp();});
   cp.querySelector('.cph').style.cursor='default';
+  /* tocar afuera cierra el panel de capas (Maxi 19/10); no cuando está metido en el inspector, ni al tocar su botón */
+  document.addEventListener('pointerdown',e=>{if(cp.hidden||cp.closest('#insp'))return;const t=e.target;if(cp.contains(t)||(t.closest&&t.closest('#toolbar3d .tb[data-k="capas"]')))return;cp.hidden=true;LS.set('carhue-capas-on',false);sync();},true);
   cp.addEventListener('click',e=>{const b=e.target.closest('[data-cp]');if(!b)return;if(b.dataset.cp==='x'){cp.hidden=true;LS.set('carhue-capas-on',false);}else{cp.classList.toggle('fold');LS.set('carhue-capas-fold',cp.classList.contains('fold'));}sync();});
 
   /* ---------- variantes: tarjeta en el panel derecho + lista ---------- */
