@@ -824,12 +824,12 @@ function build(p){
       pr.push(new THREE.Vector2(0,z1));const lg=new THREE.LatheGeometry(pr,32);lg.translate(c.pos[0],0,c.pos[1]);g=lg;}
     else if(c.tipo==='hogar'&&c.box){const [x0,x1,z0,z1,y0,y1]=c.box;g=[box(x0,x1,0,20,y0,y1),box(x0,x1,20,110,y0,y0+20),box(x0,x1,20,110,y1-20,y1),box(x0,x1,110,150,y0,y1),box(x0,x0+(x1-x0)*.6,150,z1,y0+15,y1-15),box(x0,x0+12,20,110,y0+20,y1-20)];}
     else if(c.tipo==='hogar'){/* fotos 13 y 19 + video seg. 102: macizo de ladrillo saliente hasta el techo; boca baja al sur con dintel de ladrillo;
-        al norte, nicho bajo arqueado para leña, mesada de madera y caja de estantes de madera embutida; ladrillo arriba hasta el techo */
+        al norte, nicho bajo arqueado para leña, mesada de madera y caja de estantes de madera embutida; ladrillo arriba hasta el techo. Maxi 19/10: corrido 0,58 al sur, hasta tocar el borde del entrepiso (x 1442) */
       const Y0=46,Y1=100,zt=y=>255+(y+2)*(252/354)-6,top=(xa,xb,z0)=>box8([[xa,z0,Y0],[xb,z0,Y0],[xb,z0,Y1],[xa,z0,Y1],[xa,zt(Y0),Y0],[xb,zt(Y0),Y0],[xb,zt(Y1),Y1],[xa,zt(Y1),Y1]]);
-      g=[box(1500,1700,0,20,Y0,Y1+8),box(1500,1555,20,110,Y0,Y1),box(1645,1700,20,110,Y0,Y1),box(1550,1650,110,122,Y0,Y1+2),top(1500,1700,122),
-         box(1700,1712,0,95,Y0,Y1),box(1823,1835,0,95,Y0,Y1),box(1712,1823,78,95,58,Y1),top(1700,1835,230),box(1700,1705,95,230,Y0,Y1),box(1825,1835,95,230,Y0,Y1)];
-      const est=[box(1700,1835,95,101,Y0,Y1+8),box(1705,1710,101,230,Y0,Y1),box(1825,1830,101,230,Y0,Y1),box(1705,1830,222,230,Y0,Y1),box(1710,1825,101,222,Y0,52),box(1710,1825,145,148,52,Y1-4),box(1710,1825,185,188,52,Y1-4)];
-      Pt(c.id+'h',`${c.id} · fondo de la boca y del nicho de leña`,'acero',[box(1555,1645,20,110,Y0,56),box(1712,1823,0,78,Y0,58)],{fn:'Fondo ennegrecido de la boca del hogar y del nicho de leña.'},{group:'Objetos',tags:['PB','objetos',c.id]});
+      g=[box(1442,1642,0,20,Y0,Y1+8),box(1442,1497,20,110,Y0,Y1),box(1587,1642,20,110,Y0,Y1),box(1492,1592,110,122,Y0,Y1+2),top(1442,1642,122),
+         box(1642,1654,0,95,Y0,Y1),box(1765,1777,0,95,Y0,Y1),box(1654,1765,78,95,58,Y1),top(1642,1777,230),box(1642,1647,95,230,Y0,Y1),box(1767,1777,95,230,Y0,Y1)];
+      const est=[box(1642,1777,95,101,Y0,Y1+8),box(1647,1652,101,230,Y0,Y1),box(1767,1772,101,230,Y0,Y1),box(1647,1772,222,230,Y0,Y1),box(1652,1767,101,222,Y0,52),box(1652,1767,145,148,52,Y1-4),box(1652,1767,185,188,52,Y1-4)];
+      Pt(c.id+'h',`${c.id} · fondo de la boca y del nicho de leña`,'acero',[box(1497,1587,20,110,Y0,56),box(1654,1765,0,78,Y0,58)],{fn:'Fondo ennegrecido de la boca del hogar y del nicho de leña.'},{group:'Objetos',tags:['PB','objetos',c.id]});
       Pt(c.id+'e',`${c.id} · mesada y estantes de madera`,'madera',est,{fn:'Caja de madera oscura embutida en el macizo del hogar, con dos estantes, sobre una mesada que asoma (foto 19).'},{group:'Objetos',tags:['PB','objetos',c.id]});}
     else if(c.id==='HEL-1'){/* heladera roja (fotos 12 y 13): cuerpo, puerta de freezer arriba, puerta grande abajo, manijas y patas; frente hacia la cocina (+x) */
       const [x0,x1,z0,z1,y0,y1]=c.box,zf=z1-55;g=[box(x0,x1-3,z0+4,z1-2,y0,y1),box(x0+2,x1-5,z1-2,z1,y0+2,y1-2),box(x1-3,x1,zf+1,z1-3,y0+1,y1-1),box(x1-3,x1,z0+5,zf-1,y0+1,y1-1)];
