@@ -68,6 +68,22 @@ const params = [
     help: 'Saca todo lo que está por encima de esa altura, como una planta.' },
 ];
 
+/* cara interior del ventanal O a la altura z: corte de los triángulos de sus vidrios y marcos con el plano horizontal z
+   (los paños son planos entre filas de marcos: no alcanza con mirar vértices) */
+const VID = DET.filter(d => d.id === 'SU-01' || HOJAS[d.id]);
+const yVid = z => { let m = -1e9; for (const d of VID) { const q = d.pos; for (let t = 0; t < q.length; t += 9) for (let e = 0; e < 3; e++) {
+      const a = t + e * 3, b = t + ((e + 1) % 3) * 3, za = q[a + 1], zb = q[b + 1];
+      const ok = (x, y) => x > 640 && x < 870 && y < 2700;   /* sólo el ventanal O, en el ancho del baño */
+      if (Math.abs(za - z) < .5 && ok(q[a], q[a + 2])) m = Math.max(m, q[a + 2]);
+      if ((za - z) * (zb - z) < 0) { const u = (z - za) / (zb - za), x = q[a] + u * (q[b] - q[a]), y = q[a + 2] + u * (q[b + 2] - q[a + 2]); if (ok(x, y)) m = Math.max(m, y); } } }
+  return m; };
+/* tabiques que llegan al ventanal O: la punta sigue la inclinación del vidrio (Maxi 20/10: M-51 atravesaba el ventanal) */
+const AL_VENTANAL = new Set(['M-51']);
+const cortarAlVentanal = (m, geos) => { const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]), z0 = A.zBase(M, m);
+  for (const g of geos) { const P = g.attributes.position; for (let i = 0; i < P.count; i++) { let y = P.getZ(i), z = P.getY(i); const top = z > z0 + 1;
+      for (let k = 0; k < 4; k++) { const yv = yVid(z) + 0.5; if (y >= yv - 0.01) break; y = yv; if (top) z = A.zTope(M, m, Math.min(1, Math.abs(y - m.a[1]) / L)); }
+      P.setZ(i, y); P.setY(i, z); } P.needsUpdate = true; g.computeVertexNormals(); g.computeBoundingBox(); g.computeBoundingSphere(); }
+  return geos; };
 function build(p) {
   const parts = [];
   const Pt = (id, name, cat, geos, info, ex = {}) => { const al = N.alias(id); geos = [].concat(geos).filter(Boolean); if (!geos.length) return;
@@ -84,7 +100,7 @@ function build(p) {
       Pt(m.id + 'p', `${m.id} · perfiles`, 'perfil', g.perfiles, { ...base(m), med }, ex(m)); continue; }
     if (/^M-4[4-6]$/.test(m.id)) continue; /* el balcón tiene baranda de caños (fachada.js), no muro */
     const cat = m.id === 'M-11' ? 'fachada' : m.tipo === 'tabique' ? 'tabique' : m.tipo === 'cerco' ? 'cerco' : /^M-0[5-9]$/.test(m.id) ? 'medianera' : 'muro';
-    Pt(m.id, `${m.id} · ${m.nombre}`, cat, A.muroGeos(M, m), { ...base(m), med }, ex(m));
+    Pt(m.id, `${m.id} · ${m.nombre}`, cat, AL_VENTANAL.has(m.id) ? cortarAlVentanal(m, A.muroGeos(M, m)) : A.muroGeos(M, m), { ...base(m), med }, ex(m));
   }
   /* aberturas: hoja cerrada (vidrio o panel) */
   if (p.carp) for (const a of M.ABERTURAS) { const m = M.MUROS.find(w => w.id === a.muro); if (!m || a.tipo === 'vano' || a.id === 'P-03') continue;
@@ -133,15 +149,6 @@ function build(p) {
       Pt(l.id + 'c', `${l.id} · cabios`, 'madera', g, { fn: `Cabios de ${c.sec.replace('×', ' × ')} de canto, cada ~${f2(du)}, clavados directo bajo las tablas de ${l.e}; van de viga a viga (plano de estructura, +3,29).`, sec: c.sec, med: `${n + 1} cabios` }, { group: NIV[l.nivel] || NIV.EP }); } }
   /* fachada E como en la foto */
   /* cara interior del ventanal O (hojas del SketchUp) a cada altura, en el ancho del baño de 2P: la máxima y por franja de 10 */
-  /* cara interior del ventanal O a la altura z: corte de los triángulos de sus vidrios y marcos con el plano horizontal z
-     (los paños son planos entre filas de marcos: no alcanza con mirar vértices) */
-  const VID = DET.filter(d => d.id === 'SU-01' || HOJAS[d.id]);
-  const yVid = z => { let m = -1e9; for (const d of VID) { const q = d.pos; for (let t = 0; t < q.length; t += 9) for (let e = 0; e < 3; e++) {
-        const a = t + e * 3, b = t + ((e + 1) % 3) * 3, za = q[a + 1], zb = q[b + 1];
-        const ok = (x, y) => x > 640 && x < 870 && y < 2700;   /* sólo el ventanal O, en el ancho del baño */
-        if (Math.abs(za - z) < .5 && ok(q[a], q[a + 2])) m = Math.max(m, q[a + 2]);
-        if ((za - z) * (zb - z) < 0) { const u = (z - za) / (zb - za), x = q[a] + u * (q[b] - q[a]), y = q[a + 2] + u * (q[b + 2] - q[a + 2]); if (ok(x, y)) m = Math.max(m, y); } } }
-    return m; };
   /* fondo de la estructura del techo (SU-13) sobre una franja de y: el cajón del baño queda por debajo */
   const zEstrTecho = (y0, y1) => { let m = 1e9; for (const d of DET) if (d.id === 'SU-13') { const q = d.pos; for (let i = 0; i < q.length; i += 3) if (q[i + 2] > y0 - 30 && q[i + 2] < y1 + 30) m = Math.min(m, q[i + 1]); } return m; };
   for (const f of banio2P(THREE, M, { yVid, zEstrTecho })) Pt(f.id, `${f.id} · ${f.nombre}`, f.cat, f.geos, f.info, { group: NIV.P2, tags: ['baño 2P'], opt: { noEdges: f.cat === 'herreria' } });
