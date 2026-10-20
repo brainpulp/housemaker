@@ -46,6 +46,10 @@ const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.cha
   return { ...d, pos: new Float32Array(f) }; }).filter(d => d.pos.length);
 /* SU-01 (ventanal O) partido en sus hojas móviles, sin tocar la geometría */
 for (let i = DET.length - 1; i >= 0; i--) { const d = DET[i]; if (d.id !== 'SU-01') continue; const g = partirSU01(d.pos); DET.splice(i, 1, ...Object.entries(g).map(([k, pos]) => k === 'resto' ? { ...d, pos } : { ...d, id: k, nombre: HOJAS[k].nombre, pos, movil: true })); }
+/* marcos del ventanal O (contrafrente) en gris oscuro casi negro (Maxi 20/10): todo lo que no es vidrio de SU-01 y sus hojas, salvo las ventanas de 2P a la terraza (y > 24,80) */
+for (let i = DET.length - 1; i >= 0; i--) { const d = DET[i]; if (!(d.id === 'SU-01' || HOJAS[d.id]) || d.cat === 'glass') continue;
+  const si = [], no = []; for (let t = 0; t < d.pos.length; t += 9) ((d.pos[t + 2] + d.pos[t + 5] + d.pos[t + 8]) / 3 <= 2480 ? si : no).push(...d.pos.subarray(t, t + 9));
+  const out = []; if (si.length) out.push({ ...d, cat: 'marcoO', pos: new Float32Array(si) }); if (no.length) out.push({ ...d, pos: new Float32Array(no) }); DET.splice(i, 1, ...out); }
 const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
 
 const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.nombre]));
@@ -215,7 +219,7 @@ function build(p) {
     dims: ({ dimLine }) => { dimLine([0, 2, 4516 + 140], [865, 2, 4516 + 140], [0, 0, 8], '8,65'); dimLine([-120, 0, 3887], [-120, 857, 3887], [-8, 0, 0], '8,57'); dimLine([-120, -198, 3700], [-120, 72, 3700], [-8, 0, 0], '2,70'); } };
 }
 
-const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
+const COL = { ...COLORES, marcoO: '#2b2e31', muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
   artefacto: '#f3f0e8', placa: '#a9bfa3', mamposteria: '#d6d1c7', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
