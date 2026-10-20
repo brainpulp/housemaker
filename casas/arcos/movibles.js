@@ -38,6 +38,29 @@ export function initMovibles(visor, root, M) {
   let ult = null; setInterval(() => { if (visor.parts !== ult) { ult = visor.parts; aplicar(); } }, 250);
   document.addEventListener('input', e => { const r = e.target.closest && e.target.closest('[data-mov]'); if (!r) return; MOV[r.dataset.mov] = +r.value; const o = document.querySelector(`[data-movv="${r.dataset.mov}"]`); if (o) o.textContent = r.dataset.fmt === '%' ? r.value + ' %' : (r.value / 100).toFixed(2).replace('.', ','); aplicar(); });
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('[data-mov]')) guardar(); });
+  /* arrastrar (como en Carhué): las hojas corren en x por su riel; la persiana sube o baja. Respeta el interruptor «Mover: sí / no»
+     y el candado de cada parte (motor/candado.js): bloqueada, arrastrar orbita y el toque la elige. */
+  { const view = document.getElementById('view'), T = visor.THREE, ray = new T.Raycaster(), mv = new T.Vector2(); let dr = null;
+    const setRay = e => { const r = visor.renderer.domElement.getBoundingClientRect(); mv.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(mv, visor.camera); };
+    const ocupado = () => document.querySelector('#editarTg[aria-pressed=true],#edPanel:not([hidden]),#senPanel:not([hidden]),#medPanel:not([hidden]),#marcasPanel:not([hidden])');
+    const clave = id => { const k = base(id); return HOJAS[k] ? k : /^V-0[1-3]p$/.test(id) ? id.slice(0, 4) : null; };
+    const fmt = (k, v) => HOJAS[k] ? (v / 100).toFixed(2).replace('.', ',') + ' m' : Math.round(v) + ' %';
+    if (view) {
+      view.addEventListener('pointerdown', e => { if (e.button !== 0 || ocupado()) return; setRay(e); const ms = [];
+        for (const p of visor.parts || []) if (p.grp && p.grp.visible !== false && clave(p.id)) p.grp.traverse(o => { if (o.isMesh) ms.push(o); });
+        const h = ray.intersectObjects(ms, false)[0]; if (!h) return; const pid = h.object.userData.id, k = clave(pid); if (!k) return;
+        if (visor.candado && visor.candado.bloqueada(k)) { visor.candado.mostrar(k, h.point); return; }
+        e.stopPropagation(); view.setPointerCapture(e.pointerId); visor.controls.enabled = false;
+        dr = { k, pid, sx: e.clientX, sy: e.clientY, moved: false, p0: h.point.clone(), v0: MOV[k] || 0, plane: new T.Plane(new T.Vector3(0, 0, 1), -h.point.z) }; }, true);
+      view.addEventListener('pointermove', e => { if (!dr) return; e.stopPropagation();
+        if (!dr.moved) { if (Math.hypot(e.clientX - dr.sx, e.clientY - dr.sy) < 4) return; dr.moved = true; visor.candado && visor.candado.mostrar(dr.k, dr.p0); }
+        setRay(e); const q = ray.ray.intersectPlane(dr.plane, new T.Vector3()); if (!q) return; const H = HOJAS[dr.k];
+        const v = H ? Math.max(H.min, Math.min(H.max, dr.v0 + (q.x - dr.p0.x))) : Math.max(0, Math.min(100, dr.v0 + (q.y - dr.p0.y) / (persiana(dr.k).z1 - persiana(dr.k).z0) * 100));
+        MOV[dr.k] = Math.round(v); aplicar(); const st = document.getElementById('stTool'); if (st) st.innerHTML = `<b>${dr.k}</b> ${H ? 'corrida' : 'persiana'} ${fmt(dr.k, MOV[dr.k])}`; }, true);
+      const fin = e => { if (!dr) return; e.stopPropagation(); visor.controls.enabled = true; const d = dr; dr = null;
+        if (!d.moved) { visor.showPart && visor.showPart(d.pid); visor.candado && visor.candado.mostrar(d.k, d.p0); return; }
+        visor.candado && visor.candado.mostrar(d.k); guardar(); };
+      view.addEventListener('pointerup', fin, true); view.addEventListener('pointercancel', fin, true); } }
   /* control para el panel de la pieza */
   return { html(id) { const k = base(id);
     if (HOJAS[k]) { const h = HOJAS[k], v = MOV[k] || 0; return `<div class="renrow" style="align-items:center;gap:8px"><span>Correr</span><input type="range" data-mov="${k}" min="${h.min}" max="${h.max}" step="1" value="${v}" style="flex:1"><b data-movv="${k}">${(v / 100).toFixed(2).replace('.', ',')}</b></div>`; }

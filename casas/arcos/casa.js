@@ -8,6 +8,7 @@ import { lucesArcos } from './luces.js';
 import { fachadaArcos } from './fachada.js';
 import { banio2P } from './banio2p.js';
 import { HOJAS, partirSU01, initMovibles } from './movibles.js';
+import { initCandado } from './candado.js';
 let MOVS = null;
 let LUCES = null;   /* se arman en el primer build, mirando la geometría (cada luz va al techo que tiene arriba) */
 import { initSenalar } from './senalar.js';
@@ -219,6 +220,7 @@ const COL = { ...COLORES, muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0
   artefacto: '#f3f0e8', placa: '#a9bfa3', mamposteria: '#d6d1c7', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
+try { initCandado(visor); } catch (e) { console.error('candado', e); } /* interruptor «Mover: sí / no» arriba a la derecha y candado por parte, como en Carhué */
 MOVS = initMovibles(visor, root, M);
 visor.controlPieza = id => MOVS.html(id); /* el inspector muestra «Correr» / «Persiana» en las piezas que se mueven */
 /* relleno desde abajo: de día ilumina cielorrasos y techos por dentro (noche.js lo maneja como luz de relleno y lo apaga de noche) */
