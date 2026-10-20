@@ -80,7 +80,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const P={};for(const q of model.params){P[q.id]=q.value;if(okVal(q,PRED[q.id]))P[q.id]=PRED[q.id];if(okVal(q,SAVED[q.id]))P[q.id]=SAVED[q.id];}
   const saveParams=()=>{try{localStorage.setItem('carhue-params',JSON.stringify(P));}catch(e){}if(hooksP.onParam)try{hooksP.onParam({...P});}catch(e){}};const hooksP={onParam:null};
   function setParams(obj){let ch=false;for(const q of model.params){if(!(q.id in obj))continue;let v=obj[q.id];if(!okVal(q,v))continue;if(String(P[q.id])!==String(v)){P[q.id]=v;syncParams(q.id);ch=true;}}if(ch){try{localStorage.setItem('carhue-params',JSON.stringify(P));}catch(e){}showIfs();syncPred();rebuild();}}
-  let out=null,parts=[],byId={},tokens={},G0=null,dims=null,curDims=null,focusSet=null,selId=null,stepIdx=-1,stepMode=false,ex=0,tween=null;const hidden=new Set();const hooks={render:null};
+  let out=null,parts=[],byId={},tokens={},G0=null,dims=null,curDims=null,focusSet=null,selId=null,stepIdx=-1,stepMode=false,ex=0,tween=null;const hidden=new Set(),transp=new Set();const hooks={render:null};
 
   /* ----- variables ----- */
   function paramInput(q,prefix){const id=prefix+q.id;
@@ -139,7 +139,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       p.mat=new THREE.MeshStandardMaterial({color:colors[p.cat]||'#999',roughness:metal?.4:.82,metalness:metal?.55:0,flatShading:true,transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:op>.5});
       if(p.opt.vcol){p.mat.vertexColors=true;p.mat.color.set('#ffffff');}
       if(p.opt.map){p.mat.map=p.opt.map;p.mat.color.set('#ffffff');p.mat.alphaTest=p.opt.alphaTest??.3;p.mat.transparent=false;p.mat.depthWrite=true;if(p.opt.smooth)p.mat.flatShading=false;}
-      p.base=op;p.emat=edgeMat.clone();if(isEx)p.emat.opacity=.22;
+      p.base=op;p.tr0=p.mat.transparent;p.dw0=p.mat.depthWrite;p.emat=edgeMat.clone();if(isEx)p.emat.opacity=.22;
       const grp=new THREE.Group();const bb=new THREE.Box3();
       /* fps: cada pieza se dibuja como una sola malla (y un solo juego de aristas); se guarda qué tramo es cada parte para «borrar partes» */
       let ranges=null;if(p.geos.length>1&&!(p.opt&&p.opt.noMerge)){ranges=[];let o=0;for(const g of p.geos){const n=(g.index?g.index.count:g.attributes.position.count);ranges.push([o,n]);o+=n;}p.geos=[mergeAll(p.geos)];}
@@ -167,7 +167,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   tgExist&&tgExist.addEventListener('change',applyVis);tgDim&&tgDim.addEventListener('change',applyVis);
   exEl&&exEl.addEventListener('input',()=>{ex=+exEl.value;applyExplode();});
   function applyFocus(){const cur=stepMode&&out.steps[stepIdx]?resolve(out.steps[stepIdx].parts):null;
-    for(const p of parts){const on=!focusSet||focusSet.includes(p.id);p.mat.opacity=on?p.base:Math.min(.07,p.base);p.emat.opacity=on?(p.cat==='exist'?.22:.55):.04;
+    for(const p of parts){const on=!focusSet||focusSet.includes(p.id),tr=transp.has(p.id),b=tr?Math.min(.18,p.base):p.base;/* «Transparente» del inspector (Maxi 20/10) */p.mat.transparent=tr||p.tr0;p.mat.depthWrite=tr?false:p.dw0;p.mat.needsUpdate=true;p.mat.opacity=on?b:Math.min(.07,b);p.emat.opacity=on?(p.cat==='exist'?.22:.55):.04;
       const hot=p.id===selId||(cur&&cur.includes(p.id));p.mat.emissive.set(hot?TC.accent:'#000000');p.mat.emissiveIntensity=hot?(p.id===selId?.32:.22):0;}
     R.querySelectorAll('.row').forEach(r=>r.classList.toggle('on',r.dataset.id===selId));}
   const resolve=list=>[...new Set((list||[]).flatMap(t=>tokens[t]||[]))];
@@ -265,7 +265,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
   renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const moved=Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;if(moved)return;
     const r=renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,camera);
-    const ms=[];G0.traverse(ob=>{if(ob.isMesh&&ob.userData.id&&ob.parent.visible){const p=byId[ob.userData.id];if(p&&p.mat.opacity>.1&&!p.opt.noPick)ms.push(ob);}});
+    const ms=[];G0.traverse(ob=>{if(ob.isMesh&&ob.userData.id&&ob.parent.visible){const p=byId[ob.userData.id];if(p&&p.mat.opacity>.1&&!p.opt.noPick&&!(transp.has(p.id)&&p.id!==selId))ms.push(ob);/* las transparentes no tapan: se toca lo de atrás */}});
     const cps=renderer.clippingPlanes;const hit=ray.intersectObjects(ms,false).find(h=>!cps.length||cps.every(pl=>pl.distanceToPoint(h.point)>=0));if(api.pick&&api.pick(hit,ray))return;dispatchEvent(new CustomEvent('hm:deseleccionar'));/* elegir otra cosa o tocar el vacío suelta el mueble (Maxi 15/10) */if(hit){focusSet=null;showPart(hit.object.userData.id);}else{/* cielo o pasto: deselecciona todo (Maxi 15/10) */resetSel();}});
 
   /* ----- piezas clickeables en el texto ----- */
@@ -331,6 +331,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   let curClips=[];
   function getView(){return {p:camera.position.toArray().map(v=>Math.round(v)),t:controls.target.toArray().map(v=>Math.round(v))};}
   function setHidden(ids){hidden.clear();(ids||[]).forEach(i=>hidden.add(i));applyVis();}
+  function toggleTransp(id,on){if(on==null)on=!transp.has(id);if(on)transp.add(id);else transp.delete(id);applyFocus();window.__despertar&&window.__despertar();}
   function toggleHidden(id,on){if(on==null)on=!hidden.has(id);if(on)hidden.add(id);else hidden.delete(id);applyVis();}
-  const api={setParams,get onParam(){return hooksP.onParam;},set onParam(f){hooksP.onParam=f;},rebuild,setStep,exitSteps,highlight,showPart,resetSel,setClip,setClips,get clips(){return curClips;},fly,getView,setHidden,toggleHidden,get hidden(){return [...hidden];},isHidden:id=>hidden.has(id),scene,renderer,camera,controls,THREE,params:P,get parts(){return parts;},get selected(){return selId;},get renderHook(){return hooks.render;},togglePred(id,on){if(on)PRED[id]=P[id];else delete PRED[id];try{localStorage.setItem('carhue-pred',JSON.stringify(PRED));}catch(e){}syncPred();},syncPred(){syncPred();},set renderHook(f){hooks.render=f;}};/* versión del motor junto a los fps: el commit del último cambio en motor/ con el que se armó la casa (lo escribe herramientas/armar.sh) */import('./motor-version.js').then(m=>{const f=document.getElementById('fps');if(!f||document.getElementById('motorVer'))return;const s=document.createElement('span');s.id='motorVer';s.textContent='motor '+m.MOTOR.commit;s.title=`Motor ${m.MOTOR.commit} del ${m.MOTOR.fecha}`;s.style.cssText='font-family:var(--f-mono,monospace);font-size:10px;color:var(--muted,#888);margin-left:8px;white-space:nowrap';f.after(s);}).catch(()=>{});window.__visor=api;return api;
+  const api={setParams,get onParam(){return hooksP.onParam;},set onParam(f){hooksP.onParam=f;},rebuild,setStep,exitSteps,highlight,showPart,resetSel,setClip,setClips,get clips(){return curClips;},fly,getView,setHidden,toggleHidden,toggleTransp,isTransp:id=>transp.has(id),get transp(){return [...transp];},get hidden(){return [...hidden];},isHidden:id=>hidden.has(id),scene,renderer,camera,controls,THREE,params:P,get parts(){return parts;},get selected(){return selId;},get renderHook(){return hooks.render;},togglePred(id,on){if(on)PRED[id]=P[id];else delete PRED[id];try{localStorage.setItem('carhue-pred',JSON.stringify(PRED));}catch(e){}syncPred();},syncPred(){syncPred();},set renderHook(f){hooks.render=f;}};/* versión del motor junto a los fps: el commit del último cambio en motor/ con el que se armó la casa (lo escribe herramientas/armar.sh) */import('./motor-version.js').then(m=>{const f=document.getElementById('fps');if(!f||document.getElementById('motorVer'))return;const s=document.createElement('span');s.id='motorVer';s.textContent='motor '+m.MOTOR.commit;s.title=`Motor ${m.MOTOR.commit} del ${m.MOTOR.fecha}`;s.style.cssText='font-family:var(--f-mono,monospace);font-size:10px;color:var(--muted,#888);margin-left:8px;white-space:nowrap';f.after(s);}).catch(()=>{});window.__visor=api;return api;
 }

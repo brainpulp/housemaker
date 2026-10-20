@@ -18,7 +18,7 @@ export function initInspector(visor){
 #insp dl{display:grid;grid-template-columns:50px 1fr;gap:2px 6px;margin:6px 0 0}#insp dt{color:var(--muted);font-size:10px}#insp dd{margin:0;font-size:10.5px;min-width:0;overflow-wrap:anywhere}
 #insp .fn{margin-top:6px;font-size:10px;line-height:1.4;color:var(--muted)}#insp .fn.cut{max-height:3.2em;overflow:hidden;cursor:pointer}
 #insp textarea{width:100%;box-sizing:border-box;margin-top:5px;font:10.5px inherit;min-height:34px;resize:vertical;padding:3px 5px}
-#insp .acts{display:flex;gap:4px;margin-top:6px}#insp .acts .ib{border:1px solid var(--rule);font-size:10px;padding:1px 4px}
+#insp .acts{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}#insp .acts .ib{border:1px solid var(--rule);font-size:10px;padding:1px 4px}
 #insp .ol{display:flex;flex-direction:column;min-height:120px;flex:1 1 auto}#insp .os{padding:6px 8px;border-bottom:1px solid var(--rule);flex:none}#insp .os input{width:100%;box-sizing:border-box;padding:2px 5px;font-size:10.5px}
 #insp .tree{overflow:auto;flex:1 1 auto;padding:2px 0 6px}#insp .g{display:flex;align-items:center;gap:4px;padding:4px 6px 2px;font:600 10px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);cursor:pointer;position:sticky;top:0;background:var(--panel)}
 #insp .r{display:flex;align-items:center;gap:4px;padding:0 4px 0 6px;cursor:pointer;white-space:nowrap}#insp .r:hover{background:var(--accent-soft)}#insp .r.on{background:var(--accent-soft);box-shadow:inset 2px 0 0 var(--accent,#c0461f)}
@@ -56,7 +56,7 @@ export function initInspector(visor){
       ${visor.controlPieza?visor.controlPieza(p.id):''}
       <textarea placeholder="Tu nota sobre ${esc(p.id)}…" data-nota>${esc(N.nota(p.id))}</textarea>
       ${visor.borrarPieza?`<div class="acts"><button class="ib" data-a="del" title="Se puede deshacer (Ctrl/⌘ Z)">Borrar pieza</button>${visor.parteTocada&&visor.parteTocada(p.id)?`<button class="ib" data-a="delp" title="Sólo la parte que tocaste (se puede deshacer)">Borrar sólo esta parte</button>`:''}</div>`:''}
-      <div class="acts"><button class="ib" data-a="eye">${oculto?EO+' Mostrar':E+' Esconder'}</button><button class="ib" data-a="fit" title="Encuadrar (F)">◎ Encuadrar</button><span style="flex:1"></span><button class="ib" data-a="desel" title="Soltar la selección (Esc)">✕</button></div>`;
+      <div class="acts"><button class="ib" data-a="eye">${oculto?EO+' Mostrar':E+' Esconder'}</button>${visor.toggleTransp?`<button class="ib" data-a="transp" title="Se ve a través y no tapa lo de atrás al tocar"${visor.isTransp(id)?' style="background:var(--accent-soft);color:var(--ink)"':''}>◌ ${visor.isTransp(id)?'Opaca':'Transparente'}</button>`:''}<button class="ib" data-a="fit" title="Encuadrar (F)">◎ Encuadrar</button><span style="flex:1"></span><button class="ib" data-a="desel" title="Soltar la selección (Esc)">✕</button></div>`;
     const inp=selEl.querySelector('.nm input');if(inp){inp.focus();inp.select();}}
   function pintarTree(){const f=(q.value||'').trim().toLowerCase();const G=new Map();
     for(const p of visor.parts||[]){if(!p.geos&&!p.grp)continue;const g=p.group||'Otros';const nm=nombre(p);if(f&&!(p.id.toLowerCase().includes(f)||nm.toLowerCase().includes(f)))continue;if(!G.has(g))G.set(g,[]);G.get(g).push(p);}
@@ -76,7 +76,7 @@ export function initInspector(visor){
     if(a){const k=a.dataset.a;if(k==='x')return show(false);if(k==='plegarTodo'){abiertos={};LS.set('carhue-insp-abiertos',abiertos);pintarTree();return;}if(k==='fold'){olFold=!olFold;LS.set('carhue-insp-olfold',olFold);foldOl();return;}
       if(k==='ren'){ren=id;pintar();return;}if(k==='fn'){fnOpen=!fnOpen;pintarSel();return;}if(k==='eye'&&id){visor.toggleHidden(id,!visor.isHidden(id));pintar();return;}
       if(k==='del'&&id&&visor.borrarPieza){visor.borrarPieza(id);return;}if(k==='delp'&&id&&visor.borrarParte){visor.borrarParte(id);return;}
-      if(k==='fit'&&id)return fit(id);if(k==='desel'){visor.resetSel();pintar();return;}}
+      if(k==='transp'&&id&&visor.toggleTransp){visor.toggleTransp(id);pintar();return;}if(k==='fit'&&id)return fit(id);if(k==='desel'){visor.resetSel();pintar();return;}}
     const ge=e.target.closest('[data-ge]');if(ge){const g=ge.dataset.ge;const L=(visor.parts||[]).filter(p=>(p.group||'Otros')===g);const off=L.every(p=>visor.isHidden(p.id));const H=new Set(visor.hidden);for(const p of L){if(off)H.delete(p.id);else H.add(p.id);}visor.setHidden([...H]);pintar();return;}
     const ey=e.target.closest('[data-e]');if(ey){const i=ey.dataset.e;visor.toggleHidden(i,!visor.isHidden(i));pintar();return;}
     const g=e.target.closest('.g');if(g){const k=g.dataset.g;abiertos=abiertos[k]?{}:{[k]:true};LS.set('carhue-insp-abiertos',abiertos);pintarTree();g.parentElement&&tree.querySelector(`.g[data-g="${CSS.escape(k)}"]`)?.scrollIntoView({block:'nearest'});return;}
