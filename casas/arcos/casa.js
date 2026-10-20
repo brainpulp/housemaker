@@ -175,7 +175,8 @@ function build(p) {
   if (p.ext) for (const o of M.IMPLANTACION) if (o.poly) Pt(o.id, `${o.id} · ${o.nombre}`, o.tipo === 'vereda' ? 'vereda' : 'pasto', A.losa(o.poly, null, (o.z || 0) - 30, o.z || 0), base(o), { group: 'Exterior' });
 
   /* detalle del SketchUp: una pieza por grupo y color */
-  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09' || d.id === 'SU-08') continue; if (d.id === 'SU-06' || (d.id === 'SU-07' && d.cat === 'su000000')) continue; /* SU-06: caja del toilette del SketchUp, que llegaba a la losa vieja y atravesaba V301 (el toilette sale del video, M-30 a M-33); SU-07 negro: placa a nivel de piso en todo el 1P, debajo de los tablones */ /* SU-08: baño de 2P del SketchUp (ducha al ventanal): va el de la obra, banio2p.js */ /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
+  if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09' || d.id === 'SU-08') continue; if (d.id === 'SU-06' || (d.id === 'SU-07' && d.cat === 'su000000')) continue; /* SU-06: caja del toilette del SketchUp, que llegaba a la losa vieja y atravesaba V301 (el toilette sale del video, M-30 a M-33); SU-07 negro: placa a nivel de piso en todo el 1P, debajo de los tablones */ /* SU-08: baño de 2P del SketchUp (ducha al ventanal): va el de la obra, banio2p.js */ /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); if (d.id === 'VO-H1' && !seen['VO-H1r']) { seen['VO-H1r'] = 1; /* rieles de la puerta chica, del lado de adentro de la hoja 1: arriba un perfil U, abajo una guía */ Pt('VO-H1r', 'VO-H1r · Rieles de la puerta chica', 'marcoO', [geo.box(32.8, 235.8, 287.5, 291.5, 2360.5, 2368), geo.box(32.8, 235.8, 84, 87.6, 2360.5, 2368)], { fn: 'Rieles sobre la hoja grande: la puerta chica corre por ellos (Maxi, 20/10).', sec: 'perfil U de aluminio', med: '2,03 m' }, { group: 'Ventanal O', opt: { noEdges: true } }); }
+      Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
 
   /* luces: cada downlight va al primer techo real que tiene arriba (losa, viga, cabio, cielorraso); si arriba hay vidrio
      (el ventanal O se inclina hacia adentro), se corre hacia adentro hasta salir de abajo del vidrio. Las fuentes las maneja noche.js. */
@@ -250,7 +251,16 @@ root.addEventListener('change', e => { if (/^(q|v)-calco$/.test(e.target.id)) se
 /* cortes */
 const $ = id => document.getElementById(id);
 const CL = { x: { on: $('cxOn'), v: $('cxV'), side: -1, axis: 'x' }, y: { on: $('cyOn'), v: $('cyV'), side: -1, axis: 'z' } };
+/* ambiente aislado (como en Carhué): seis cortes alrededor del local, paredes incluidas, de piso hasta abajo de la losa de arriba */
+let AMB = null;
+function cajaAmb(id) { const L = M.LOCALES.find(l => l.id === id); if (!L || !L.poly) return null; const xs = L.poly.map(q => q[0]), ys = L.poly.map(q => q[1]), f = zN(L.nivel), m = 25;
+  const sig = Object.values(M.NIVELES).map(n => n.z).filter(z => typeof z === 'number' && z > f + 50).sort((a, b) => a - b)[0];
+  return { xmin: Math.min(...xs) - m, xmax: Math.max(...xs) + m, ymin: Math.min(...ys) - m, ymax: Math.max(...ys) + m, zmin: f - 25, zmax: Math.min(f + 235, sig != null ? sig - 22 : f + 235) }; }
+function aislar(id) { const c = cajaAmb(id); if (!c) return; AMB = c; visor.params.corte = '0'; ['q-corte', 'v-corte'].forEach(e => { const el = $(e); if (el) el.value = '0'; }); for (const k of ['x', 'y']) CL[k].on.checked = false;
+  if (visor.params.techos !== false) visor.setParams({ techos: false }); applyClips();
+  const cx = (c.xmin + c.xmax) / 2, cy = (c.ymin + c.ymax) / 2, R = Math.max(c.xmax - c.xmin, c.ymax - c.ymin, 300), f = c.zmin + 25; visor.fly([cx + R * .55, f + R * .95 + 180, cy + R * .85], [cx, f + 60, cy]); }
 function applyClips() { const list = []; const h = +visor.params.corte; if (h) list.push({ axis: 'y', value: h, side: -1 });
+  if (AMB) list.push({ axis: 'x', value: AMB.xmin, side: 1 }, { axis: 'x', value: AMB.xmax, side: -1 }, { axis: 'z', value: AMB.ymin, side: 1 }, { axis: 'z', value: AMB.ymax, side: -1 }, { axis: 'y', value: AMB.zmin, side: 1 }, { axis: 'y', value: AMB.zmax, side: -1 });
   for (const k of ['x', 'y']) { const c = CL[k]; if (c.on.checked) list.push({ axis: c.axis, value: +c.v.value, side: c.side }); $('c' + k + 'Lbl').textContent = (+c.v.value / 100).toFixed(2).replace('.', ',') + ' m'; }
   visor.setClips(list); }
 for (const k of ['x', 'y']) { CL[k].on.addEventListener('change', applyClips); CL[k].v.addEventListener('input', () => { CL[k].on.checked = true; applyClips(); }); $('c' + k + 'Flip').addEventListener('click', () => { CL[k].side *= -1; CL[k].on.checked = true; applyClips(); }); }
@@ -259,15 +269,15 @@ root.addEventListener('click', e => { const h = e.target.closest('[data-hide]');
 
 /* vistas guardadas: en la base (colección «vistas») y en este navegador */
 let VISTAS = [], vdb = null;
-const snapshot = () => ({ cam: visor.getView(), corte: visor.params.corte, cx: CL.x.on.checked ? { v: +CL.x.v.value, side: CL.x.side } : null, cy: CL.y.on.checked ? { v: +CL.y.v.value, side: CL.y.side } : null, hidden: visor.hidden, params: { techos: visor.params.techos, calco: visor.params.calco, ext: visor.params.ext, carp: visor.params.carp } });
-function applySnapshot(v) { if (v.params) visor.setParams(v.params); visor.params.corte = v.corte || '0'; ['q-corte', 'v-corte'].forEach(id => { const el = $(id); if (el) el.value = visor.params.corte; });
+const snapshot = () => ({ cam: visor.getView(), corte: visor.params.corte, cx: CL.x.on.checked ? { v: +CL.x.v.value, side: CL.x.side } : null, cy: CL.y.on.checked ? { v: +CL.y.v.value, side: CL.y.side } : null, hidden: visor.hidden, amb: AMB, params: { techos: visor.params.techos, calco: visor.params.calco, ext: visor.params.ext, carp: visor.params.carp } });
+function applySnapshot(v) { AMB = v.amb || null; if (v.params) visor.setParams(v.params); visor.params.corte = v.corte || '0'; ['q-corte', 'v-corte'].forEach(id => { const el = $(id); if (el) el.value = visor.params.corte; });
   for (const k of ['x', 'y']) { const c = v['c' + k]; CL[k].on.checked = !!c; if (c) { CL[k].v.value = c.v; CL[k].side = c.side; } } applyClips(); applyCalco(); visor.setHidden(v.hidden || []); if (v.cam) visor.fly(v.cam.p, v.cam.t); }
 function persistLocal() { try { localStorage.setItem('arcos-vistas', JSON.stringify(VISTAS)); } catch (e) {} }
 try { VISTAS = JSON.parse(localStorage.getItem('arcos-vistas') || '[]'); } catch (e) { VISTAS = []; }
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function renderVistas() { const sel = $('vistasSel');
   if (sel) { const cur = sel.dataset.cur || ''; const FIX = [...document.querySelectorAll('#viewbar [data-view]')].map(b => [b.dataset.view, b.textContent]);
-    sel.innerHTML = '<option value="">Vistas…</option><optgroup label="Vistas fijas">' + FIX.map(([k, l]) => `<option value="__v:${esc(k)}">${esc(l)}</option>`).join('') + '</optgroup><optgroup label="Guardadas">' + VISTAS.map(v => `<option value="${esc(v.id)}">${esc(v.nombre)}</option>`).join('') + '</optgroup><option value="__save">＋ Guardar vista actual…</option><option value="__del" hidden>Borrar</option><option value="__upd" hidden>Actualizar</option><option value="__cut" hidden>Cortes</option>';
+    sel.innerHTML = '<option value="">Vistas…</option><optgroup label="Vistas fijas">' + FIX.map(([k, l]) => `<option value="__v:${esc(k)}">${esc(l)}</option>`).join('') + '</optgroup><optgroup label="Ambientes (aislados)">' + M.LOCALES.filter(l => l.poly).map(l => `<option value="__amb:${esc(l.id)}">${esc(l.nombre)}</option>`).join('') + '</optgroup><optgroup label="Guardadas">' + VISTAS.map(v => `<option value="${esc(v.id)}">${esc(v.nombre)}</option>`).join('') + '</optgroup><option value="__save">＋ Guardar vista actual…</option><option value="__del" hidden>Borrar</option><option value="__upd" hidden>Actualizar</option><option value="__cut" hidden>Cortes</option>';
     sel.value = VISTAS.some(v => v.id === cur) ? cur : ''; vistaForm(sel); }
   const el = $('pane-vistas'); if (!el) return;
   el.innerHTML = `<p class="intro">Una vista guarda cámara, cortes, capas y piezas ocultas. Queda en la base de la página: la ves vos y la leo yo.</p><div class="renrow"><input type="text" id="vistaNombre" placeholder="nombre de la vista" maxlength="60"><button class="btn" id="vistaGuardar">Guardar</button></div><div class="renmsg" id="vistaMsg"></div>` +
@@ -290,7 +300,8 @@ function vistaForm(sel) { if (sel.dataset.bound) return; sel.dataset.bound = '1'
   ok.addEventListener('click', async () => { const m = modo, cur = sel.dataset.cur; const nm = nom.value.trim(); cerrar(); if (m === 'save') aviso(await guardarVista(nm)); else if (m === 'del') { await borrarVista(cur); aviso('Borrada.'); } });
   F.querySelector('#vfNo').addEventListener('click', cerrar); nom.addEventListener('keydown', e => { if (e.key === 'Enter') ok.click(); if (e.key === 'Escape') cerrar(); });
   sel.addEventListener('change', async () => { const val = sel.value;
-    if (val.startsWith('__v:')) { const b = document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`); if (b) b.click(); sel.value = ''; return; }
+    if (val.startsWith('__amb:')) { aislar(val.slice(6)); sel.value = ''; return; }
+    if (val.startsWith('__v:')) { AMB = null; applyClips(); const b = document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`); if (b) b.click(); sel.value = ''; return; }
     if (val === '__save') return abrir('save');
     if (val === '__del') return abrir('del');
     if (val === '__upd') { aviso(await actualizarVista(sel.dataset.cur)); return; }

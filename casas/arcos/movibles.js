@@ -3,6 +3,8 @@
    El estado queda en este navegador y se aplica después de cada armado. */
 export const HOJAS = {
   'VO-H1': { nombre: 'Hoja corrediza 1 de la PB (S)', min: 0, max: 615 },
+  /* puerta chica dentro de la hoja 1 (Maxi 20/10): corre sobre rieles de la hoja grande, de su lado de adentro; 0 = donde está en tu SketchUp, +70 la cierra sobre el paño abierto */
+  'VO-P1': { nombre: 'Puerta chica de la hoja 1', min: -25, max: 70, en: 'VO-H1' },
   'VO-H2': { nombre: 'Hoja corrediza 2 de la PB', min: -209, max: 405 },
   'VO-H3': { nombre: 'Hoja corrediza 3 de la PB', min: -564, max: 50 },
   'VO-H4': { nombre: 'Hoja corrediza 4 de la PB (N)', min: -614, max: 0 },
@@ -18,7 +20,7 @@ export function partirSU01(pos) {
     for (let k = 0; k < 3; k++) for (let a = 0; a < 3; a++) { const v = pos[t * 9 + k * 3 + a]; b[a] = Math.min(b[a], v); b[a + 3] = Math.max(b[a + 3], v); } }
   const grupo = t => { const b = bb.get(f(t)), [x0, z0, y0, x1, z1, y1] = b;
     if (y1 > 2480) return null;                                         /* ventanas de 2P a la terraza: quedan en SU-01 */
-    if (z1 < 495 && z1 > 90) { const ym = Math.round(y0); return ym >= 2354 ? 'VO-H1' : ym >= 2348 ? 'VO-H2' : ym >= 2342 ? 'VO-H3' : 'VO-H4'; }
+    if (z1 < 495 && z1 > 90) { const ym = Math.round(y0); if (ym >= 2360) return 'VO-P1'; return ym >= 2354 ? 'VO-H1' : ym >= 2348 ? 'VO-H2' : ym >= 2342 ? 'VO-H3' : 'VO-H4'; }
     if (z0 > 612) { if (x0 > 670 && x1 < 790 && z0 > 710 && z1 < 815) return 'VO-V';
       if (x0 > 215 && x1 < 645) { if (x1 - x0 > 300) { const cx = (pos[t * 9] + pos[t * 9 + 3] + pos[t * 9 + 6]) / 3; return cx < 431 ? 'VO-A' : 'VO-B'; } return (x0 + x1) / 2 < 431 ? 'VO-A' : 'VO-B'; } }
     return null; };
@@ -32,7 +34,7 @@ const base = id => id.replace(/[a-z]$/, '').replace(/p$/, '');
 export function initMovibles(visor, root, M) {
   const persiana = id => { const a = M.ABERTURAS.find(o => o.id === id), F = M.MUROS.find(m => m.id === a.muro); const z0 = (F.z0 ?? 0) + (a.s || 0); return { z0, z1: z0 + a.h }; };
   const aplicar = () => { for (const p of visor.parts || []) { if (!p.grp) continue;
-      if (/^VO-/.test(p.id)) { const k = base(p.id), h = HOJAS[k]; if (!h) continue; const v = MOV[k] || 0; p.grp.position.x = v; p.grp.position.z = Math.abs(v) > 1 ? (h.dz || 0) : 0; }
+      if (/^VO-/.test(p.id)) { const k = base(p.id), h = HOJAS[k]; if (!h) continue; const vh = h.en ? (MOV[h.en] || 0) : 0, v = (MOV[k] || 0) + vh, dz = h.en ? (HOJAS[h.en].dz || 0) : (h.dz || 0); p.grp.position.x = v; p.grp.position.z = Math.abs(h.en ? vh : v) > 1 ? dz : 0; }
       else if (/^V-0[1-3]p$/.test(p.id)) { const k = p.id.slice(0, 4), f = (MOV[k] || 0) / 100, { z1 } = persiana(k), s = Math.max(.04, 1 - f); p.grp.scale.y = s; p.grp.position.y = z1 * (1 - s); } }
     window.__despertar && window.__despertar(); };
   let ult = null; setInterval(() => { if (visor.parts !== ult) { ult = visor.parts; aplicar(); } }, 250);
