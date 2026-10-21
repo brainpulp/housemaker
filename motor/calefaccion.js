@@ -34,21 +34,3 @@ export function catalogoCal(THREE,B,CYL){
   };
 }
 /* escenarios de partida por ambiente */
-export function escCal(a,I){
-  const N={nombre:'Sin calefacción',items:[]};
-  switch(a){
-    case 'living':return {A:{nombre:'Salamandra + losa radiante bajo la galería',items:[I('salExist',2043,638,0),I('radiante',1925,810,0,{L:1140,D:230,Wm2:80})]},
-      B:{nombre:'Salamandra + losa + 2 fancoils',items:[I('salExist',2043,638,0),I('radiante',1925,810,0,{L:1140,D:230,Wm2:80}),I('fancoil',1360,200,90,{kW:3.5}),I('fancoil',2490,300,-90,{kW:3.5})]}};
-    case 'cocina':return {A:{nombre:'Calderas (sin emisores)',items:[I('caldera',1852,-730,90),I('caldera',1852,-684,90)]},B:{nombre:'Calderas + fancoil',items:[I('caldera',1852,-730,90),I('caldera',1852,-684,90),I('fancoil',1940,-30,180,{kW:2.5})]},
-      C:{nombre:'Calderas afuera, en gabinete de chapa',items:[/* del lado del patio, contra M-21, detrás del sucucho */I('gabinete',1890,-822,180,{L:130,D:55,H:210}),I('caldera',1862,-815,180),I('caldera',1918,-815,180)]}};
-    case 'dorm1':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',60,400,90,{kW:3.5})]},C:{nombre:'Tiro balanceado',items:[I('tiro',60,400,90,{kW:3.5})]}};
-    case 'dorm2':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',700,640,180,{kW:4})]},C:{nombre:'Tiro balanceado',items:[I('tiro',700,640,180,{kW:4})]}};
-    case 'dorm3':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',2200,-740,0,{kW:2})]},C:{nombre:'Tiro balanceado',items:[I('tiro',2200,-740,0,{kW:3})]}};
-    case 'dormS':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',60,560,90,{kW:3.5})]}};
-    case 'dormP':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',800,40,0,{kW:3})]}};
-    case 'banoEP':return {A:N,B:{nombre:'Fancoil',items:[I('fancoil',550,380,-90,{kW:1.5})]}};
-    case 'estudio':return {A:N,B:{nombre:'Fancoil',items:[I('fancoil',1180,600,180,{kW:2})]}};
-    case 'altillo':return {A:N,B:{nombre:'Fancoil (plan)',items:[I('fancoil',2103,-740,0,{kW:3.5})]}};
-    default:return {A:N};
-  }
-}

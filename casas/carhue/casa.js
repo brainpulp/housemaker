@@ -19,9 +19,11 @@ import { initRealismo } from './realismo.js';
 import { initLuz } from './luz.js';
 import { initPersonas } from './personas.js';
 import { initEquipamiento } from './equipamiento.js';
+import { equipCarhue } from './equipamiento-carhue.js';
 import { initArboles } from './arboles.js';
 import { initNoche } from './noche.js';
 import { initTours } from './tours.js';
+import { TOURS_CARHUE, ESCALERAS_CARHUE } from './tours-carhue.js';
 import { initCalidad } from './calidad.js';
 import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
@@ -1075,11 +1077,11 @@ try{initRealismo(visor);}catch(e){console.error('realismo',e);}
 try{initLuz(visor);}catch(e){console.error('luz',e);}
 try{initCalidad(visor);}catch(e){console.error('calidad',e);}
 try{initPersonas(visor);}catch(e){console.error('personas',e);}
-try{initEquipamiento(visor,document.querySelector('#modo-3d .stage'));}catch(e){console.error('equipamiento',e);}
+try{initEquipamiento(visor,document.querySelector('#modo-3d .stage'),{datos:equipCarhue,piso:1.5});}catch(e){console.error('equipamiento',e);}
 try{initArboles(visor,M);}catch(e){console.error('arboles',e);}
 try{initNoche(visor);}catch(e){console.error('noche',e);}
-try{initTours(visor);}catch(e){console.error('tours',e);}
-try{initTermica(visor,M);}catch(e){console.error('termica',e);}
+try{initTours(visor,{tours:TOURS_CARHUE,escaleras:ESCALERAS_CARHUE});}catch(e){console.error('tours',e);}
+try{initTermica(visor,M,{zonas:(l,P)=>l.id!=='L-23'&&(l.nivel==='PB'||l.nivel==='EP')&&(l.nivel!=='EP'||P.ep!==false),piso:l=>l.nivel==='EP'?H_EP:1.5,liviano:l=>l.nivel==='EP',capMuro:l=>l.nivel==='EP'?160:null});}catch(e){console.error('termica',e);}
 /* cámara: se recuerda en este navegador y vuelve al abrir la página */
 {try{const v=JSON.parse(localStorage.getItem('carhue-cam')||'null');if(v&&v.p&&v.t){visor.camera.position.set(...v.p);visor.controls.target.set(...v.t);visor.controls.update();}}catch(e){}
   let last='';setInterval(()=>{const v=visor.getView();const k=JSON.stringify(v);if(k!==last){last=k;try{localStorage.setItem('carhue-cam',k);}catch(e){}}},1000);}

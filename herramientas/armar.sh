@@ -17,6 +17,6 @@ if [ "${2:-}" = "--prueba" ]; then
   HTML=$(ls "$OUT"/*.html | grep -v _prueba | head -1)
   [ -d node_modules/three ] || npm i --no-save three@0.160.0 >/dev/null
   ln -sfn "$(pwd)/node_modules/three" "$OUT/_three"
-  sed 's#https://cdn.jsdelivr.net/npm/three@0.160.0/#./_three/#g' "$HTML" > "$OUT/_prueba.html"
+  sed -e 's#https://cdn.jsdelivr.net/npm/three@0.160.0/#./_three/#g' -e 's#https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js#./_clipper.js#g' "$HTML" > "$OUT/_prueba.html"   # sin CDN: three y Clipper locales
 fi
 echo "listo: $OUT ($(ls "$OUT" | wc -l) archivos)"

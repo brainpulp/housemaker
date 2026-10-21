@@ -5,40 +5,46 @@
    La geometría sale del modelo: alturas por rayos al techo, bordes al exterior o a otra zona, muros de MUROS, vidrios de las piezas «glass».
    Es una estimación para comparar sistemas, no un cálculo reglamentario. */
 import { solPos } from './noche.js';
-export function initTermica(visor,M){
+export function initTermica(visor,M,D={}){
   const {THREE,scene}=visor;const V3=THREE.Vector3;
   /* clima de Ingeniero Maschwitz (la casa está en el pasaje Carhué): máximas y mínimas medias por mes (Weather Atlas) */
-  const CLIMA=[[31.2,19.4],[29.9,19.2],[26.8,16.5],[23.1,14.0],[18.9,11.6],[15.6,8.8],[14.3,7.8],[17.1,9.0],[18.5,9.9],[21.7,12.2],[25.8,14.4],[29.5,17.4]];
+  const CLIMA=D.clima||[[31.2,19.4],[29.9,19.2],[26.8,16.5],[23.1,14.0],[18.9,11.6],[15.6,8.8],[14.3,7.8],[17.1,9.0],[18.5,9.9],[21.7,12.2],[25.8,14.4],[29.5,17.4]];/* la casa puede pasar el suyo (D.clima) */
   const TMED=CLIMA.reduce((s,[a,b])=>s+(a+b)/2,0)/12;
   /* valores de cálculo (editables) */
   const S={dia:20,noche:16,desde:7,hasta:23,ach:.8,uMuro:1.6,uTecho:1.4,uVidrio:5.8,shgc:.78,uPiso:.6,uInt:2.0,uEP:1.5,gInt:3,tipo:'tipico',sol:.65,mapa:true};
   try{Object.assign(S,JSON.parse(localStorage.getItem('carhue-termica')||'{}'));}catch(e){}
   const guardarS=()=>{try{localStorage.setItem('carhue-termica',JSON.stringify(S));}catch(e){}};
-  const H_EP=262,PB=1.5;
+  /* datos de la casa (D): qué locales son zonas, a qué altura está el piso de cada una, y cuáles tienen piso liviano, muros bajos o tocan el terreno.
+     Sin datos, todos los locales con planta son zonas y el piso es el nivel del modelo (M.NIVELES). */
+  const esZona=D.zonas||(l=>true),pisoDe=D.piso||(l=>(M.NIVELES&&M.NIVELES[l.nivel]||{}).z??0);
   const pip=(x,y,P)=>{let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const [xi,yi]=P[i],[xj,yj]=P[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c;}return c;};
   const area=P=>{let s=0;for(let i=0,j=P.length-1;i<P.length;j=i++)s+=(P[j][0]+P[i][0])*(P[j][1]-P[i][1]);return s/2;};
 
   /* ---------- geometría de zonas ---------- */
   let Z=null,geoKey=null;
-  function zonaEn(x,y,z){if(!Z)return null;const ep=z>=H_EP-5;let pb=null;for(const q of Z){if(!pip(x,y,q.poly))continue;if(q.ep&&ep)return q;if(!q.ep)pb=q;}return (ep&&pb&&pb.altoMax>z-pb.z0)?pb:(ep?null:pb);}
-  function armarZonas(){const L=(M.LOCALES||[]).filter(l=>l.poly&&l.id!=='L-23'&&(l.nivel==='PB'||l.nivel==='EP')&&(l.nivel!=='EP'||visor.params.ep!==false));
-    Z=L.map(l=>({id:l.id,nombre:l.nombre,poly:l.poly,ep:l.nivel==='EP',z0:l.nivel==='EP'?H_EP:PB,A:Math.abs(area(l.poly))/1e4}));
+  function zonaEn(x,y,z){if(!Z)return null;/* la zona de piso más alto por debajo del punto; si el punto le queda por encima del techo, ninguna (una doble altura sí lo contiene) */
+    let best=null;for(const q of Z){if(!pip(x,y,q.poly)||q.z0>z+5)continue;if(!best||q.z0>best.z0)best=q;}if(!best)return null;
+    if(z-best.z0>30&&nivelArriba(best)!=null&&z>=nivelArriba(best)-5&&!(best.altoMax>z-best.z0))return null;return best;}
+  const nivelArriba=q=>{let n=null;for(const r of Z)if(r.z0>q.z0+50&&(n==null||r.z0<n))n=r.z0;return n;};
+  function armarZonas(){const L=(M.LOCALES||[]).filter(l=>l.poly&&esZona(l,visor.params));
+    Z=L.map(l=>({id:l.id,nombre:l.nombre,poly:l.poly,z0:pisoDe(l),liviano:!!(D.liviano&&D.liviano(l)),capMuro:D.capMuro?D.capMuro(l):null,A:Math.abs(area(l.poly))/1e4}));
+    const z0min=Math.min(...Z.map(q=>q.z0));for(const q of Z){q.ep=q.z0>z0min+50;/* «de arriba»: no toca el terreno ni es la planta más baja */q.terreno=D.terreno?!!D.terreno(L.find(l=>l.id===q.id)):!q.ep;}
     const ms=[];for(const p of visor.parts||[]){if(p.grp.visible===false)continue;p.grp.traverse(o=>{if(o.isMesh)ms.push(o);});}
     const rc=new THREE.Raycaster();const ab=new V3(0,1,0);
     for(const q of Z){const xs=q.poly.map(p=>p[0]),ys=q.poly.map(p=>p[1]);let n=0,hs=0,roof=0,cint={},hmax=0;const st=50;
       for(let x=Math.min(...xs)+st/2;x<Math.max(...xs);x+=st)for(let y=Math.min(...ys)+st/2;y<Math.max(...ys);y+=st){if(!pip(x,y,q.poly))continue;n++;
         rc.set(new V3(x,q.z0+30,y),ab);rc.far=700;const h=rc.intersectObjects(ms,false)[0];let hh=h?h.point.y-q.z0:260,tipo='techo';
-        if(h){const pid=h.object.userData.id;const pp=pid&&visor.parts.find(p=>p.id===pid);if(pp&&pp.cat==='glass')tipo='vidrio';else if(!q.ep&&h.point.y<H_EP+25){tipo='int';}}
-        hs+=hh;hmax=Math.max(hmax,hh);if(tipo==='techo')roof++;else if(tipo==='int'){const up=zonaEn(x,y,H_EP+30);const k=up&&up!==q?up.id:'_';cint[k]=(cint[k]||0)+1;}}
+        if(h){const pid=h.object.userData.id;const pp=pid&&visor.parts.find(p=>p.id===pid);const na=nivelArriba(q);if(pp&&pp.cat==='glass')tipo='vidrio';else if(na!=null&&h.point.y<na+25){tipo='int';}}
+        hs+=hh;hmax=Math.max(hmax,hh);if(tipo==='techo')roof++;else if(tipo==='int'){const up=zonaEn(x,y,nivelArriba(q)+30);const k=up&&up!==q?up.id:'_';cint[k]=(cint[k]||0)+1;}}
       const c=st*st/1e4;q.h=n?hs/n:260;q.altoMax=hmax;q.V=q.A*q.h/100;q.Aroof=roof*c*1.08;q.arriba=Object.entries(cint).filter(([k])=>k!=='_').map(([k,v])=>[k,v*c]);}
     /* bordes: al exterior (con o sin muro) o a otra zona (tabique o abierto) */
     const muros=(M.MUROS||[]);const cerca=(x,y)=>{let best=null;for(const m of muros){const [ax,ay]=m.a,[bx,by]=m.b;const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;if(!L2)continue;const t=Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/L2));const d=Math.hypot(ax+dx*t-x,ay+dy*t-y);if(d<(m.e||20)/2+14&&(!best||d<best.d))best={m,d};}return best;};
     for(const q of Z){q.Aext=0;q.vec={};const P=q.poly,sgn=area(P)>0?1:-1;
       for(let i=0;i<P.length;i++){const [x0,y0]=P[i],[x1,y1]=P[(i+1)%P.length],L=Math.hypot(x1-x0,y1-y0);if(L<1)continue;let nx=(y1-y0)/L,ny=-(x1-x0)/L;{const mx=(x0+x1)/2,my=(y0+y1)/2;if(pip(mx+nx*5,my+ny*5,P)){nx=-nx;ny=-ny;}}/* normal hacia afuera (se prueba) */
         const ns=Math.max(1,Math.round(L/50));for(let k=0;k<ns;k++){const u=(k+.5)/ns,x=x0+(x1-x0)*u,y=y0+(y1-y0)*u,seg=L/ns/100;
-          let o=null;for(const d of [25,45,70]){o=Z.find(r=>r!==q&&r.ep===q.ep&&pip(x+nx*d,y+ny*d,r.poly));if(o)break;}
-          if(!o&&q.ep)for(const d of [25,45,70]){o=Z.find(r=>!r.ep&&r.altoMax>320&&pip(x+nx*d,y+ny*d,r.poly));if(o)break;}/* entrepiso abierto a la doble altura del living */
-          const w=cerca(x,y),hh=Math.min(q.h,q.ep?160:q.h)/100;
+          let o=null;for(const d of [25,45,70]){o=Z.find(r=>r!==q&&Math.abs(r.z0-q.z0)<40&&pip(x+nx*d,y+ny*d,r.poly));if(o)break;}
+          if(!o&&q.ep)for(const d of [25,45,70]){o=Z.find(r=>r.z0<q.z0-40&&r.altoMax>q.z0-r.z0+58&&pip(x+nx*d,y+ny*d,r.poly));if(o)break;}/* piso alto abierto a una doble altura de abajo */
+          const w=cerca(x,y),hh=Math.min(q.h,q.capMuro??q.h)/100;
           if(o){const v=q.vec[o.id]||(q.vec[o.id]={muro:0,abierto:0});if(w)v.muro+=seg*hh;else v.abierto+=seg*hh;}
           else if(w)q.Aext+=seg*hh;}}}
     /* vidrios al exterior: cada pieza «glass», del lado de la zona que tiene aire afuera del otro lado */
@@ -69,11 +75,11 @@ export function initTermica(visor,M){
     const cald=its.filter(i=>i.t==='caldera').reduce((s,i)=>s+i.p.kW,0);
     const idx=Object.fromEntries(Z.map((q,i)=>[q.id,i]));const n=Z.length;
     /* conductancias W/K */
-    const G=Z.map(q=>({ext:q.Amuro*S.uMuro+q.Aroof*S.uTecho+q.Avid*S.uVidrio+.34*S.ach*q.V,suelo:q.ep?0:q.A*S.uPiso}));
+    const G=Z.map(q=>({ext:q.Amuro*S.uMuro+q.Aroof*S.uTecho+q.Avid*S.uVidrio+.34*S.ach*q.V,suelo:q.terreno?q.A*S.uPiso:0}));
     const link=[];for(const q of Z){for(const [oid,v] of Object.entries(q.vec)){const j=idx[oid];if(j==null)continue;link.push([idx[q.id],j,(v.muro*S.uInt+v.abierto*35)/2]);/* cada borde se cuenta de los dos lados: la mitad cada vez */}
       for(const [oid,A] of q.arriba){const j=idx[oid];if(j!=null)link.push([idx[q.id],j,A*S.uEP]);}}
     /* doble altura: el living se abre al estudio y al entrepiso por arriba (sin piso): acople fuerte por el aire */
-    const Cap=Z.map(q=>1200*q.V+q.A*(q.ep?50e3:150e3));
+    const Cap=Z.map(q=>1200*q.V+q.A*(q.liviano?50e3:150e3));
     const T=Z.map(()=>S.noche),dt=300,pasos=24*3600/dt,dias=4;const serie=Z.map(()=>[]),out=[],Pz=Z.map(()=>[]);
     for(const d of dev){d.E=0;d.serie=[];}
     for(let dia=0;dia<dias;dia++)for(let s=0;s<pasos;s++){const hr=s*dt/3600,h=Math.floor(hr),so=SOL[h],To=Tout(hr);const Tset=(hr>=S.desde&&hr<S.hasta)?S.dia:S.noche;

@@ -78,33 +78,3 @@ export function catalogoLuces(THREE,B,CYL){
 }
 
 /* escenarios de luz de partida (I = itA(ambiente)) */
-export function escLuces(a,I){
-  const R90=90;
-  switch(a){
-    case 'cocina':return {
-      A:{nombre:'Riel + tira bajo alacena',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('tira',1866,-150,R90,{L:300,z:148,dir:'abajo'}),I('colgante',2165,-175,0,{drop:85,diam:30})]},
-      B:{nombre:'Embutidos + colgantes sobre isla',items:[I('emb',1910,-300,R90,{n:4,sep:110}),I('colgante',2165,-245,0,{drop:80,diam:25}),I('colgante',2165,-175,0,{drop:80,diam:25}),I('colgante',2165,-105,0,{drop:80,diam:25})]}};
-    case 'comedor':return {
-      A:{nombre:'Lineal sobre la mesa',items:[I('linea',2250,430,R90,{L:160,drop:85}),I('aplique',2445,92,0,{z:190})]},
-      B:{nombre:'Colgante grande + bañadores',items:[I('colgante',2250,420,0,{drop:95,diam:55,lm:1400}),I('riel',2250,180,0,{n:3,L:200,tilt:25})]}};
-    case 'living':return {
-      A:{nombre:'Lámparas bajas',items:[I('galponera',1540,352,0),I('galponera',1740,352,0),I('pie',1480,480,0),I('velador',1815,350,0,{z:0,lm:350}),I('riel',1640,250,0,{n:4,L:250,tilt:30})]},
-      B:{nombre:'Spots en cuadro + tira en cornisa',items:[I('galponera',1540,352,0),I('galponera',1740,352,0),I('cuadro',1640,330,0,{sep:160}),I('pie',1460,560,0),I('tira',1640,175,0,{L:300,z:235,dir:'arriba'})]}};
-    case 'galeria':return {
-      A:{nombre:'Guirnalda + lineal',items:[I('guirnalda',2746,450,R90,{L:700,z:255}),I('linea',2746,450,R90,{L:200,drop:70,lm:3000})]},
-      B:{nombre:'Embutidos',items:[I('emb',2746,300,R90,{n:3,sep:150}),I('emb',2746,650,R90,{n:3,sep:150})]}};
-    case 'dorm1':return {A:{nombre:'Plafón + veladores',items:[I('plafon',210,330,0),I('velador',102,65,0),I('velador',318,65,0)]}};
-    case 'dorm2':return {A:{nombre:'Plafón + veladores',items:[I('plafon',700,500,0),I('velador',425,395,90),I('velador',425,631,90)]}};
-    case 'dorm3':return {A:{nombre:'Plafón + veladores',items:[I('plafon',2220,-600,0),I('velador',2132,-737,0),I('velador',2328,-737,0)]}};
-    case 'dormS':return {A:{nombre:'Veladores',items:[I('velador',58,257,90),I('velador',58,457,90),I('aplique',380,600,-90,{z:170})]}};
-    case 'dormP':return {A:{nombre:'Veladores + aplique',items:[I('velador',600,242,90),I('velador',600,478,90),I('pie',990,455,0)]}};
-    case 'banoEP':return {A:{nombre:'Embutidos + tira en el espejo',items:[I('emb',485,160,0,{n:2,sep:140,lm:450}),I('emb',485,420,90,{n:2,sep:110,lm:500,K:3000}),I('tira',407,385,90,{L:110,z:190,dir:'frente',lmm:800,K:3000}),I('aplique',485,686,180,{z:150,lm:250,K:2700})]}};
-    case 'estudio':return {A:{nombre:'Lineal sobre el escritorio + lectura',items:[I('linea',1280,190,90,{L:150,drop:70,lm:2200,K:4000}),I('velador',1290,115,0,{z:75,lm:400}),I('pie',1060,560,0),I('emb',1180,330,90,{n:2,sep:120,lm:500})]}};
-    case 'altillo':return {A:{nombre:'Colgante en la cumbrera + tira',items:[I('colgante',2103,-560,0,{drop:40,diam:35,lm:1200}),I('tira',2103,-748,0,{L:200,z:120,dir:'arriba',lmm:500})]}};
-    case 'exterior':return {
-      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',22,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
-        ...[1500,1800,2100,2400].map(x=>I('baliza',x,1135,0)),I('pileta',3332,700,R90,{z:-45}),I('pileta',3332,1250,R90,{z:-45})]},
-      B:{nombre:'Sólo pileta',items:[I('reflector',22,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('pileta',3332,700,R90,{z:-45}),I('pileta',3332,1250,R90,{z:-45})]}};
-    default:return {A:{nombre:'Sin luces',items:[]}};
-  }
-}

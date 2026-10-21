@@ -17,6 +17,12 @@ import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
 import { initVistas } from './vistas.js';
 import { initViewCube } from './viewcube.js';
+import { initPersonas } from './personas.js';
+import { initEquipamiento } from './equipamiento.js';
+import { equipArcos } from './equipamiento-arcos.js';
+import { initTours } from './tours.js';
+import { TOURS_ARCOS, ESCALERAS_ARCOS } from './tours-arcos.js';
+import { initTermica } from './termica.js';
 import * as M from './modelo.js';
 import * as A from './armador.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -60,6 +66,7 @@ const zN = k => (M.NIVELES[k] || {}).z ?? 0;
 
 const params = [
   { id: 'techos', label: 'Techos', type: 'check', value: true, quick: true, group: 'Ver' },
+  { id: 'equip', label: 'Equipamiento (escenarios)', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'carp', label: 'Carpinterías', type: 'check', value: true, quick: true, group: 'Ver', help: 'Vidrios de ventanas y hojas de puertas, cerradas.' },
   { id: 'detalle', label: 'Detalle del SketchUp', type: 'check', value: true, quick: true, group: 'Ver', help: 'Carpinterías, terraza, tanque, jardín del frente, cocina y baños tal como están en tu SketchUp.' },
   { id: 'baranda', label: 'Baranda de la E-02', type: 'select', value: 'cables', group: 'Escalera', options: DISENOS.map(d => [d.id, d.name]), help: 'Los diseños de la conversación del 11/10. El de cables es el que elegiste.' },
@@ -284,10 +291,17 @@ try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
 window.__encastres = [['E2-ZE', 'E2-PA', 'la zanca ZE entra 1,5 en el poste PA (diseño del 11/10)'], ['E2-ZI', 'E2-C1', 'la nariz de la compensada C1 apoya 1 cm sobre el remate a plomo de la zanca ZI (diseño del 11/10)']];
+try { initPersonas(visor); } catch (e) { console.error('personas', e); }
+try { initEquipamiento(visor, document.querySelector('#modo-3d .stage'), { datos: equipArcos, piso: 72.3 }); } catch (e) { console.error('equipamiento', e); }
 try { initNoche(visor, { lugar: 'Núñez (CABA)', lat: -34.545, lon: -58.468, tz: -3, norte: -40, inicioDia: true, max: 32 }); visor.noche && visor.noche.setFuentes(LUCES.fuentes); } catch (e) { console.error('noche', e); }
 /* cámara: se recuerda en este navegador */
 { try { const v = JSON.parse(localStorage.getItem('arcos-cam') || 'null'); if (v && v.p && v.t) { visor.camera.position.set(...v.p); visor.controls.target.set(...v.t); visor.controls.update(); } } catch (e) {}
   let last = ''; setInterval(() => { const v = visor.getView(); const k = JSON.stringify(v); if (k !== last) { last = k; try { localStorage.setItem('arcos-cam', k); } catch (e) {} } }, 1000); }
+try { initTours(visor, { tours: TOURS_ARCOS, escaleras: ESCALERAS_ARCOS }); } catch (e) { console.error('tours', e); }
+/* térmica: zonas = locales cerrados; clima de Buenos Aires, Observatorio Central (Villa Ortúzar), máximas y mínimas medias 1991–2020 */
+try { initTermica(visor, M, { zonas: l => !['L-BAL', 'L-TZ'].includes(l.id), piso: l => l.id === 'L-B2' ? 22.3 : ({ SS: -198, PB: 72.3, EP: 329, P1: 417.3, P2: 613.3, TZ: 757 })[l.nivel] ?? 0,
+  liviano: l => l.nivel === 'EP', terreno: l => l.nivel === 'SS' || l.nivel === 'PB',
+  clima: [[30.1, 20.2], [28.9, 19.4], [26.9, 17.7], [23.2, 14.1], [19.4, 11.1], [16.4, 8.4], [15.5, 7.5], [17.9, 8.9], [19.7, 10.6], [22.6, 13.4], [26.0, 16.1], [29.0, 18.6]] }); } catch (e) { console.error('termica', e); }
 try { initEditor(visor, document.querySelector('#modo-3d .stage'), {}, zN('EP')); } catch (e) { console.error('editor', e); }
 try { initSenalar(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('senalar', e); }
 try { initMedir(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('medir', e); }
