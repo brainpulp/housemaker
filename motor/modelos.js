@@ -15,6 +15,19 @@ export const MODELOS={
   sillaDSW:{n:'Silla de cáscara blanca con patas de madera',cat:'comedor',p:{L:47,D:54,H:81},titulo:'chair 3d Vitra',autor:'3d-dca',uid:'bdf18bc95bcb437180d896c164aa97f2'},
   ratonaJoco:{n:'Mesas ratonas redondas encastradas (par)',cat:'estar',p:{L:160,D:130,H:32},titulo:'Side table Joco Stone',autor:'lep511',uid:'4037cdd7d3b047de93618f24f9a0b663',
     /* la chica adelante a la izquierda, la grande atrás a la derecha */caja:p=>[[-p.L/2,-p.L/2+p.L*.47,-p.D/2+p.D*.42,p.D/2],[p.L/2-p.L*.58,p.L/2,-p.D/2,-p.D/2+p.D*.71]]},
+  /* Arcos (Maxi 21/10: «no uses esos muebles boxy, usá muebles buenos, como los de Carhué»): elegidos de Objaverse (LVIS) mirando las hojas de candidatos */
+  mesaBaja:{n:'Mesa baja de madera con tapa de vidrio',cat:'estar',p:{L:130,D:70,H:40},titulo:'Small Table',autor:'johnim',uid:'006373e3885b472cb5538fc570235fcf'},
+  mesaComedor:{n:'Mesa de comedor de madera clara',cat:'comedor',p:{L:200,D:95,H:76},titulo:'Kitchen table',autor:'tahax',uid:'2bbfa4c7c546480fa1f7855aabaa10ad'},
+  camaDoble:{n:'Cama doble con respaldo de pared',cat:'dormitorio',p:{L:240,D:215,H:100},titulo:'Messy bed 2.0 (with wall mounted backboard)',autor:'thethieme',uid:'a2b2645701c94fa49e65661806219c6b'},
+  camaSimple:{n:'Cama de una plaza de madera',cat:'dormitorio',p:{L:100,D:205,H:90},titulo:'Bed - Sample',autor:'mifusaja',uid:'b547d81073b64d3e97200fd3ae9a74af'},
+  mesaLuzM:{n:'Mesa de luz de madera',cat:'dormitorio',p:{L:50,D:40,H:55},titulo:'Old Simple Drawer',autor:'Blender3D',uid:'a63d5b273ed74801830522f4b4c9fb81'},
+  comodaB:{n:'Cómoda blanca de ocho cajones',cat:'dormitorio',p:{L:160,D:50,H:80},receta:{rot:-90},titulo:'Ikea 8-drawer dresser white stain',autor:'allenbranch',uid:'15562ed7b1d24a7a842d971f6555216e'},
+  roperoA:{n:'Ropero de dos puertas, madera tallada',cat:'dormitorio',p:{L:110,D:60,H:220},titulo:'Cupboard',autor:'nocyde',uid:'56b25c34c5e34f2c870516ce7af494c4'},
+  escritorioM:{n:'Escritorio de madera con cajones',cat:'trabajo',p:{L:150,D:70,H:78},receta:{rot:-90},titulo:'Old Simple Desk',autor:'Blender3D',uid:'23fa151346304c8bb8c58f58a76e6407'},
+  estanteM:{n:'Biblioteca de madera clara con puertas abajo',cat:'trabajo',p:{L:85,D:40,H:212},titulo:'653001',autor:'Interiors3D',uid:'4112e07e262842c6b7070aa1505505c3'},
+  alacenaV:{n:'Alacena alta con puertas de vidrio',cat:'cocina',p:{L:100,D:40,H:204},titulo:'QWBB00',autor:'Interiors3D',uid:'fb098cf166c141d0ae3e7348788cdd5a'},
+  inodoroK:{n:'Inodoro de dos piezas con mochila',cat:'baño',p:{L:45,D:75,H:78},receta:{rot:-90},titulo:'KOHLER K-3754-0 Kelston Comfort Height Toilet',autor:'allenbranch',uid:'00b360de1846428eb5c23464824c5fc8'},
+  lavatorioS:{n:'Lavatorio de colgar con sifón',cat:'baño',p:{L:55,D:45,H:50},titulo:'Simple Sink',autor:'Andrew.Mischenko',uid:'73bda35b6e7a499a80427fc1b049b192'},
 };
 export const fuente=k=>`https://sketchfab.com/3d-models/${MODELOS[k].uid}`;
 
