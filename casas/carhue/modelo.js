@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.93', fecha:'2026-10-20',
+  nombre:'Carhué', version:'1.0.94', fecha:'2026-10-20',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -272,7 +272,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-20', v:'1.0.93', txt:'Inspector: botón «Transparente» en la pieza elegida: se ve a través y no tapa lo de atrás al tocar; con «Opaca» vuelve (motor compartido).'},
+export const CAMBIOS = [  {fecha:'2026-10-20', v:'1.0.94', txt:'Vistas y cortes pasan al motor (motor/vistas.js), iguales en Arcos y Carhué: seis cortes ajustables (X, Y, Z desde/hasta) y vistas fijas, ambientes aislados y guardadas; si movés un corte estando en una vista, queda guardado en ella. Funciona igual que antes; el código ahora es el mismo para las dos casas.'},
+  {fecha:'2026-10-20', v:'1.0.93', txt:'Inspector: botón «Transparente» en la pieza elegida: se ve a través y no tapa lo de atrás al tocar; con «Opaca» vuelve (motor compartido).'},
   {fecha:'2026-10-19', v:'1.0.92', txt:'Versión del motor a la vista: abajo, junto a los fps, dice «motor» y el commit del último cambio del motor con que se armó la casa (motor compartido).'},
   {fecha:'2026-10-19', v:'1.0.91', txt:'P-03: nueva estética «Madera y vidrio, parante en el eje», como la de hierro pero toda en madera, con un parante más en el eje del pivote (Maxi). La vista de la zona sigue a la puerta corrida. Selección de vértices, aristas y caras: con el filtro activo el toque ya no elige la pieza entera (eso tapaba lo iluminado y cerraba el panel).'},
   {fecha:'2026-10-19', v:'1.0.90', txt:'P-03 corrida del todo hacia M-13 (x 11,78; M-01 termina ahí y M-02 arranca ahí) y el hogar HOG-1 corrido 0,58 al sur hasta tocar el borde del entrepiso. Falta ensancharlos: Maxi pasa las medidas.'},

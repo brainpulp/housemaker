@@ -15,6 +15,8 @@ import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
+import { initVistas } from './vistas.js';
+import { initViewCube } from './viewcube.js';
 import * as M from './modelo.js';
 import * as A from './armador.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -248,67 +250,12 @@ try { const bin = Uint8Array.from(atob(CALCO3D), c => c.charCodeAt(0)).buffer;
     e => { console.error(e); calcoMsg('no se pudo leer el calco'); }); } catch (e) { console.error(e); calcoMsg('sin calco'); }
 root.addEventListener('change', e => { if (/^(q|v)-calco$/.test(e.target.id)) setTimeout(applyCalco, 0); });
 
-/* cortes */
+/* cortes y vistas: del motor (motor/vistas.js), iguales en todas las casas (Maxi 20/10) */
 const $ = id => document.getElementById(id);
-const CL = { x: { on: $('cxOn'), v: $('cxV'), side: -1, axis: 'x' }, y: { on: $('cyOn'), v: $('cyV'), side: -1, axis: 'z' } };
-/* ambiente aislado (como en Carhué): seis cortes alrededor del local, paredes incluidas, de piso hasta abajo de la losa de arriba */
-let AMB = null;
-function cajaAmb(id) { const L = M.LOCALES.find(l => l.id === id); if (!L || !L.poly) return null; const xs = L.poly.map(q => q[0]), ys = L.poly.map(q => q[1]), f = zN(L.nivel), m = 25;
-  const sig = Object.values(M.NIVELES).map(n => n.z).filter(z => typeof z === 'number' && z > f + 50).sort((a, b) => a - b)[0];
-  return { xmin: Math.min(...xs) - m, xmax: Math.max(...xs) + m, ymin: Math.min(...ys) - m, ymax: Math.max(...ys) + m, zmin: f - 25, zmax: Math.min(f + 235, sig != null ? sig - 22 : f + 235) }; }
-function aislar(id) { const c = cajaAmb(id); if (!c) return; AMB = c; visor.params.corte = '0'; ['q-corte', 'v-corte'].forEach(e => { const el = $(e); if (el) el.value = '0'; }); for (const k of ['x', 'y']) CL[k].on.checked = false;
-  if (visor.params.techos !== false) visor.setParams({ techos: false }); applyClips();
-  const cx = (c.xmin + c.xmax) / 2, cy = (c.ymin + c.ymax) / 2, R = Math.max(c.xmax - c.xmin, c.ymax - c.ymin, 300), f = c.zmin + 25; visor.fly([cx + R * .55, f + R * .95 + 180, cy + R * .85], [cx, f + 60, cy]); }
-function applyClips() { const list = []; const h = +visor.params.corte; if (h) list.push({ axis: 'y', value: h, side: -1 });
-  if (AMB) list.push({ axis: 'x', value: AMB.xmin, side: 1 }, { axis: 'x', value: AMB.xmax, side: -1 }, { axis: 'z', value: AMB.ymin, side: 1 }, { axis: 'z', value: AMB.ymax, side: -1 }, { axis: 'y', value: AMB.zmin, side: 1 }, { axis: 'y', value: AMB.zmax, side: -1 });
-  for (const k of ['x', 'y']) { const c = CL[k]; if (c.on.checked) list.push({ axis: c.axis, value: +c.v.value, side: c.side }); $('c' + k + 'Lbl').textContent = (+c.v.value / 100).toFixed(2).replace('.', ',') + ' m'; }
-  visor.setClips(list); }
-for (const k of ['x', 'y']) { CL[k].on.addEventListener('change', applyClips); CL[k].v.addEventListener('input', () => { CL[k].on.checked = true; applyClips(); }); $('c' + k + 'Flip').addEventListener('click', () => { CL[k].side *= -1; CL[k].on.checked = true; applyClips(); }); }
-root.addEventListener('change', e => { if (e.target.id === 'q-corte' || e.target.id === 'v-corte') applyClips(); });
-root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
-
-/* vistas guardadas: en la base (colección «vistas») y en este navegador */
-let VISTAS = [], vdb = null;
-const snapshot = () => ({ cam: visor.getView(), corte: visor.params.corte, cx: CL.x.on.checked ? { v: +CL.x.v.value, side: CL.x.side } : null, cy: CL.y.on.checked ? { v: +CL.y.v.value, side: CL.y.side } : null, hidden: visor.hidden, amb: AMB, params: { techos: visor.params.techos, calco: visor.params.calco, ext: visor.params.ext, carp: visor.params.carp } });
-function applySnapshot(v) { AMB = v.amb || null; if (v.params) visor.setParams(v.params); visor.params.corte = v.corte || '0'; ['q-corte', 'v-corte'].forEach(id => { const el = $(id); if (el) el.value = visor.params.corte; });
-  for (const k of ['x', 'y']) { const c = v['c' + k]; CL[k].on.checked = !!c; if (c) { CL[k].v.value = c.v; CL[k].side = c.side; } } applyClips(); applyCalco(); visor.setHidden(v.hidden || []); if (v.cam) visor.fly(v.cam.p, v.cam.t); }
-function persistLocal() { try { localStorage.setItem('arcos-vistas', JSON.stringify(VISTAS)); } catch (e) {} }
-try { VISTAS = JSON.parse(localStorage.getItem('arcos-vistas') || '[]'); } catch (e) { VISTAS = []; }
-const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-function renderVistas() { const sel = $('vistasSel');
-  if (sel) { const cur = sel.dataset.cur || ''; const FIX = [...document.querySelectorAll('#viewbar [data-view]')].map(b => [b.dataset.view, b.textContent]);
-    sel.innerHTML = '<option value="">Vistas…</option><optgroup label="Vistas fijas">' + FIX.map(([k, l]) => `<option value="__v:${esc(k)}">${esc(l)}</option>`).join('') + '</optgroup><optgroup label="Ambientes (aislados)">' + M.LOCALES.filter(l => l.poly).map(l => `<option value="__amb:${esc(l.id)}">${esc(l.nombre)}</option>`).join('') + '</optgroup><optgroup label="Guardadas">' + VISTAS.map(v => `<option value="${esc(v.id)}">${esc(v.nombre)}</option>`).join('') + '</optgroup><option value="__save">＋ Guardar vista actual…</option><option value="__del" hidden>Borrar</option><option value="__upd" hidden>Actualizar</option><option value="__cut" hidden>Cortes</option>';
-    sel.value = VISTAS.some(v => v.id === cur) ? cur : ''; vistaForm(sel); }
-  const el = $('pane-vistas'); if (!el) return;
-  el.innerHTML = `<p class="intro">Una vista guarda cámara, cortes, capas y piezas ocultas. Queda en la base de la página: la ves vos y la leo yo.</p><div class="renrow"><input type="text" id="vistaNombre" placeholder="nombre de la vista" maxlength="60"><button class="btn" id="vistaGuardar">Guardar</button></div><div class="renmsg" id="vistaMsg"></div>` +
-    (VISTAS.length ? VISTAS.map(v => `<div class="row vrow" data-vista="${esc(v.id)}"><div style="flex:1;min-width:0"><div class="t"><b>${esc(v.nombre)}</b></div><div class="s">${(v.ts || '').slice(0, 10)}</div></div><button class="btn" data-vupd="${esc(v.id)}" title="Actualizar con la vista de ahora">⟳</button><button class="btn" data-vdel="${esc(v.id)}" title="Borrar">×</button></div>`).join('') : '<p class="s">Todavía no hay vistas guardadas.</p>');
-  el.querySelectorAll('.vrow').forEach(r => r.addEventListener('click', e => { if (e.target.closest('[data-vdel],[data-vupd]')) return; const v = VISTAS.find(x => x.id === r.dataset.vista); if (v) applySnapshot(v); }));
-  el.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', () => borrarVista(b.dataset.vdel)));
-  el.querySelectorAll('[data-vupd]').forEach(b => b.addEventListener('click', () => actualizarVista(b.dataset.vupd)));
-  $('vistaGuardar').addEventListener('click', async () => { const msg = await guardarVista(($('vistaNombre').value || '').trim()); const m = $('vistaMsg'); if (m) m.textContent = msg; }); }
-async function escribir(v, ok) { persistLocal(); renderVistas(); if (!vdb) return ok + ' en este navegador.'; try { const { id: _i, ...body } = v; await vdb.doc('vistas/' + v.id).set(body); return ok + '.'; } catch (e) { return ok + ' sólo en este navegador (' + (e && e.code || 'sin permiso') + ').'; } }
-async function guardarVista(nombre) { const id = 'v' + Date.now().toString(36); const v = { id, nombre: nombre || ('Vista ' + (VISTAS.length + 1)), ts: new Date().toISOString(), ...snapshot() }; VISTAS.push(v); const sel = $('vistasSel'); if (sel) sel.dataset.cur = id; return escribir(v, 'Guardada'); }
-async function actualizarVista(id) { const i = VISTAS.findIndex(x => x.id === id); if (i < 0) return 'No encontré esa vista.'; VISTAS[i] = { ...VISTAS[i], ts: new Date().toISOString(), ...snapshot() }; return escribir(VISTAS[i], 'Actualizada'); }
-async function borrarVista(id) { VISTAS = VISTAS.filter(x => x.id !== id); persistLocal(); renderVistas(); if (vdb) try { await vdb.doc('vistas/' + id).delete(); } catch (e) {} }
-/* el desplegable de la barra: ir, guardar (pide nombre), actualizar, borrar (pide confirmación) */
-let toast = null; const aviso = t => { if (!toast) { toast = document.createElement('div'); toast.style.cssText = 'position:fixed;top:56px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--accent);border-radius:3px;padding:4px 10px;font-size:12px;z-index:50'; document.body.appendChild(toast); } toast.textContent = t; toast.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => toast.hidden = true, 3000); };
-function vistaForm(sel) { if (sel.dataset.bound) return; sel.dataset.bound = '1';
-  const F = document.createElement('div'); F.id = 'vistaForm'; F.hidden = true; F.innerHTML = '<span id="vfLbl"></span><input type="text" id="vfNom" maxlength="60" placeholder="nombre de la vista"><button class="btn" id="vfOk">Guardar</button><button class="btn" id="vfNo">×</button>'; sel.parentNode.insertBefore(F, sel.nextSibling);
-  const nom = F.querySelector('#vfNom'), ok = F.querySelector('#vfOk'), lbl = F.querySelector('#vfLbl'); let modo = null;
-  const cerrar = () => { F.hidden = true; modo = null; sel.value = ''; };
-  const abrir = m => { modo = m; F.hidden = false; if (m === 'save') { lbl.textContent = ''; nom.hidden = false; nom.value = ''; ok.textContent = 'Guardar'; setTimeout(() => nom.focus(), 0); } else { const v = VISTAS.find(x => x.id === sel.dataset.cur); if (!v) return cerrar(); lbl.textContent = '¿Borrar «' + v.nombre + '»?'; nom.hidden = true; ok.textContent = 'Borrar'; } };
-  ok.addEventListener('click', async () => { const m = modo, cur = sel.dataset.cur; const nm = nom.value.trim(); cerrar(); if (m === 'save') aviso(await guardarVista(nm)); else if (m === 'del') { await borrarVista(cur); aviso('Borrada.'); } });
-  F.querySelector('#vfNo').addEventListener('click', cerrar); nom.addEventListener('keydown', e => { if (e.key === 'Enter') ok.click(); if (e.key === 'Escape') cerrar(); });
-  sel.addEventListener('change', async () => { const val = sel.value;
-    if (val.startsWith('__amb:')) { aislar(val.slice(6)); sel.value = ''; return; }
-    if (val.startsWith('__v:')) { AMB = null; applyClips(); const b = document.querySelector(`#viewbar [data-view="${val.slice(4)}"]`); if (b) b.click(); sel.value = ''; return; }
-    if (val === '__save') return abrir('save');
-    if (val === '__del') return abrir('del');
-    if (val === '__upd') { aviso(await actualizarVista(sel.dataset.cur)); return; }
-    if (val === '__cut') { const v = VISTAS.find(x => x.id === sel.dataset.cur); if (v) { applySnapshot(v); if (window.__side) window.__side.toggle('corte', true); } sel.value = ''; return; }
-    const v = VISTAS.find(x => x.id === val); if (v) { sel.dataset.cur = val; applySnapshot(v); } }); }
-renderVistas();
-N.getDb().then(db => { vdb = db; if (!db) return; db.collection('vistas').onSnapshot(snap => { const remote = []; snap.docs.forEach(d => { if (d.exists) remote.push({ id: d.id, ...d.data() }); }); if (remote.length || VISTAS.length === 0) { VISTAS = remote.sort((a, b) => (a.ts || '').localeCompare(b.ts || '')); persistLocal(); } renderVistas(); }, () => {}); });
+const VI = initVistas(visor, { M, root, pref: 'arcos', rango: { x: [-100, 965], y: [-50, 4600], z: [-250, 1100] }, params: ['techos', 'calco', 'ext', 'carp'], dirAmb: [.55, .85], alAplicar: () => applyCalco() });
+const applyClips = () => VI.applyClips(), renderVistas = () => VI.renderVistas();
+let vdb = null; N.getDb().then(d => { vdb = d; });
+root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); renderVistas(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 
 /* variables de diseño en la base (todas menos las de «Ver») */
 const PDES = new Set(params.filter(q => (q.group || '') !== 'Ver').map(q => q.id)); const pdes = P => Object.fromEntries(Object.entries(P).filter(([k]) => PDES.has(k)));
@@ -346,6 +293,7 @@ try { initSenalar(visor, document.querySelector('#modo-3d .stage')); } catch (e)
 try { initMedir(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('medir', e); }
 { let vu = null; try { vu = initVistasUI(); } catch (e) { console.error('vistas', e); }
   try { initToolbar(document.querySelector('#modo-3d .stage'), visor, { vistas: vu, zonas: [] }); } catch (e) { console.error('toolbar', e); } }
+try { initViewCube(visor); } catch (e) { console.error('viewcube', e); }
 try { initInspector(visor); } catch (e) { console.error('inspector', e); }
 try { initSidebar(visor); } catch (e) { console.error('sidebar', e); }
 window.__ok3d = true;

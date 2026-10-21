@@ -32,6 +32,7 @@ En `casa.js` también hay mucho específico de Carhué: lucarnas, dormers, la co
 | módulo | qué hace |
 |---|---|
 | `visor3d.js` | escena, cámara, selección, partes, `setParams`, `fly`, ocultar. Lazo de dibujo con **reposo**: sin actividad por 2,5 s dibuja 2 veces por segundo. Hay que llamar a `window.__despertar()` en toda animación. |
+| `vistas.js` | vistas fijas, ambientes aislados y guardadas, con los seis cortes ajustables que se guardan en cada vista; la usan todas las casas (`initVistas`) |
 | `toolbar.js` | barra de herramientas, capas (◐ transparencia), cortes, variantes, chip de alternativas junto a la pieza elegida |
 | `sidebar.js` | barra derecha en acordeón. Adopta los paneles por id (`varCard`, `capasPanel`, `eqCard`, `termCard`, `medPanel`, `senPanel`, `edPanel`, `marcasPanel`, el pop del sol, cortes, personas). Un panel nuevo **no** se hace flotante: se le agrega una sección acá. |
 | `inspector.js` | selección (ficha, renombrar, nota) y outliner |
