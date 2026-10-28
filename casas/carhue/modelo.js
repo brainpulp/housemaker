@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.0.98', fecha:'2026-10-28',
+  nombre:'Carhué', version:'1.0.99', fecha:'2026-10-28',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -272,7 +272,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-10-28', v:'1.0.98', txt:'P-05 y P-06, versión plegable de dos hojas: bastidor de tablones de 2″×5″ de canto (5 × 12,5), antes 2″×6″ (5 × 15) (Maxi).'},
+export const CAMBIOS = [  {fecha:'2026-10-28', v:'1.0.99', txt:'P-05 y P-06 plegables, sección resuelta (Maxi): contramarco de 3 pegado al muro alrededor del vano, contra el que cierran las hojas, y cajones de contrapeso con la cara al ras de las hojas; ya no se ve piedra entre el marco del vano y el cajón. Dormer corrido: el tramo de M-04 que asomaba por delante del frente queda a la altura de la fachada, sin la muesca con la pendiente vieja.'},
+  {fecha:'2026-10-28', v:'1.0.98', txt:'P-05 y P-06, versión plegable de dos hojas: bastidor de tablones de 2″×5″ de canto (5 × 12,5), antes 2″×6″ (5 × 15) (Maxi).'},
   {fecha:'2026-10-28', v:'1.0.97', txt:'Dormer corrido: las paredes de abajo suben hasta sus cabios (Maxi). Los tabiques del entrepiso ya no quedan cortados por la línea del techo viejo, y la pared del fondo M-04 sube hasta el dormer y hace de lateral; el vano vidriado V-04 copia ahora la línea de los cabios del dormer. Sin cabio doble, lateral ni chapa propios de ese lado.'},
   {fecha:'2026-10-21', v:'1.0.96', txt:'Catálogo de muebles: doce modelos 3D reales nuevos (mesa baja, mesa de comedor, camas doble y simple, mesa de luz, cómoda, ropero, escritorio, biblioteca, alacena, inodoro y lavatorio), elegidos para Arcos y disponibles en las dos casas (motor compartido). Nada cambia en los escenarios de Carhué.'},
   {fecha:'2026-10-21', v:'1.0.95', txt:'Motor: los ambientes y escenarios del equipamiento, los tours y los datos de la térmica pasan a archivos de la casa (equipamiento-carhue.js, tours-carhue.js) para que el motor sea el mismo en Arcos. Sin cambios a la vista: muebles, luces, calefacción, plantas, tours y resultados de la térmica dan igual que antes.'},
