@@ -308,7 +308,7 @@ function build(p){
           el muro; a 90° quedan apiladas en horizontal, la de arriba por encima de la línea de A y la de abajo debajo, caras de adentro enfrentadas.
           Contrapeso fijo: el centro de gravedad de las dos hojas sube siempre la mitad de lo que sube B, así que un contrapeso igual al peso de UNA hoja
           las equilibra en cualquier ángulo. Va repartido en dos (uno por jamba) y con aparejo 2:1 (la mitad de recorrido, el doble de peso): cada uno pesa una hoja. */
-        const DP=T26?15:6,f=5,sO=3,ov=5,X0=ax+a.d-ov,X1=ax+a.d+a.w+ov,zT=s1+ov+zoff,zB=(s0>0?s0-ov:s0+1.5)+zoff,L=zT-zB,ell=L/2;
+        const DP=T26?12.5:6,f=5,/* Maxi 28/10: en la plegable, tablones de 2″×5″ de canto (antes 2″×6″) */sO=3,ov=5,X0=ax+a.d-ov,X1=ax+a.d+a.w+ov,zT=s1+ov+zoff,zB=(s0>0?s0-ov:s0+1.5)+zoff,L=zT-zB,ell=L/2;
         const W=(x,h,t)=>new THREE.Vector3(x,zT-t,yW+out*h);
         const bl=(x0,x1,h0,h1,t0,t1,M)=>{const P=[[x0,h0,t0],[x1,h0,t0],[x1,h0,t1],[x0,h0,t1],[x0,h1,t0],[x1,h1,t0],[x1,h1,t1],[x0,h1,t1]].map(([x,h,t])=>{const v=new THREE.Vector3(x,h,t);if(M)v.applyMatrix4(M);return W(v.x,v.y,v.z);});return box8(P);};
         const RXl=(q,h,tt)=>new THREE.Matrix4().makeTranslation(0,h,tt).multiply(new THREE.Matrix4().makeRotationX(q)).multiply(new THREE.Matrix4().makeTranslation(0,-h,-tt));
@@ -317,7 +317,7 @@ function build(p){
         const gl=(t0,t1,M)=>bl(X0+f,X1-f,(h0+h1)/2-.3,(h0+h1)/2+.3,t0+f,t1-f,M);
         /* pesos: madera ~0,65 g/cm³, vidrio 6 mm 2,5 g/cm³, plomo 11,3 g/cm³ */
         const Wd=X1-X0,mH=(2*f*DP*ell+2*f*DP*(Wd-2*f))*.65/1000+(Wd-2*f)*(ell-2*f)*.6*2.5/1000,cwL=Math.ceil(mH*1000/11.3/64);
-        const sec=T26?'tirantes de 2″×6″ de canto (5 de frente, 15 de fondo)':'roble 5 × 6';
+        const sec=T26?'tablones de 2″×5″ de canto (5 de frente, 12,5 de fondo)':'roble 5 × 6';
         Pt(a.id+'h',`${a.id} · hoja de arriba`,'roble',frm(0,ell,MU),{fn:'Hoja de arriba: cuelga de bisagras en su arista de adentro, atornilladas a un listón sobre el dintel. Arrastrá hacia arriba para abrir (hasta 90°).',sec,med:`${f1(Wd/100)} × ${f1(ell/100)} m · ~${Math.round(mH)} kg`},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});
         Pt(a.id,`${a.id} · ${a.nombre}`,'glass',[gl(0,ell,MU)],{...base(a),sec:'plegable tipo garage, 2 hojas por afuera del muro, contrapesada',med:`${f1(Wd/100)} × ${f1(L/100)} m`},{...ex(a),group:'Aberturas',tags:[m.nivel,'aberturas'],opt:{noEdges:true}});
         Pt(a.id+'h2',`${a.id} · hoja de abajo`,'roble',frm(ell,L,ML),{fn:'Hoja de abajo: cuelga de las bisagras del medio (arista de adentro); su borde de abajo sube con rueditas por los cajones de las jambas.',sec,med:`~${Math.round(mH)} kg`},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});
