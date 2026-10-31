@@ -50,14 +50,17 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
     dormP:{n:'Dormitorio principal (EP)',nivel:'EP',piso:H_EP,vista:{p:[800,680,1000],t:[800,300,360]},esc:()=>{const I=itA('dormP');return {
       A:{nombre:'Cama a M-41',items:[I('cama',675,360,90,{L:180,D:200}),I('mesaLuz',600,242,90),I('mesaLuz',600,478,90),I('comoda',900,57,0,{L:140,D:50}),I('butaca',940,580,-135,{tela:'mostaza'})]},
       B:{nombre:'Cama al pasillo',items:[I('cama',800,127,0,{L:180,D:200}),I('mesaLuz',682,50,0),I('mesaLuz',918,50,0),I('escritorio',605,620,90,{L:120,D:60}),I('silla',660,620,-90),I('butaca',960,500,-90,{tela:'lino'})]}};}},
-    banoEP:{n:'Baño + vestidor (EP, L-26)',nivel:'EP',piso:H_EP,vista:{p:[485,435,40],t:[485,330,520]},esc:()=>{const I=itA('banoEP');return {
-      /* L-26: 1,60 libre entre M-40 (x 4,00) y M-41 (x 5,70), 6,65 de largo. Alto libre: 2,24 junto al pasillo, 2,43 en la cumbrera (y 3,40),
-         2,05 en y 4,50, 1,57 en y 5,60, 1,06 contra la fachada; sobre x 5,06–5,65 entre y 4,23 y 7,41 está la lucarna LU-2 (alto de sobra).
-         Lo que exige estar parado va en el tramo alto o bajo la lucarna; la bañera (se usa acostado) al fondo bajo el techo, frente a la ventana baja VE-2. */
-      A:{nombre:'Vestidor + baño con bañera bajo el techo',items:[I('placard',435,160,90,{L:260,D:60,H:215}),I('biblioteca',550,200,-90,{L:180,D:30,H:200}),
-        I('vanitorio',430,385,90,{L:110,D:50}),I('inodoro',433,485,90),I('ducha',515,495,-90,{L:75,D:100,H:200}),I('banera',486,645,180,{L:156,D:75})]},
-      B:{nombre:'Baño grande, vanitorio doble (sin vestidor)',items:[I('vanitorio',430,200,90,{L:160,D:50}),I('inodoro',433,330,90),I('bidet',433,400,90),I('ducha',527,500,-90,{L:75,D:150,H:200}),I('banera',486,645,180,{L:156,D:75}),I('biblioteca',550,200,-90,{L:120,D:30,H:180})]},
-      C:{nombre:'Vestidor grande + baño compacto',items:[I('placard',435,200,90,{L:340,D:60,H:215}),I('biblioteca',550,240,-90,{L:260,D:30,H:200}),I('vanitorio',430,425,90,{L:80,D:45}),I('inodoro',433,515,90),I('ducha',527,500,-90,{L:75,D:110,H:200}),I('banco',486,650,0,{L:150,D:38,H:40})]}};}},
+    banoEP:{n:'Baño del entrepiso (L-26)',nivel:'EP',piso:H_EP,vista:{p:[485,470,-20],t:[485,320,430]},esc:()=>{const I=itA('banoEP');
+      /* Maxi 31/10: dos versiones según el techo (se elige sola con «Dormers»). L-26: 1,60 libre entre M-40 (sur, x 4,05) y M-41 (norte, x 5,65), de y 0,25 (pasillo) a 6,90 (jardín).
+         Puerta al dormitorio en la pared norte (y 0,25–1,05) y abierto al pasillo. Placard junto a la puerta, vanitory al norte, inodoro al sur hacia el oeste (no enfrenta la ducha).
+         Ducha a la pared sur, piso sin plato, mampara fija en L (deja 60 de paso al norte); bañera empotrada de norte a sur al fondo, contra el jardín (atravesada no deja pasar: va última).
+         Techo a dos aguas: parado sólo hasta y ~4,6 (2,00 m), la ducha va antes y la bañera bajo lo bajo. Dormer corrido: más de 2 m en todo el largo, ducha más grande. */
+      const comun=[I('placard',535,170,-90,{L:120,D:60,H:210}),I('vanitoryM',539,292,-90),I('espejo',563,292,-90,{L:80,H:85}),I('inodoroKR',435,150,90),I('toallero',409,282,90)];
+      return {
+      A:{nombre:'Techo a dos aguas: ducha antes de lo bajo, bañera al fondo',items:[...comun,I('duchaPiso',455,405,0,{L:100,D:110}),I('duchaGrohe',446,400,90,{},4),
+        I('mampara',505,405,90,{L:110,perfil:'no'}),I('mampara',455,460,0,{L:100,perfil:'izq'}),I('baneraEmp',485,568,180,{L:160,D:75})]},
+      D:{nombre:'Dormer corrido: ducha grande, bañera bajo la ventana',items:[...comun,I('duchaPiso',455,475,0,{L:100,D:150}),I('duchaGrohe',446,475,90),
+        I('mampara',505,475,90,{L:150,perfil:'no'}),I('mampara',455,550,0,{L:100,perfil:'izq'}),I('baneraEmp',485,643,180,{L:160,D:75})]}};}},
     estudio:{n:'Estudio (EP)',nivel:'EP',piso:H_EP,vista:{p:[1750,620,760],t:[1200,330,300]},esc:()=>{const I=itA('estudio');return {
       /* L-27, entre la corrediza M-43 (x 10,27) y el balcón al living (x 14,42); el hueco de la escalera ocupa x 13,18–14,42, y 4,11–6,25. Maxi 14/10: es un escritorio. Pasando x 13,22 el techo del living (T-03) baja a menos de 1 m: el escritorio va antes */
       A:{nombre:'Escritorio mirando al living',items:[I('escritorio',1280,190,-90,{L:180,D:70}),I('silla',1215,190,90),I('placard',1062,102,90,{L:150,D:60,H:200,fr:'roble'}),I('butaca',1110,520,45,{tela:'mostaza'}),I('ratona',1190,560,0,{L:50,D:50,H:45}),I('alfombra',1180,300,0,{L:200,D:260})]},

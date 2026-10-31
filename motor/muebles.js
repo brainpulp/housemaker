@@ -85,6 +85,20 @@ export function catalogoMuebles(THREE){
   bidet:{n:'Bidet suspendido',cat:'baño',p:{},g:()=>{const s=new THREE.SphereGeometry(18,28,16);s.scale(1,.6,1.35);s.translate(0,30,4);return [[s,'loza'],[B(-18,18,22,40,-30,-24),'loza'],[C(1.5,40,46,0,-14,10),'grifo']];}},
   banera:{n:'Bañera exenta ovalada',cat:'baño',p:{L:160,D:75},g:p=>{const pts=[];for(let i=0;i<=12;i++){const t=i/12;pts.push(new THREE.Vector2(.92+.08*Math.sin(t*Math.PI/2),58*t));}const o=new THREE.LatheGeometry([new THREE.Vector2(0,0),new THREE.Vector2(.8,0),...pts,new THREE.Vector2(.9,58),new THREE.Vector2(.86,58)],40);
     const Lb=p.L-24;o.scale(Lb/2,1,p.D/2);o.translate(-12,0,0);const inn=new THREE.SphereGeometry(1,32,12,0,Math.PI*2,Math.PI/2,Math.PI/2);inn.scale(Lb/2-6,40,p.D/2-6);inn.translate(-12,57.5,0);return [[o,'loza'],[inn,'blanco'],[C(1.4,0,95,p.L/2-4,0,10),'grifo'],[VAR([p.L/2-4,95,0],[p.L/2-18,92,0],1.2),'grifo']];/* grifería exenta dentro del largo L */}},
+  /* ---------- baño a medida (Maxi 31/10: «más detalle»; la ducha cuelga del set de pared, la mampara es fija con perfil y canal) ---------- */
+  duchaPiso:{n:'Piso de ducha sin plato con rejilla lineal',cat:'baño',p:{L:100,D:110,rej:'izq'},g:p=>{/* piedra oscura al ras con 1 % hacia la rejilla; rejilla de acero de 6 a lo largo del lado de la pared (izq = −x) */
+    const s=p.rej==='der'?1:-1,xr=s*(p.L/2-7);return [[B(-p.L/2,p.L/2,0,.8,-p.D/2,p.D/2),'pizarra'],[B(xr-3,xr+3,.8,1,-p.D/2+4,p.D/2-4),'acero'],[B(xr-2.2,xr+2.2,1,1.05,-p.D/2+5,p.D/2-5),'negro']];}},
+  mampara:{n:'Mampara fija de vidrio templado 10 mm',cat:'baño',p:{L:110,H:200,perfil:'izq'},g:(p0,ctx)=>{/* vidrio de 10 en canal de piso (U de 2 × 2,4) y perfil de pared; baja si el cielorraso no da */
+    const tm=ctx&&ctx.techoMin?ctx.techoMin(p0.L/2):999,H=Math.min(p0.H,tm-5),g=[[B(-p0.L/2,p0.L/2,1.5,H,-.5,.5),'vidrio'],[B(-p0.L/2,p0.L/2,0,2,-1.2,1.2),'negro']];
+    if(p0.perfil==='izq'||p0.perfil==='ambos')g.push([B(-p0.L/2,-p0.L/2+2,0,H,-1.2,1.2),'negro']);if(p0.perfil==='der'||p0.perfil==='ambos')g.push([B(p0.L/2-2,p0.L/2,0,H,-1.2,1.2),'negro']);return g;}},
+  baneraEmp:{n:'Bañera empotrada con faldón y grifería de pared',cat:'baño',p:{L:160,D:75,H:56},g:p=>{/* cáscara de 7 de borde, fondo a 18; faldón revestido al frente (+z); pico y monocomando en la pared del extremo +x */
+    const t=7,g=[[B(-p.L/2,p.L/2,0,p.H-4,p.D/2-2,p.D/2),'blanco'],[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2),'loza'],[B(-p.L/2+t,p.L/2-t,p.H-4.2,p.H+.05,-p.D/2+t,p.D/2-t),'blanco'],
+      [B(-p.L/2+t,p.L/2-t,0,18,-p.D/2+t,p.D/2-t),'loza'],[B(-p.L/2+t+8,p.L/2-t-8,18,18.3,-p.D/2+t+6,p.D/2-t-6),'blanco'],
+      [VAR([p.L/2,p.H+18,0],[p.L/2-17,p.H+16,0],1.3),'grifo'],[(()=>{const md=new THREE.CylinderGeometry(3.5,3.5,1.5,20);md.rotateZ(Math.PI/2);md.translate(p.L/2-.75,p.H+29,0);return md;})(),'grifo'],[B(p.L/2-6,p.L/2-1,p.H+27,p.H+31,-1,1),'grifo']];
+    return g;}},
+  toallero:{n:'Toallero escalera calefactor negro',cat:'baño',p:{L:50,D:8,H:110},z:35,g:p=>{const g=[];for(const s of [-1,1]){g.push([C(1.5,0,p.H,s*(p.L/2-1.5),0,12),'negro']);for(const y of [12,p.H-12])g.push([VAR([s*(p.L/2-1.5),y,0],[s*(p.L/2-1.5),y,-p.D/2],.8),'negro']);}
+    for(let y=6;y<p.H-3;y+=11)g.push([VAR([-p.L/2+1.5,y,1],[p.L/2-1.5,y,1],1.1),'negro']);return g;}},
+  espejo:{n:'Espejo con marco fino negro',cat:'baño',p:{L:80,D:3,H:90},z:105,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2-1),'negro'],[B(-p.L/2+1.5,p.L/2-1.5,1.5,p.H-1.5,p.D/2-1,p.D/2-.6),'espejo']]},
   /* ---------- exterior ---------- */
   reposera:{n:'Reposera de listones con colchoneta de lino',cat:'exterior',p:{L:65,D:190,mad:'madRust',tela:'lino'},g:q=>{/* L = ancho, D = largo; respaldo hacia −z */const p={...q,L:q.D,D:q.L},g=[];for(const sz of [-1,1])g.push([B(-p.L/2,p.L/2,10,16,sz*(p.D/2-3)-3,sz*(p.D/2-3)+3),p.mad]);
     for(const [x,z] of [[-1,-1],[-1,1],[1,-1],[1,1]])g.push([B(x*(p.L/2-6)-3,x*(p.L/2-6)+3,0,12,z*(p.D/2-3)-3,z*(p.D/2-3)+3),p.mad]);

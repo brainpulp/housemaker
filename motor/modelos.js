@@ -27,6 +27,12 @@ export const MODELOS={
   estanteM:{n:'Biblioteca de madera clara con puertas abajo',cat:'trabajo',p:{L:85,D:40,H:212},titulo:'653001',autor:'Interiors3D',uid:'4112e07e262842c6b7070aa1505505c3'},
   alacenaV:{n:'Alacena alta con puertas de vidrio',cat:'cocina',p:{L:100,D:40,H:204},titulo:'QWBB00',autor:'Interiors3D',uid:'fb098cf166c141d0ae3e7348788cdd5a'},
   inodoroK:{n:'Inodoro de dos piezas con mochila',cat:'baño',p:{L:45,D:75,H:78},receta:{rot:-90},titulo:'KOHLER K-3754-0 Kelston Comfort Height Toilet',autor:'allenbranch',uid:'00b360de1846428eb5c23464824c5fc8'},
+  /* baño del entrepiso de Carhué (Maxi 31/10: «buscá modelos reales de sanitarios»; eligió el 2, el 15 y el 25 de la hoja) */
+  inodoroKR:{n:'Inodoro de pie contra la pared (Kohler Reach)',cat:'baño',p:{L:40,D:60,H:84},titulo:'Toilet Suite Kohler Reach 5233A-0',autor:'markstead',uid:'9ca4dbaced804954922d34d3b31dd6d7'},
+  vanitoryM:{n:'Vanitory de madera con mesada de granito y grifería',cat:'baño',p:{L:105,D:52,H:95},titulo:'Bathroom Sink Cabinet',autor:'jimbogies',uid:'e5cf10304ffb4c11bc7841b584ccd706'},
+  /* set de ducha Grohe de embutir: termostática (sólo la placa; el cuerpo queda en la pared), brazo con lluvia, teleducha con barral y codo de salida.
+     Se sacan la pared de azulejos del modelo y todo lo que queda detrás de su plano (cuerpos de embutir). Va colgado: z = alto del punto más bajo (la manguera) */
+  duchaGrohe:{n:'Set de ducha Grohe (termostática, lluvia con brazo, teleducha)',cat:'baño',p:{L:88,D:82,H:183},z:21,receta:{quitar:['p1_0','p2_0','p5_1','p5_2','p6_2','p6_3','p7_0','p7_1','p8_0','p8_1','p8_2','p8_3','p8_4','p8_5','p8_6','p8_7','p8_8','p9_0','p10_0']},titulo:'Grohe - Grohtherm Smart Shower Set - 34705000',autor:'Revitspace',uid:'6ae3fcb6c6ea415a8fec05d2e82f5505'},
   lavatorioS:{n:'Lavatorio de colgar con sifón',cat:'baño',p:{L:55,D:45,H:50},titulo:'Simple Sink',autor:'Andrew.Mischenko',uid:'73bda35b6e7a499a80427fc1b049b192'},
 };
 export const fuente=k=>`https://sketchfab.com/3d-models/${MODELOS[k].uid}`;
@@ -86,6 +92,6 @@ export function vestirModelo(THREE,k,p){const b=BASE[k],d=MODELOS[k];if(!b)retur
 
 /* entradas para el catálogo de equipamiento: mientras carga, una caja con la planta del mueble */
 export function catalogoModelos(THREE){const B=(x0,x1,y0,y1,z0,z1)=>{const g=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0);g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return g;};
-  const P={};for(const [k,d] of Object.entries(MODELOS)){if(d.crudo)continue;/* los que todavía están en el laboratorio no entran al catálogo */P[k]={n:d.n,cat:d.cat,p:{...d.p},glb:k,autor:d.autor,titulo:d.titulo,...(d.ui?{ui:d.ui}:{}),
+  const P={};for(const [k,d] of Object.entries(MODELOS)){if(d.crudo)continue;/* los que todavía están en el laboratorio no entran al catálogo */P[k]={n:d.n,cat:d.cat,p:{...d.p},glb:k,autor:d.autor,titulo:d.titulo,...(d.z!=null?{z:d.z}:{}),...(d.ui?{ui:d.ui}:{}),
     g:p=>(d.caja?d.caja(p):[[-p.L/2,p.L/2,-p.D/2,p.D/2]]).map(([x0,x1,z0,z1])=>{const s=p.lado==='der'?-1:1;const a=Math.min(s*x0,s*x1),bx=Math.max(s*x0,s*x1);return [B(a,bx,0,p.H*.7,z0,z1),'tela'];})};}
   return P;}

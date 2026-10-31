@@ -1084,6 +1084,9 @@ try{initLuz(visor);}catch(e){console.error('luz',e);}
 try{initCalidad(visor);}catch(e){console.error('calidad',e);}
 try{initPersonas(visor);}catch(e){console.error('personas',e);}
 try{initEquipamiento(visor,document.querySelector('#modo-3d .stage'),{datos:equipCarhue,piso:1.5});}catch(e){console.error('equipamiento',e);}
+/* Maxi 31/10: el baño del entrepiso tiene una versión por techo; el escenario sigue a «Dormers» (A: dos aguas, D: dormer corrido) */
+{const banoAuto=P=>{const e=visor.equip;if(!e||!P)return;const want=['c','ca','cg'].includes(P.dormers)?'D':'A';try{const es=e.escenarios('mue').banoEP;if(es&&es.esc[want]&&es.activo!==want)e.setActivo('mue','banoEP',want);}catch(x){}};
+  /* sólo cuando cambia el techo (o al abrir): así un escenario elegido a mano queda mientras no se toque «Dormers» */let dPrev=null,okPrev=false;setInterval(()=>{const P=visor.params;if(!P||!visor.equip)return;const d=['c','ca','cg'].includes(P.dormers);if(d===dPrev&&okPrev)return;const es=visor.equip.escenarios('mue').banoEP;if(!es)return;dPrev=d;okPrev=true;banoAuto(P);},1500);}
 try{initArboles(visor,M);}catch(e){console.error('arboles',e);}
 try{initNoche(visor);}catch(e){console.error('noche',e);}
 try{initTours(visor,{tours:TOURS_CARHUE,escaleras:ESCALERAS_CARHUE});}catch(e){console.error('tours',e);}
