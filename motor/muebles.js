@@ -91,10 +91,13 @@ export function catalogoMuebles(THREE){
   mampara:{n:'Mampara fija de vidrio templado 10 mm',cat:'baño',p:{L:110,H:200,perfil:'izq'},g:(p0,ctx)=>{/* vidrio de 10 en canal de piso (U de 2 × 2,4) y perfil de pared; baja si el cielorraso no da */
     const tm=ctx&&ctx.techoMin?ctx.techoMin(p0.L/2):999,H=Math.min(p0.H,tm-5),g=[[B(-p0.L/2,p0.L/2,1.5,H,-.5,.5),'vidrio'],[B(-p0.L/2,p0.L/2,0,2,-1.2,1.2),'negro']];
     if(p0.perfil==='izq'||p0.perfil==='ambos')g.push([B(-p0.L/2,-p0.L/2+2,0,H,-1.2,1.2),'negro']);if(p0.perfil==='der'||p0.perfil==='ambos')g.push([B(p0.L/2-2,p0.L/2,0,H,-1.2,1.2),'negro']);return g;}},
-  baneraEmp:{n:'Bañera empotrada con faldón y grifería de pared',cat:'baño',p:{L:160,D:75,H:56},g:p=>{/* cáscara de 7 de borde, fondo a 18; faldón revestido al frente (+z); pico y monocomando en la pared del extremo +x */
-    const t=7,g=[[B(-p.L/2,p.L/2,0,p.H-4,p.D/2-2,p.D/2),'blanco'],[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2),'loza'],[B(-p.L/2+t,p.L/2-t,p.H-4.2,p.H+.05,-p.D/2+t,p.D/2-t),'blanco'],
-      [B(-p.L/2+t,p.L/2-t,0,18,-p.D/2+t,p.D/2-t),'loza'],[B(-p.L/2+t+8,p.L/2-t-8,18,18.3,-p.D/2+t+6,p.D/2-t-6),'blanco'],
-      [VAR([p.L/2,p.H+18,0],[p.L/2-17,p.H+16,0],1.3),'grifo'],[(()=>{const md=new THREE.CylinderGeometry(3.5,3.5,1.5,20);md.rotateZ(Math.PI/2);md.translate(p.L/2-.75,p.H+29,0);return md;})(),'grifo'],[B(p.L/2-6,p.L/2-1,p.H+27,p.H+31,-1,1),'grifo']];
+  baneraEmp:{n:'Bañera empotrada con faldón y grifería de pared',cat:'baño',p:{L:160,D:75,H:56},g:p=>{/* cáscara cerrada: faldón en los cuatro lados, borde de 7, cuenco hueco con fondo a 18; pico y monocomando en la pared del extremo +x */
+    const t=7,e=2,c=1.5,X=p.L/2,Z=p.D/2,H=p.H,g=[];
+    for(const s of [-1,1]){g.push([B(-X,X,0,H-4,s>0?Z-e:-Z,s>0?Z:-Z+e),'blanco'],[B(s>0?X-e:-X,s>0?X:-X+e,0,H-4,-Z+e,Z-e),'blanco']);/* faldón */
+      g.push([B(-X,X,H-4,H,s>0?Z-t:-Z,s>0?Z:-Z+t),'loza'],[B(s>0?X-t:-X,s>0?X:-X+t,H-4,H,-Z+t,Z-t),'loza']);/* borde */
+      g.push([B(-X+t,X-t,18,H-4,s>0?Z-t:-Z+t-c,s>0?Z-t+c:-Z+t),'loza'],[B(s>0?X-t:-X+t-c,s>0?X-t+c:-X+t,18,H-4,-Z+t,Z-t),'loza']);}/* paredes del cuenco */
+    g.push([B(-X+t,X-t,16,18,-Z+t,Z-t),'loza'],[B(-X+t+8,X-t-8,18,18.3,-Z+t+6,Z-t-6),'blanco'],
+      [VAR([X,H+18,0],[X-17,H+16,0],1.3),'grifo'],[(()=>{const md=new THREE.CylinderGeometry(3.5,3.5,1.5,20);md.rotateZ(Math.PI/2);md.translate(X-.75,H+29,0);return md;})(),'grifo'],[B(X-6,X-1,H+27,H+31,-1,1),'grifo']);
     return g;}},
   toallero:{n:'Toallero escalera calefactor negro',cat:'baño',p:{L:50,D:8,H:110},z:35,g:p=>{const g=[];for(const s of [-1,1]){g.push([C(1.5,0,p.H,s*(p.L/2-1.5),0,12),'negro']);for(const y of [12,p.H-12])g.push([VAR([s*(p.L/2-1.5),y,0],[s*(p.L/2-1.5),y,-p.D/2],.8),'negro']);}
     for(let y=6;y<p.H-3;y+=11)g.push([VAR([-p.L/2+1.5,y,1],[p.L/2-1.5,y,1],1.1),'negro']);return g;}},
