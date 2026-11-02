@@ -15,6 +15,10 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       C:{nombre:'Lineal + mesa de comer',items:[it('heladera',xw(70),-640,R90,{L:70,D:70}),it('columna',xw(62),-705,R90,{L:60}),it('mesada',xw(62),-292.5,R90,{L:555,fr:'grafito',top:'piedra'}),
         it('bacha',xw(62)+2,-242,R90,{L:80}),it('anafe',xw(62)+4,-470,R90,{L:60}),it('campana',xw(50),-470,R90,{L:60}),it('alacena',xw(35),-455,R90,{L:200},150),
         it('mesaR',2200,-170,0,{L:120}),it('silla',2200,-250,0),it('silla',2200,-90,180),it('silla',2120,-170,90),it('silla',2280,-170,-90)]},
+      D:{nombre:'Como la foto de referencia (propuesta)',items:[/* Maxi 2/11, foto 4 de «muebles para housemaker»: bajo mesada negro mate con tiradores largos, tapa de piedra negra, madera de roble en lo alto y en la isla. Misma planta que A; heladera revestida en roble como columna; bacha bajo la ventana V-21 */
+        it('placard',1869.5,-299.5,0,{L:70,D:65,H:230,fr:'roble'}),it('mesada',xw(62),-81,R90,{L:362,D:62,fr:'negro',top:'granito'}),it('bacha',xw(62)+2,-242,R90,{L:80}),
+        it('isla',2027,45,180,{L:260,D:110,vol:30,fr:'roble',top:'granito'}),it('anafe',2015,30,180,{L:75,D:52}),
+        it('banqueta',1955,122,0,{mad:'roble'}),it('banqueta',2015,122,0,{mad:'roble'}),it('banqueta',2075,122,0,{mad:'roble'}),it('banqueta',2135,122,0,{mad:'roble'})]},
     }),ocultar:['MES-1','HEL-1'],piso:PISO},
     living:{n:'Living',piso:PISO,vista:{p:[1650,520,1250],t:[1640,60,330]},esc:()=>{const I=itA('living');return {
       A:{nombre:'Frente al hogar',items:[I('alfombra',1700,300,0,{L:340,D:240}),I('sofaPlat',1712,470,180,{L:360,D:100,esq:1,Le:200,tela:'lino',mad:'roble'}),I('butaca',1465,280,90,{tela:'mostaza'}),I('ratona',1650,290,0,{L:120,D:60})]},
