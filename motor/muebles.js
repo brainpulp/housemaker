@@ -77,6 +77,16 @@ export function catalogoMuebles(THREE){
   bacha:{n:'Bacha bajo mesada con grifería negra',cat:'cocina',p:{L:80},z:90,g:p=>[[B(-p.L/2+6,p.L/2-6,-18,-17,-18,18),'acero'],[B(-p.L/2+6,p.L/2-6,-18,0,-18.5,-18),'acero'],[C(2,0,28,0,-24,14),'grifo'],[VAR([0,28,-24],[0,30,-8],1.1),'grifo'],[C(1.2,22,30,0,-8,10),'grifo']]},
   anafe:{n:'Anafe vitrocerámico',cat:'cocina',p:{L:60,D:52},z:90,g:p=>{const g=[[R(-p.L/2,p.L/2,0,.7,-p.D/2,p.D/2,.3),'vidrioN']];for(const [x,z,r] of [[-p.L/4,-p.D/4,9],[p.L/4,-p.D/4,7],[-p.L/4,p.D/4,7],[p.L/4,p.D/4,9]]){const t=new THREE.TorusGeometry(r,.3,6,32);t.rotateX(Math.PI/2);t.translate(x,.75,z);g.push([t,'grafito']);}return g;}},
   campana:{n:'Campana de pared negra',cat:'cocina',p:{L:60,D:50,H:100},z:155,g:p=>[[R(-p.L/2,p.L/2,0,5,-p.D/2,p.D/2,1),'negro'],[B(-12,12,5,p.H,-p.D/2,-p.D/2+22),'negro']]},
+  campanaIsla:{n:'Campana de isla colgada del techo',cat:'cocina',p:{L:90,D:60},z:165,g:(p,ctx)=>{/* cuerpo negro a 1,65 sobre el piso (z fijo) y chimenea hasta el techo real sobre la isla */
+    const T=ctx&&ctx.techoMin?ctx.techoMin(15):250,h=Math.max(25,Math.min(T-167,700));
+    return [[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero']];}},
+  salpicadero:{n:'Salpicadero de pizarra en lajas',cat:'cocina',p:{L:200,H:10,caja:0},z:90,g:p=>{/* lajas de pizarra en hiladas de 10, largos alternados y canto irregular; con caja > 0 es una puerta de pizarra separada de la pared (tapa un tablero, por ejemplo) */
+    const g=[],c=p.caja||0,LS=[37,52,29,45,60,33,48],X=p.L/2;let k=0;
+    if(c>0)g.push([B(-X,X,0,1.5,-1,c),'pizarra'],[B(-X,X,p.H-1.5,p.H,-1,c),'pizarra'],[B(-X,-X+1.5,0,p.H,-1,c),'pizarra'],[B(X-1.5,X,0,p.H,-1,c),'pizarra']);
+    g.push([B(-X,X,0,p.H,c-1,c),'junta']);
+    for(let y=0,r=0;y<p.H-.1;y+=10,r++){const yh=Math.min(10,p.H-y);let x=-X-(r%3)*13;
+      while(x<X){const l=LS[k++%LS.length],x0=Math.max(x,-X),x1=Math.min(x+l-.5,X),d=1.2+((k*7)%5)*.25;if(x1>x0+1)g.push([B(x0,x1,y+.25,y+yh-.25,c,c+d),'pizarra']);x+=l;}}
+    return g;}},
   /* ---------- baño ---------- */
   vanitorio:{n:'Vanitorio de madera flotante con bacha de apoyo',cat:'baño',p:{L:110,D:50,H:85,fr:'madRust',n:1,tapa:'pizarra',bachaM:'piedra'},g:p=>{const z0=p.H-45,z1=p.H-3,g=[[B(-p.L/2,p.L/2,z0,z1,-p.D/2,p.D/2-1),p.fr],[R(-p.L/2,p.L/2,z1,p.H,-p.D/2,p.D/2+1,.6),p.tapa],[B(-p.L/2+3,p.L/2-3,z0-.5,z0,-p.D/2+4,p.D/2-6),'ledCalido'],ran(-p.L/2+2,p.L/2-2,(z0+z1)/2-.2,(z0+z1)/2+.2,p.D/2-1)];
     const xs=+p.n>1?[-p.L/4,p.L/4]:[0];for(const x of xs){const s=new THREE.SphereGeometry(20,28,12,0,Math.PI*2,Math.PI/2,Math.PI/2);s.scale(1,.6,1);s.translate(x,p.H+12,2);g.push([s,p.bachaM],[C(16,p.H+11.4,p.H+12,x,2,28),'loza']);
