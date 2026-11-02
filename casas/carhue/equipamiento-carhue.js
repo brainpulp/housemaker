@@ -15,10 +15,10 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       C:{nombre:'Lineal + mesa de comer',items:[it('heladera',xw(70),-640,R90,{L:70,D:70}),it('columna',xw(62),-705,R90,{L:60}),it('mesada',xw(62),-292.5,R90,{L:555,fr:'grafito',top:'piedra'}),
         it('bacha',xw(62)+2,-242,R90,{L:80}),it('anafe',xw(62)+4,-470,R90,{L:60}),it('campana',xw(50),-470,R90,{L:60}),it('alacena',xw(35),-455,R90,{L:200},150),
         it('mesaR',2200,-170,0,{L:120}),it('silla',2200,-250,0),it('silla',2200,-90,180),it('silla',2120,-170,90),it('silla',2280,-170,-90)]},
-      D:{nombre:'Como la foto de referencia (propuesta)',items:[/* Maxi 2/11, foto 4 de «muebles para housemaker»: bajo mesada negro mate con tiradores largos, tapa de piedra negra, madera de roble en lo alto y en la isla. Misma planta que A; heladera negra suelta (Maxi 2/11: blanca o negra); bacha bajo la ventana V-21; salpicadero de pizarra bajo las ventanas y puerta de pizarra que tapa el tablero TAB-1 en el pilar; anafe en la isla con campana colgada del techo (Maxi 2/11) */
-        it('heladera',1869.5,-299.5,0,{L:65,D:65,H:190,col:'negro'}),it('mesada',xw(62),-81,R90,{L:362,D:62,fr:'negro',top:'granito'}),it('bacha',xw(62)+2,-242,R90,{L:80}),
-        it('salpicadero',1835.5,-127,R90,{L:270,H:10}),it('salpicadero',1834.5,-157,R90,{L:30,H:108,caja:10},92),it('campanaIsla',2015,30,180,{L:90,D:60}),
-        it('isla',2027,45,180,{L:260,D:110,vol:30,fr:'roble',top:'granito'}),it('anafe',2015,30,180,{L:75,D:52}),
+      D:{nombre:'Como la foto de referencia (propuesta)',items:[/* Maxi 2/11, foto 4 de «muebles para housemaker»: bajo mesada negro mate con tiradores largos, tapa de piedra negra, madera de roble en lo alto y en la isla. Misma planta que A; heladera negra suelta (Maxi 2/11: blanca o negra); bacha farm bajo la ventana V-21 (Maxi 2/11); isla con tapa doble: granito negro con el anafe de 5 hornallas del lado de la cocina y tablón de madera de canto rústico del lado de las banquetas (Maxi 2/11); salpicadero de pizarra bajo las ventanas y puerta de pizarra que tapa el tablero TAB-1 en el pilar; anafe en la isla con campana colgada del techo (Maxi 2/11) */
+        it('heladera',1869.5,-299.5,0,{L:65,D:65,H:190,col:'negro'}),it('mesada',xw(62),-81,R90,{L:362,D:62,fr:'negro',top:'granito',huecos:[[161,80,50]]}),it('bachaFarm',1872.5,-242,R90,{L:80,D:50}),
+        it('salpicadero',1835.5,-127,R90,{L:270,H:10}),it('salpicadero',1834.5,-157,R90,{L:30,H:108,caja:10},92),it('campanaIsla',2027,20,180,{L:90,D:60}),
+        it('isla',2027,45,180,{L:260,D:110,vol:30,fr:'roble',top:'granito',top2:'madRust',corte:60}),it('anafe',2027,20,180,{L:90,D:52,n:5}),
         it('banqueta',1955,122,0,{mad:'roble'}),it('banqueta',2015,122,0,{mad:'roble'}),it('banqueta',2075,122,0,{mad:'roble'}),it('banqueta',2135,122,0,{mad:'roble'})]},
     }),ocultar:['MES-1','HEL-1'],piso:PISO},
     living:{n:'Living',piso:PISO,vista:{p:[1650,520,1250],t:[1640,60,330]},esc:()=>{const I=itA('living');return {
@@ -133,7 +133,7 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
     case 'cocina':return {
       A:{nombre:'Riel + tira bajo alacena',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('tira',1866,-150,R90,{L:300,z:148,dir:'abajo'}),I('colgante',2165,-175,0,{drop:85,diam:30})]},
       B:{nombre:'Embutidos + colgantes sobre isla',items:[I('emb',1910,-300,R90,{n:4,sep:110}),I('colgante',2165,-245,0,{drop:80,diam:25}),I('colgante',2165,-175,0,{drop:80,diam:25}),I('colgante',2165,-105,0,{drop:80,diam:25})]},
-      C:{nombre:'Riel sobre la mesada + colgantes a los lados de la campana',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('colgante',1930,45,0,{drop:85,diam:25}),I('colgante',2105,45,0,{drop:85,diam:25})]}};
+      C:{nombre:'Riel sobre la mesada + colgantes a los lados de la campana',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('colgante',1930,45,0,{drop:85,diam:25}),I('colgante',2124,45,0,{drop:85,diam:25})]}};
     case 'comedor':return {
       A:{nombre:'Lineal sobre la mesa',items:[I('linea',2250,430,R90,{L:160,drop:85}),I('aplique',2445,92,0,{z:190})]},
       B:{nombre:'Colgante grande + bañadores',items:[I('colgante',2250,420,0,{drop:95,diam:55,lm:1400}),I('riel',2250,180,0,{n:3,L:200,tilt:25})]}};

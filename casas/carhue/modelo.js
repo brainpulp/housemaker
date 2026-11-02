@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.1.5', fecha:'2026-11-02',
+  nombre:'Carhué', version:'1.1.6', fecha:'2026-11-02',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -272,7 +272,8 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-11-02', v:'1.1.5', txt:'Cocina, versión D (Maxi): anafe en la isla con campana colgada del techo, heladera negra suelta, salpicadero de pizarra en lajas bajo las ventanas y puerta de pizarra que tapa el tablero eléctrico en el pilar. Luces: nueva versión C con el riel sobre la mesada y dos colgantes a los lados de la campana.'},
+export const CAMBIOS = [  {fecha:'2026-11-02', v:'1.1.6', txt:'Cocina, versión D (Maxi): anafe de 5 hornallas en la isla (la pata norte-sur), con la campana encima; bacha farm de cerámica con el frente a la vista en la mesada bajo la ventana (la pata este-oeste); tapa de la isla doble: granito negro del lado del anafe y tablón de madera de canto rústico del lado de las banquetas.'},
+  {fecha:'2026-11-02', v:'1.1.5', txt:'Cocina, versión D (Maxi): anafe en la isla con campana colgada del techo, heladera negra suelta, salpicadero de pizarra en lajas bajo las ventanas y puerta de pizarra que tapa el tablero eléctrico en el pilar. Luces: nueva versión C con el riel sobre la mesada y dos colgantes a los lados de la campana.'},
   {fecha:'2026-11-02', v:'1.1.4', txt:'Cocina: nueva versión D, «Como la foto de referencia (propuesta)», para comparar con la actual (Maxi). Misma planta; bajo mesada negro mate con tapa de piedra negra, isla y heladera revestidas en roble, bacha bajo la ventana del fondo. La versión activa sigue siendo la de hoy.'},
   {fecha:'2026-11-02', v:'1.1.3', txt:'Baño del entrepiso de 1,90 de pared a pared, como está en obra (Maxi); antes 1,60. La pared con el dormitorio secundario se corre 30 cm y el dormitorio pasa de 3,60 a 3,30. Inodoro, toallero y ducha siguen a su pared: el inodoro queda con 0,70 libres hasta el placard y el paso a la bañera junto a la ducha pasa de 0,60 a 0,90; la bañera empotrada crece a 1,90. Ventanas al jardín y dormer corrido acompañan la pared.'},
   {fecha:'2026-11-02', v:'1.1.2', txt:'Bañera empotrada del baño del entrepiso rehecha (Maxi: se veía rota desde afuera): ahora es una cáscara cerrada, con faldón en los cuatro lados, borde de 7 cm y cuenco hueco; grifería en la pared del extremo.'},
