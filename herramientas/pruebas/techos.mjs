@@ -8,7 +8,7 @@ console.log('== dormers',d,await p.evaluate(async d=>{const v=window.__visor,T=v
   const roof=[];for(const q of v.parts){if(q.grp.visible===false)continue;if(!(q.group==='Techos'||/^(DM-|LU-|CAB|CU-|LIM|T-0|COS|CER|CR-)/.test(q.id)))continue;q.grp.traverse(o=>{if(o.isMesh)roof.push(o);});}
   const own=new Map();for(const q of v.parts)q.grp.traverse(o=>{if(o.isMesh)own.set(o,q.id);});
   const rc=new T.Raycaster();const out=[];
-  for(const k of ['mue','luz']){const ES=v.equip.escenarios(k);for(const a in ES){const prev=ES[a].activo;for(const e of Object.keys(ES[a].esc)){v.equip.setActivo(k,a,e);await new Promise(r=>setTimeout(r,200));
+  for(const k of ['mue','luz']){const ES=v.equip.escenarios(k);for(const a in ES){const prev=ES[a].activo;for(const e of Object.keys(ES[a].esc)){/* Carhué, Maxi 02/11: cada techo se prueba sólo con su versión del baño del entrepiso, la misma regla que usa casa.js (A: dos aguas, D: dormer corrido) */if(k==='mue'&&a==='banoEP'&&e!==(['c','ca','cg'].includes(d)?'D':'A'))continue;v.equip.setActivo(k,a,e);await new Promise(r=>setTimeout(r,200));
     const TY={};for(const m of v.equip.items(k))TY[m.id]=m.t;const eq=v.scene.getObjectByName('equipamiento');
     for(const g of eq.children){if(!g.visible||g.userData.capa!==k||g.userData.amb!==a)continue;const bb=new T.Box3().setFromObject(g);if(bb.isEmpty())continue;
       let worst=null;const ms=[];g.traverse(o=>{if(o.isMesh&&!o.isSprite)ms.push(o);});const vv=new T.Vector3();
