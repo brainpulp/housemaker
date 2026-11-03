@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.1', fecha: '2026-11-03',
+export const META = { nombre: 'Cocinas', version: '0.1.2', fecha: '2026-11-03',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -153,7 +153,33 @@ export const DUDAS = [
   { id: 'D-01', ref: ['AR:L-B3'], q: 'Arcos: la isla con cajones de los dos lados queda a 0,43 del escalón del estar hundido (la cocina tiene 3,00 de ancho: mesada 0,62 + paso 1,05 + isla 0,90). ¿Va así, con el borde al filo del desnivel, o la isla se corre contra la mesada y pierde el frente de atrás?' },
   { id: 'D-02', ref: ['CH:L-08', 'AR:L-B3', 'MO:L-01'], q: 'Los muebles de cocina del catálogo todavía no hacen todo lo que pediste: isla con cajones de los dos lados, barra de ibirapitá en la punta de la isla (hoy la tapa doble va a lo ancho, no a lo largo), alacenas proyectantes. Son piezas nuevas del motor; las sumo cuando confirmes la planta.' },
 ];
+/* ---------- inventario de materiales de Maxi (3/11/2026), para repartir entre las tres cocinas ---------- */
+/* Lo dicho por Maxi, tal cual; «uso» es la asignación que se va decidiendo (vacío = sin asignar). Las fotos llegan después. */
+export const INVENTARIO = {
+  fecha: '2026-11-03',
+  tiene: [
+    { id: 'I-01', que: 'Bachas de loza grandes', n: 3, nota: 'Para cocinas.', uso: '' },
+    { id: 'I-02', que: 'Bachas de loza chicas', n: 2, nota: 'Para baños.', uso: '' },
+    { id: 'I-03', que: 'Bachas de acero inoxidable para cocina', n: 2, nota: '', uso: '' },
+    { id: 'I-04', que: 'Tablones de madera clara para mesas de vanitory', n: 3, nota: 'Dos con borde vivo y uno de ibirapitá unido.', uso: '' },
+    { id: 'I-05', que: 'Tablón gigante de ibirapitá de 4″', n: 1, nota: 'Para mesada, desayunador o isla. Medidas: faltan.', uso: '' },
+    { id: 'I-06', que: 'Tablón gigante de ibirapitá de 2″, 5,30 × 0,80', n: 1, nota: 'Para mesada, desayunador o isla.', uso: '' },
+    { id: 'I-07', que: 'Tablones grandes de ibirapitá de 2″, 1,70 × 0,90', n: 2, nota: 'Para mesada, desayunador o isla.', uso: '' },
+    { id: 'I-08', que: 'Anafe para embutir de 5 quemadores', n: 1, nota: '', uso: '' },
+    { id: 'I-09', que: 'Anafe con vidrio de 3 quemadores', n: 1, nota: 'También se le puede sacar el vidrio y embutirlo.', uso: '' },
+    { id: 'I-10', que: 'Set de 4 quemadores industriales individuales, embutidos en una mesada de acero grueso', n: 1, nota: '', uso: '' },
+    { id: 'I-11', que: 'Anafe industrial de 4 quemadores', n: 1, nota: 'Está en el Delta.', uso: '' },
+  ],
+  comprar: [
+    { id: 'C-01', que: 'Granito negro mate' },
+    { id: 'C-02', que: 'Acero inoxidable' },
+    { id: 'C-03', que: 'Acero dulce grueso, recapado, plegado y protegido contra el óxido' },
+    { id: 'C-04', que: 'Porcelanato con el borde protegido con cuarta caña de aluminio' },
+  ],
+};
+
 export const CAMBIOS = [
+  { fecha: '2026-11-03', v: '0.1.2', txt: 'Tres llaves en «Ver», grupo Cocinas (Maxi): cada una esconde su cocina entera, paredes y muebles. Motor: la órbita es determinística (arrastrar y volver deja la vista donde estaba) y gira alrededor de lo construido bajo el cursor, nunca del suelo.' },
   { fecha: '2026-11-03', v: '0.1.1', txt: 'Arcos: el entrepiso sobre la cocina va apagado por defecto y queda sólo su perímetro (faja de 10 a +2,57), con las vigas y la baranda, para ver la cocina desde arriba (Maxi). Se prende con «Entrepiso de Arcos». Debajo de la losa de PB va un relleno hasta el suelo de la escena: antes la cocina flotaba 0,36 y por abajo se veía el pasto.' },
   { fecha: '2026-11-03', v: '0.1.0', txt: 'Primera escena: Carhué (tramo de la cocina y el sector norte, sin dormitorio 3 ni baño piletero) y Arcos (franja de 3,00 contra la medianera S, del ventanal al depósito, con un pedazo del estar hundido y el entrepiso encima) recortadas de sus modelos; Mocoretá del croquis del 3/11 con los supuestos marcados (D-M1 a D-M6). Muebles: Carhué con la versión D del 2/11; Arcos con la propuesta de materiales del 2/11 (granito negro, isla con hornallas, petiribí); Mocoretá como está hoy.' },
 ];

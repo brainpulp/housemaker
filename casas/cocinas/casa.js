@@ -31,6 +31,7 @@ const casaDe = r => CASA[r.casa] || CASA[String(r.id).split(':')[0]];
 const grupo = r => (casaDe(r) || {}).nombre || 'Escena';
 
 const params = [
+  ...M.CASAS.map(c => ({ id: 'ver' + c.pre, label: c.nombre, type: 'check', value: true, quick: true, group: 'Cocinas', help: `Muestra u oculta ${c.nombre} entera: paredes, pisos, estructura y muebles.` })),
   { id: 'techos', label: 'Techos y cielorrasos', type: 'check', value: false, quick: true, group: 'Ver', help: 'Las tres cocinas van sin techo (islas). Prendelo para ver el cielorraso real de cada una: la chapa del ala en Carhué, la losa del 2P en Arcos, el cielorraso supuesto en Mocoretá.' },
   { id: 'ep', label: 'Entrepiso de Arcos (tablas y cabios)', type: 'check', value: false, quick: true, group: 'Ver', help: 'Apagado, del entrepiso sobre la cocina de Arcos queda sólo el perímetro (una faja de 10 a +2,57), las vigas y la baranda, para ver la cocina desde arriba. Prendido, se ven las tablas y los cabios.' },
   { id: 'equip', label: 'Equipamiento (escenarios)', type: 'check', value: true, quick: true, group: 'Ver' },
@@ -42,6 +43,7 @@ const params = [
 function build(p) {
   const parts = [];
   const Pt = (id, name, cat, geos, info, ex = {}) => { const al = N.alias(id); geos = [].concat(geos).filter(Boolean); if (!geos.length) return;
+    { const pre = String(id).split(':')[0]; if (CASA[pre] && p['ver' + pre] === false) return; }   /* llave «Cocinas» por casa: esconde la casa entera */
     parts.push({ id, name: al ? `${id} · ${al}` : name, alias: al, cat, geos, info: { ...info, fn: (N.nota(id) ? `<b>Tu nota:</b> ${N.nota(id)}<br>` : '') + (info.fn || '') }, ...ex }); };
   const ex = d => ({ group: grupo(d), opt: { op: d.estado === 'proyecto' ? .35 : undefined } });
   const exT = d => ({ group: 'Techos', tags: ['techos', grupo(d)] });
@@ -100,7 +102,10 @@ function build(p) {
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
       if (!datos && e.borrado) { parts.splice(i, 1); continue; } if (!datos && e.mov) { const { x = 0, y = 0, z = 0 } = e.mov; pp.geos = pp.geos.map(g => { const c = g.clone(); c.translate(x, z, y); return c; }); } } }
 
-  const panes = { video3d: videoHTML(), ayuda: `<h3>Qué es esto</h3><p>Las tres cocinas de Maxi, una al lado de la otra y sin techo, para diseñarlas en detalle con el mismo motor que las casas. <b>Carhué</b> y <b>Arcos</b> no son copias: se recortan al cargar desde sus modelos reales, así que sus paredes, ventanas y estructura siguen a cada casa. <b>Mocoretá</b> no tiene modelo: sale del croquis del 3/11, con lo supuesto marcado en las dudas (D-M1 a D-M7).</p>
+  const esc = v => String(v ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const materiales = `<h3>Lo que hay (inventario de Maxi, ${esc(M.INVENTARIO.fecha)})</h3><table><tbody>${M.INVENTARIO.tiene.map(i => `<tr><td><b>${i.n}</b></td><td>${esc(i.que)}${i.nota ? `<br><small style="color:var(--muted)">${esc(i.nota)}</small>` : ''}${i.uso ? `<br><small>→ ${esc(i.uso)}</small>` : ''}</td></tr>`).join('')}</tbody></table>
+    <h3>Para comprar, si hace falta</h3><ul>${M.INVENTARIO.comprar.map(i => `<li>${esc(i.que)}</li>`).join('')}</ul><p style="color:var(--muted);font-size:12px">Las flechas (→) son la asignación a cada cocina, a medida que se decide. Faltan las fotos y las medidas del tablón de 4″.</p>`;
+  const panes = { video3d: videoHTML(), materiales, ayuda: `<h3>Qué es esto</h3><p>Las tres cocinas de Maxi, una al lado de la otra y sin techo, para diseñarlas en detalle con el mismo motor que las casas. <b>Carhué</b> y <b>Arcos</b> no son copias: se recortan al cargar desde sus modelos reales, así que sus paredes, ventanas y estructura siguen a cada casa. <b>Mocoretá</b> no tiene modelo: sale del croquis del 3/11, con lo supuesto marcado en las dudas (D-M1 a D-M7).</p>
     <h3>Ejes</h3><p>x de sur a norte, y de oeste a este, piso de cada cocina en 0. Las tres tienen la mesada principal contra su pared sur: se comparan mirando desde el norte. De oeste a este: Mocoretá (y 0–6,30), Carhué (9,30–17,10), Arcos (20,10–27,55). Cada pieza lleva el prefijo de su casa: <b>MO:</b>, <b>CH:</b>, <b>AR:</b>.</p>
     <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es y sus medidas. Con <b>✥ Editar</b> la movés, le estirás una cara o la borrás; queda guardado y yo lo leo.</li><li><b>Equipamiento</b>: cada cocina tiene sus escenarios de muebles; podés moverlos, cambiarlos y agregar del catálogo.</li><li><b>Techos</b> prende el cielorraso real de cada cocina (el techo del ala en Carhué, la losa del 2P en Arcos, el supuesto de Mocoretá).</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` };
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>tres cocinas</span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;

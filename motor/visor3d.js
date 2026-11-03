@@ -186,18 +186,20 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
     const dot=new THREE.Sprite(new THREE.SpriteMaterial({map:dotTex,depthTest:false,transparent:true,sizeAttenuation:false,opacity:.75}));dot.scale.set(.022,.022,1);dot.renderOrder=3000;dot.visible=false;scene.add(dot);
     let orb=null,touches=0;
     const pick=e=>{const r=el.getBoundingClientRect();m2.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);rc.setFromCamera(m2,camera);
-      const ms=[];for(const p of parts)if(p.grp.visible!==false)p.grp.traverse(o=>{if(o.isMesh&&o.visible!==false&&o.material&&(Array.isArray(o.material)||o.material.opacity>.3))ms.push(o);});ms.push(floorM);
+      /* Maxi 3/11: el pivote de la órbita sale de lo construido (piezas y muebles), nunca del suelo; si no hay nada bajo el cursor se gira alrededor del objetivo de la cámara. Con el suelo como pivote, en escenas abiertas la vista «se deslizaba» en vez de girar. */
+      const ms=[];const toma=o=>{if(o.isMesh&&o.visible!==false&&o.material&&(Array.isArray(o.material)||o.material.opacity>.3))ms.push(o);};for(const p of parts)if(p.grp.visible!==false)p.grp.traverse(toma);const EQ=scene.getObjectByName('equipamiento');if(EQ&&EQ.visible)EQ.traverse(toma);
       const cps=renderer.clippingPlanes||[];return rc.intersectObjects(ms,false).find(h=>!cps.length||cps.every(pl=>pl.distanceToPoint(h.point)>=0));};
     el.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touches++;if(touches>1){orb=null;dot.visible=false;return;}}/* sólo dedos: con el mouse el contador se desfasaba si se soltaba fuera del lienzo y la órbita dejaba de andar */if(e.button!==0||!controls.enabled)return;try{el.setPointerCapture(e.pointerId);}catch(_){}
       const h=pick(e);if(h)pivot.copy(h.point);else pivot.copy(controls.target);
-      orb={x:e.clientX,y:e.clientY,id:e.pointerId};dot.position.copy(pivot);/* Maxi: sin ícono de órbita */});
+      /* Maxi 3/11: órbita determinística. Se guarda el estado del arranque y cada movimiento se calcula desde el total arrastrado (no paso a paso): arrastrar y volver deja la vista exactamente donde estaba */
+      orb={x:e.clientX,y:e.clientY,id:e.pointerId,P0:camera.position.clone(),T0:controls.target.clone(),Q0:camera.quaternion.clone()};dot.position.copy(pivot);/* Maxi: sin ícono de órbita */});
     const rot=(q)=>{camera.position.sub(pivot).applyQuaternion(q).add(pivot);controls.target.sub(pivot).applyQuaternion(q).add(pivot);camera.quaternion.premultiply(q);};
-    el.addEventListener('pointermove',e=>{if(!orb||e.pointerId!==orb.id)return;const dx=e.clientX-orb.x,dy=e.clientY-orb.y;orb.x=e.clientX;orb.y=e.clientY;
+    el.addEventListener('pointermove',e=>{if(!orb||e.pointerId!==orb.id)return;const dx=e.clientX-orb.x,dy=e.clientY-orb.y;
       const k=2*Math.PI/el.clientHeight;
-      rot(new THREE.Quaternion().setFromAxisAngle(UP,-dx*k));
-      const dir=new THREE.Vector3().subVectors(controls.target,camera.position).normalize(),right=dir.clone().cross(UP).normalize();
+      const dir=new THREE.Vector3().subVectors(orb.T0,orb.P0).normalize(),right=dir.clone().cross(UP);if(right.lengthSq()<1e-6)right.set(1,0,0).applyQuaternion(orb.Q0);right.normalize();
       const el0=Math.asin(Math.max(-1,Math.min(1,dir.y))),el1=Math.max(-1.52,Math.min(.03,el0-dy*k));
-      if(right.lengthSq()>.5&&Math.abs(el1-el0)>1e-6)rot(new THREE.Quaternion().setFromAxisAngle(right,el1-el0));
+      const q=new THREE.Quaternion().setFromAxisAngle(UP,-dx*k).multiply(new THREE.Quaternion().setFromAxisAngle(right,el1-el0));/* primero la inclinación sobre el eje lateral del arranque, después el giro alrededor del eje vertical */
+      camera.position.copy(orb.P0).sub(pivot).applyQuaternion(q).add(pivot);controls.target.copy(orb.T0).sub(pivot).applyQuaternion(q).add(pivot);camera.quaternion.copy(q).multiply(orb.Q0);
       if(camera.position.y<25){const d=25-camera.position.y;camera.position.y+=d;controls.target.y+=d;}});
     const up=e=>{if(e.pointerType==='touch')touches=Math.max(0,touches-1);if(orb&&e.pointerId===orb.id){orb=null;dot.visible=false;}};
     el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
@@ -320,7 +322,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const FPS={n:0,t:performance.now()};
   const LR={t:0,on:true};window.__act=performance.now();window.__despertar=()=>{window.__act=performance.now();};
   for(const ev of ['pointermove','pointerdown','wheel','keydown','resize'])addEventListener(ev,()=>{window.__act=performance.now();},{passive:true,capture:true});
-  (function loop(now){requestAnimationFrame(loop);if(tween){const u=Math.min(1,(now-tween.t0)/tween.d),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;camera.position.lerpVectors(tween.P0,tween.P1,e);controls.target.lerpVectors(tween.T0,tween.T1,e);if(u>=1)tween=null;}controls.update();if(controls.target.y<0){controls.target.y=0;}if(camera.position.y<25){camera.position.y=25;}
+  (function loop(now){requestAnimationFrame(loop);if(tween){const u=Math.min(1,(now-tween.t0)/tween.d),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;camera.position.lerpVectors(tween.P0,tween.P1,e);controls.target.lerpVectors(tween.T0,tween.T1,e);if(u>=1)tween=null;}controls.update();/* límites: se corren cámara y objetivo juntos, para no cambiar la dirección de la mirada (antes sólo se movía uno y la vista saltaba) */if(controls.target.y<0){const d=-controls.target.y;controls.target.y+=d;camera.position.y+=d;}if(camera.position.y<25){const d=25-camera.position.y;camera.position.y+=d;controls.target.y+=d;}
     /* reposo (Maxi 14/10, el ventilador de la placa): sin actividad por 2,5 s se dibuja 2 veces por segundo; cualquier toque, rueda, tecla o animación lo despierta */
     {const act=tween||now-(window.__act||0)<2500;if(!act&&now-LR.t<500)return;LR.t=now;LR.on=!!act;}
     if(hooks.render)hooks.render();else renderer.render(scene,camera);lr.render(scene,camera);declutter();

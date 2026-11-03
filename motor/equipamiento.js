@@ -205,7 +205,8 @@ export function initEquipamiento(visor,stage,D){
     g.rotation.y=(m.r||0)*Math.PI/180;return g;}
   function armar(){window.__despertar&&window.__despertar();for(const g of groups.values()){G.remove(g);GV.remove(g);if(g.userData.capa!=='veg')g.traverse(o=>{if(o.geometry&&!o.isSprite&&!o.userData.glb)o.geometry.dispose();});/* las geometrías de los modelos 3D se comparten entre copias */if(g.userData.mats)g.userData.mats.forEach(m=>m.dispose());}groups.clear();
     for(const k in CAPA)for(const a of AMB_ORDEN){const s=ST[k][a];const e=s&&s.esc[s.activo];if(e)for(const m of e.items){const g=armarItem(m,a,k);if(g){(k==='veg'?GV:G).add(g);groups.set(m.id,g);}}}mueCache=null,cajCache=null;marcarSel();vis();pintarIconos();}
-  function visOf(g){const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;return (AMB[g.userData.amb].nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
+  /* AMB[a].ver(params) → false esconde el ambiente entero (cocinas: una llave por cocina, Maxi 3/11) */
+  function visOf(g){const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;const A=AMB[g.userData.amb];if(A&&A.ver&&A.ver(visor.params)===false)return false;return (A.nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
   function vis(){mueCache=null,cajCache=null;for(const g of groups.values())g.visible=visOf(g);luces();}
   /* fuentes de luz en coordenadas del mundo → motor de noche */
   const _v=new THREE.Vector3(),_d=new THREE.Vector3();
@@ -223,7 +224,7 @@ export function initEquipamiento(visor,stage,D){
     const txt=`${esc(nombreCorto(m,k))} · ${esc(AMB[g.userData.amb].n)}${k==='luz'?`<small>${resumen(m)}</small>`:''}`;if(txt!==tagTxt){tag.innerHTML=txt;tagTxt=txt;}
     const bb=new THREE.Box3();g.traverse(o=>{if(o.isMesh)bb.expandByObject(o);});_t.set((bb.min.x+bb.max.x)/2,bb.max.y+4,(bb.min.z+bb.max.z)/2).project(camera);
     if(_t.z>1){tag.hidden=true;return;}const r=view.getBoundingClientRect(),sr=(stage||document.body).getBoundingClientRect();tag.hidden=false;tag.style.left=(r.left-sr.left+(_t.x+1)/2*r.width)+'px';tag.style.top=(r.top-sr.top+(1-_t.y)/2*r.height-8)+'px';}
-  let lastEp=null,lastEq=null,lastExt=null;requestAnimationFrame(function loop(){requestAnimationFrame(loop);const io=!card.hidden&&capa==='luz';if(io!==iconsOn){iconsOn=io;pintarIconos();}ponerTag();G.visible=visor.params.equip!==false||nocheOn;if(visor.params.ep!==lastEp||visor.params.equip!==lastEq||visor.params.ext!==lastExt){lastEp=visor.params.ep;lastEq=visor.params.equip;lastExt=visor.params.ext;tParts=null;vis();}});
+  let lastEp=null,lastPk='';requestAnimationFrame(function loop(){requestAnimationFrame(loop);const io=!card.hidden&&capa==='luz';if(io!==iconsOn){iconsOn=io;pintarIconos();}ponerTag();G.visible=visor.params.equip!==false||nocheOn;const pk=JSON.stringify(visor.params);/* cualquier variable de la casa puede cambiar qué se ve (ep, equip, ext, las llaves por ambiente) */if(pk!==lastPk){lastPk=pk;if(visor.params.ep!==lastEp){lastEp=visor.params.ep;tParts=null;}vis();}});
 
   /* ---------- arrastrar / girar ---------- */
   const rc=new THREE.Raycaster(),mv=new THREE.Vector2();
