@@ -3,6 +3,7 @@
    - columnas y postes: el pie apoya en una losa, una viga o el terreno, y la cabeza llega al fondo de una losa o viga;
    - tensores: cuelgan de una viga o losa y toman una viga;
    - vigas: cada punta apoya en un muro, una columna u otra viga, o tiene un tensor/columna a menos de 1,20 (voladizo);
+     una punta marcada en `corte` ('a', 'b' o 'ab') es un corte de la escena (la viga sigue afuera) y no se revisa;
    - muros que no arrancan del terreno: apoyan en una losa o viga;
    - escaleras: el pie apoya en el piso de abajo y la cabeza llega al borde del piso de arriba;
    - columnas, tensores y escaleras no se cruzan entre sí.
@@ -58,6 +59,7 @@ for (const t of TEN) { const [x, y] = t.pos, [z0, z1] = t.z;
   if (cuelga && toma) ok.push(`${t.id} ${toma.id} ↑ ${cuelga}`); }
 /* vigas: cada punta */
 for (const v of VIG) for (const [px, py, k] of [[...v.a, 'a'], [...v.b, 'b']]) {
+  if ((v.corte || '').includes(k)) { ok.push(`${v.id} punta ${k}: sigue fuera del recorte`); continue; }   /* casas recortadas (cocinas): la viga sigue más allá de la caja */
   const zr = [v.bot - TOL, v.z + TOL], m = 15;
   const col = COL.find(c => { const [w, d] = sec(c.sec); return Math.abs(c.pos[0] - px) <= w / 2 + m && Math.abs(c.pos[1] - py) <= d / 2 + m && c.z[1] >= zr[0] - TOL && c.z[0] <= zr[0]; });
   const muro = MUROS.find(w => { const [a, b] = muroZ(w); return segDist(px, py, w.a, w.b) <= w.e / 2 + m && a <= zr[0] + TOL && b >= zr[0]; });

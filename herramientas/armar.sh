@@ -9,6 +9,7 @@ CASA="${1:?nombre de la casa (carpeta en casas/)}"
 OUT="dist/$CASA"; rm -rf "$OUT"; mkdir -p "$OUT"
 cp -r motor/. "$OUT/"
 cp -r "casas/$CASA/." "$OUT/"      # lo de la casa pisa al motor si hay nombres iguales
+[ -f "casas/$CASA/armar-extra.sh" ] && bash "casas/$CASA/armar-extra.sh" "$OUT"   # paso propio de la casa (cocinas: copia los modelos de las casas que recorta)
 # versión del motor: commit del último cambio en motor/ (con «+local» si hay cambios sin commitear); la muestra el visor 3D junto a los fps
 MC=$(git log -1 --format=%h -- motor 2>/dev/null || echo "?"); MF=$(git log -1 --format=%cd --date=format:%d/%m/%Y -- motor 2>/dev/null || echo "")
 [ -n "$(git status --porcelain motor 2>/dev/null)" ] && MC="$MC+local"
