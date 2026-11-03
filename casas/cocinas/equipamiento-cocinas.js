@@ -19,7 +19,7 @@ export function equipCocinas({ it, itA }) {
         I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'rojo' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'verde', top: 'granito' }), I('isla', 210, 1595, 180, { L: 260, D: 110, vol: 30, fr: 'verde', top: 'granito' }), I('anafe', 198, 1580, 180, { L: 75, D: 52 }),
         I('banqueta', 138, 1672, 0), I('banqueta', 198, 1672, 0), I('banqueta', 258, 1672, 0), I('banqueta', 318, 1672, 0)] },
       C: { nombre: 'Vacía', items: [] } }; } },
-    arcos: { n: 'Arcos', piso: 50, vista: { p: [640, 250, 2130], t: [120, 130, 2440] }, esc: () => { const I = itA('arcos'); return {
+    arcos: { n: 'Arcos', piso: 51, vista: { p: [640, 250, 2130], t: [120, 130, 2440] }, esc: () => { const I = itA('arcos'); return {
       A: { nombre: 'Propuesta 2/11: granito negro, petiribí, isla con hornallas', items: [
         I('heladera', 52, 2158, 90, { L: 75, D: 70, H: 190, col: 'negro' }), I('mesada', 46, 2378, 90, { L: 362, D: 62, fr: 'madClara', top: 'granito' }), I('bacha', 48, 2290, 90, { L: 80 }),
         I('columna', 46, 2588, 90, { L: 58, D: 62, H: 228, fr: 'madClara' }),

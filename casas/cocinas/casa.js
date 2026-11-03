@@ -32,6 +32,7 @@ const grupo = r => (casaDe(r) || {}).nombre || 'Escena';
 
 const params = [
   { id: 'techos', label: 'Techos y cielorrasos', type: 'check', value: false, quick: true, group: 'Ver', help: 'Las tres cocinas van sin techo (islas). Prendelo para ver el cielorraso real de cada una: la chapa del ala en Carhué, la losa del 2P en Arcos, el cielorraso supuesto en Mocoretá.' },
+  { id: 'ep', label: 'Entrepiso de Arcos (tablas y cabios)', type: 'check', value: false, quick: true, group: 'Ver', help: 'Apagado, del entrepiso sobre la cocina de Arcos queda sólo el perímetro (una faja de 10 a +2,57), las vigas y la baranda, para ver la cocina desde arriba. Prendido, se ven las tablas y los cabios.' },
   { id: 'equip', label: 'Equipamiento (escenarios)', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'carp', label: 'Carpinterías', type: 'check', value: true, quick: true, group: 'Ver', help: 'Vidrios de ventanas y hojas de puertas, cerradas.' },
   { id: 'corte', label: 'Corte horizontal', type: 'select', value: '0', quick: true, group: 'Ver',
@@ -61,12 +62,15 @@ function build(p) {
     const vid = a.tipo === 'ventana';
     Pt(a.id, `${a.id} · ${a.nombre}`, vid ? 'glass' : 'puerta', A.hojaGeo(M, a, vid ? 2 : 4), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, ex(m)); }
   /* losas: pisos (PB), entrepiso de madera (EP) y, con «Techos», las losas que hacen de cielorraso */
+  const faja = (poly, z0, z1, w = 10) => { const xs = poly.map(q => q[0]), ys = poly.map(q => q[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    return A.losa(poly, [[[x0 + w, y0 + w], [x1 - w, y0 + w], [x1 - w, y1 - w], [x0 + w, y1 - w]]], z0, z1); };   /* perímetro de una losa rectangular: faja de w con hueco adentro */
   for (const l of M.LOSAS) { if (l.techo && !p.techos) continue;
     const cat = l.techo ? 'techo' : l.nivel === 'EP' ? 'madera' : 'losa';
+    if (l.nivel === 'EP' && !p.ep && l.poly.length === 4) { Pt(l.id, `${l.id} · ${l.nombre} (sólo el perímetro)`, 'madera', faja(l.poly, l.z - l.e, l.z), { ...base(l), fn: (l.nota || '') + ' <i>Apagado «Entrepiso de Arcos»: se dibuja sólo el borde, para ver la cocina desde arriba.</i>', med: `+${f2(l.z)} · ${f2(l.e)} de espesor` }, ex(l)); continue; }
     Pt(l.id, `${l.id} · ${l.nombre}`, cat, A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `${l.z >= 0 ? '+' : '−'}${f2(Math.abs(l.z))} · ${f2(l.e)} de espesor` }, l.techo ? exT(l) : ex(l)); }
   /* cabios bajo los entrepisos de madera (Arcos): de canto, clavados directo bajo las tablas; van de viga a viga */
   { const vm = M.ESTRUCTURA.filter(s => s.tipo === 'viga' && s.cat === 'madera');
-    for (const l of M.LOSAS) { const c = l.cabios; if (!c || l.techo) continue;
+    for (const l of M.LOSAS) { const c = l.cabios; if (!c || l.techo || (l.nivel === 'EP' && !p.ep)) continue;
       const [b, h] = c.sec.split('×').map(v => parseFloat(v.replace(',', '.'))), zt = l.z - l.e, g = [];
       const xs = l.poly.map(q => q[0]), ys = l.poly.map(q => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
       const [u0, u1, v0, v1] = c.dir === 'y' ? [X0, X1, Y0, Y1] : [Y0, Y1, X0, X1];
@@ -107,7 +111,7 @@ function build(p) {
     selIntro: '<div class="k">Selección</div><h2>Tocá una pieza</h2><p style="margin:0;color:var(--muted);font-size:13px">O un código en cualquier texto.</p>',
     defaultView: 'norte',
     views: { norte: { label: 'Las tres desde el norte', p: [3300, 1700, 1380], t: [200, 40, 1380] }, iso: { label: 'Iso', p: [1500, 1300, 3400], t: [250, 60, 1380] }, planta: { label: 'Planta', p: [280, 3200, 1380.1], t: [280, 0, 1380] }, ...V },
-    dims: ({ dimLine }) => { dimLine([0, 2, -40], [535, 2, -40], [0, 0, -8], '5,35'); dimLine([-60, 2, 0], [-60, 2, 630], [-8, 0, 0], '6,30 ?'); dimLine([-60, 2, 930], [-60, 2, 1710], [-8, 0, 0], '7,80'); dimLine([-60, 2, 2021], [-60, 2, 2741.5], [-8, 0, 0], '7,21'); dimLine([15, 52, 2000], [315, 52, 2000], [0, 0, -8], '3,00'); } };
+    dims: ({ dimLine }) => { dimLine([0, 2, -40], [535, 2, -40], [0, 0, -8], '5,35'); dimLine([-60, 2, 0], [-60, 2, 630], [-8, 0, 0], '6,30 ?'); dimLine([-60, 2, 930], [-60, 2, 1710], [-8, 0, 0], '7,80'); dimLine([-60, 2, 2021], [-60, 2, 2741.5], [-8, 0, 0], '7,21'); dimLine([15, 53, 2000], [315, 53, 2000], [0, 0, -8], '3,00'); } };
 }
 
 const COL = { muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#9a9a96', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', madera: '#a8865c', col: '#9a948a', viga: '#ad6338', techo: '#6f767c', herreria: '#24282b', herraje: '#59616a' };
@@ -117,7 +121,7 @@ const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo
 { const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
 
 /* cortes y vistas: del motor (motor/vistas.js), iguales en todas las casas */
-const VI = initVistas(visor, { M, root, pref: 'cocinas', rango: { x: [-150, 700], y: [-150, 2900], z: [-100, 600] }, params: ['techos', 'carp'], dirAmb: [.55, .85] });
+const VI = initVistas(visor, { M, root, pref: 'cocinas', rango: { x: [-150, 700], y: [-150, 2900], z: [-100, 600] }, params: ['techos', 'ep', 'carp'], dirAmb: [.55, .85] });
 const applyClips = () => VI.applyClips(), renderVistas = () => VI.renderVistas();
 root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); renderVistas(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 

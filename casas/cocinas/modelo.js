@@ -13,9 +13,9 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.0', fecha: '2026-11-03',
+export const META = { nombre: 'Cocinas', version: '0.1.1', fecha: '2026-11-03',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
-  ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,50 (su estar hundido en 0). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
+  ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
     nivelesOrden: ['PB', 'EP', 'TE'], spec: 'tres cocinas · <b>Mocoretá</b> · <b>Carhué</b> · <b>Arcos</b>' } };
 
@@ -27,8 +27,8 @@ export const CASAS = [
     piso: 0, caja_escena: { x: [-10, 545], y: [-20, 640] } },
   { pre: 'CH', nombre: 'Carhué', fuente: 'casas/carhue/modelo.js', M: CARHUE, caja: [{ x: [1817, 2050], y: [-645, 160] }, { x: [2036, 2382], y: [-340, 160] }], d: [-1817, 1550, 0], niveles: ['PB'], ocultar: ['MES-1', 'HEL-1'],
     topes: { 'M-20': 292, 'M-22': 302, 'M-26': 335, 'M-02': 255, 'M-03': 255, 'M-24': 262, 'M-28': 262, 'M-25': 262, 'M-23': 262 }, tope: 340, piso: 0, caja_escena: { x: [0, 565], y: [905, 1710] } },
-  { pre: 'AR', nombre: 'Arcos', fuente: 'casas/arcos/modelo.js', M: ARCOS, caja: [{ x: [-20, 470], y: [2340, 3085] }], d: [0, -330, -22], niveles: ['PB', 'EP'], techoNiveles: ['P2'], tope: 591,
-    piso: 50, caja_escena: { x: [-20, 470], y: [2010, 2755] } },
+  { pre: 'AR', nombre: 'Arcos', fuente: 'casas/arcos/modelo.js', M: ARCOS, caja: [{ x: [-20, 470], y: [2340, 3085] }], d: [0, -330, -21], niveles: ['PB', 'EP'], techoNiveles: ['P2'], tope: 592,
+    piso: 51, caja_escena: { x: [-20, 470], y: [2010, 2755] } },
 ];
 
 /* ---------- recorte ---------- */
@@ -135,7 +135,10 @@ for (const H of CASAS) {
   T.TECHOS.push({ ...com, id: 'CH:T-06C', poly: Q([[1817, -645], [2050, -645], [2050, -340], [1817, -340]]), baja: '−x', z: [z(2050), z(1817)], nombre: 'Techo del ala, faldón sur (fondo de la cocina)', nota: 'Carhué: T-06 recortado, tramo sobre el fondo de la cocina (al sur de M-26), hasta el tabique M-24.' });
   T.TECHOS.push({ ...com, id: 'CH:T-06B', poly: Q([[cum, -340], [2382, -340], [2382, 160], [cum, 160]]), baja: '+x', z: [z(cum), z(cum) - Math.round(.72 * (2382 - cum))], nombre: 'Techo del ala, faldón norte', nota: 'Carhué: T-06 recortado, de la cumbrera a la pared norte (M-22, 3,02).' }); }
 
-export const NIVELES = { PB: { nombre: 'Planta baja', z: 0, nota: 'Mocoretá y Carhué con el piso en 0. Arcos bajado 0,22: su estar hundido queda en 0 y el piso de la cocina en +0,50 (así el escalón se ve; el suelo de la escena está en 0).' }, EP: { nombre: 'Entrepiso (Arcos)', z: 307, nota: 'El entrepiso de Arcos sobre su cocina: +3,29 en la casa, 2,57 sobre el piso de la cocina (que acá está en +0,50).' }, TE: { nombre: 'Techos', z: 0 } };
+/* Arcos: la losa de PB está 0,72 sobre la vereda (acá 0,51 sobre el suelo de la escena): debajo va un relleno hasta el suelo, para que la isla no flote */
+{ const l = T.LOSAS.find(q => q.id === 'AR:LO-02'); if (l) T.LOSAS.push({ id: 'AR:RELLENO', casa: 'AR', nivel: 'PB', nombre: 'Relleno bajo la losa de PB', z: l.z - l.e - .5, e: l.z - l.e - .5, poly: l.poly, huecos: l.huecos, estado: 'existente', conf: 'estimado', nota: 'Arcos: la losa de planta baja está 0,72 sobre la vereda; en la escena, 0,51 sobre el suelo. Este bloque es el terreno y contrapiso que hay debajo, sólo para que la cocina no quede flotando.' }); }
+
+export const NIVELES = { PB: { nombre: 'Planta baja', z: 0, nota: 'Mocoretá y Carhué con el piso en 0. Arcos bajado 0,21: su estar hundido queda en +0,01 (apenas sobre el suelo de la escena, que está en 0) y el piso de la cocina en +0,51; así el escalón se ve.' }, EP: { nombre: 'Entrepiso (Arcos)', z: 308, nota: 'El entrepiso de Arcos sobre su cocina: +3,29 en la casa, 2,57 sobre el piso de la cocina (que acá está en +0,51).' }, TE: { nombre: 'Techos', z: 0 } };
 export const EJES = [
   { id: 'MO', dir: 'h', pos: 0, nota: 'Mocoretá: cara interior de la pared O' }, { id: 'CH', dir: 'h', pos: 930, nota: 'Carhué: pared sur del ala (M-20), eje' }, { id: 'AR', dir: 'h', pos: 2010, nota: 'Arcos: fondo de la caja (ventanal O en 2021)' },
   { id: 'S', dir: 'v', pos: 0, nota: 'Pared sur de las tres cocinas (eje)' },
@@ -151,5 +154,6 @@ export const DUDAS = [
   { id: 'D-02', ref: ['CH:L-08', 'AR:L-B3', 'MO:L-01'], q: 'Los muebles de cocina del catálogo todavía no hacen todo lo que pediste: isla con cajones de los dos lados, barra de ibirapitá en la punta de la isla (hoy la tapa doble va a lo ancho, no a lo largo), alacenas proyectantes. Son piezas nuevas del motor; las sumo cuando confirmes la planta.' },
 ];
 export const CAMBIOS = [
+  { fecha: '2026-11-03', v: '0.1.1', txt: 'Arcos: el entrepiso sobre la cocina va apagado por defecto y queda sólo su perímetro (faja de 10 a +2,57), con las vigas y la baranda, para ver la cocina desde arriba (Maxi). Se prende con «Entrepiso de Arcos». Debajo de la losa de PB va un relleno hasta el suelo de la escena: antes la cocina flotaba 0,36 y por abajo se veía el pasto.' },
   { fecha: '2026-11-03', v: '0.1.0', txt: 'Primera escena: Carhué (tramo de la cocina y el sector norte, sin dormitorio 3 ni baño piletero) y Arcos (franja de 3,00 contra la medianera S, del ventanal al depósito, con un pedazo del estar hundido y el entrepiso encima) recortadas de sus modelos; Mocoretá del croquis del 3/11 con los supuestos marcados (D-M1 a D-M6). Muebles: Carhué con la versión D del 2/11; Arcos con la propuesta de materiales del 2/11 (granito negro, isla con hornallas, petiribí); Mocoretá como está hoy.' },
 ];
