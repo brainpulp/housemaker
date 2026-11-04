@@ -50,11 +50,12 @@ En `casa.js` también hay mucho específico de Carhué: lucarnas, dormers, la co
 | `calidad.js` | niveles de gráficos (alto, medio, liviano, mínimo) |
 | `visor-planta.js` | planta en SVG navegable |
 | `ediciones.js`, `editor3d.js` | ediciones del usuario guardadas encima del modelo |
+| `octet.js`, `octet-editor.js`, `octet-modelos.js` | octet truss (retícula FCC): `octet.js` es la retícula, qué conexiones valen, la geometría de nodos (dodecaedro rómbico, full y half) y tubos y la lista de materiales; `octet-editor.js` es la edición en el 3D (agregar con direcciones fantasma, quitar, elegir y mover por pasos de la retícula, bloque semilla, deshacer) con el panel en la barra y los modelos guardados en la colección `octet` de la base; `octet-modelos.js` guarda los modelos que se llevan a las casas como mueble `octet` (`muebles.js`). La escena `casas/octet` es el editor; cualquier casa lo dibuja |
 | `nombres.js`, `marcas.js`, `medir.js`, `senalar.js`, `vistasui.js`, `luz.js`, `realismo.js`, `escalera.js`, `icons.js` | utilidades del visor |
 
 ## Persistencia
 
-El artifact declara la capacidad `db`. Las colecciones son: `nombres`, `ediciones`, `marcas`, `vistas`, `estado`, `equipamiento`, `iluminacion`, `vegetacion` y `calefaccion`. Las preferencias de cada usuario van en `localStorage`, siempre dentro de try/catch.
+El artifact declara la capacidad `db`. Las colecciones son: `nombres`, `ediciones`, `marcas`, `vistas`, `estado`, `equipamiento`, `iluminacion`, `vegetacion`, `calefaccion` y, en la escena octet, `octet` (un documento por modelo). Las preferencias de cada usuario van en `localStorage`, siempre dentro de try/catch.
 
 Al cambiar escenarios de fábrica con datos ya guardados, se agrega una entrada en `MIG` o `MUT` (en `equipamiento.js`) con una bandera única. Así se corrige lo guardado una sola vez sin pisar lo que el usuario cambió.
 

@@ -57,7 +57,7 @@ export function initRealismo(visor,datos={}){
   /* ---------- aplicar a las piezas cada vez que el visor rearma ---------- */
   let last=null;
   function decorate(){scene.background=sky;scene.traverse(o=>{if(o.type==='GridHelper')o.visible=false;
-      if(o.isMesh&&o.geometry&&(o.geometry.type==='PlaneGeometry'||o.userData.ground)&&o.rotation.x<-1.5&&!o.userData.real){o.userData.real=true;o.material.map=T.pasto;o.material.color.set('#ffffff');o.material.needsUpdate=true;
+      if(o.isMesh&&o.geometry&&(o.geometry.type==='PlaneGeometry'||o.userData.ground)&&o.rotation.x<-1.5&&!o.userData.real){o.userData.real=true;o.material.map=T[datos.suelo]||T.pasto;/* el suelo: pasto, salvo que la escena pida otra textura (octet: cemento, es un taller) */o.material.color.set('#ffffff');o.material.needsUpdate=true;
         const g=o.geometry;const s=o.scale.x/400;const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*s,uv.getY(i)*s);uv.needsUpdate=true;o.receiveShadow=true;}});
     for(const p of visor.parts){const pk=pick(p);const glass=p.cat==='glass';
       p.grp.traverse(o=>{if(!o.isMesh)return;o.castShadow=!glass&&p.mat.opacity>.5;o.receiveShadow=!glass;

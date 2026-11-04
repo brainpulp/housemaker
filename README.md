@@ -12,6 +12,7 @@ Maxi no toca git: los cambios los hace Claude, que sigue la skill **housemaker**
 - **Asoleamiento:** fecha, hora y lugar, con luces programadas tipo smart home y un switch día/noche.
 - **Simulación térmica:** por ambiente, con calefactores y escenarios.
 - **Recorridos y entorno:** tours a pie (suben escaleras) y en dron, personas que caminan sin atravesar muebles, y vegetación con estaciones (ez-tree).
+- **Octet truss:** editor de estructuras espaciales de tubos iguales y nodos (retícula FCC) en `casas/octet`: agregar, quitar y mover respetando la retícula, nodos full y half, lista de materiales; los modelos se guardan y se ponen en cualquier casa como mueble.
 - **Interfaz:** barra derecha en acordeón de ancho variable, sin paneles flotantes.
 - **Gráficos:** cuatro niveles de calidad y modo reposo cuando no se toca nada.
 
@@ -26,7 +27,7 @@ casas/<casa>/     lo propio de cada casa:
   ARTIFACT.md       URL del artifact publicado y notas de publicación
 herramientas/
   armar.sh          arma dist/<casa>/ plano (motor + casa) para publicar o probar
-  pruebas/*.mjs     pruebas: apoyos (node, sin navegador: que nada flote), intersecciones (que nada ocupe el lugar de otra cosa) y headless (Playwright): techos, lucarnas/dormers, térmica, barra, alternativas
+  pruebas/*.mjs     pruebas: octet (el editor de octet truss), apoyos (node, sin navegador: que nada flote), intersecciones (que nada ocupe el lugar de otra cosa) y headless (Playwright): techos, lucarnas/dormers, térmica, barra, alternativas
 docs/             arquitectura, cómo hacer una casa nueva, deuda (lo que falta generalizar)
 ```
 

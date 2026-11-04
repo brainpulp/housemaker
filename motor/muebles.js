@@ -3,6 +3,8 @@
    Reutilizable en cualquier casa y en la página de catálogo. Cada pieza: {n, cat (familia), p (parámetros por defecto, cm), g(p,ctx) → [[geometría, material]]}.
    Coordenadas locales: origen en el piso, al centro de la planta; x = largo (L), z = fondo (D) con el frente hacia +z, y = altura. */
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { armar as armarOctet } from './octet.js';
+import { MODELOS as OCTET } from './octet-modelos.js';
 
 /* materiales que usan las piezas (el visor los crea con MeshStandardMaterial) */
 export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
@@ -56,6 +58,9 @@ export function catalogoMuebles(THREE){
       if(adentro(i,j)){const q=P(i,yF,j);nodo(q);g.push([C(1.2,0,yF-rn+.5,q[0],q[2],12),'gomaN']);if(adentro(i+1,j))tubo(q,P(i+1,yF,j));if(adentro(i,j+1))tubo(q,P(i,yF,j+1));}}
     for(let i=0;i<n;i++)for(let j=0;j<n;j++){const m=C2(i,j);nodo(m);for(const [di,dj] of [[0,0],[1,0],[0,1],[1,1]]){tubo(m,P(i+di,yT,j+dj));if(adentro(i+di,j+dj))tubo(m,P(i+di,yF,j+dj));}/* capa del medio atada entre sí, como arriba y abajo */if(i<n-1)tubo(m,C2(i+1,j));if(j<n-1)tubo(m,C2(i,j+1));}
     g.push([B(-p.L/2+.2,p.L/2-.2,p.H-1,p.H,-p.D/2+.2,p.D/2-.2),'vidrio']);/* el canto verdoso del vidrio, que es lo que se ve */for(const s of [-1,1])g.push([B(-p.L/2,p.L/2,p.H-1,p.H,s*p.D/2-.2,s*p.D/2+.2),'cantoVidrio'],[B(s*p.L/2-.2,s*p.L/2+.2,p.H-1,p.H,-p.D/2,p.D/2),'cantoVidrio']);return g;}},
+  /* Maxi 4/11: estructuras octet diseñadas en la página casas/octet (editor), copiadas en octet-modelos.js; con «modelo» se elige cuál. Nodos, tubos, discos, vidrio y regatones salen de octet.js */
+  octet:{n:'Estructura octet (tubos y nodos, del editor Octet)',cat:'comedor',p:{modelo:Object.keys(OCTET)[0]||''},ui:[['modelo','modelo',Object.keys(OCTET)]],g:p=>{const m=OCTET[p.modelo];if(!m)return [[B(-20,20,0,2,-20,20),'rojo']];
+    const A=armarOctet(THREE,m,{centrar:true});const MAT={vidrio:'vidrio',disco:'aluminio',goma:'gomaN'};return [...A.nodos.map(n=>[n.geo,'aluFund']),...A.struts.map(s=>[s.geo,'aluminio']),...A.extra.map(x=>[x.geo,MAT[x.cat]||'aluminio'])];}},
   mesaR:{n:'Mesa redonda de pie central',cat:'comedor',p:{L:120,H:76,mad:'madOsc'},g:p=>[[C(p.L/2,p.H-4,p.H,0,0,48),p.mad],[C(9,0,p.H-4,0,0,24,5),p.mad],[C(30,0,3,0,0,40,26),p.mad]]},
   silla:{n:'Silla de respaldo curvo, asiento de yute',cat:'comedor',p:{mad:'madOsc',tela:'yute'},g:p=>{const g=[[R(-22,22,43,47,-20,20,1.2),p.mad],[R(-20,20,47,49,-18,18,1),p.tela]];
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(1.4,0,44,sx*18,sz*16,12,1.9),p.mad]);
