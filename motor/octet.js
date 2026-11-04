@@ -129,12 +129,14 @@ export function armar(THREE, m0, opt = {}) { const { m, L, R, I, P, tipos, kmin,
   const bom = { tubos: Object.entries(porLargo).map(([Lc, n]) => ({ Lc: +Lc, n })).sort((a, b) => a.Lc - b.Lc), full: nodos.filter(n => n.tipo === 'full').length, half: nodos.filter(n => n.tipo !== 'full').length, discos: m.tapa.on ? arriba.length : 0, pies: m.pies.on ? abajo.length : 0,
     tubosTotal: struts.length, metros: struts.reduce((a, s) => a + s.Lc, 0) / 100, tapa };
   const xs = nodos.map(n => n.pos[0]), ys = nodos.map(n => n.pos[1]), zs = nodos.map(n => n.pos[2]);
-  const caja = nodos.length ? { x: [Math.min(...xs) - R, Math.max(...xs) + R], y: [0, (tapa ? tapa.y0 + tapa.e : Math.max(...ys) + R * 1.42)], z: [Math.min(...zs) - R, Math.max(...zs) + R] } : { x: [0, 0], y: [0, 0], z: [0, 0] };
+  /* la caja total: nodos (hasta su vértice, a R·√2 del centro), más el vidrio si lo hay */
+  const caja = nodos.length ? { x: [Math.min(Math.min(...xs) - R * 1.42, tapa ? tapa.x0 : Infinity), Math.max(Math.max(...xs) + R * 1.42, tapa ? tapa.x1 : -Infinity)], y: [0, (tapa ? tapa.y0 + tapa.e : Math.max(...ys) + R * 1.42)], z: [Math.min(Math.min(...zs) - R * 1.42, tapa ? tapa.z0 : Infinity), Math.max(Math.max(...zs) + R * 1.42, tapa ? tapa.z1 : -Infinity)] } : { x: [0, 0], y: [0, 0], z: [0, 0] };
   return { m, nodos, struts, extra, bom, caja, tipos, I, T, P };
 }
 
 /* texto de la lista de materiales, en castellano */
-export function bomHTML(bom, m) { const f = v => (v / 100).toFixed(3).replace('.', ','); const fl = v => v.toFixed(1).replace('.', ',');
+export function bomHTML(bom, m, caja) { const f = v => (v / 100).toFixed(3).replace('.', ','); const fl = v => v.toFixed(1).replace('.', ',');
+  const total = caja ? `<tr><td><b>caja total</b></td><td><b>${fl(caja.x[1] - caja.x[0])} × ${fl(caja.z[1] - caja.z[0])} × ${fl(caja.y[1])}</b> cm (ancho × fondo × alto, con vidrio y regatones)</td></tr>` : '';
   const tubos = bom.tubos.map(t => `<tr><td>${t.n} tubos</td><td>Ø ${fl(m.d)} × <b>${fl(t.Lc)}</b> cm</td></tr>`).join('');
-  return `<table class="octBom"><tbody>${tubos}<tr><td>${bom.full} nodos</td><td>full (12 caras)</td></tr><tr><td>${bom.half} nodos</td><td>half (8 caras)</td></tr>${bom.discos ? `<tr><td>${bom.discos} discos</td><td>apoyo del vidrio</td></tr>` : ''}${bom.pies ? `<tr><td>${bom.pies} regatones</td><td></td></tr>` : ''}${bom.tapa ? `<tr><td>vidrio</td><td>${fl(bom.tapa.x1 - bom.tapa.x0)} × ${fl(bom.tapa.z1 - bom.tapa.z0)} × ${fl(bom.tapa.e)}</td></tr>` : ''}</tbody></table>
+  return `<table class="octBom"><tbody>${total}${tubos}<tr><td>${bom.full} nodos</td><td>full (12 caras)</td></tr><tr><td>${bom.half} nodos</td><td>half (8 caras)</td></tr>${bom.discos ? `<tr><td>${bom.discos} discos</td><td>apoyo del vidrio</td></tr>` : ''}${bom.pies ? `<tr><td>${bom.pies} regatones</td><td></td></tr>` : ''}${bom.tapa ? `<tr><td>vidrio</td><td>${fl(bom.tapa.x1 - bom.tapa.x0)} × ${fl(bom.tapa.z1 - bom.tapa.z0)} × ${fl(bom.tapa.e)}</td></tr>` : ''}</tbody></table>
   <div class="s">${bom.tubosTotal} tubos, ${f(bom.metros * 100)} m de tubo en total · largo base L = ${fl(m.L)}, R del nodo ${fl(m.R)}${m.desc ? `, descuento ${fl(m.desc)}` : ''}: cada tubo mide n·L − 2R${m.desc ? ' − descuento' : ''}.</div>`; }

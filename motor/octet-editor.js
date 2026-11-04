@@ -112,10 +112,10 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   q('octImportar').addEventListener('click', () => { try { const o = JSON.parse(q('octTa').value); if (!o || typeof o !== 'object') throw 0; set({ ...O.copiar(m), ...o }); q('octJson').hidden = true; msg('Importado.'); } catch (e) { msg('Ese texto no es un modelo.'); } });
 
   function lista() { const s = q('octSel'); const ids = Object.keys(MOD).sort((a, b) => (MOD[a].nombre || a).localeCompare(MOD[b].nombre || b)); s.innerHTML = ids.map(id => `<option value="${esc(id)}"${id === cur ? ' selected' : ''}>${esc(MOD[id].nombre || id)}</option>`).join('') || '<option value="">(sin modelos)</option>'; }
-  let ult = null; function pintar() { if (P.hidden) return; const A = ult = O.armar(THREE, m); q('octBom').innerHTML = O.bomHTML(A.bom, m); if (document.activeElement !== q('octNombre')) q('octNombre').value = m.nombre || '';
+  let ult = null; function pintar() { if (P.hidden) return; const A = ult = O.armar(THREE, m); q('octBom').innerHTML = O.bomHTML(A.bom, m, A.caja); if (document.activeElement !== q('octNombre')) q('octNombre').value = m.nombre || '';
     for (const [id, v] of [['octL', m.L], ['octD', m.d], ['octR', m.R], ['octDesc', m.desc || 0], ['octTapaE', m.tapa.e], ['octTapaV', m.tapa.vuelo], ['octTapaDisco', m.tapa.disco], ['octTapaAn', m.tapa.ancho || 0], ['octTapaFo', m.tapa.fondo || 0], ['octTapaDx', m.tapa.dx || 0], ['octTapaDz', m.tapa.dz || 0], ['octPiesH', m.pies.h]]) { const el = q(id); if (document.activeElement !== el) el.value = v; }
     q('octTapaOn').checked = !!m.tapa.on; q('octPiesOn').checked = !!m.pies.on; q('octSelN').textContent = sel.size ? `${sel.size} nodo(s) elegido(s)` : 'ningún nodo elegido';
-    q('octEstado').textContent = `${Object.keys(m.nodos).length} nodos · ${m.struts.length} tubos${db ? '' : ' · sin base: queda en este navegador'}`; lista(); }
+    q('octEstado').textContent = `${Object.keys(m.nodos).length} nodos · ${m.struts.length} tubos · ${fl(A.caja.x[1] - A.caja.x[0])} × ${fl(A.caja.z[1] - A.caja.z[0])} × ${fl(A.caja.y[1])}${db ? '' : ' · sin base: queda en este navegador'}`; lista(); }
 
   /* ---------- 3D: fantasmas y selección ---------- */
   const G = new THREE.Group(); G.name = 'octet-fantasmas'; G.renderOrder = 2002; visor.scene.add(G);
