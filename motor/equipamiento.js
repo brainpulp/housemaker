@@ -7,7 +7,7 @@ import * as N from './nombres.js';
 import { catalogoLuces, kelvin } from './luminarias.js';
 import { progDef, hhmm } from './noche.js';
 import { catalogoCal } from './calefaccion.js';
-import { catalogoMuebles, MATERIALES } from './muebles.js';
+import { catalogoMuebles, MATERIALES, MADERAS, materialMadera, uvMadera } from './muebles.js';
 import { catalogoModelos, cargarModelo, vestirModelo, modeloListo } from './modelos.js';
 
 export function initEquipamiento(visor,stage,D){
@@ -85,6 +85,8 @@ export function initEquipamiento(visor,stage,D){
   };
   /* catálogo de muebles refinado (motor/muebles.js, Maxi 15/10): reemplaza las piezas en bloque con las mismas claves y parámetros; lo que no está ahí queda como estaba */
   for(const [k,v] of Object.entries(MATERIALES))if(!MAT[k]||k==='grifo')MAT[k]=M(v[0],{r:v[1],m:v[2]||0,...(v[3]?{x:{emissive:new THREE.Color(v[3]),emissiveIntensity:1.2}}:{})});
+  /* maderas con veta (motor/muebles.js, Maxi 4/11): reemplazan el color plano; las UV se proyectan por pieza al armarla (uvMadera) */
+  for(const k of Object.keys(MADERAS)){const m=materialMadera(THREE,k);if(m)MAT[k]=m;}
   Object.assign(CAT,catalogoMuebles(THREE));
   /* muebles de modelos 3D reales (motor/modelos.js, Maxi 16/10) */
   Object.assign(CAT,catalogoModelos(THREE));
@@ -173,7 +175,7 @@ export function initEquipamiento(visor,stage,D){
     const piso=AMB[a].piso??PISO;
     if(k==='veg'){if(!visor.arboles)return null;const pl=visor.arboles.planta(p.esp,p.seed,Math.max(10,+p.alto||100));pl.traverse(o=>{if(o.isMesh)o.userData.item=m.id;});g.add(pl);g.userData.capaV=c.capaV;
       g.position.set(m.x,sueloEn(m.x,m.y),m.y);g.rotation.y=(m.r||0)*Math.PI/180;return g;}
-    if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{let mn=Infinity;for(const dx of [-r,0,r])for(const dz of [-r,0,r])mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));return mn;}};for(const [geo,mk] of c.g(p,ctx)){const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;if(c.glb)mesh.userData.ph=true;g.add(mesh);}
+    if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{let mn=Infinity;for(const dx of [-r,0,r])for(const dz of [-r,0,r])mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));return mn;}};for(const [geo,mk] of c.g(p,ctx)){if(MADERAS[mk]&&!c.glb)uvMadera(THREE,geo);const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;if(c.glb)mesh.userData.ph=true;g.add(mesh);}
       if(c.glb){/* modelo 3D real: la caja queda hasta que carga */const poner=()=>{const o=vestirModelo(THREE,c.glb,p);if(!o)return;for(const ch of g.children)if(ch.userData.ph)ch.visible=false;/* las cajas quedan invisibles: son la planta real del mueble para tocarlo, para las personas y para la prueba de colisiones */o.traverse(x=>{if(x.isMesh)x.userData.item=m.id;});g.add(o);glbN++;mueCache=null;cajCache=null;if(sel===m.id)marcarSel();window.__despertar&&window.__despertar();};
         if(modeloListo(c.glb))poner();else cargarModelo(THREE,c.glb).then(poner).catch(e=>console.warn('modelo',c.glb,e));}
       g.position.set(m.x,piso+(m.z??c.z??0),m.y);}
@@ -192,7 +194,7 @@ export function initEquipamiento(visor,stage,D){
       const em=new THREE.MeshStandardMaterial({color:0xf6f2ea,emissive:kc,emissiveIntensity:0,roughness:.4});em.userData.emit=EMIT*dim;
       const pan=new THREE.MeshStandardMaterial({color:0xe9e1d0,emissive:kc,emissiveIntensity:0,roughness:.9,side:THREE.DoubleSide});pan.userData.emit=.6*dim;
       g.userData.mats=[em,pan];
-      for(const [geo,mk] of out.geo){const mat=mk==='@'?em:mk==='pantalla'?pan:(MAT[mk]||MAT.negro);const mesh=new THREE.Mesh(geo,mat);mesh.castShadow=mk!=='@';mesh.receiveShadow=true;mesh.userData.item=m.id;g.add(mesh);}
+      for(const [geo,mk] of out.geo){const mat=mk==='@'?em:mk==='pantalla'?pan:(MAT[mk]||MAT.negro);if(MADERAS[mk])uvMadera(THREE,geo);const mesh=new THREE.Mesh(geo,mat);mesh.castShadow=mk!=='@';mesh.receiveShadow=true;mesh.userData.item=m.id;g.add(mesh);}
       g.userData.luz=out.luz.map(l=>({...l,K:p.K||3000,col:kc,lm:l.lm*dim}));
       g.userData.mount=c.mount;let zz=p.z??0;
       if(c.mount!=='techo'&&a!=='exterior'){/* de pared o de pie (adentro; los de afuera van a mano): nunca por encima del cielorraso (ni de un vidrio) que tenga arriba; si no entra, baja */let top=-Infinity;for(const ch of g.children){ch.geometry.computeBoundingBox();top=Math.max(top,ch.geometry.boundingBox.max.y);}

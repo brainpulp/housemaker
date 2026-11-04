@@ -43,14 +43,14 @@ pre{font:12px/1.4 "IBM Plex Mono",monospace;background:var(--bg);border:1px soli
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { catalogoMuebles, MATERIALES } from './muebles.js';
+import { catalogoMuebles, MATERIALES, MADERAS, materialMadera, uvMadera } from './muebles.js';
 import { catalogoModelos, cargarModelo, vestirModelo, modeloListo, fuente } from './modelos.js';
 const CAT={...catalogoMuebles(THREE),...catalogoModelos(THREE)};/* modelos 3D reales (motor/modelos.js): se cargan al pedirlos */
-const mats={};const mat=k=>{if(mats[k])return mats[k];const v=MATERIALES[k]||(k==='vidrio'?['#d8e6ea',.05,0]:['#999',.7]);
+const mats={};const mat=k=>{if(mats[k])return mats[k];if(MADERAS[k])return mats[k]=materialMadera(THREE,k);/* maderas con veta (motor/muebles.js) */const v=MATERIALES[k]||(k==='vidrio'?['#d8e6ea',.05,0]:['#999',.7]);
   const m=new THREE.MeshStandardMaterial({color:v[0],roughness:v[1]??.7,metalness:v[2]||0});if(v[3]){m.emissive=new THREE.Color(v[3]);m.emissiveIntensity=1.2;}if(k==='vidrio'){m.transparent=true;m.opacity=.3;m.depthWrite=false;}return mats[k]=m;};
 const ORD=['estar','comedor','dormitorio','cocina','baño','trabajo','exterior','otros'];
 const keys=Object.keys(CAT).sort((a,b)=>ORD.indexOf(CAT[a].cat)-ORD.indexOf(CAT[b].cat)||CAT[a].n.localeCompare(CAT[b].n));
-function armar(k,p){const c=CAT[k],g=new THREE.Group();if(c.glb&&modeloListo(c.glb)){g.add(vestirModelo(THREE,c.glb,{...c.p,...p}));return g;}for(const [geo,m] of c.g({...c.p,...p},{techoMin:()=>260,techo:()=>260}))if(geo)g.add(new THREE.Mesh(geo,mat(m)));return g;}
+function armar(k,p){const c=CAT[k],g=new THREE.Group();if(c.glb&&modeloListo(c.glb)){g.add(vestirModelo(THREE,c.glb,{...c.p,...p}));return g;}for(const [geo,m] of c.g({...c.p,...p},{techoMin:()=>260,techo:()=>260}))if(geo){if(MADERAS[m])uvMadera(THREE,geo);g.add(new THREE.Mesh(geo,mat(m)));}return g;}
 function escena(){const s=new THREE.Scene();s.add(new THREE.HemisphereLight(0xfff6ea,0x8a8377,1.6));const d=new THREE.DirectionalLight(0xffffff,2.2);d.position.set(-200,400,300);s.add(d);
   const f=new THREE.Mesh(new THREE.CircleGeometry(600,48),new THREE.MeshStandardMaterial({color:'#d9d3c8',roughness:1}));f.rotation.x=-Math.PI/2;f.position.y=-.2;s.add(f);return s;}
 const encuadre=(cam,obj,ctl)=>{const bb=new THREE.Box3().setFromObject(obj);const c=bb.getCenter(new THREE.Vector3()),r=bb.getSize(new THREE.Vector3()).length()/2;

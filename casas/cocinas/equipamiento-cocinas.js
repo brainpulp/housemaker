@@ -24,11 +24,12 @@ export function equipCocinas({ it, itA }) {
         I('heladera', 52, 2697, 90, { L: 75, D: 70, H: 190, col: 'negro' }), I('columna', 46, 2630, 90, { L: 58, D: 62, H: 228, fr: 'madClara' }),
         I('mesada', 46, 2420, 90, { L: 362, D: 62, fr: 'madClara', top: 'granito' }), I('bacha', 48, 2349, 90, { L: 80 }),
         I('alacena', 32.5, 2299, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2420, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2541, 90, { L: 120, D: 35, H: 78, fr: 'negro' }),
-        I('mesaMaciza', 75, 2130, 0, { L: 120, D: 70, H: 90, mad: 'madClara' }), /* Maxi 4/11: banquetas corridas de tabla con respaldo, una por lado, de dos cuerpos */ I('bancoTabla', 75, 2075, 0, { L: 120, D: 36, H: 65, mad: 'madClara' }), I('bancoTabla', 75, 2185, 180, { L: 120, D: 36, H: 65, mad: 'madClara' }),
-        /* isla en línea, desplazada (Maxi 3/11): bloque de cocinar corto (1,60 × 0,90, a 0,90, piedra) y mesa larga de ibirapitá (2,20 × 0,90, a 0,75) corrida 0,30 al norte; la punta de la mesa se mete bajo la tapa del bloque (pendiente: el bloque con la punta oeste hueca) */
-        I('isla', 227, 2550, -90, { L: 160, D: 90, vol: 0, fr: 'madClara', top: 'granito' }), I('anafe', 227, 2550, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 227, 2550, -90, { L: 90, D: 60 }),
-        /* Maxi 4/11: entre la medianera y la fosa hay 3,71 y el desplazamiento no entra; va un rectángulo en línea, mismo ancho (0,90), dos materiales: piedra a 0,90 para cocinar y madera a 0,75 para sentarse. Sillas sólo del lado del estar y en la punta: del lado de la mesada caerían en el pasillo de trabajo. El escalón del estar hundido está a x 386 (a medir). */
-        I('mesaMaciza', 227, 2360, 90, { L: 220, D: 90, H: 75, mad: 'madRust' }), I('sillaCover', 300, 2300, -90), I('sillaCover', 300, 2360, -90), I('sillaCover', 300, 2420, -90), I('sillaCover', 227, 2225, 0)] },
+        I('mesaMaciza', 75, 2130, 0, { L: 120, D: 70, H: 75, mad: 'madClara' }), /* Maxi 4/11: mesita baja, con bancos bajos de tabla con respaldo en ángulo, uno por lado, de dos cuerpos */ I('bancoTabla', 75, 2074, 0, { L: 120, D: 38, H: 45, mad: 'madClara' }), I('bancoTabla', 75, 2186, 180, { L: 120, D: 38, H: 45, mad: 'madClara' }),
+        /* Maxi 4/11: un solo rectángulo de 3,80 × 1,20 en dos materiales (pieza «islaMesa»): bloque de cocinar de piedra de 1,60 × 0,70 a 0,90 en la punta este, del lado de la mesada,
+           y mesa de madera a 0,75 en L: 2,20 de ancho completo al oeste más la tira de 0,50 que sigue junto al bloque hasta su punta este (ahí se sienta gente frente a la mesada negra).
+           Cara sur en x 182 (pasillo de 1,05 a la mesada); sillas sólo del lado del estar y en la punta. El escalón del estar hundido está a x 386 (a medir). */
+        I('islaMesa', 242, 2440, -90, { L: 380, D: 120, Lb: 160, Db: 70, H: 75, Hb: 90, fr: 'madClara', top: 'granito', mad: 'madRust' }), I('anafe', 217, 2550, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 217, 2550, -90, { L: 90, D: 60 }),
+        I('sillaCover', 330, 2300, -90), I('sillaCover', 330, 2400, -90), I('sillaCover', 330, 2500, -90), I('sillaCover', 330, 2600, -90), I('sillaCover', 242, 2225, 0)] },
       B: { nombre: 'Vacía', items: [] } }; } },
     mocoreta: { n: 'Mocoretá', piso: 0, ver: p => p.verMO !== false, vista: { p: [740, 330, 80], t: [200, 70, 300] }, esc: () => { const I = itA('mocoreta'); return {
       A: { nombre: 'Como está hoy (croquis 3/11)', items: [

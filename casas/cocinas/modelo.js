@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.13', fecha: '2026-11-04',
+export const META = { nombre: 'Cocinas', version: '0.1.14', fecha: '2026-11-04',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-04', v: '0.1.14', txt: 'Motor (Maxi 4/11): maderas con veta procedural a escala real (roble, petiribí/madClara, madOsc, ibirapitá/madRust) con rugosidad, veta a lo largo de cada pieza y vertical en paneles altos; cajones en tres filas; banco corrido bajo con respaldo en ángulo; pieza nueva «islaMesa»; lo escondido con el ojo del outliner queda guardado entre recargas (por navegador). Arcos: isla de 3,80 × 1,20 en dos materiales (bloque de piedra 1,60 × 0,70 a 0,90 + mesa de madera en L a 0,75 con la tira de 0,50 hasta la punta este), sillas del lado del estar y en la punta; mesita del ventanal baja (0,75) con bancos bajos.' },
   { fecha: '2026-11-04', v: '0.1.13', txt: 'Arcos (Maxi 4/11): entre la medianera y la fosa hay 3,71 y el desplazamiento no entra. Bloque y mesa en línea, mismo ancho 0,90, dos materiales (piedra a 0,90, madera de 2,20 a 0,75). Sillas sólo del lado del estar (tres) y en la punta. Falta medir el escalón en obra. Mesita del ventanal: banquetas corridas de tabla con respaldo, una por lado, de dos cuerpos (pieza nueva del catálogo, «bancoTabla»).' },
   { fecha: '2026-11-04', v: '0.1.12', txt: 'Arcos: punto de partida para ajustar en la página: mesa de 3,80 × 0,90 hasta la punta oeste del bloque de cocinar, corrida 0,50 hacia el estar; 2 sillas del lado de la mesada, 4 del lado del estar (dos frente al bloque) y una en la punta. El bloque sigue macizo: la mesa lo atraviesa hasta que se defina la medida y se haga el bloque hueco.' },
   { fecha: '2026-11-04', v: '0.1.11', txt: 'Motor: el mueble elegido muestra sus cotas (largo, fondo y alto, en cm) en las aristas del frente, como las partes del edificio.' },

@@ -13,6 +13,45 @@ export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8
   junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a']};
 /* [color, rugosidad, metal, emisivo] */
 
+/* Maderas con veta (Maxi 4/11: «mejorá mucho las texturas de las maderas»). Texturas procedurales en canvas, sin imágenes externas:
+   anillos finos de madera tardía deformados con ruido, poro fino a lo largo, variación de tabla; el mismo cálculo da el mapa de rugosidad.
+   Paño de 160 × 80 cm; las UV se proyectan por caja en coordenadas locales de la pieza (uvMadera), así la veta corre a lo largo (x) de cada pieza
+   cualquiera sea su tamaño o giro. [madera temprana, madera tardía, anillos por paño, contraste] */
+export const MADERAS={roble:['#c9a06c','#8a6137',30,.5],madClara:['#d8b58a','#a8824f',26,.4],madOsc:['#7e5637','#43291a',32,.55],madRust:['#ad7349','#643820',28,.65]};
+const _texMad={};
+export function texturaMadera(THREE,k){if(_texMad[k])return _texMad[k];const d=MADERAS[k];if(!d)return null;const W=1024,H=512;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const img=x.createImageData(W,H),px=img.data;
+  const cr=document.createElement('canvas');cr.width=W;cr.height=H;const xr=cr.getContext('2d');const imr=xr.createImageData(W,H),pr=imr.data;
+  /* ruido de valor periódico (tabla de permutación de 256) */
+  const perm=new Uint8Array(512);let s=97+k.length*131;for(let i=0;i<256;i++)perm[i]=i;for(let i=255;i>0;i--){s=(s*16807)%2147483647;const j=s%(i+1);const t=perm[i];perm[i]=perm[j];perm[j]=t;}for(let i=0;i<256;i++)perm[256+i]=perm[i];
+  const hash=(i,j)=>perm[(perm[i&255]+j)&255]/255,sm=t=>t*t*(3-2*t);
+  const noise=(u,v)=>{const i=Math.floor(u),j=Math.floor(v),fu=sm(u-i),fv=sm(v-j),a=hash(i,j),b=hash(i+1,j),c2=hash(i,j+1),d2=hash(i+1,j+1);return a+(b-a)*fu+(c2-a)*fv+(a-b-c2+d2)*fu*fv;};
+  const fbm=(u,v,o)=>{let r=0,a=.5,n=0;for(let i=0;i<o;i++){r+=a*noise(u,v);n+=a;u*=2;v*=2;a*=.5;}return r/n;};
+  const col=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];const E=col(d[0]),Lc=col(d[1]),R=d[2],con=d[3];
+  for(let j=0;j<H;j++)for(let i=0;i<W;i++){const u=i/W,v=j/H;
+    const w=(fbm(u*2,v*9,3)-.5)*.9+(fbm(u*7+7,v*22+3,2)-.5)*.2;/* ondulación: el espaciado entre anillos varía */
+    const arc=(1-Math.cos(2*Math.PI*(u+(fbm(v*3+9,u*2,2)-.5)*.3)))*1.6;const ring=v*R+w*R*.22+arc,f=ring-Math.floor(ring);/* todo periódico en el paño: frecuencias enteras, para que no se vea el empalme *//* anillos a lo largo, con arcos de catedral (tabla cortada plana) */
+    const late=Math.pow(Math.max(0,1-Math.abs(f-.8)*5.5),1.3)*(.45+fbm(u*24+5,v*48,2)*1.1);/* línea fina de madera tardía, que se afina y se corta */
+    const poro=(fbm(u*140,v*6+11,2)-.5);/* poro fino, estirado a lo largo */
+    const tabla=(fbm(u*2+3,v*2+5,2)-.5);/* variación lenta de color */
+    const t=Math.min(1,Math.max(0,(.22*f+late)*con+tabla*.25));
+    const o=(j*W+i)*4;for(let q=0;q<3;q++){const e=E[q]*(1+tabla*.12);px[o+q]=Math.max(0,Math.min(255,e+(Lc[q]-e)*t+poro*26));}px[o+3]=255;
+    const rg=Math.round(165+late*con*60+poro*70);pr[o]=pr[o+1]=pr[o+2]=Math.max(0,Math.min(255,rg));pr[o+3]=255;}
+  x.putImageData(img,0,0);xr.putImageData(imr,0,0);
+  const mk=(cv,srgb)=>{const t=new THREE.CanvasTexture(cv);t.wrapS=t.wrapT=THREE.RepeatWrapping;if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;};
+  return _texMad[k]={map:mk(c,true),rough:mk(cr,false),pano:[160,80]};}
+/* material de madera con veta (cacheado por THREE: una instancia por página) */
+const _matMad=new WeakMap();
+export function materialMadera(THREE,k){let m=_matMad.get(THREE);if(!m)_matMad.set(THREE,m={});if(m[k])return m[k];const t=texturaMadera(THREE,k);if(!t)return null;
+  return m[k]=new THREE.MeshStandardMaterial({color:'#ffffff',map:t.map,roughnessMap:t.rough,roughness:1,metalness:0});}
+/* UV por proyección de caja en coordenadas locales (cm): la veta corre a lo largo de x; en las caras de testa (normal x), a lo largo de z */
+export function uvMadera(THREE,geo,pano=[160,80]){const P=geo.attributes.position,N=geo.attributes.normal;if(!P||!N||geo.userData.uvMad)return geo;const uv=new Float32Array(P.count*2);
+  /* en las caras verticales la veta va a lo largo de la cara: horizontal si la pieza es más ancha que alta (frentes, tapas de canto), vertical si es más alta que ancha (patas panel, montantes) */
+  geo.computeBoundingBox();const sz=geo.boundingBox.getSize(new THREE.Vector3()),vx=sz.y>sz.z,vz=sz.y>sz.x;
+  for(let i=0;i<P.count;i++){const nx=Math.abs(N.getX(i)),ny=Math.abs(N.getY(i)),nz=Math.abs(N.getZ(i)),x=P.getX(i),y=P.getY(i),z=P.getZ(i);let u,v;
+    if(ny>=nx&&ny>=nz){u=x;v=z;}else if(nz>=nx){if(vz){u=y;v=x;}else{u=x;v=y;}}else{if(vx){u=y;v=z;}else{u=z;v=y;}}uv[i*2]=u/pano[0];uv[i*2+1]=v/pano[1];}
+  geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));geo.userData.uvMad=true;return geo;}
+
 export function catalogoMuebles(THREE){
   const B=(x0,x1,y0,y1,z0,z1)=>{const g=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0);g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return g;};
   const R=(x0,x1,y0,y1,z0,z1,r=3)=>{const w=x1-x0,h=y1-y0,d=z1-z0;const g=new RoundedBoxGeometry(w,h,d,3,Math.min(r,w/2-.01,h/2-.01,d/2-.01));g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return g;};
@@ -88,9 +127,9 @@ export function catalogoMuebles(THREE){
   aparador:{n:'Aparador bajo de listones sobre patas',cat:'comedor',p:{L:150,D:45,H:75,fr:'madOsc'},g:p=>{const g=[[R(-p.L/2,p.L/2,16,p.H,-p.D/2,p.D/2,.8),p.fr]];for(let x=-p.L/2+3;x<p.L/2-3;x+=4.5)g.push([B(x,x+.5,19,p.H-3,p.D/2-.1,p.D/2+.05),'junta']);
     g.push(ran(-.2,.2,19,p.H-3,p.D/2));for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(1.3,0,16,sx*(p.L/2-8),sz*(p.D/2-7),10),'negro']);return g;}},
   /* ---------- cocina ---------- */
-  mesada:{n:'Bajo mesada con zócalo rehundido',cat:'cocina',p:{L:240,D:62,H:90,fr:'madOsc',top:'granito'},g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-8),'negro'],[B(-p.L/2,p.L/2,10,p.H-3,-p.D/2,p.D/2-2),p.fr],...tapaHuecos(p.L,p.D,p.H,p.huecos,p.top),
-    ...frente(p.L,p.D-2,10,p.H-3,{mods:Math.max(1,Math.round(p.L/60)),filas:2})]},
-  isla:{n:'Isla con barra y laterales de piedra',cat:'cocina',p:{L:200,D:90,H:90,vol:30,fr:'madOsc',top:'granito',top2:'',corte:0},g:p=>{const z0=-p.D/2+p.vol;
+  mesada:{n:'Bajo mesada con zócalo rehundido',cat:'cocina',p:{L:240,D:62,H:90,fr:'madOsc',top:'granito',filas:3},/* Maxi 4/11: tres cajones por columna */g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-8),'negro'],[B(-p.L/2,p.L/2,10,p.H-3,-p.D/2,p.D/2-2),p.fr],...tapaHuecos(p.L,p.D,p.H,p.huecos,p.top),
+    ...frente(p.L,p.D-2,10,p.H-3,{mods:Math.max(1,Math.round(p.L/60)),filas:p.filas??3})]},
+  isla:{n:'Isla con barra y laterales de piedra',cat:'cocina',p:{L:200,D:90,H:90,vol:30,fr:'madOsc',top:'granito',top2:'',corte:0,filas:3},g:p=>{const z0=-p.D/2+p.vol;
     /* tapa doble (top2): del lado de los cajones (+z) piedra en «corte» cm; del lado de la barra (−z) tablón de madera de 6 con canto rústico irregular, laterales de cada material */
     const zc=p.top2?p.D/2-(p.corte||p.D/2):-p.D/2,tapa=[];
     tapa.push([B(-p.L/2,p.L/2,p.H-4,p.H,zc,p.D/2),p.top],[B(-p.L/2,-p.L/2+4,0,p.H-4,zc,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.H-4,zc,p.D/2),p.top]);
@@ -98,7 +137,7 @@ export function catalogoMuebles(THREE){
       for(let i=n;i>=0;i--){const x=-p.L/2+p.L*i/n,e=1.6*Math.sin(x*.045+.7)+.9*Math.sin(x*.13+2.1)+.45*Math.sin(x*.41);sh.lineTo(x,-p.D/2-e-.5);}
       const ge=new THREE.ExtrudeGeometry(sh,{depth:6,bevelEnabled:true,bevelThickness:.6,bevelSize:.6,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.6,0);tapa.push([ge,p.top2]);
       tapa.push([B(-p.L/2,-p.L/2+4,0,p.H-6,-p.D/2,zc),p.top2],[B(p.L/2-4,p.L/2,0,p.H-6,-p.D/2,zc),p.top2]);}
-    return [[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],[B(-p.L/2+4,p.L/2-4,10,p.H-(p.top2?6:4),z0,p.D/2-2),p.fr],...tapa,...frente(p.L-8,p.D-2,10,p.H-4,{mods:Math.max(1,Math.round((p.L-8)/60)),filas:2}).map(([g,m])=>[g.translate(0,0,0),m])];}},
+    return [[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],[B(-p.L/2+4,p.L/2-4,10,p.H-(p.top2?6:4),z0,p.D/2-2),p.fr],...tapa,...frente(p.L-8,p.D-2,10,p.H-4,{mods:Math.max(1,Math.round((p.L-8)/60)),filas:p.filas??3})];}},
   alacena:{n:'Alacena alta sin tiradores, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2-1),p.fr],...frente(p.L,p.D-1,0,p.H,{mods:Math.max(1,Math.round(p.L/60))}).filter(([,m])=>m!=='negro'),[B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']]},
   columna:{n:'Columna con horno empotrado',cat:'cocina',p:{L:60,D:60,H:220,fr:'madOsc'},g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-8),'negro'],[B(-p.L/2,p.L/2,10,p.H,-p.D/2,p.D/2-2),p.fr],[B(-p.L/2+3,p.L/2-3,80,140,p.D/2-2,p.D/2-.5),'negro'],[B(-p.L/2+6,p.L/2-6,90,128,p.D/2-.5,p.D/2),'vidrioN'],tir(0,134,p.D/2-.5,40),ran(-p.L/2+1,p.L/2-1,79.8,80.2,p.D/2-2),ran(-p.L/2+1,p.L/2-1,140,140.4,p.D/2-2)]},
   heladera:{n:'Heladera con freezer abajo',cat:'cocina',p:{L:70,D:70,H:190,col:'acero'},g:p=>[[R(-p.L/2,p.L/2,2,p.H,-p.D/2,p.D/2,2.5),p.col],ran(-p.L/2+1,p.L/2-1,72,72.4,p.D/2),[B(p.L/2-6,p.L/2-4.5,85,140,p.D/2,p.D/2+3),'negro'],[B(p.L/2-6,p.L/2-4.5,40,66,p.D/2,p.D/2+3),'negro'],[B(-p.L/2+3,p.L/2-3,0,2,-p.D/2+3,p.D/2-3),'negro']]},
@@ -173,12 +212,23 @@ export function catalogoMuebles(THREE){
         for(let x=-W/2;x<=W/2-4;x+=9)g.push([B(x,x+4,0,150,-p.D/2-6,-p.D/2-2),p.mad]);g.push([B(-W/2,W/2,0,150,-p.D/2-9,-p.D/2-6),'madOsc']);return g;}},
     mesaMaciza:{n:'Mesa maciza de tapa gruesa',p:{L:240,D:95,H:76,mad:'madOsc'},
       g:p=>[[B(-p.L/2,p.L/2,p.H-8,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2+28,-p.L/2+38,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad],[B(p.L/2-38,p.L/2-28,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad]]},
-    /* Maxi 4/11 (Arcos, mesita del ventanal): banqueta corrida de tabla con respaldo, de dos cuerpos. H es la altura del asiento (65 para mesa de 0,90, 45 para mesa de 0,75);
-       el respaldo va atrás (−z) y sube 42 sobre el asiento; patas panel en las puntas; con asiento alto, travesaño apoyapiés adelante. */
-    bancoTabla:{n:'Banqueta corrida de tabla con respaldo',cat:'cocina',p:{L:120,D:36,H:65,mad:'madOsc'},
-      g:p=>{const g=[[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2,p.L/2,p.H+16,p.H+42,-p.D/2-4,-p.D/2),p.mad]];
-        for(const s of [-1,1]){const x0=s<0?-p.L/2+4:p.L/2-8;g.push([B(x0,x0+4,0,p.H-4,-p.D/2+2,p.D/2-2),p.mad],[B(x0,x0+4,p.H-4,p.H+42,-p.D/2-4,-p.D/2+4),p.mad]);}
+    /* Maxi 4/11 (Arcos, mesita del ventanal): banco corrido de tabla con respaldo en ángulo, de dos cuerpos. H es la altura del asiento (45 para mesa de 0,75);
+       el respaldo va atrás (−z), inclinado «inc» grados hacia atrás, y sube 40 sobre el asiento; patas panel en las puntas; con asiento alto (>55), travesaño apoyapiés adelante. */
+    bancoTabla:{n:'Banco corrido de tabla con respaldo en ángulo',cat:'cocina',p:{L:120,D:38,H:45,inc:14,mad:'madOsc'},
+      g:p=>{const g=[[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2),p.mad]];const a=-p.inc*Math.PI/180,zr=-p.D/2+3;
+        /* respaldo y sus dos montantes: armados verticales sobre el canto trasero del asiento y girados en x hacia atrás */
+        const inc=(ge)=>{ge.translate(0,-(p.H-2),-zr);ge.rotateX(a);ge.translate(0,p.H-2,zr);return ge;};
+        g.push([inc(B(-p.L/2,p.L/2,p.H+14,p.H+40,zr-3,zr)),p.mad]);for(const s of [-1,1]){const x0=s<0?-p.L/2+4:p.L/2-8;g.push([B(x0,x0+4,0,p.H-4,-p.D/2+2,p.D/2-2),p.mad],[inc(B(x0,x0+4,p.H-4,p.H+40,zr-3,zr+2)),p.mad]);}
         if(p.H>55)g.push([B(-p.L/2+8,p.L/2-8,p.H-45,p.H-41,p.D/2-10,p.D/2-6),p.mad]);return g;}},
+    /* Maxi 4/11 (Arcos): isla en dos materiales, un solo rectángulo L × D. Bloque de cocinar de piedra en la punta +x (Lb × Db, alto Hb, frentes de cajones hacia +z),
+       y mesa de madera a altura H que ocupa el resto en L: el tramo libre de ancho completo y la «tira» de ancho D−Db que sigue junto al bloque, del lado −z, hasta su punta.
+       Patas panel de la mesa: en la punta −x (ancho completo) y en la punta +x de la tira; la tira también apoya en el bloque. */
+    islaMesa:{n:'Isla de piedra con mesa de madera en L',cat:'cocina',p:{L:380,D:120,Lb:160,Db:70,H:75,Hb:90,fr:'madClara',top:'granito',mad:'madRust',filas:3},
+      g:p=>{const xb=p.L/2-p.Lb,zb=p.D/2-p.Db,g=[];
+        g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],[B(xb+4,p.L/2-4,10,p.Hb-4,zb+4,p.D/2-2),p.fr],[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
+        g.push(...frente(p.Lb-8,p.D-2,10,p.Hb-4,{mods:Math.max(1,Math.round((p.Lb-8)/60)),filas:p.filas??3}).map(([ge,m])=>[ge.translate(xb+p.Lb/2,0,0),m]));
+        g.push([B(-p.L/2,xb,p.H-7,p.H,-p.D/2,p.D/2),p.mad],[B(xb-.5,p.L/2,p.H-7,p.H,-p.D/2,zb-.5),p.mad]);/* tapa en L (dos tablones) */
+        g.push([B(-p.L/2+28,-p.L/2+36,0,p.H-7,-p.D/2+12,p.D/2-12),p.mad],[B(p.L/2-12,p.L/2-4,0,p.H-7,-p.D/2+8,zb-8),p.mad]);return g;}},
     sillaCurva:{n:'Silla de respaldo curvo',p:{mad:'madOsc',tela:'lino'},
       g:p=>{const g=[[B(-22,22,42,46,-20,20),p.mad],[B(-20,20,46,48,-18,18),p.tela]];for(const sx of [-1,1])for(const sz of [-1,1])g.push([CYL(1.6,0,44,sx*18,sz*16,10),p.mad]);
         const arco=new THREE.TorusGeometry(22,1.8,8,24,Math.PI);arco.rotateX(Math.PI/2);arco.rotateY(Math.PI);arco.translate(0,74,0);/* el respaldo abraza: medio aro horizontal a 74 */g.push([arco,p.mad]);
