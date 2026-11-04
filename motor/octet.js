@@ -16,7 +16,7 @@
    de tubo medidos con calibre. Por ahora: R = 2,6, tubo Ø 1,6 y el tubo va de cara a cara (largo de corte = n·L − 2R − descuento).
 
    Modelo (lo que se guarda): { v:1, nombre, L, d, R, desc, nodos:{ 'a,b,k': {t?: 'full'|'arriba'|'abajo'} }, struts:[ ['a,b,k','a,b,k'] ],
-                                tapa:{on,e,vuelo,disco}, pies:{on,h} } */
+                                tapa:{on,e,vuelo,disco,ancho,fondo,dx,dz}, pies:{on,h} }   (ancho y fondo 0 = sale de los nodos más el vuelo) */
 
 export const S2 = Math.SQRT1_2;
 /* las 12 direcciones, en (a,b,k) */
@@ -41,7 +41,7 @@ export const nodoEnStrut = (st, s) => { const [A, B] = st.split('|'); return A =
 export function intermedios(st) { const [A, B] = st.split('|'), r = dirEntre(A, B); if (!r || r.n < 2) return []; const out = []; for (let i = 1; i < r.n; i++) out.push(mover(A, r.dir, i)); return out; }
 
 /* ---------- modelo ---------- */
-export const vacio = (nombre = 'Nuevo') => ({ v: 1, nombre, L: 50, d: 1.6, R: 2.6, desc: 0, nodos: {}, struts: [], tapa: { on: false, e: 1, vuelo: 5, disco: 1.5 }, pies: { on: true, h: 1.5 } });
+export const vacio = (nombre = 'Nuevo') => ({ v: 1, nombre, L: 50, d: 1.6, R: 2.6, desc: 0, nodos: {}, struts: [], tapa: { on: false, e: 1, vuelo: 5, disco: 1.5, ancho: 0, fondo: 0, dx: 0, dz: 0 }, pies: { on: true, h: 1.5 } });
 export function normalizar(m) { const o = { ...vacio(m && m.nombre), ...(m || {}) }; o.nodos = { ...(o.nodos || {}) }; o.struts = [...new Set((o.struts || []).map(s => Array.isArray(s) ? strutKey(s[0], s[1]) : s))];
   o.tapa = { ...vacio().tapa, ...(o.tapa || {}) }; o.pies = { ...vacio().pies, ...(o.pies || {}) };
   for (const st of o.struts) for (const s of st.split('|')) if (!o.nodos[s]) o.nodos[s] = {};
@@ -117,7 +117,10 @@ export function armar(THREE, m0, opt = {}) { const { m, L, R, I, P, tipos, kmin,
   /* arriba: los nodos de la capa más alta que miran hacia abajo tienen cara plana arriba: ahí van los discos y el vidrio */
   const arriba = Object.keys(m.nodos).filter(s => parse(s)[2] === kmax && tipos[s] === 'abajo'); let tapa = null;
   if (m.tapa.on && arriba.length) { const yc = T(P[arriba[0]])[1] + R * S2; for (const s of arriba) { const c = T(P[s]); const g = new THREE.CylinderGeometry(3.5, 3.5, m.tapa.disco, 20); g.translate(c[0], yc + m.tapa.disco / 2, c[2]); extra.push({ key: 'disco:' + s, cat: 'disco', geo: g }); }
-    const xs = arriba.map(s => T(P[s])[0]), zs = arriba.map(s => T(P[s])[2]), v = m.tapa.vuelo, x0 = Math.min(...xs) - v, x1 = Math.max(...xs) + v, z0 = Math.min(...zs) - v, z1 = Math.max(...zs) + v, y0 = yc + m.tapa.disco;
+    const xs = arriba.map(s => T(P[s])[0]), zs = arriba.map(s => T(P[s])[2]), v = m.tapa.vuelo, y0 = yc + m.tapa.disco;
+    /* medidas: con ancho y fondo (cm) el vidrio tiene ese tamaño, centrado en los nodos de arriba y corrido dx, dz; sin ellas, la caja de los nodos más el vuelo */
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2 + (m.tapa.dx || 0), cz = (Math.min(...zs) + Math.max(...zs)) / 2 + (m.tapa.dz || 0), an = m.tapa.ancho > 0 ? m.tapa.ancho : Math.max(...xs) - Math.min(...xs) + 2 * v, fo = m.tapa.fondo > 0 ? m.tapa.fondo : Math.max(...zs) - Math.min(...zs) + 2 * v;
+    const x0 = cx - an / 2, x1 = cx + an / 2, z0 = cz - fo / 2, z1 = cz + fo / 2;
     const g = new THREE.BoxGeometry(x1 - x0, m.tapa.e, z1 - z0); g.translate((x0 + x1) / 2, y0 + m.tapa.e / 2, (z0 + z1) / 2); tapa = { x0, x1, z0, z1, y0, e: m.tapa.e }; extra.push({ key: 'tapa', cat: 'vidrio', geo: g, info: tapa }); }
   const abajo = Object.keys(m.nodos).filter(s => parse(s)[2] === kmin && tipos[s] === 'arriba');
   if (m.pies.on) for (const s of abajo) { const c = T(P[s]); const g = new THREE.CylinderGeometry(1.6, 1.3, m.pies.h, 14); g.translate(c[0], c[1] - R * S2 - m.pies.h / 2, c[2]); extra.push({ key: 'pie:' + s, cat: 'goma', geo: g }); }

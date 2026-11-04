@@ -63,6 +63,8 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
    <div class="mh2">Retícula y piezas</div>
    <div class="mrow"><label class="n">L <input type="number" id="octL" step="0.5" min="5" max="500"></label><label class="n">Ø tubo <input type="number" id="octD" step="0.1" min="0.3" max="20"></label><label class="n">R nodo <input type="number" id="octR" step="0.1" min="0.5" max="30"></label><label class="n">descuento <input type="number" id="octDesc" step="0.1" min="0" max="20"></label></div>
    <div class="mrow"><label class="n"><input type="checkbox" id="octTapaOn"> vidrio</label><label class="n">esp. <input type="number" id="octTapaE" step="0.1" min="0.3" max="10"></label><label class="n">vuelo <input type="number" id="octTapaV" step="1" min="0" max="100"></label><label class="n">disco <input type="number" id="octTapaDisco" step="0.1" min="0" max="10"></label></div>
+   <div class="mrow"><label class="n">ancho <input type="number" id="octTapaAn" step="1" min="0" max="600" title="0: sale de los nodos de arriba más el vuelo"></label><label class="n">fondo <input type="number" id="octTapaFo" step="1" min="0" max="600" title="0: sale de los nodos de arriba más el vuelo"></label><label class="n">corrido x <input type="number" id="octTapaDx" step="1" min="-300" max="300"></label><label class="n">z <input type="number" id="octTapaDz" step="1" min="-300" max="300"></label></div>
+   <div class="mhint">Vidrio: con ancho y fondo en 0 sale de los nodos de arriba más el vuelo; con medidas, queda de ese tamaño centrado en los nodos (y corrido lo que digas).</div>
    <div class="mrow"><label class="n"><input type="checkbox" id="octPiesOn"> regatones</label><label class="n">alto <input type="number" id="octPiesH" step="0.1" min="0" max="10"></label></div>
    <div class="mhint">cm. L es de centro a centro de nodo; el tubo se corta a n·L − 2R − descuento. Supuesto hasta medir el nodo real.</div>
    <div class="mh2">Sembrar un bloque</div>
@@ -93,7 +95,7 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   /* parámetros */
   const num = (id, fn) => q(id).addEventListener('change', e => { const v = +e.target.value; if (isNaN(v)) return; set(fn(O.copiar(m), v)); });
   num('octL', (o, v) => { o.L = v; return o; }); num('octD', (o, v) => { o.d = v; return o; }); num('octR', (o, v) => { o.R = v; return o; }); num('octDesc', (o, v) => { o.desc = v; return o; });
-  num('octTapaE', (o, v) => { o.tapa.e = v; return o; }); num('octTapaV', (o, v) => { o.tapa.vuelo = v; return o; }); num('octTapaDisco', (o, v) => { o.tapa.disco = v; return o; }); num('octPiesH', (o, v) => { o.pies.h = v; return o; });
+  num('octTapaE', (o, v) => { o.tapa.e = v; return o; }); num('octTapaV', (o, v) => { o.tapa.vuelo = v; return o; }); num('octTapaDisco', (o, v) => { o.tapa.disco = v; return o; }); num('octTapaAn', (o, v) => { o.tapa.ancho = v; return o; }); num('octTapaFo', (o, v) => { o.tapa.fondo = v; return o; }); num('octTapaDx', (o, v) => { o.tapa.dx = v; return o; }); num('octTapaDz', (o, v) => { o.tapa.dz = v; return o; }); num('octPiesH', (o, v) => { o.pies.h = v; return o; });
   q('octTapaOn').addEventListener('change', e => { const o = O.copiar(m); o.tapa.on = e.target.checked; set(o); }); q('octPiesOn').addEventListener('change', e => { const o = O.copiar(m); o.pies.on = e.target.checked; set(o); });
   /* bloque */
   q('octBloque').addEventListener('click', () => { const nx = +q('octBx').value || 1, nz = +q('octBz').value || 1, nc = +q('octBc').value || 1; set(O.bloque(m, nx, nz, nc)); msg(`Bloque de ${nx} × ${nz} × ${nc} agregado.`); });
@@ -111,7 +113,7 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
 
   function lista() { const s = q('octSel'); const ids = Object.keys(MOD).sort((a, b) => (MOD[a].nombre || a).localeCompare(MOD[b].nombre || b)); s.innerHTML = ids.map(id => `<option value="${esc(id)}"${id === cur ? ' selected' : ''}>${esc(MOD[id].nombre || id)}</option>`).join('') || '<option value="">(sin modelos)</option>'; }
   let ult = null; function pintar() { if (P.hidden) return; const A = ult = O.armar(THREE, m); q('octBom').innerHTML = O.bomHTML(A.bom, m); if (document.activeElement !== q('octNombre')) q('octNombre').value = m.nombre || '';
-    for (const [id, v] of [['octL', m.L], ['octD', m.d], ['octR', m.R], ['octDesc', m.desc || 0], ['octTapaE', m.tapa.e], ['octTapaV', m.tapa.vuelo], ['octTapaDisco', m.tapa.disco], ['octPiesH', m.pies.h]]) { const el = q(id); if (document.activeElement !== el) el.value = v; }
+    for (const [id, v] of [['octL', m.L], ['octD', m.d], ['octR', m.R], ['octDesc', m.desc || 0], ['octTapaE', m.tapa.e], ['octTapaV', m.tapa.vuelo], ['octTapaDisco', m.tapa.disco], ['octTapaAn', m.tapa.ancho || 0], ['octTapaFo', m.tapa.fondo || 0], ['octTapaDx', m.tapa.dx || 0], ['octTapaDz', m.tapa.dz || 0], ['octPiesH', m.pies.h]]) { const el = q(id); if (document.activeElement !== el) el.value = v; }
     q('octTapaOn').checked = !!m.tapa.on; q('octPiesOn').checked = !!m.pies.on; q('octSelN').textContent = sel.size ? `${sel.size} nodo(s) elegido(s)` : 'ningún nodo elegido';
     q('octEstado').textContent = `${Object.keys(m.nodos).length} nodos · ${m.struts.length} tubos${db ? '' : ' · sin base: queda en este navegador'}`; lista(); }
 
