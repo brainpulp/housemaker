@@ -25,7 +25,7 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
     quitar:'Tocá cualquier parte suelta de una pieza (un cabio, un tirante, un vidrio, un tramo de muro) y se borra solo esa. ↶ Deshacer o Ctrl/Cmd+Z la vuelve a poner.',
     ab:'Tocá un punto de la pieza elegida (origen) y después el punto donde tiene que quedar (destino), en cualquier pieza: se mueve para que coincidan. Los puntos se pegan a los vértices cercanos. Con las casillas de abajo podés copiar solo algunos ejes.',
     estirar:'Arrastrá cualquier cara plana de la pieza elegida para empujarla o tirarla. En muros: la punta los alarga, el costado cambia el espesor, la cara de arriba la altura.'};
-  const setTool=t=>{tool=t||null;P.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.tool||null)===tool));q('edHint').textContent=HINT[tool||''];stage.classList.toggle('editando',!!tool);};
+  const setTool=t=>{tool=t||null;visor.editorTool=tool;/* lo lee equipamiento.js: con «mover» los muebles también se arrastran */P.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.tool||null)===tool));q('edHint').textContent=HINT[tool||''];stage.classList.toggle('editando',!!tool);};
   const setOn=v=>{P.hidden=!v;bt.setAttribute('aria-pressed',v);if(!v)setTool(null);else{setTool(tool);form();lista();}};
   bt.addEventListener('click',()=>setOn(P.hidden));q('edX').addEventListener('click',()=>setOn(false));
   P.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
