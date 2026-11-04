@@ -156,6 +156,12 @@ export function catalogoMuebles(THREE){
         for(let x=-W/2;x<=W/2-4;x+=9)g.push([B(x,x+4,0,150,-p.D/2-6,-p.D/2-2),p.mad]);g.push([B(-W/2,W/2,0,150,-p.D/2-9,-p.D/2-6),'madOsc']);return g;}},
     mesaMaciza:{n:'Mesa maciza de tapa gruesa',p:{L:240,D:95,H:76,mad:'madOsc'},
       g:p=>[[B(-p.L/2,p.L/2,p.H-8,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2+28,-p.L/2+38,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad],[B(p.L/2-38,p.L/2-28,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad]]},
+    /* Maxi 4/11 (Arcos, mesita del ventanal): banqueta corrida de tabla con respaldo, de dos cuerpos. H es la altura del asiento (65 para mesa de 0,90, 45 para mesa de 0,75);
+       el respaldo va atrás (−z) y sube 42 sobre el asiento; patas panel en las puntas; con asiento alto, travesaño apoyapiés adelante. */
+    bancoTabla:{n:'Banqueta corrida de tabla con respaldo',cat:'cocina',p:{L:120,D:36,H:65,mad:'madOsc'},
+      g:p=>{const g=[[B(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2,p.L/2,p.H+16,p.H+42,-p.D/2-4,-p.D/2),p.mad]];
+        for(const s of [-1,1]){const x0=s<0?-p.L/2+4:p.L/2-8;g.push([B(x0,x0+4,0,p.H-4,-p.D/2+2,p.D/2-2),p.mad],[B(x0,x0+4,p.H-4,p.H+42,-p.D/2-4,-p.D/2+4),p.mad]);}
+        if(p.H>55)g.push([B(-p.L/2+8,p.L/2-8,p.H-45,p.H-41,p.D/2-10,p.D/2-6),p.mad]);return g;}},
     sillaCurva:{n:'Silla de respaldo curvo',p:{mad:'madOsc',tela:'lino'},
       g:p=>{const g=[[B(-22,22,42,46,-20,20),p.mad],[B(-20,20,46,48,-18,18),p.tela]];for(const sx of [-1,1])for(const sz of [-1,1])g.push([CYL(1.6,0,44,sx*18,sz*16,10),p.mad]);
         const arco=new THREE.TorusGeometry(22,1.8,8,24,Math.PI);arco.rotateX(Math.PI/2);arco.rotateY(Math.PI);arco.translate(0,74,0);/* el respaldo abraza: medio aro horizontal a 74 */g.push([arco,p.mad]);
