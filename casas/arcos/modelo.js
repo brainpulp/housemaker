@@ -273,7 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
-  {"fecha":"2026-11-04","v":"0.10.23","txt":"Mesa de nodos (Maxi 4/11): sin la «pollera» de abajo; antitectónica, apoya sólo en los cuatro nodos interiores del piso. Tubos más finos (Ø16) y nodos más chicos."},
+  {"fecha":"2026-11-04","v":"0.10.23","txt":"Mesa de nodos (Maxi 4/11): sin la «pollera» de abajo; antitectónica, apoya sólo en los cuatro nodos interiores del piso. Tubos más finos (Ø16) y nodos más chicos. La capa del medio lleva sus horizontales entre nodos, como arriba y abajo (estructura espacial)."},
   {"fecha":"2026-11-04","v":"0.10.22","txt":"Comedor (escenario B del living): tu mesa de vidrio sobre estructura espacial de tubos de aluminio con nodos, en versión cuadrada de 1,50 × 1,50 (pieza nueva del catálogo, «mesaNodos»), con dos sillas por lado. La grilla de la estructura sale de una sola foto: es un supuesto."},
   {"fecha":"2026-11-02","v":"0.10.21","txt":"Catálogo de muebles (motor compartido): bacha farm de cerámica, anafe de 5 hornallas, isla con tapa doble (piedra y tablón de canto rústico) y mesada con hueco para la bacha."},
   {"fecha":"2026-11-02","v":"0.10.20","txt":"Catálogo de muebles (motor compartido): bañera empotrada rehecha como cáscara cerrada; piezas nuevas de cocina: campana de isla colgada del techo y salpicadero de pizarra en lajas."},

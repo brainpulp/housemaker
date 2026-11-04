@@ -46,7 +46,7 @@ export function catalogoMuebles(THREE){
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(2.2,0,p.H-5,sx*(p.L/2-14),sz*(p.D/2-14),16,3.6),p.mad]);return g;}},
   /* Maxi 4/11 (foto de su mesa): vidrio sobre una estructura espacial de tubos de aluminio Ø16 con nodos fundidos, en versión cuadrada de 1,50 × 1,50 para el comedor de Arcos.
      Tres niveles de nodos: tapa (grilla de n × n paños de base/n), medio (al centro de cada paño) y piso (sólo los nodos interiores de la grilla, con regatones).
-     Cada nodo del medio se ata con diagonales a sus cuatro esquinas de arriba y a las de abajo que existen. El vidrio de 10 apoya en discos sobre los nodos de arriba.
+     Cada nodo del medio se ata con diagonales a sus cuatro esquinas de arriba y a las de abajo que existen, y con horizontales a sus vecinos del medio. El vidrio de 10 apoya en discos sobre los nodos de arriba.
      Supuesto (DUDA a Maxi): la grilla exacta y la altura de los niveles salen de una sola foto. */
   mesaNodos:{n:'Mesa de vidrio sobre estructura espacial de aluminio',cat:'comedor',p:{L:150,D:150,H:75,base:114,n:3},g:p=>{const g=[],n=Math.max(2,Math.round(p.n)),a=p.base/n,o=-p.base/2,rt=.8,rn=2.6;
     /* Maxi 4/11: antitectónica, más angosta abajo que arriba: el piso no lleva perímetro ni patas en el borde (nada de «pollera»); apoya sólo en los nodos interiores. Tubos más finos (Ø16). */
@@ -54,7 +54,7 @@ export function catalogoMuebles(THREE){
     const tubo=(A,Bp)=>g.push([VAR(A,Bp,rt,10),'aluminio']),nodo=q=>{const s=new THREE.IcosahedronGeometry(rn,1);s.translate(...q);g.push([s,'aluFund']);};
     for(let i=0;i<=n;i++)for(let j=0;j<=n;j++){nodo(P(i,yT,j));if(i<n)tubo(P(i,yT,j),P(i+1,yT,j));if(j<n)tubo(P(i,yT,j),P(i,yT,j+1));const t=P(i,yT,j);g.push([C(2,yT+rn-.3,p.H-1,t[0],t[2],16),'aluminio']);
       if(adentro(i,j)){const q=P(i,yF,j);nodo(q);g.push([C(1.2,0,yF-rn+.5,q[0],q[2],12),'gomaN']);if(adentro(i+1,j))tubo(q,P(i+1,yF,j));if(adentro(i,j+1))tubo(q,P(i,yF,j+1));}}
-    for(let i=0;i<n;i++)for(let j=0;j<n;j++){const m=C2(i,j);nodo(m);for(const [di,dj] of [[0,0],[1,0],[0,1],[1,1]]){tubo(m,P(i+di,yT,j+dj));if(adentro(i+di,j+dj))tubo(m,P(i+di,yF,j+dj));}}
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){const m=C2(i,j);nodo(m);for(const [di,dj] of [[0,0],[1,0],[0,1],[1,1]]){tubo(m,P(i+di,yT,j+dj));if(adentro(i+di,j+dj))tubo(m,P(i+di,yF,j+dj));}/* capa del medio atada entre sí, como arriba y abajo */if(i<n-1)tubo(m,C2(i+1,j));if(j<n-1)tubo(m,C2(i,j+1));}
     g.push([B(-p.L/2+.2,p.L/2-.2,p.H-1,p.H,-p.D/2+.2,p.D/2-.2),'vidrio']);/* el canto verdoso del vidrio, que es lo que se ve */for(const s of [-1,1])g.push([B(-p.L/2,p.L/2,p.H-1,p.H,s*p.D/2-.2,s*p.D/2+.2),'cantoVidrio'],[B(s*p.L/2-.2,s*p.L/2+.2,p.H-1,p.H,-p.D/2,p.D/2),'cantoVidrio']);return g;}},
   mesaR:{n:'Mesa redonda de pie central',cat:'comedor',p:{L:120,H:76,mad:'madOsc'},g:p=>[[C(p.L/2,p.H-4,p.H,0,0,48),p.mad],[C(9,0,p.H-4,0,0,24,5),p.mad],[C(30,0,3,0,0,40,26),p.mad]]},
   silla:{n:'Silla de respaldo curvo, asiento de yute',cat:'comedor',p:{mad:'madOsc',tela:'yute'},g:p=>{const g=[[R(-22,22,43,47,-20,20,1.2),p.mad],[R(-20,20,47,49,-18,18,1),p.tela]];
