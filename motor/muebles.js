@@ -8,7 +8,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
   mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#161718',.35],grafito:['#3b3e40',.55],
   piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#c9cdd1',.3,.7],
-  junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],ledCalido:['#f3d9a8',.7,0,'#ffb85a']};
+  junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a']};
 /* [color, rugosidad, metal, emisivo] */
 
 export function catalogoMuebles(THREE){
@@ -44,6 +44,17 @@ export function catalogoMuebles(THREE){
   /* ---------- comedor ---------- */
   mesa:{n:'Mesa de madera maciza, patas cónicas',cat:'comedor',p:{L:180,D:90,H:76,mad:'madOsc'},g:p=>{const g=[[R(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+12,p.L/2-12,p.H-12,p.H-5,-p.D/2+12,p.D/2-12),p.mad]];
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(2.2,0,p.H-5,sx*(p.L/2-14),sz*(p.D/2-14),16,3.6),p.mad]);return g;}},
+  /* Maxi 4/11 (foto de su mesa): vidrio sobre una estructura espacial de tubos de aluminio Ø22 con nodos fundidos, en versión cuadrada de 1,50 × 1,50 para el comedor de Arcos.
+     Tres niveles de nodos: piso (con regatones), medio y tapa. Tapa: grilla de n × n paños de base/n; piso: sólo el perímetro, alineado con la tapa; los nodos del medio van al centro de cada paño
+     y se atan con diagonales a las cuatro esquinas de arriba y de abajo. Patas verticales en el perímetro, de piso a tapa. El vidrio de 10 apoya en discos sobre los nodos de arriba.
+     Supuesto (DUDA a Maxi): la grilla exacta y la altura de los niveles salen de una sola foto. */
+  mesaNodos:{n:'Mesa de vidrio sobre estructura espacial de aluminio',cat:'comedor',p:{L:150,D:150,H:75,base:114,n:3},g:p=>{const g=[],n=Math.max(1,Math.round(p.n)),a=p.base/n,o=-p.base/2,rt=1.1,rn=3.2;
+    const yF=rn+2,yT=p.H-1-.4-rn,yM=(yF+yT)/2,P=(i,y,j)=>[o+a*i,y,o+a*j],C2=(i,j)=>[o+a*(i+.5),yM,o+a*(j+.5)];
+    const tubo=(A,Bp)=>g.push([VAR(A,Bp,rt,10),'aluminio']),nodo=q=>{const s=new THREE.IcosahedronGeometry(rn,1);s.translate(...q);g.push([s,'aluFund']);};
+    for(const y of [yF,yT])for(let i=0;i<=n;i++)for(let j=0;j<=n;j++){nodo(P(i,y,j));const bo=y===yT||j===0||j===n,bv=y===yT||i===0||i===n;/* abajo sólo el perímetro */if(i<n&&bo)tubo(P(i,y,j),P(i+1,y,j));if(j<n&&bv)tubo(P(i,y,j),P(i,y,j+1));}
+    for(let i=0;i<=n;i++)for(let j=0;j<=n;j++){if(i===0||j===0||i===n||j===n)tubo(P(i,yF,j),P(i,yT,j));const q=P(i,yF,j);g.push([C(1.4,0,yF-rn+.5,q[0],q[2],12),'gomaN']);const t=P(i,yT,j);g.push([C(2.4,yT+rn-.3,p.H-1,t[0],t[2],16),'aluminio']);}
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){const m=C2(i,j);nodo(m);for(const [di,dj] of [[0,0],[1,0],[0,1],[1,1]]){tubo(m,P(i+di,yT,j+dj));tubo(m,P(i+di,yF,j+dj));}}
+    g.push([B(-p.L/2+.2,p.L/2-.2,p.H-1,p.H,-p.D/2+.2,p.D/2-.2),'vidrio']);/* el canto verdoso del vidrio, que es lo que se ve */for(const s of [-1,1])g.push([B(-p.L/2,p.L/2,p.H-1,p.H,s*p.D/2-.2,s*p.D/2+.2),'cantoVidrio'],[B(s*p.L/2-.2,s*p.L/2+.2,p.H-1,p.H,-p.D/2,p.D/2),'cantoVidrio']);return g;}},
   mesaR:{n:'Mesa redonda de pie central',cat:'comedor',p:{L:120,H:76,mad:'madOsc'},g:p=>[[C(p.L/2,p.H-4,p.H,0,0,48),p.mad],[C(9,0,p.H-4,0,0,24,5),p.mad],[C(30,0,3,0,0,40,26),p.mad]]},
   silla:{n:'Silla de respaldo curvo, asiento de yute',cat:'comedor',p:{mad:'madOsc',tela:'yute'},g:p=>{const g=[[R(-22,22,43,47,-20,20,1.2),p.mad],[R(-20,20,47,49,-18,18,1),p.tela]];
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(1.4,0,44,sx*18,sz*16,12,1.9),p.mad]);

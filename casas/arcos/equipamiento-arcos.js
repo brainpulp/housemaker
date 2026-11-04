@@ -10,11 +10,15 @@ export function equipArcos({ itA }) {
   const PB = 72.3, HUND = 22.3, EP = 329, P1 = 417.3, P2 = 613.3, TZ = 757;
   /* sillas alrededor de una mesa rectangular a lo ancho (r 0): n por lado */
   const sillas = (I, cx, cy, L, D, n, t = 'sillaCover') => [...Array(n)].flatMap((_, k) => { const x = cx - L / 2 + L * (k + .5) / n; return [I(t, x, cy - D / 2 - 28, 0), I(t, x, cy + D / 2 + 28, 180)]; });
+  /* sillas alrededor de una mesa cuadrada de lado L: n por lado, en los cuatro lados */
+  const sillas4 = (I, cx, cy, L, n, t = 'sillaCover') => [...Array(n)].flatMap((_, k) => { const d = -L / 2 + L * (k + .5) / n, e = L / 2 + 28;
+    return [I(t, cx + d, cy - e, 0), I(t, cx + d, cy + e, 180), I(t, cx - e, cy + d, 90), I(t, cx + e, cy + d, -90)]; });
   const AMB = {
     living: { n: 'Living (PB)', piso: PB, vista: { p: [520, 650, 3150], t: [520, 90, 3600] }, esc: () => { const I = itA('living'); return {
       A: { nombre: 'Estar mirando a la calle', items: [I('alfombra', 520, 3650, 0, { L: 300, D: 220 }), I('sofaRaffey', 520, 3515, 0, { L: 260, D: 99 }), I('ratonaJoco', 520, 3670, 0, { L: 140, D: 115 }),
         I('butacaAm', 320, 3770, 135, { tela: 'lino' }), I('butacaAm', 720, 3770, -135, { tela: 'mostaza' })] },
-      B: { nombre: 'Comedor + estar', items: [I('mesaComedor', 520, 3250, 0, { L: 220, D: 95 }), ...sillas(I, 520, 3250, 220, 95, 3),
+      /* Maxi 4/11: la mesa de vidrio y estructura de aluminio de su foto, cuadrada de 1,50 × 1,50, con dos sillas por lado */
+      B: { nombre: 'Comedor + estar', items: [I('mesaNodos', 520, 3250, 0, { L: 150, D: 150, H: 75 }), ...sillas4(I, 520, 3250, 150, 2),
         I('alfombra', 560, 3730, 0, { L: 280, D: 200 }), I('sofaRaffey', 560, 3590, 0, { L: 240, D: 99 }), I('ratonaJoco', 560, 3740, 0, { L: 130, D: 105 }), I('butacaAm', 330, 3800, 135, { tela: 'mostaza' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     estar: { n: 'Estar hundido (foso del living)', piso: HUND, vista: { p: [520, 560, 2350], t: [600, 40, 2720] }, esc: () => { const I = itA('estar'); return {
@@ -57,5 +61,8 @@ export function equipArcos({ itA }) {
   const VIEJOS = new Set(['sofa', 'butaca', 'ratona', 'mesa', 'silla', 'cama', 'mesaLuz', 'comoda', 'placard', 'escritorio', 'biblioteca', 'sofaPlat', 'ratonaBaja', 'alfombraYute', 'mesaMaciza', 'sillaCurva']);
   const alMezclar = (a, k, s, migrar) => { if (k !== 'mue' || s.migr.includes('modelos2110') || !AMB[a]) return; s.migr.push('modelos2110');
     if (Object.values(s.esc).some(e => (e.items || []).some(m => VIEJOS.has(m.t)))) { s.esc = AMB[a].esc(); s.activo = Object.keys(s.esc)[0]; s.borrados = []; } migrar.push([a, k]); };
-  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar };
+  /* 4/11: el comedor del living pasa a la mesa de nodos de Maxi; si el escenario B guardado todavía tiene la mesa de 2,20, se repone el B nuevo (una vez) */
+  const alMezclar2 = (a, k, s, migrar) => { alMezclar(a, k, s, migrar); if (k !== 'mue' || a !== 'living' || s.migr.includes('mesaNodos0411')) return; s.migr.push('mesaNodos0411');
+    if ((s.esc.B?.items || []).some(m => m.t === 'mesaComedor')) s.esc.B = AMB.living.esc().B; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
+  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar2 };
 }
