@@ -94,7 +94,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   function showIfs(){for(const q of model.params){if(!q.showIf)continue;const on=!!q.showIf(P);const a=$('q-'+q.id);if(a){const l=a.closest('label');if(l)l.style.display=on?'':'none';}const b=$('v-'+q.id);if(b){const r=b.closest('.vrowp');if(r)r.style.display=on?'':'none';}}}
   function syncPred(){document.querySelectorAll('[data-pred]').forEach(c=>{const id=c.dataset.pred;c.checked=PRED[id]!==undefined&&String(PRED[id])===String(P[id]);});}
   function renderParams(){
-    const quick=$('quick');if(quick){quick.innerHTML=model.params.filter(q=>q.quick).map(q=>`<label class="ctl" for="q-${q.id}">${q.label} ${paramInput(q,'q-')}</label>`).join('');model.params.filter(q=>q.quick).forEach(q=>bindParam(q,'q-'));}
+    const quick=$('quick');if(quick){quick.innerHTML=model.params.filter(q=>q.quick).map(q=>`<label class="ctl" for="q-${q.id}" data-group="${q.group||''}" title="${(q.help||'').replace(/"/g,'&quot;')}">${q.label} ${paramInput(q,'q-')}</label>`).join('');model.params.filter(q=>q.quick).forEach(q=>bindParam(q,'q-'));}
     const pv=$('pane-variables');if(!pv)return;const groups=[...new Set(model.params.map(q=>q.group||'General'))];
     pv.innerHTML=groups.map(g=>`<h3>${g}</h3><div class="vgrid">`+model.params.filter(q=>(q.group||'General')===g).map(q=>`<div class="vrowp"><label for="v-${q.id}">${q.label}</label><div>${paramInput(q,'v-')} <label class="pred" title="Usar este valor al abrir la página"><input type="checkbox" data-pred="${q.id}"> predeterminada</label>${q.help?`<div class="vh">${q.help}</div>`:''}</div></div>`).join('')+`</div>`).join('')+`<div id="calcOut"></div>`;
     model.params.forEach(q=>bindParam(q,'v-'));

@@ -20,10 +20,11 @@ export function equipCocinas({ it, itA }) {
         I('banqueta', 138, 1672, 0), I('banqueta', 198, 1672, 0), I('banqueta', 258, 1672, 0), I('banqueta', 318, 1672, 0)] },
       C: { nombre: 'Vacía', items: [] } }; } },
     arcos: { n: 'Arcos', piso: 51, ver: p => p.verAR !== false, vista: { p: [640, 250, 2130], t: [120, 130, 2440] }, esc: () => { const I = itA('arcos'); return {
-      A: { nombre: 'Propuesta 2/11: granito negro, petiribí, isla con hornallas', items: [
-        I('heladera', 52, 2158, 90, { L: 75, D: 70, H: 190, col: 'negro' }), I('mesada', 46, 2378, 90, { L: 362, D: 62, fr: 'madClara', top: 'granito' }), I('bacha', 48, 2290, 90, { L: 80 }),
-        I('columna', 46, 2588, 90, { L: 58, D: 62, H: 228, fr: 'madClara' }),
-        I('alacena', 32.5, 2257, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2378, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2499, 90, { L: 120, D: 35, H: 78, fr: 'negro' }),
+      A: { nombre: 'Propuesta 2/11 + pared del 3/11', items: [/* Maxi 3/11: la heladera va entre el horno y la despensa (punta este, contra la pared del depósito); donde estaba, una mesita de desayuno con banquetas perpendicular a la medianera */
+        I('heladera', 52, 2697, 90, { L: 75, D: 70, H: 190, col: 'negro' }), I('columna', 46, 2630, 90, { L: 58, D: 62, H: 228, fr: 'madClara' }),
+        I('mesada', 46, 2420, 90, { L: 362, D: 62, fr: 'madClara', top: 'granito' }), I('bacha', 48, 2349, 90, { L: 80 }),
+        I('alacena', 32.5, 2299, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2420, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2541, 90, { L: 120, D: 35, H: 78, fr: 'negro' }),
+        I('mesaMaciza', 75, 2130, 0, { L: 120, D: 70, H: 90, mad: 'madClara' }), I('banqueta', 45, 2075, 0, { H: 65 }), I('banqueta', 105, 2075, 0, { H: 65 }), I('banqueta', 45, 2185, 180, { H: 65 }), I('banqueta', 105, 2185, 180, { H: 65 }),
         I('isla', 227, 2378, -90, { L: 200, D: 90, vol: 0, fr: 'madClara', top: 'granito' }), I('anafe', 227, 2378, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 227, 2378, -90, { L: 90, D: 60 }),
         I('mesada', 227, 2243, -90, { L: 70, D: 90, H: 90, fr: 'madRust', top: 'madRust' })] },
       B: { nombre: 'Vacía', items: [] } }; } },

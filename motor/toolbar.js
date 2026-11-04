@@ -94,7 +94,12 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     {const ql=$('q-calco');const l=ql&&ql.closest('label');if(l)l.style.display='none';}take('tgDim','#cpShow','Cotas');
     {const d=document.createElement('div');d.style.cssText='padding:4px 0 2px';d.innerHTML='<button class="btn mini" id="cpTodo" style="width:100%">Mostrar todo lo escondido</button>';cp.querySelector('#cpShow').after(d);
       const b=d.querySelector('button');const up=()=>{const n=(visor.hidden||[]).length;b.textContent=n?`Mostrar todo (${n} escondida${n>1?'s':''})`:'Mostrar todo';b.disabled=!n;};setInterval(()=>{if(!cp.hidden)up();},800);b.addEventListener('click',()=>{visor.setHidden([]);up();});}
-    take('luzReal','#cpVer','Luz realista');const ex=$('explode');if(ex){const l=ex.closest('label');cp.querySelector('#cpVer').appendChild(l);}}
+    take('luzReal','#cpVer','Luz realista');const ex=$('explode');if(ex){const l=ex.closest('label');cp.querySelector('#cpVer').appendChild(l);}
+    /* el resto de las variables rápidas de la casa (las que no tomó nadie arriba) también van al panel: las del grupo «Ver» bajo «Ver», las demás bajo un título con el nombre de su grupo
+       (Maxi 3/11: las llaves por cocina de Cocinas no aparecían en ningún lado; #quick está escondido) */
+    {const q=$('quick');if(q){const ver=cp.querySelector('#cpVer'),secs={};for(const l of [...q.querySelectorAll('label')]){if(l.style.display==='none')continue;const g=l.dataset.group||'';{const i=l.querySelector('input[type=checkbox]');if(i)l.prepend(i);}/* casilla adelante, como las demás del panel */
+        if(!g||g==='Ver'||g==='General'){ver.appendChild(l);continue;}
+        if(!secs[g]){const h=document.createElement('div');h.className='cpg';h.textContent=g;const box=document.createElement('div');box.className='cplist';ver.parentNode.append(h,box);secs[g]=box;}secs[g].appendChild(l);}}}}
   /* «en transparencia» por capa (Maxi 14/10): ◐ al lado de cada una; sirve sobre todo para ver adentro con los techos puestos */
   {const TR=LS.get('carhue-transp',{});const CAPAS={techos:p=>p.group==='Techos'||(p.tags||[]).includes('techos'),ep:p=>p.group==='Entrepiso',ext:p=>p.group==='Exterior',equip:null,veg:null};
     const setOp=(o,on)=>{const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(!m)continue;if(m.userData.op0==null){m.userData.op0=m.opacity;m.userData.tr0=m.transparent;m.userData.dw0=m.depthWrite;}
