@@ -25,8 +25,9 @@ export function equipCocinas({ it, itA }) {
         I('mesada', 46, 2420, 90, { L: 362, D: 62, fr: 'madClara', top: 'granito' }), I('bacha', 48, 2349, 90, { L: 80 }),
         I('alacena', 32.5, 2299, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2420, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2541, 90, { L: 120, D: 35, H: 78, fr: 'negro' }),
         I('mesaMaciza', 75, 2130, 0, { L: 120, D: 70, H: 90, mad: 'madClara' }), I('banqueta', 45, 2075, 0, { H: 65 }), I('banqueta', 105, 2075, 0, { H: 65 }), I('banqueta', 45, 2185, 180, { H: 65 }), I('banqueta', 105, 2185, 180, { H: 65 }),
-        I('isla', 227, 2378, -90, { L: 200, D: 90, vol: 0, fr: 'madClara', top: 'granito' }), I('anafe', 227, 2378, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 227, 2378, -90, { L: 90, D: 60 }),
-        I('mesada', 227, 2243, -90, { L: 70, D: 90, H: 90, fr: 'madRust', top: 'madRust' })] },
+        /* isla en línea, desplazada (Maxi 3/11): bloque de cocinar corto (1,60 × 0,90, a 0,90, piedra) y mesa larga de ibirapitá (2,20 × 0,90, a 0,75) corrida 0,30 al norte; la punta de la mesa se mete bajo la tapa del bloque (pendiente: el bloque con la punta oeste hueca) */
+        I('isla', 227, 2550, -90, { L: 160, D: 90, vol: 0, fr: 'madClara', top: 'granito' }), I('anafe', 227, 2550, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 227, 2550, -90, { L: 90, D: 60 }),
+        I('mesaMaciza', 257, 2360, 90, { L: 220, D: 90, H: 75, mad: 'madRust' }), I('sillaCover', 190, 2300, 90), I('sillaCover', 190, 2360, 90), I('sillaCover', 190, 2420, 90), I('sillaCover', 257, 2225, 0)] },
       B: { nombre: 'Vacía', items: [] } }; } },
     mocoreta: { n: 'Mocoretá', piso: 0, ver: p => p.verMO !== false, vista: { p: [740, 330, 80], t: [200, 70, 300] }, esc: () => { const I = itA('mocoreta'); return {
       A: { nombre: 'Como está hoy (croquis 3/11)', items: [
