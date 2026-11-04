@@ -197,8 +197,9 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       rot(new THREE.Quaternion().setFromAxisAngle(UP,-dx*k));
       const dir=new THREE.Vector3().subVectors(controls.target,camera.position).normalize(),right=dir.clone().cross(UP).normalize();
       const el0=Math.asin(Math.max(-1,Math.min(1,dir.y))),el1=Math.max(-1.52,Math.min(.03,el0-dy*k));
-      if(right.lengthSq()>.5&&Math.abs(el1-el0)>1e-6)rot(new THREE.Quaternion().setFromAxisAngle(right,el1-el0));
-      if(camera.position.y<25){const d=25-camera.position.y;camera.position.y+=d;controls.target.y+=d;}});
+      if(right.lengthSq()>.5&&Math.abs(el1-el0)>1e-6){const q=new THREE.Quaternion().setFromAxisAngle(right,el1-el0);rot(q);
+        /* si el giro deja la cámara bajo el piso, se deshace: la órbita es rígida alrededor del pivote. Hasta el 4/11 se levantaban cámara y objetivo, y eso era un desplazamiento disimulado */
+        if(camera.position.y<25)rot(q.invert());}});
     const up=e=>{if(e.pointerType==='touch')touches=Math.max(0,touches-1);if(orb&&e.pointerId===orb.id){orb=null;dot.visible=false;}};
     el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
     /* rueda: avanza cámara y objetivo juntos por el rayo del cursor, un 18 % de la distancia a lo que está debajo (mínimo 8 cm),
@@ -320,7 +321,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const FPS={n:0,t:performance.now()};
   const LR={t:0,on:true};window.__act=performance.now();window.__despertar=()=>{window.__act=performance.now();};
   for(const ev of ['pointermove','pointerdown','wheel','keydown','resize'])addEventListener(ev,()=>{window.__act=performance.now();},{passive:true,capture:true});
-  (function loop(now){requestAnimationFrame(loop);if(tween){const u=Math.min(1,(now-tween.t0)/tween.d),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;camera.position.lerpVectors(tween.P0,tween.P1,e);controls.target.lerpVectors(tween.T0,tween.T1,e);if(u>=1)tween=null;}controls.update();if(controls.target.y<0){controls.target.y=0;}if(camera.position.y<25){camera.position.y=25;}
+  (function loop(now){requestAnimationFrame(loop);if(tween){const u=Math.min(1,(now-tween.t0)/tween.d),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;camera.position.lerpVectors(tween.P0,tween.P1,e);controls.target.lerpVectors(tween.T0,tween.T1,e);if(u>=1)tween=null;}controls.update();/* el objetivo puede quedar bajo el piso: es un punto de referencia, no se ve. Subirlo a 0 cada cuadro (hasta el 4/11) metía un desplazamiento en la órbita: el objetivo gira alrededor del pivote, pasaba bajo el piso y el tope lo empujaba */if(camera.position.y<25){camera.position.y=25;}
     /* reposo (Maxi 14/10, el ventilador de la placa): sin actividad por 2,5 s se dibuja 2 veces por segundo; cualquier toque, rueda, tecla o animación lo despierta */
     {const act=tween||now-(window.__act||0)<2500;if(!act&&now-LR.t<500)return;LR.t=now;LR.on=!!act;}
     if(hooks.render)hooks.render();else renderer.render(scene,camera);lr.render(scene,camera);declutter();
