@@ -190,7 +190,8 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       const ms=[];const toma=o=>{if(o.isMesh&&o.visible!==false&&o.material&&(Array.isArray(o.material)||o.material.opacity>.3))ms.push(o);};for(const p of parts)if(p.grp.visible!==false)p.grp.traverse(toma);const EQ=scene.getObjectByName('equipamiento');if(EQ&&EQ.visible)EQ.traverse(toma);
       const cps=renderer.clippingPlanes||[];return rc.intersectObjects(ms,false).find(h=>!cps.length||cps.every(pl=>pl.distanceToPoint(h.point)>=0));};
     el.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touches++;if(touches>1){orb=null;dot.visible=false;return;}}/* sólo dedos: con el mouse el contador se desfasaba si se soltaba fuera del lienzo y la órbita dejaba de andar */if(e.button!==0||!controls.enabled)return;try{el.setPointerCapture(e.pointerId);}catch(_){}
-      const h=pick(e);if(h)pivot.copy(h.point);else pivot.copy(controls.target);
+      /* Maxi 3/11 («el orbit también hace pan»): se gira siempre alrededor del objetivo de la cámara, no del punto bajo el cursor. Girar alrededor de un punto lejos del centro de la vista hacía que la escena se corriera además de girar. El objetivo lo mueven la rueda (hacia el cursor), el botón derecho (desplazar) y «ir a» una pieza. */
+      pivot.copy(controls.target);
       /* Maxi 3/11: órbita determinística. Se guarda el estado del arranque y cada movimiento se calcula desde el total arrastrado (no paso a paso): arrastrar y volver deja la vista exactamente donde estaba */
       orb={x:e.clientX,y:e.clientY,id:e.pointerId,P0:camera.position.clone(),T0:controls.target.clone(),Q0:camera.quaternion.clone()};dot.position.copy(pivot);/* Maxi: sin ícono de órbita */});
     const rot=(q)=>{camera.position.sub(pivot).applyQuaternion(q).add(pivot);controls.target.sub(pivot).applyQuaternion(q).add(pivot);camera.quaternion.premultiply(q);};
