@@ -27,7 +27,9 @@ export function equipCocinas({ it, itA }) {
         I('mesaMaciza', 75, 2130, 0, { L: 120, D: 70, H: 90, mad: 'madClara' }), I('banqueta', 45, 2075, 0, { H: 65 }), I('banqueta', 105, 2075, 0, { H: 65 }), I('banqueta', 45, 2185, 180, { H: 65 }), I('banqueta', 105, 2185, 180, { H: 65 }),
         /* isla en línea, desplazada (Maxi 3/11): bloque de cocinar corto (1,60 × 0,90, a 0,90, piedra) y mesa larga de ibirapitá (2,20 × 0,90, a 0,75) corrida 0,30 al norte; la punta de la mesa se mete bajo la tapa del bloque (pendiente: el bloque con la punta oeste hueca) */
         I('isla', 227, 2550, -90, { L: 160, D: 90, vol: 0, fr: 'madClara', top: 'granito' }), I('anafe', 227, 2550, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 227, 2550, -90, { L: 90, D: 60 }),
-        I('mesaMaciza', 257, 2360, 90, { L: 220, D: 90, H: 75, mad: 'madRust' }), I('sillaCover', 190, 2300, 90), I('sillaCover', 190, 2360, 90), I('sillaCover', 190, 2420, 90), I('sillaCover', 257, 2225, 0)] },
+        /* punto de partida 4/11 para que Maxi ajuste en la página: mesa de 3,80 hasta la punta oeste del bloque, corrida 0,50 hacia el estar (sobresale 0,50 del frente del bloque: ahí se sienta gente «frente a la mesada negra»); el escalón del estar hundido está a x 386 */
+        I('mesaMaciza', 277, 2440, 90, { L: 380, D: 90, H: 75, mad: 'madRust' }), I('sillaCover', 204, 2300, 90), I('sillaCover', 204, 2400, 90),
+        I('sillaCover', 350, 2300, -90), I('sillaCover', 350, 2400, -90), I('sillaCover', 350, 2500, -90), I('sillaCover', 350, 2600, -90), I('sillaCover', 277, 2225, 0)] },
       B: { nombre: 'Vacía', items: [] } }; } },
     mocoreta: { n: 'Mocoretá', piso: 0, ver: p => p.verMO !== false, vista: { p: [740, 330, 80], t: [200, 70, 300] }, esc: () => { const I = itA('mocoreta'); return {
       A: { nombre: 'Como está hoy (croquis 3/11)', items: [
