@@ -216,8 +216,18 @@ export function initEquipamiento(visor,stage,D){
     if(visor.noche)visor.noche.setFuentes(L);}
   function setNoche(k,fn){setTimeout(pintarIconos,0);const was=nocheOn;nocheK=k;nocheOn=k>=1;if(fn)prendidaFn=fn;for(const g of groups.values())if(g.userData.mats){const on=prendidaFn(g.userData.item);for(const mt of g.userData.mats)mt.emissiveIntensity=on?mt.userData.emit*k:0;}
     if(was!==nocheOn){G.visible=visor.params.equip!==false||nocheOn;for(const g of groups.values())g.visible=visOf(g);}}
-  function marcarSel(){pintarIconos();if(selBox){G.remove(selBox);selBox.geometry.dispose();selBox=null;}const g=sel&&groups.get(sel);if(!g)return;
-    const bb=new THREE.Box3().setFromObject(g);bb.expandByScalar(1.5);selBox=new THREE.Box3Helper(bb,new THREE.Color('#e2462b'));selBox.material.depthTest=false;selBox.renderOrder=2000;G.add(selBox);}
+  const selDims=new THREE.Group();G.add(selDims);
+  function marcarSel(){pintarIconos();if(selBox){G.remove(selBox);selBox.geometry.dispose();selBox=null;}visor.quitarEtiquetas&&visor.quitarEtiquetas(selDims);const g=sel&&groups.get(sel);if(!g)return;
+    /* la caja mide sólo las mallas visibles (sin el ícono); la de la caja roja incluye el ícono, como siempre */
+    const bm=new THREE.Box3();g.updateMatrixWorld(true);g.traverse(o=>{if(o.isMesh&&o.visible&&o.parent.visible)bm.expandByObject(o);});
+    const bb=new THREE.Box3().setFromObject(g);bb.expandByScalar(1.5);selBox=new THREE.Box3Helper(bb,new THREE.Color('#e2462b'));selBox.material.depthTest=false;selBox.renderOrder=2000;G.add(selBox);
+    /* cotas como las de las partes del edificio (Maxi 4/11): largo, fondo y alto en las aristas de arriba de la caja, en cm */
+    if(visor.etiqueta&&!bm.isEmpty()){const s=bm.getSize(new THREE.Vector3()),f=visor.f1,c=camera.position;
+      /* en las aristas que salen de la esquina más cercana a la cámara, para que no queden atrás del mueble */
+      const ex=Math.abs(c.x-bm.min.x)<Math.abs(c.x-bm.max.x)?bm.min.x:bm.max.x,ez=Math.abs(c.z-bm.min.z)<Math.abs(c.z-bm.max.z)?bm.min.z:bm.max.z;
+      visor.etiqueta(f(s.x),[(bm.min.x+bm.max.x)/2,bm.max.y,ez],'edge',selDims,true);
+      visor.etiqueta(f(s.z),[ex,bm.max.y,(bm.min.z+bm.max.z)/2],'edge',selDims,true);
+      visor.etiqueta(f(s.y),[ex,(bm.min.y+bm.max.y)/2,ez],'edge',selDims,true);}}
   /* etiqueta del elegido: qué es y, si es una luz, lúmenes, color y si está prendida */
   const tag=document.createElement('div');tag.id='eqTag';tag.hidden=true;(stage||document.body).appendChild(tag);const _t=new THREE.Vector3();let tagTxt='';
   function ponerTag(){const g=sel&&groups.get(sel),m=g&&item(sel);if(!g||!m||card.hidden||!g.visible){tag.hidden=true;return;}const k=g.userData.capa;

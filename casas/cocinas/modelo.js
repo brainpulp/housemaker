@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.10', fecha: '2026-11-04',
+export const META = { nombre: 'Cocinas', version: '0.1.11', fecha: '2026-11-04',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-04', v: '0.1.11', txt: 'Motor: el mueble elegido muestra sus cotas (largo, fondo y alto, en cm) en las aristas del frente, como las partes del edificio.' },
   { fecha: '2026-11-04', v: '0.1.10', txt: 'Motor: la órbita ya no se desliza. Al girar, el objetivo pasaba bajo el piso y un tope lo subía cada cuadro (un desplazamiento disimulado); también se levantaba la cámara al tocar el piso. Ahora el objetivo puede quedar bajo el piso y, si el giro vertical dejara la cámara bajo 25 cm, se deshace. Inventario: laja San Luis (I-15).' },
   { fecha: '2026-11-04', v: '0.1.9', txt: 'Motor: con la herramienta Mover prendida, los muebles se arrastran directo (antes sólo con el panel Equipamiento abierto y en su capa); el panel se abre solo. Estirar caras sigue siendo para el edificio: el tamaño de un mueble se cambia en su panel (L, D, H).' },
   { fecha: '2026-11-03', v: '0.1.8', txt: 'Motor: la órbita vuelve a ser la de siempre (gira alrededor del punto bajo el cursor, como antes de hoy). Los cambios de hoy a la órbita se deshicieron (Maxi).' },
