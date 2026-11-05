@@ -7,7 +7,8 @@
 export const MODELOS={
   sofaLcb:{n:'Sillón en L, tela gris (C&B Lounge II)',cat:'estar',p:{L:340,D:172,H:73,lado:'izq'},ui:[['L','largo','num'],['D','fondo','num'],['H','alto','num'],['lado','chaise',['izq','der']]],
     titulo:'C&B++ Lounge II 2-piece Sectional',autor:'gham3d',uid:'0a05df5d02574dd9a678c835237704bc',
-    /* el modelo trae la chaise a la izquierda (−x), hacia adelante; «der» la espeja */caja:p=>{const d=Math.min(p.D,Math.max(70,p.D*.55));return [[-p.L/2,p.L/2,-p.D/2,-p.D/2+d],[-p.L/2,-p.L/2+p.L*.3,-p.D/2+d,p.D/2]];}},
+    /* el modelo trae la chaise a la izquierda (−x), hacia adelante; «der» la espeja *//* Maxi 5/11: la chaise se alarga sola (el fondo D estira sólo lo que está delante del sillón; el asiento y el respaldo quedan de su medida) */tramoZ:.55,
+    caja:p=>{const d=Math.min(p.D,165);return [[-p.L/2,p.L/2,-p.D/2,-p.D/2+d],[-p.L/2,-p.L/2+p.L*.3,-p.D/2+d,p.D/2]];}},
   sofaRaffey:{n:'Sofá largo, tela gris',cat:'estar',p:{L:300,D:99,H:81},titulo:'Grey Sofa',autor:'Raffey',uid:'e94e15859aff4c5ebf4791c46ab8ba42'},
   butacaAm:{n:'Butaca tapizada de respaldo alto',cat:'estar',p:{L:82,D:77,H:86,tela:'tela'},ui:[['L','largo','num'],['D','fondo','num'],['H','alto','num'],['tela','tela',['tela','lino','grafito','petroleo','mostaza','cuero']]],
     /* el original es de cuero suela; Maxi la eligió vista en gris: el tapizado toma la tela elegida («cuero» deja el original) */tapiz:/leather/i,titulo:'armchair',autor:'gurbetoglu61',uid:'60afe0998936456e803f6a469c7f1482'},
@@ -83,8 +84,24 @@ export function cargarModelo(THREE,k){if(BASE[k])return Promise.resolve(BASE[k])
 /* telas para el tapizado de los modelos que lo permiten (los mismos tonos que el equipamiento) */
 export const TELAS={tela:'#8a8f96',lino:'#c9c1b3',grafito:'#3b3e40',petroleo:'#3e5a63',mostaza:'#b88a3a'};
 const TAPIZ={};
+/* estiramiento por tramos (receta tramoZ = fracción del fondo, desde atrás, que queda a su medida): con un fondo D distinto del natural
+   sólo se estira lo que está delante de esa línea (la chaise de un sillón en L), en vez de agrandar todo el mueble en z */
+const TRAMO={};
+function tramoZ(THREE,k,o,n,D0,D,fr){const key=k+'|'+Math.round(D);o.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(o.matrixWorld).invert();
+  const ms=[];o.traverse(m=>{if(m.isMesh)ms.push(m);});const sZ=D0/n.z,E=(D-D0)/sZ,zf=n.z/2;let i=0;
+  if(!TRAMO[key]){/* se hornean las mallas al marco del mueble; los GLB con meshopt traen posiciones y normales cuantizadas: se pasan a float antes */
+    const gs=ms.map(m=>{const M=new THREE.Matrix4().multiplyMatrices(inv,m.matrixWorld),g=m.geometry.clone();for(const nm of ['position','normal']){const at=g.attributes[nm];if(!at)continue;const arr=new Float32Array(at.count*3);for(let v=0;v<at.count;v++){arr[3*v]=at.getX(v);arr[3*v+1]=at.getY(v);arr[3*v+2]=at.getZ(v);}g.setAttribute(nm,new THREE.BufferAttribute(arr,3));}g.applyMatrix4(M);return g;});
+    /* línea de corte: el frente del sillón fuera de la franja de la chaise (−x); lo que está delante de esa línea es la chaise y se estira */
+    let zs=-Infinity;const xc=-n.x/2+.4*n.x;for(const g of gs){const P=g.attributes.position;for(let v=0;v<P.count;v++)if(P.getX(v)>xc)zs=Math.max(zs,P.getZ(v));}
+    if(!(zs>-zf&&zs<zf-2))zs=-zf+fr*n.z;zs+=.5;
+    for(const g of gs){const P=g.attributes.position;for(let v=0;v<P.count;v++){let z=P.getZ(v);if(z>zs)z+=(z-zs)/(zf-zs)*E;P.setZ(v,z-E/2);}P.needsUpdate=true;g.computeBoundingBox();g.computeBoundingSphere();}
+    TRAMO[key]=gs;}
+  const geos=TRAMO[key];
+  for(const m of ms){const g=geos[i++];m.parent.remove(m);m.geometry=g;m.position.set(0,0,0);m.quaternion.identity();m.scale.set(1,1,1);m.matrixAutoUpdate=true;m.updateMatrix();o.add(m);}
+  return sZ;}
 export function vestirModelo(THREE,k,p){const b=BASE[k],d=MODELOS[k];if(!b)return null;const n=b.userData.nat,o=b.clone(true);
-  o.scale.set(p.L/n.x*(p.lado==='der'?-1:1),p.H/n.y,p.D/n.z);
+  o.scale.set(1,1,1);let sZ=p.D/n.z;if(d.tramoZ&&d.p&&d.p.D&&Math.abs(p.D-d.p.D)>1)sZ=tramoZ(THREE,k,o,n,d.p.D,p.D,d.tramoZ);
+  o.scale.set(p.L/n.x*(p.lado==='der'?-1:1),p.H/n.y,sZ);
   if(d.tapiz&&TELAS[p.tela])o.traverse(m=>{if(!m.isMesh)return;const sw=x=>{if(!x||!d.tapiz.test(x.name||''))return x;const key=k+'|'+p.tela+'|'+x.uuid;
       return TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(TELAS[p.tela]),roughness:.95,metalness:0,normalMap:x.normalMap||null,name:x.name}));};
     m.material=Array.isArray(m.material)?m.material.map(sw):sw(m.material);});

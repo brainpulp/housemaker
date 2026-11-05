@@ -5,7 +5,7 @@
    Ojo con el volumen alto del SketchUp sobre la cocina (duda D-15: x 0,18–2,40, y 26,64–27,31, de +3,16 al techo): atraviesa el entrepiso y el 2P, los muebles lo esquivan.
    Ejes: x de sur a norte (medianera S en 0, N en 865), y de oeste (jardín) a este (Arcos, fachada en 3902). Pisos medidos en el modelo.
    Giro r: 0 = el frente del mueble mira al este (calle), 180 = al jardín, 90 = al norte, −90 = al sur.
-   La cocina y los baños de 1P y 2P no van: ya están amueblados (SketchUp de Maxi y baño de 2P de la obra). */
+   Los baños de 1P y 2P no van: ya están amueblados (SketchUp de Maxi y baño de 2P de la obra). La cocina sale de la página Cocinas (5/11). */
 export function equipArcos({ itA }) {
   const PB = 72.3, HUND = 22.3, EP = 329, P1 = 417.3, P2 = 613.3, TZ = 757;
   /* sillas alrededor de una mesa rectangular a lo ancho (r 0): n por lado */
@@ -22,11 +22,25 @@ export function equipArcos({ itA }) {
         I('butacaAm', 320, 3770, 135, { tela: 'lino' }), I('butacaAm', 720, 3770, -135, { tela: 'mostaza' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     estar: { n: 'Estar hundido (foso del living)', piso: HUND, vista: { p: [520, 560, 2350], t: [600, 40, 2720] }, esc: () => { const I = itA('estar'); return {
-      /* el foso va de x 4,70 (4,55 de la medianera S, Maxi 5/11) a 8,30 y de y 24,25 a 28,63: el sillón en L apoya el respaldo largo contra el lado este y la chaise contra el norte */
-      A: { nombre: 'Sillón en L y mesa baja', items: [I('sofaLcb', 652, 2745, 180, { L: 350, D: 230, H: 78, lado: 'izq' }), I('mesaBaja', 610, 2660, 0, { L: 130, D: 70, H: 40 })] },
+      /* el foso va de x 4,70 (4,55 de la medianera S, Maxi 5/11) a 8,30 y de y 24,25 a 28,63: el sillón en L apoya el respaldo largo contra el lado este y la chaise corre todo el lado norte (Maxi 5/11) */
+      A: { nombre: 'Sillón en L y mesa baja', items: [I('sofaLcb', 651, 2639, 180, { L: 355, D: 437, H: 78, lado: 'izq' }), I('mesaBaja', 600, 2575, 0, { L: 130, D: 70, H: 40 })] },
       /* Maxi 5/11: acá también va su mesa octet («mesa Konstandt», vidrio 2,05 × 2,05), con dos sillas por lado */
       B: { nombre: 'Comedor con la mesa Konstandt', items: [I('octet', 650, 2645, 0, { modelo: 'mesa-konstandt' }), ...sillas4(I, 650, 2645, 205, 2)] },
       C: { nombre: 'Vacío', items: [] } }; } },
+    /* Maxi 5/11: la cocina diseñada en la página Cocinas (casas/cocinas/equipamiento-cocinas.js, escenario A), traída a los ejes de Arcos (y +330, la escena la corría −330).
+       Reemplaza a la cocina del SketchUp (SU-05), que ya no se dibuja. */
+    cocina: { n: 'Cocina (PB)', piso: PB, vista: { p: [640, 271, 2460], t: [120, 151, 2770] }, esc: () => { const I = itA('cocina'); return {
+      A: { nombre: 'Propuesta 2/11 + pared del 3/11', items: [/* Maxi 4/11: frentes de cajones oscuros (madOsc) en mesada, columna y bloque. Maxi 3/11: la heladera va entre el horno y la despensa (punta este, contra la pared del depósito); donde estaba, una mesita de desayuno con banquetas perpendicular a la medianera */
+        I('heladera', 52, 3027, 90, { L: 75, D: 70, H: 190, col: 'negro' }), I('columna', 46, 2960, 90, { L: 58, D: 62, H: 228, fr: 'madOsc' }), /* Maxi 4/11: mueble sobre la heladera, continuación de la torre del horno (sin LED abajo) */ I('alacena', 46, 3027, 90, { L: 75, D: 62, H: 38, fr: 'madOsc', led: false }, 190),
+        I('mesada', 46, 2750, 90, { L: 362, D: 62, fr: 'madOsc', top: 'granito', puertas: [1, 2] }) /* Maxi 4/11: bajo la bacha, puertas batientes con bisagras cazoleta; el resto, cajones con guías telescópicas */, I('bacha', 48, 2679, 90, { L: 80 }),
+        I('alacena', 32.5, 2629, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2750, 90, { L: 120, D: 35, H: 78, fr: 'negro' }), I('alacena', 32.5, 2871, 90, { L: 120, D: 35, H: 78, fr: 'negro' }),
+        I('mesaMaciza', 75, 2475, 0, { L: 120, D: 70, H: 75, mad: 'madClara' }), /* Maxi 4/11: mesita baja, con bancos bajos de tabla con respaldo en ángulo, uno por lado, de dos cuerpos */ I('bancoTabla', 75, 2419, 0, { L: 120, D: 38, H: 45, mad: 'madClara' }), I('bancoTabla', 75, 2531, 180, { L: 120, D: 38, H: 45, mad: 'madClara' }),
+        /* Maxi 4/11: un solo rectángulo de 3,80 × 1,20 en dos materiales (pieza «islaMesa»): bloque de cocinar de piedra de 1,60 × 0,70 a 0,90 en la punta este, del lado de la mesada,
+           y mesa de madera a 0,75 en L: 2,20 de ancho completo al oeste más la tira de 0,50 que sigue junto al bloque hasta su punta este (ahí se sienta gente frente a la mesada negra).
+           Cara sur en x 182 (pasillo de 1,05 a la mesada); sillas sólo del lado del estar y en la punta. El escalón del estar hundido está a x 386 (a medir). */
+        I('islaMesa', 242, 2770, -90, { L: 380, D: 120, Lb: 160, Db: 70, H: 75, Hb: 90, fr: 'madOsc', top: 'granito', mad: 'madRust' }), I('anafe', 217, 2880, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 217, 2880, -90, { L: 90, D: 60 }),
+        I('sillaCover', 330, 2630, -90), I('sillaCover', 330, 2730, -90), I('sillaCover', 330, 2830, -90), I('sillaCover', 330, 2930, -90), I('sillaCover', 242, 2555, 0)] },
+      B: { nombre: 'Vacía', items: [] } }; } },
     toilette: { n: 'Baño de PB (M-33, hacia la calle)', piso: PB, vista: { p: [300, 330, 3500], t: [100, 80, 3360] }, esc: () => { const I = itA('toilette'); return {
       A: { nombre: 'Inodoro y lavatorio', items: [I('inodoroK', 55, 3330, 90, { L: 45, D: 75, H: 78 }), I('lavatorioS', 140, 3311, 0, { L: 55, D: 45, H: 50 }, 35)] },
       B: { nombre: 'Vacío', items: [] } }; } },
@@ -78,5 +92,8 @@ export function equipArcos({ itA }) {
   const alMezclar6 = (a, k, s, migrar) => { alMezclar5(a, k, s, migrar); if (k !== 'mue' || a !== 'living' || s.migr.includes('konstandtA0511')) return; s.migr.push('konstandtA0511');
     if (!(s.esc.A?.items || []).some(m => m.t === 'octet')) { const nu = AMB.living.esc(); s.esc.B = s.esc.A ? { ...s.esc.A, nombre: nu.B.nombre } : nu.B; s.esc.A = nu.A; }
     s.activo = 'A'; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
-  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar6 };
+  /* 5/11 (noche): la chaise del sillón del foso ocupa todo el lado norte; si el A guardado tiene el sillón de antes, se repone (una vez) */
+  const alMezclar7 = (a, k, s, migrar) => { alMezclar6(a, k, s, migrar); if (k !== 'mue' || a !== 'estar' || s.migr.includes('chaiseNorte0511')) return; s.migr.push('chaiseNorte0511');
+    if ((s.esc.A?.items || []).some(m => m.t === 'sofaLcb')) s.esc.A = AMB.estar.esc().A; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
+  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar7 };
 }

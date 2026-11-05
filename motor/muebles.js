@@ -186,7 +186,7 @@ export function catalogoMuebles(THREE){
     for(const [x,z,r] of (p.n===5?H5:H4)){const t=new THREE.TorusGeometry(r,.3,6,32);t.rotateX(Math.PI/2);t.translate(x,.75,z);g.push([t,'grafito']);}return g;}},
   campana:{n:'Campana de pared negra',cat:'cocina',p:{L:60,D:50,H:100},z:155,g:p=>[[R(-p.L/2,p.L/2,0,5,-p.D/2,p.D/2,1),'negro'],[B(-12,12,5,p.H,-p.D/2,-p.D/2+22),'negro']]},
   campanaIsla:{n:'Campana de isla colgada del techo',cat:'cocina',p:{L:90,D:60},z:165,g:(p,ctx)=>{/* cuerpo negro a 1,65 sobre el piso (z fijo) y chimenea hasta el techo real sobre la isla */
-    const T=ctx&&ctx.techoMin?ctx.techoMin(15):250,h=Math.max(25,Math.min(T-167,700));
+    const T=ctx&&ctx.techoMin?ctx.techoMin(Math.max(p.L,p.D)/2):250,h=Math.max(25,Math.min(T-167,700));/* hasta lo más bajo del techo sobre toda la campana (cabios incluidos) */
     return [[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero']];}},
   salpicadero:{n:'Salpicadero de pizarra en lajas',cat:'cocina',p:{L:200,H:10,caja:0},z:90,g:p=>{/* lajas de pizarra en hiladas de 10, largos alternados y canto irregular; con caja > 0 es una puerta de pizarra separada de la pared (tapa un tablero, por ejemplo) */
     const g=[],c=p.caja||0,LS=[37,52,29,45,60,33,48],X=p.L/2;let k=0;
