@@ -6,4 +6,4 @@
 - **Capacidades:** `db` (colección `octet`, un documento por modelo; más `nombres`, `marcas`, `vistas`, `estado`, como todas).
 - **Página:** `octet.html`. Archivos propios: `modelo.js` (META, DUDAS, CAMBIOS y la semilla), `casa.js`. Del motor: `octet.js` (retícula y geometría) y `octet-editor.js` (edición y panel).
 - **Para pasar un modelo a una casa:** leer `octet/<id>` con ArtifactData, copiarlo en `MODELOS` de `motor/octet-modelos.js` y ponerlo en el escenario de muebles de la casa como `{t:'octet', p:{modelo:'<id>'}}`.
-- **Motor publicado:** 578bd8b (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** 653b021 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
