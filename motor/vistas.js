@@ -62,7 +62,7 @@ export function initVistas(visor, { M, root, pref = 'casa', rango = {}, caja = n
   function applySnapshot(v) { applyParams(v.params); corteNivel(v.corte || '0'); for (const c of C6) c.on = false;
     if (v.c6) for (const [k, val] of Object.entries(v.c6)) if (CL[k]) { CL[k].on = true; CL[k].v = val; }
     /* vistas viejas con cortes X / Y de un lado */ for (const [o, ax] of [['cx', 'x'], ['cy', 'y']]) { const q = v[o]; if (q) { const c = CL[ax + (q.side > 0 ? 'min' : 'max')]; c.on = true; c.v = q.v; } }
-    applyClips(); alAplicar && alAplicar(); visor.setHidden(v.hidden || []); if (v.cam) visor.fly(v.cam.p, v.cam.t); renderVistas(); }
+    applyClips(); alAplicar && alAplicar(); /* Maxi 4/11: una vista suma lo que tenía escondido, pero no muestra lo que escondiste vos (antes pisaba la lista, y una vista guardada sin escondidos lo mostraba todo) */ if (v.hidden && v.hidden.length) visor.setHidden([...new Set([...(visor.hidden || []), ...v.hidden])]); if (v.cam) visor.fly(v.cam.p, v.cam.t); renderVistas(); }
   function aplicarEntrada(v) { curVista = v.id;
     if (!v.cam && v.amb) { const L = M.LOCALES.find(l => l.id === v.amb); if (v.params) applyParams(v.params); else if (visor.params.techos !== false) visor.setParams({ techos: false });
       corteNivel('0'); const cs = v.c6 || cortesDef('__amb:' + v.amb); ponerCortes(cs); alAplicar && alAplicar(); volarA(cs, L); }

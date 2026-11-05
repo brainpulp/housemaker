@@ -1,4 +1,4 @@
-/* Piso de tablones: tablas de ANCHO cm que corren en x (de medianera a medianera, transversales a la casa), con juntas
+/* Piso de tablones (motor; antes casas/arcos/tablones.js, pasado al motor el 4/11 para usarlo también en Cocinas): tablas de ANCHO cm que corren en x (de medianera a medianera, transversales a la casa), con juntas
    escalonadas y tres tonos, recortadas al polígono de la losa y a sus huecos (rectángulos). Devuelve geometrías por tono. */
 export function tablones(geo, A, { poly, huecos = [], z, ancho = 20, junta = 0.4, esp = 2, seed = 1 }) {
   const { box8, clip } = geo;

@@ -126,7 +126,7 @@ export function catalogoMuebles(THREE){
       const ge=new THREE.ExtrudeGeometry(sh,{depth:6,bevelEnabled:true,bevelThickness:.6,bevelSize:.6,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.6,0);tapa.push([ge,p.top2]);
       tapa.push([B(-p.L/2,-p.L/2+4,0,p.H-6,-p.D/2,zc),p.top2],[B(p.L/2-4,p.L/2,0,p.H-6,-p.D/2,zc),p.top2]);}
     return [[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],[B(-p.L/2+4,p.L/2-4,10,p.H-(p.top2?6:4),z0,p.D/2-2),p.fr],...tapa,...frente(p.L-8,p.D-2,10,p.H-4,{mods:Math.max(1,Math.round((p.L-8)/60)),filas:p.filas??3})];}},
-  alacena:{n:'Alacena alta sin tiradores, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2-1),p.fr],...frente(p.L,p.D-1,0,p.H,{mods:Math.max(1,Math.round(p.L/60))}).filter(([,m])=>m!=='negro'),[B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']]},
+  alacena:{n:'Alacena alta sin tiradores, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2-1),p.fr],...frente(p.L,p.D-1,0,p.H,{mods:Math.max(1,Math.round(p.L/60))}).filter(([,m])=>m!=='negro'),...(p.led===false?[]:[[B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']])]},
   columna:{n:'Columna con horno empotrado',cat:'cocina',p:{L:60,D:60,H:220,fr:'madOsc'},g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-8),'negro'],[B(-p.L/2,p.L/2,10,p.H,-p.D/2,p.D/2-2),p.fr],[B(-p.L/2+3,p.L/2-3,80,140,p.D/2-2,p.D/2-.5),'negro'],[B(-p.L/2+6,p.L/2-6,90,128,p.D/2-.5,p.D/2),'vidrioN'],tir(0,134,p.D/2-.5,40),ran(-p.L/2+1,p.L/2-1,79.8,80.2,p.D/2-2),ran(-p.L/2+1,p.L/2-1,140,140.4,p.D/2-2)]},
   heladera:{n:'Heladera con freezer abajo',cat:'cocina',p:{L:70,D:70,H:190,col:'acero'},g:p=>[[R(-p.L/2,p.L/2,2,p.H,-p.D/2,p.D/2,2.5),p.col],ran(-p.L/2+1,p.L/2-1,72,72.4,p.D/2),[B(p.L/2-6,p.L/2-4.5,85,140,p.D/2,p.D/2+3),'negro'],[B(p.L/2-6,p.L/2-4.5,40,66,p.D/2,p.D/2+3),'negro'],[B(-p.L/2+3,p.L/2-3,0,2,-p.D/2+3,p.D/2-3),'negro']]},
   bacha:{n:'Bacha bajo mesada con grifería negra',cat:'cocina',p:{L:80},z:90,g:p=>[[B(-p.L/2+6,p.L/2-6,-18,-17,-18,18),'acero'],[B(-p.L/2+6,p.L/2-6,-18,0,-18.5,-18),'acero'],[C(2,0,28,0,-24,14),'grifo'],[VAR([0,28,-24],[0,30,-8],1.1),'grifo'],[C(1.2,22,30,0,-8,10),'grifo']]},
@@ -215,7 +215,12 @@ export function catalogoMuebles(THREE){
       g:p=>{const xb=p.L/2-p.Lb,zb=p.D/2-p.Db,g=[];
         g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],[B(xb+4,p.L/2-4,10,p.Hb-4,zb+4,p.D/2-2),p.fr],[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
         g.push(...frente(p.Lb-8,p.D-2,10,p.Hb-4,{mods:Math.max(1,Math.round((p.Lb-8)/60)),filas:p.filas??3}).map(([ge,m])=>[ge.translate(xb+p.Lb/2,0,0),m]));
-        g.push([B(-p.L/2,xb,p.H-7,p.H,-p.D/2,p.D/2),p.mad],[B(xb-.5,p.L/2,p.H-7,p.H,-p.D/2,zb-.5),p.mad]);/* tapa en L (dos tablones) */
+        /* tapa en L de una pieza, con canto vivo irregular (±2,5 cm) en los dos bordes largos (Maxi 4/11: «borde vivo en ambos lados»); rectos: las puntas y el borde contra el bloque */
+        {const e=(x,f)=>1.6*Math.sin(x*.045+f)+.9*Math.sin(x*.13+2.1*f)+.45*Math.sin(x*.41+f),n=Math.max(8,Math.round(p.L/4)),sh=new THREE.Shape();
+          sh.moveTo(-p.L/2,-p.D/2-e(-p.L/2,.7));for(let i=1;i<=n;i++){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2-e(x,.7));}/* borde −z, largo entero */
+          sh.lineTo(p.L/2,zb-.5);sh.lineTo(xb-.5,zb-.5);/* punta +x de la tira y borde contra el bloque */
+          const n2=Math.max(6,Math.round((xb+p.L/2)/4));for(let i=0;i<=n2;i++){const x=xb-(xb+p.L/2)*i/n2;sh.lineTo(x,p.D/2+e(x,2.9));}/* borde +z del tramo libre */
+          const ge=new THREE.ExtrudeGeometry(sh,{depth:7,bevelEnabled:true,bevelThickness:.6,bevelSize:.6,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.6,0);g.push([ge,p.mad]);}
         g.push([B(-p.L/2+28,-p.L/2+36,0,p.H-7,-p.D/2+12,p.D/2-12),p.mad],[B(p.L/2-12,p.L/2-4,0,p.H-7,-p.D/2+8,zb-8),p.mad]);return g;}},
     sillaCurva:{n:'Silla de respaldo curvo',p:{mad:'madOsc',tela:'lino'},
       g:p=>{const g=[[B(-22,22,42,46,-20,20),p.mad],[B(-20,20,46,48,-18,18),p.tela]];for(const sx of [-1,1])for(const sz of [-1,1])g.push([CYL(1.6,0,44,sx*18,sz*16,10),p.mad]);

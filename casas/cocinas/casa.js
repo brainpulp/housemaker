@@ -2,6 +2,7 @@
    Mocoretá) y arranca los módulos del motor. Lo propio de esta escena: una «casa» (grupo) por cocina, vistas por cocina y el equipamiento. */
 import * as THREE from 'three';
 import { createVisor, geo } from './visor3d.js';
+import { tablones } from './tablones.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initMedir } from './medir.js';
@@ -70,6 +71,9 @@ function build(p) {
     const cat = l.techo ? 'techo' : l.nivel === 'EP' ? 'madera' : 'losa';
     if (l.nivel === 'EP' && !p.ep && l.poly.length === 4) { Pt(l.id, `${l.id} · ${l.nombre} (sólo el perímetro)`, 'madera', faja(l.poly, l.z - l.e, l.z), { ...base(l), fn: (l.nota || '') + ' <i>Apagado «Entrepiso de Arcos»: se dibuja sólo el borde, para ver la cocina desde arriba.</i>', med: `+${f2(l.z)} · ${f2(l.e)} de espesor` }, ex(l)); continue; }
     Pt(l.id, `${l.id} · ${l.nombre}`, cat, A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `${l.z >= 0 ? '+' : '−'}${f2(Math.abs(l.z))} · ${f2(l.e)} de espesor` }, l.techo ? exT(l) : ex(l)); }
+  /* piso de tablones en la cocina de Arcos, como en la casa (Maxi 4/11): tablas de 20 transversales, tres tonos, sobre la losa de PB y el piso del estar hundido */
+  for (const l of M.LOSAS) { if (l.casa !== 'AR' || l.nivel !== 'PB' || l.techo || !/LO-0[23]$/.test(l.id)) continue;
+    tablones(geo, A, { poly: l.poly, huecos: l.huecos || [], z: l.z, seed: 7 + l.z }).forEach((g, i) => g.length && Pt(`${l.id}-T${i + 1}`, `${l.id} · piso de tablones`, 'tabla' + (i + 1), g, { fn: 'Tablones de 20 de ancho, transversales, como en la casa de Arcos.', sec: 'tablón 20 × 2', med: '' }, { group: grupo(l), tags: ['pisos'], opt: { noEdges: true } })); }
   /* cabios bajo los entrepisos de madera (Arcos): de canto, clavados directo bajo las tablas; van de viga a viga */
   { const vm = M.ESTRUCTURA.filter(s => s.tipo === 'viga' && s.cat === 'madera');
     for (const l of M.LOSAS) { const c = l.cabios; if (!c || l.techo || (l.nivel === 'EP' && !p.ep)) continue;
@@ -119,7 +123,7 @@ function build(p) {
     dims: ({ dimLine }) => { dimLine([0, 2, -40], [535, 2, -40], [0, 0, -8], '5,35'); dimLine([-60, 2, 0], [-60, 2, 630], [-8, 0, 0], '6,30 ?'); dimLine([-60, 2, 930], [-60, 2, 1710], [-8, 0, 0], '7,80'); dimLine([-60, 2, 2021], [-60, 2, 2741.5], [-8, 0, 0], '7,21'); dimLine([15, 53, 2000], [315, 53, 2000], [0, 0, -8], '3,00'); } };
 }
 
-const COL = { muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#9a9a96', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', madera: '#a8865c', col: '#9a948a', viga: '#ad6338', techo: '#6f767c', herreria: '#24282b', herraje: '#59616a' };
+const COL = { muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#9a9a96', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', madera: '#a8865c', col: '#9a948a', viga: '#ad6338', techo: '#6f767c', herreria: '#24282b', herraje: '#59616a' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 /* relleno desde abajo: de día ilumina cielorrasos por dentro (noche.js lo maneja como luz de relleno y lo apaga de noche) */
