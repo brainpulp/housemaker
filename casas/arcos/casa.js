@@ -69,7 +69,9 @@ const params = [
   { id: 'equip', label: 'Equipamiento (escenarios)', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'carp', label: 'Carpinterías', type: 'check', value: true, quick: true, group: 'Ver', help: 'Vidrios de ventanas y hojas de puertas, cerradas.' },
   { id: 'detalle', label: 'Detalle del SketchUp', type: 'check', value: true, quick: true, group: 'Ver', help: 'Carpinterías, terraza, tanque, jardín del frente, cocina y baños tal como están en tu SketchUp.' },
-  { id: 'baranda', label: 'Baranda de la E-02', type: 'select', value: 'cables', group: 'Escalera', options: DISENOS.map(d => [d.id, d.name]), help: 'Los diseños de la conversación del 11/10. El de cables es el que elegiste.' },
+  { id: 'escVer', label: 'Giro de la E-02', type: 'select', value: 'hoy', group: 'Escalera', options: [['hoy', 'Hoy (como está en obra)'], ['madera', 'Propuesta A · madera pelada'], ['metal', 'Propuesta B · bastidor de acero']], help: 'Sin poste al piso: el giro cuelga del tensor, se ancla a la medianera y el borde del entrepiso trabaja de viga (Maxi, 5/11).' },
+  { id: 'escSola', label: 'Ver sólo la escalera E-02', type: 'check', value: false, quick: true, group: 'Escalera', help: 'Aísla la escalera con la pared, el borde del entrepiso y la losa de donde cuelga el tensor.' },
+  { id: 'baranda', label: 'Baranda de la E-02 (propuesta A)', type: 'select', value: 'cables', group: 'Escalera', options: DISENOS.map(d => [d.id, d.name]), help: 'Los diseños de la conversación del 11/10. El de cables es el que elegiste. La propuesta B lleva la de hierro; «Hoy», la de listones de la obra.' },
   { id: 'calco', label: 'Calco SketchUp', type: 'check', value: false, quick: true, group: 'Ver', help: 'Tu modelo Arcos_55.dae, en gris transparente, alineado al plano.' },
   { id: 'ext', label: 'Jardines y vereda', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'corte', label: 'Corte horizontal', type: 'select', value: '0', quick: true, group: 'Ver',
@@ -172,9 +174,9 @@ function build(p) {
   /* E-02 al detalle (escalera-giro.js): ejes de la escalera → ejes de la casa. Tramo contra la medianera N (z 92 = x 850),
      sube hacia el fondo; el fondo del giro queda en y 2825. 15 alzadas de PB al entrepiso. */
   { const E2 = M.ESCALERAS.find(e => e.id === 'E-02'), nA = 15, R = (zN('EP') - zN('PB')) / nA, X0 = 758, Y0 = 2825 + 12 * 24 + 92;
-    const eg = escaleraGiro(geo, { N: nA, R, G: 24, zF: -20, LR4: 850 - 666, design: p.baranda });
+    const eg = escaleraGiro(geo, { N: nA, R, G: 24, zF: -20, LR4: 850 - 666, design: p.baranda, version: p.escVer, yT: 595 - zN('PB') });   /* tensor hasta el fondo de la losa del 2P (LO-07, +6,13 − 0,18) */
     const map = g => { const h = geo.mapGeo(g, (x, y, z) => [X0 + z, zN('PB') + y, Y0 - x]); delete h.userData.rod; return h; };
-    for (const q of eg.parts) Pt('E2-' + q.id, `E2-${q.id.replace(/(t|pi|b|f|s)$/, '')} · ${q.name.replace(/^[A-Z0-9]+ · /, '')}`, q.cat, q.geos.map(map), { ...q.info, fn: (q.info.fn || '') + ' <i>Diseño del 11/10 («Escalera al entrepiso»).</i>', u: [q.info.u, 'D-11'].filter(Boolean).join(' · ') }, { group: 'Escalera E-02', tags: ['E-02'], opt: { noEdges: /^(inox|steel|glass)$/.test(q.cat) } }); }
+    for (const q of eg.parts) Pt('E2-' + q.id, `E2-${q.id.replace(/(t|pi|b|f|s)$/, '')} · ${q.name.replace(/^[A-Z0-9]+ · /, '')}`, q.cat, q.geos.map(map), { ...q.info, fn: (q.info.fn || '') + ` <i>${({ hoy: 'Giro como está hoy en obra.', madera: 'Propuesta A: madera pelada.', metal: 'Propuesta B: bastidor de acero.' })[p.escVer] || ''}</i>`, u: [q.info.u, 'D-11'].filter(Boolean).join(' · ') }, { group: 'Escalera E-02', tags: ['E-02'], opt: { noEdges: /^(inox|steel|glass)$/.test(q.cat) } }); }
   /* estructura */
   for (const s of M.ESTRUCTURA) { const g = s.tipo === 'columna' ? A.columnaGeo(s) : s.tipo === 'viga' ? A.vigaGeo(s) : s.tipo === 'tensor' ? geo.rod([s.pos[0], s.z[0], s.pos[1]], [s.pos[0], s.z[1], s.pos[1]], 0.8, 8) : null;
     Pt(s.id, `${s.id} · ${s.nombre}`, s.cat || (s.tipo === 'tensor' ? 'herreria' : s.tipo === 'viga' ? 'viga' : 'col'), g, { ...base(s), sec: s.sec || '', med: s.tipo === 'viga' ? `${f2(Math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]))} de largo, fondo a +${f2(s.z - SEC2(s.sec)[1])}` : s.z ? `de +${f2(s.z[0])} a +${f2(s.z[1])}` : '' }, ex(s)); }
@@ -226,6 +228,10 @@ function build(p) {
     <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es y sus medidas.</li><li><b>Corte horizontal</b> saca lo que está arriba de una altura: así se ve cada planta.</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` };
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>lote <b>8,65 × 45,16</b></span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;
   const cx = 432, cy = 3100;
+  if (p.escSola) { const keep = new Set(['LO-11', 'LO-11c', 'VE-2']);
+    for (let i = parts.length - 1; i >= 0; i--) if (!parts[i].id.startsWith('E2-') && !keep.has(parts[i].id)) parts.splice(i, 1);
+    Pt('E2-ctxM', 'Medianera N (sólo de referencia)', 'medianera', geo.box(850, 865, 72, 613, 2700, 3260), { fn: 'Pedazo de la medianera donde se anclan VW y VF.' }, { group: 'Escalera E-02', opt: { op: .3 } });
+    Pt('E2-ctxL', 'Losa del 2P (sólo de referencia)', 'losa', geo.box(690, 865, 595, 613, 2740, 2960), { fn: 'Pedazo de la losa del 2P de la que cuelga el tensor TN.' }, { group: 'Escalera E-02', opt: { op: .3 } }); }
   return { parts, panes, spec, joints: [], steps: [],
     selExtra: pp => (MOVS ? MOVS.html(pp.id) : '') + `<div class="renrow"><button class="btn" data-hide="${pp.id}">Ocultar pieza</button><button class="btn" data-showall>Mostrar todo</button></div>` + N.editorHTML(pp.id),
     selIntro: '<div class="k">Selección</div><h2>Tocá una pieza</h2><p style="margin:0;color:var(--muted);font-size:13px">O un código en cualquier texto.</p>',
@@ -238,7 +244,7 @@ function build(p) {
 
 const COL = { ...COLORES, marcoO: '#2b2e31', muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#6b6f72', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', piso: '#b9a07a',
   escalera: '#a8865c', escext: '#9a9a96', zanca: '#8f6a45', madera: '#a8865c', col: '#9a948a', techo: '#6f767c', pasto: '#7f9d5f', vereda: '#b7b4ad',
-  artefacto: '#f3f0e8', placa: '#a9bfa3', mamposteria: '#d6d1c7', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
+  artefacto: '#f3f0e8', placa: '#a9bfa3', mamposteria: '#d6d1c7', dintel: '#c4552b', fachada: '#f1efe9', persiana: '#e4e2dc', 'caño': '#e9e9e5', herreria: '#24282b', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', poste: '#7f4429', viga: '#ad6338', diag: '#c0522c', c1: '#e6b57a', c2: '#cc8f55', deck: '#d9a86f', puntal: '#e3b324', liston: '#b9784a', herraje: '#59616a', wood: '#9b5a33', wood2: '#b06f42', steel: '#2f3438', inox: '#9aa3aa' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 try { initCandado(visor); } catch (e) { console.error('candado', e); } /* interruptor «Mover: sí / no» arriba a la derecha y candado por parte, como en Carhué */
@@ -266,7 +272,8 @@ root.addEventListener('click', e => { const h = e.target.closest('[data-hide]');
 
 /* variables de diseño en la base (todas menos las de «Ver») */
 const PDES = new Set(params.filter(q => (q.group || '') !== 'Ver').map(q => q.id)); const pdes = P => Object.fromEntries(Object.entries(P).filter(([k]) => PDES.has(k)));
-visor.onParam = P => { applyCalco(); if (vdb && PDES.size) vdb.doc('estado/params').set({ p: pdes(P), ts: new Date().toISOString() }).catch(() => {}); };
+let escSola0 = false;
+visor.onParam = P => { applyCalco(); if (!!P.escSola !== escSola0) { escSola0 = !!P.escSola; if (escSola0) visor.fly([560, 300, 2560], [800, 270, 2900]); } if (vdb && PDES.size) vdb.doc('estado/params').set({ p: pdes(P), ts: new Date().toISOString() }).catch(() => {}); };
 
 /* nombres propios y ediciones: al cambiar, se reconstruye */
 N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); }); ED.onChange(() => { visor.rebuild(); applyClips(); });
@@ -290,7 +297,7 @@ try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 /* sol: Núñez; el eje x del modelo apunta a ~320° (el norte del croquis está 40° a la derecha de «hacia la calle»… ver noche.js) */
-window.__encastres = [['E2-ZE', 'E2-PA', 'la zanca ZE entra 1,5 en el poste PA (diseño del 11/10)'], ['E2-ZI', 'E2-C1', 'la nariz de la compensada C1 apoya 1 cm sobre el remate a plomo de la zanca ZI (diseño del 11/10)']];
+window.__encastres = [['E2-TN', 'E2-VF', 'el tensor atraviesa la viga de fondo'], ['E2-TN', 'E2-TL', 'el tensor atraviesa la tabla de llegada'], ['E2-TN', 'E2-B3', 'el tensor pasa por el pasamanos de listones (hoy)'], ['E2-TN', 'LO-07', 'el tensor llega a la losa del 2P'], ['E2-ZI', 'E2-C1', 'la nariz de la compensada C1 apoya 1 cm sobre el remate a plomo de la zanca ZI (diseño del 11/10)']];
 try { initPersonas(visor); } catch (e) { console.error('personas', e); }
 try { initEquipamiento(visor, document.querySelector('#modo-3d .stage'), { datos: equipArcos, piso: 72.3 }); } catch (e) { console.error('equipamiento', e); }
 try { initNoche(visor, { lugar: 'Núñez (CABA)', lat: -34.545, lon: -58.468, tz: -3, norte: -40, inicioDia: true, max: 32 }); visor.noche && visor.noche.setFuentes(LUCES.fuentes); } catch (e) { console.error('noche', e); }

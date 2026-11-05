@@ -23,7 +23,8 @@ export function escaleraGiro(geo, P) {
   const cosT = G / Math.hypot(G, R), VDp = SD / cosT, o = 2.5 * Math.SQRT2, S2 = Math.SQRT1_2;
   const N = P.N, Ns = N - 3, Xc = Ns * G, yC1 = (N - 2) * R, yC2 = (N - 1) * R, yD = N * R, uC1 = yC1 - TH, uC2 = yC2 - TH, uD = yD - TH, zF = P.zF;
   const yN = x => R + k * (x + 1);
-  const D = DISENOS.find(d => d.id === P.design) || DISENOS[2], M = D.mat;
+  const V = P.version || 'madera';
+  const D = DISENOS.find(d => d.id === (V === 'metal' ? 'hierro' : P.design)) || DISENOS[2], M = D.mat;
   const [s, sLbl] = POSTS[M], RL = RAILS[M], fx = FIX, q = 0.51, s2 = s / 2, railH = M === 'steel' ? RL.D : RL.h;
   const parts = []; const Pt = (id, name, cat, geos, info) => parts.push({ id, name, cat, geos: [].concat(geos), info });
 
@@ -33,24 +34,30 @@ export function escaleraGiro(geo, P) {
     pts.push([t0.sf, 0], [t0.sf + (VDp - (t0.yt - EXP)) / k, 0]); return pts; };
   const stringerPlain = (tr, sHigh) => { const t0 = tr[0]; const top = x => t0.yt - EXP + k * (x - t0.sf), bot = x => top(x) - VDp; return [[sHigh, bot(sHigh)], [sHigh, top(sHigh)], [t0.sf, top(t0.sf)], [t0.sf, 0], [t0.sf + (VDp - (t0.yt - EXP)) / k, 0]]; };
   const tr = []; for (let i = 1; i <= Ns; i++) tr.push({ sf: (i - 1) * G - NOSE, sb: i * G, yu: i * R - TH, yt: i * R });
-  Pt('ZE', 'ZE · Zanca del lado libre', 'zanca', [prism(stringerPlain(tr, Xc + 1.5), -5, -1.5, 'XY'), prism(stringerPoly(tr, Xc + 1.5), -1.5, 0, 'XY')], { fn: 'Zanca del lado del entrepiso. Arriba se corta a plomo y entra 1,5 en el poste PA.', sec: '2″×12″ (≈5×30), a verificar', med: `remate a plomo a ${f1(Xc + 1.5)} del pie`, u: 'U1' });
+  Pt('ZE', 'ZE · Zanca del lado libre', 'zanca', [prism(stringerPlain(tr, Xc), -5, -1.5, 'XY'), prism(stringerPoly(tr, Xc), -1.5, 0, 'XY')], { fn: 'Zanca del lado del entrepiso. Arriba se corta a plomo contra la viga de borde VD1 y se ata con la escuadra HZ.', sec: '2″×12″ (≈5×30), a verificar', med: `remate a plomo a ${f1(Xc)} del pie`, u: 'U1' });
   Pt('ZI', 'ZI · Zanca contra la medianera', 'zanca', [prism(stringerPoly(tr, Xc), 87, 88.5, 'XY'), prism(stringerPlain(tr, Xc), 88.5, 92, 'XY')], { fn: 'Zanca contra la medianera; arriba queda en línea con VW.', sec: '2″×12″ (≈5×30), a verificar', med: `remate a plomo a ${f1(Xc)} del pie`, u: 'U1' });
   Pt('TE', `Pedadas del tramo recto (${Ns})`, 'escalera', tr.map(t => box(t.sf, t.sb, t.yu, t.yt, -1.5, 88.5)), { fn: `Tramo recto: ${Ns} pedadas abiertas entre las zancas.`, sec: '2″ × 25, 90 de largo', med: `${Ns} alzadas de ${f1(R)} y pedadas de ${f1(G)}` });
 
-  /* estructura del giro */
-  Pt('PA', 'PA · Poste del giro', 'poste', box(Xc, Xc + 10, 2, uD, -10, 0), { fn: 'Poste en el ángulo interior del giro. Recibe ZE, V5, V4, VD1 y el taco TA al entrepiso; la tabla de llegada apoya encima.', sec: '4″×4″ (10×10)', med: `${f1(uD - 2)} (de +2 a +${f1(uD)} sobre PB)`, u: 'U1 · U2 · U8' });
-  Pt('VD1', 'VD1 · Viga de llegada', 'viga', box(Xc + 10, Xc + 87, uD - 30, uD, -5, 0), { fn: 'Su cara hacia el giro es la última contrahuella, de C2 al entrepiso. Lleva L2 y el borde de la tabla de llegada.', sec: '2″×12″ (5×30)', med: '80 (77 libre + caja de 1,5 en PA y en VF)', u: 'U2' });
-  Pt('TA', 'TA · Taco de PA al entrepiso', 'viga', box(Xc, Xc + 5, uD - 19, uD, zF, -10), { fn: 'Ata la cabeza de PA a la viga de borde del entrepiso y apoya la tabla de llegada.', sec: '2″×8″ (5×19)', med: `${f1(-10 - zF)}. Perno en PA y estribo HE al entrepiso`, u: 'U2' });
-  Pt('VF', 'VF · Viga de fondo', 'viga', box(Xc + 87, Xc + 92, uD - 30, uD, zF, 92), { fn: 'Del entrepiso a la medianera. Lleva el borde de C2 (con L3) y la punta de la tabla de llegada.', sec: '2″×12″ (5×30)', med: `${f1(92 - zF)}. Estribo en el entrepiso y escuadra en la pared`, u: 'U2 · U3' });
-  Pt('VW', 'VW · Viga de pared', 'viga', box(Xc, Xc + 87, uC1 - 19, uC1, 87, 92), { fn: 'Anclada a la medianera. Lleva el borde de C1.', sec: '2″×8″ (5×19)', med: `87. Canto superior +${f1(uC1)} sobre PB`, u: 'U3' });
-  Pt('V5', 'V5 · Viga de frente de C1', 'viga', box(Xc, Xc + 5, uC1 - 19, uC1, 0, 87), { fn: 'Lleva la nariz de C1, donde terminan sus tablas diagonales.', sec: '2″×8″ (5×19)', med: `88,5. Canto superior +${f1(uC1)} sobre PB`, u: 'U3' });
+  /* estructura del giro (Maxi 5/11): sin poste al piso. El giro cuelga de un tensor en la esquina del fondo con el entrepiso,
+     se ancla a la medianera y la viga de fondo VF —el borde del entrepiso— trabaja entre el anclaje de la pared y el tensor.
+     V: 'hoy' (como está en obra), 'madera' (pelada en madera), 'metal' (bastidor de acero). */
+  const MET = V === 'metal', W = MET ? 'steel' : 'viga', hV = MET ? 15 : 30, hv = MET ? 15 : 19;
+  const sV = MET ? 'tubo 50×150×3,2' : '2″×12″ (5×30)', sv = MET ? 'tubo 50×150×3,2' : '2″×8″ (5×19)';
+  const yVb = uC1 - 19;   /* fondo de la viga de borde libre: a la altura del fondo de V5, que cuelga de ella */
+  const nota = { hoy: ' Así está hoy en obra (video del 5/11).', madera: '', metal: '' }[V];
+  Pt('VD1', 'VD1 · Viga de borde libre', W, MET ? box(Xc, Xc + 87, yVb, uD, -1, 0) : box(Xc, Xc + 87, yVb, uD, -5, 0), { fn: 'Borde del giro del lado del entrepiso, de la cabeza de ZE a la viga de fondo VF. Recibe la zanca ZE, la punta de V5 y el borde de C2; su cara hacia el giro es la última contrahuella.' + (V === 'hoy' ? ' Hoy está forrada por el faldón F6.' : '') + nota, sec: MET ? 'chapa plegada 3/8″ (9,5 mm), 54 de alto' : 'viga laminada 5 × 54 (dos tablones de 2″ encolados y abulonados), a verificar', med: `87. De +${f1(yVb)} a +${f1(uD)}`, u: 'U2' });
+  Pt('VF', 'VF · Viga de fondo (borde del entrepiso)', W, box(Xc + 87, Xc + 92, uD - hV, uD, zF, 92), { fn: 'Del anclaje en la medianera al tensor y de ahí al entrepiso: es el borde que da rigidez entre la pared y el tensor. Lleva el borde de C2 (con L3) y la tabla de llegada.' + nota, sec: sV, med: `${f1(92 - zF)}. Escuadra en la pared, colgada del tensor TN`, u: 'U2 · U3' });
+  Pt('TA', 'TA · Taco al entrepiso', W, box(Xc, Xc + 5, uD - hv, uD, zF, -5), { fn: 'Ata la cabeza de VD1 y de ZE al borde del entrepiso y apoya la tabla de llegada.', sec: sv, med: `${f1(-5 - zF)}. Estribo HE al entrepiso`, u: 'U2' });
+  Pt('VW', 'VW · Viga de pared', W, box(Xc, Xc + 87, uC1 - hv, uC1, 87, 92), { fn: 'Anclada a la medianera. Lleva el borde de C1.', sec: sv, med: `87. Canto superior +${f1(uC1)} sobre PB`, u: 'U3' });
+  Pt('V5', 'V5 · Viga de frente de C1', W, box(Xc, Xc + 5, uC1 - hv, uC1, 0, 87), { fn: 'Lleva la nariz de C1. De VD1 a VW.', sec: sv, med: `87. Canto superior +${f1(uC1)} sobre PB`, u: 'U3' });
   let d = [[Xc - 30, -30 - o], [Xc + 120, 120 - o], [Xc + 120, 120 + o], [Xc - 30, -30 + o]]; d = clip(d, 0, 1, 0); d = clip(d, -1, 0, Xc + 87); d = clip(d, 0, -1, 87); d = clip(d, 1, 0, -Xc);
   const dLen = extent(d, [S2, S2]).L;
-  Pt('V4', 'V4 · Diagonal (contrahuella estructural)', 'diag', [prism(clip(d, 1, 0, -(Xc + 5)), uC2 - 19, uC2, 'XZ'), prism(clip(d, -1, 0, Xc + 5), uC1, uC2, 'XZ')], { fn: 'Lleva la nariz de C2 y, en su otra cara, el listón L1 de C1. Se rebaja y apoya sobre V5; en la esquina de la medianera calza entre VW y VF.', sec: '2″×8″ (5×19)', med: `${f1(dLen)} de punta a punta`, u: 'U3' });
+  Pt('V4', 'V4 · Diagonal (contrahuella estructural)', MET ? 'steel' : 'diag', [prism(clip(d, 1, 0, -(Xc + 5)), uC2 - 19, uC2, 'XZ'), prism(clip(d, -1, 0, Xc + 5), uC1, uC2, 'XZ')], { fn: 'Lleva la nariz de C2 y, en su otra cara, el listón L1 de C1. Apoya sobre V5; en la esquina de la medianera calza entre VW y VF.', sec: MET ? 'tubo 50×200×3,2' : '2″×8″ (5×19)', med: `${f1(dLen)} de punta a punta`, u: 'U3' });
   let l1 = [[Xc - 30, -30 + o], [Xc + 120, 120 + o], [Xc + 120, 120 + o + 5 * Math.SQRT2], [Xc - 30, -30 + o + 5 * Math.SQRT2]]; l1 = clip(l1, 1, 0, -(Xc + 5)); l1 = clip(l1, 0, -1, 87);
-  Pt('L1', 'L1 · Listón de C1', 'liston', prism(l1, uC1 - 5, uC1, 'XZ'), { fn: 'En la cara de V4 que mira a C1.', sec: '2″×2″', med: `${f1(extent(l1, [S2, S2]).L)}, puntas a 45°`, u: 'U3' });
-  Pt('L2', 'L2 · Listón de C2 (frente)', 'liston', box(Xc + 10, Xc + 87, uC2 - 5, uC2, 0, 5), { fn: 'En VD1; lleva el borde de C2.', sec: '2″×2″', med: '77', u: 'U3' });
-  Pt('L3', 'L3 · Listón de C2 (fondo)', 'liston', box(Xc + 82, Xc + 87, uC2 - 5, uC2, 5, 75), { fn: 'En VF; lleva el borde exterior de C2.', sec: '2″×2″', med: '70', u: 'U3' });
+  const LC = MET ? 'steel' : 'liston', LS = MET ? 'ángulo 1½″×3/16″' : '2″×2″';
+  Pt('L1', 'L1 · Apoyo de C1 en V4', LC, prism(l1, uC1 - 5, uC1, 'XZ'), { fn: 'En la cara de V4 que mira a C1.', sec: LS, med: `${f1(extent(l1, [S2, S2]).L)}, puntas a 45°`, u: 'U3' });
+  Pt('L2', 'L2 · Apoyo de C2 en VD1', LC, box(Xc + 10, Xc + 87, uC2 - 5, uC2, 0, 5), { fn: 'En VD1; lleva el borde de C2.', sec: LS, med: '77', u: 'U3' });
+  Pt('L3', 'L3 · Apoyo de C2 en VF', LC, box(Xc + 82, Xc + 87, uC2 - 5, uC2, 5, 75), { fn: 'En VF; lleva el borde exterior de C2.', sec: LS, med: '70', u: 'U3' });
 
   /* compensadas y llegada */
   let c1 = [[Xc - NOSE, 0], [Xc + 92, 0], [Xc + 92, 92], [Xc - NOSE, 92]]; c1 = clip(c1, -1, 1, Xc - o);
@@ -59,16 +66,29 @@ export function escaleraGiro(geo, P) {
   const c1S = [[sMin - stp, -2.5], [sMin - 2 * stp, sMin - stp], [sMin - 3 * stp, sMin - 2 * stp]].map(([a, b]) => strip(c1, a, b)).filter(qq => qq.length > 2);
   const c2S = [0, 1, 2].map(i => strip(c2, sMin + i * stp, sMin + (i + 1) * stp)).filter(qq => qq.length > 2);
   const c1B = []; c1S.forEach(qq => { let r = [qq]; try { r = minus(qq, [[Xc - NOSE, Xc, 87, 92]]); } catch (e) {} r.forEach(x => c1B.push(x)); });
-  Pt('C1', `C1 · Compensada baja (+${f1(72 + yC1)})`, 'c1', c1B.map(qq => prism(qq, uC1, yC1, 'XZ')), { fn: 'Mitad del panel cuadrado. Apoya en V5, VW y L1.', sec: 'Tablas de 2″, veta paralela a la diagonal', med: `3 tablas de ${f1(stp)}; ${c1S.map(qq => { const e = extent(qq, [S2, S2]); return f0(e.L) + '×' + f0(e.W); }).join(' · ')}`, u: 'U4' });
+  Pt('C1', `C1 · Compensada baja (+${f1(72 + yC1)})`, 'c1', c1B.map(qq => prism(qq, uC1, yC1, 'XZ')), { fn: 'Mitad del panel cuadrado. Apoya en V5, VW y L1.' + (V === 'hoy' ? ' Hoy está cerrada abajo: cajón con contrahuella.' : ' Abierta: se ve la veta desde abajo.'), sec: 'Tablas de 2″, veta paralela a la diagonal', med: `3 tablas de ${f1(stp)}; ${c1S.map(qq => { const e = extent(qq, [S2, S2]); return f0(e.L) + '×' + f0(e.W); }).join(' · ')}`, u: 'U4' });
   Pt('C2', `C2 · Compensada alta (+${f1(72 + yC2)})`, 'c2', c2S.map(qq => prism(qq, uC2, yC2, 'XZ')), { fn: 'La otra mitad del panel. Apoya en L2, L3 y V4.', sec: 'Tablas de 2″, veta paralela a la diagonal', med: `3 tablas de ${f1(stp)}; ${c2S.map(qq => { const e = extent(qq, [S2, S2]); return f0(e.L) + '×' + f0(e.W); }).join(' · ')}`, u: 'U4' });
-  Pt('TL', `TL · Tabla de llegada (+${f1(72 + yD)})`, 'deck', [[zF, -10], [-10, 1]].map(([a, b]) => box(Xc, Xc + 92, uD, yD, a, b)), { fn: 'Cierra la franja entre C2 y el borde del entrepiso, a nivel del piso: desde C2 se sube una alzada y se pisa el entrepiso. La de adelante vuela 1 como nariz.', sec: `2 tablas 2″ × ${f1((1 - zF) / 2)}`, med: '92, a tope con el piso del entrepiso', u: 'U5' });
+  Pt('TL', `TL · Tabla de llegada (+${f1(72 + yD)})`, 'deck', [[zF, -10], [-10, 1]].map(([a, b]) => box(Xc, Xc + 92, uD, yD, a, b)), { fn: 'Cierra la franja entre C2 y el entrepiso, a nivel del piso.', sec: `2 tablas 2″ × ${f1((1 - zF) / 2)}`, med: '92, a tope con el piso del entrepiso', u: 'U5' });
+
+  /* tensor: de la losa del 2P a la esquina de VF con el entrepiso (sigue el que está en obra) */
+  const tx = Xc + 89.5, tz = -2.5, yP = uD - hV;
+  Pt('TN', 'TN · Tensor del giro', MET ? 'steel' : 'herraje', rod([tx, yP - 1.5, tz], [tx, P.yT, tz], 0.8, 10), { fn: `Barra roscada Ø16 que cuelga la esquina del giro de la losa del 2P. Atraviesa VF y la tabla de llegada; abajo, planchuela y doble tuerca. Arriba, planchuela con 4 brocas químicas a la losa.${V === 'hoy' ? ' Hoy corre pegado al poste de la baranda.' : ''}`, sec: 'Ø16 (5/8″)', med: `${f1(P.yT - yP)} de largo`, u: 'U2' });
+  Pt('HT', 'HT · Planchuelas del tensor', 'herraje', [box(Xc + 87, Xc + 96, yP - 1.5, yP, tz - 6, tz + 6), box(tx - 6, tx + 6, P.yT, P.yT + 1, tz - 6, tz + 6)], { fn: 'Abajo toma VF por debajo; arriba se ancla a la losa.', sec: 'Planchuela 3/16″, 12 × 12 arriba', med: 'doble tuerca y arandela', u: 'U2' });
 
   /* herrajes */
-  Pt('HB', 'HB · Herraje de base de PA', 'herraje', [box(Xc - 1, Xc + 11, 0, 0.6, -11, 1), box(Xc + 1, Xc + 9, 0, 14, 0, 0.5), box(Xc + 1, Xc + 9, 0, 14, -10.5, -10)], { fn: 'Herraje en U que separa PA 2 cm del piso.', sec: 'Chapa 3/16″', med: 'Base 12×12, alas de 14; 2 brocas Ø10', u: 'U8' });
-  Pt('HW', 'HW · Escuadra de pared de VF', 'herraje', [box(Xc + 86, Xc + 93, uD - 34, uD - 33.5, 82, 92), box(Xc + 86, Xc + 93, uD - 34, uD - 24, 91.5, 92)], { fn: 'Recibe la punta de VF en la medianera.', sec: 'Ángulo 3″×3/8″', med: '2 varillas químicas M12', u: 'U2' });
-  Pt('HE', 'HE · Estribos al entrepiso', 'herraje', [box(Xc + 86.5, Xc + 92.5, uD - 30, uD, zF - 0.5, zF), box(Xc - 0.5, Xc + 5.5, uD - 19, uD, zF - 0.5, zF)], { fn: 'Cuelgan VF y TA de la viga de borde del entrepiso.', sec: 'Chapa 3/16″ plegada', med: '4 bulones M10 cada uno', u: 'U2' });
+  Pt('HZ', 'HZ · Escuadras de ZE a VD1', 'herraje', box(Xc - 10, Xc + 10, yVb - 12, yVb + 8, -5.5, -5), { fn: 'La cabeza de ZE se corta a plomo contra VD1 y se ata con una escuadra de chapa abulonada a las dos.', sec: 'Chapa 3/16″', med: '20 × 20, 4 bulones M10', u: 'U1' });
+  Pt('HW', 'HW · Escuadra de pared de VF', 'herraje', [box(Xc + 86, Xc + 93, uD - hV - 4, uD - hV - 3.5, 82, 92), box(Xc + 86, Xc + 93, uD - hV - 4, uD - hV + 6, 91.5, 92)], { fn: 'Anclaje de VF en la medianera (queda como está).', sec: 'Ángulo 3″×3/8″', med: '2 varillas químicas M12', u: 'U2' });
+  Pt('HE', 'HE · Estribos al entrepiso', 'herraje', [box(Xc + 86.5, Xc + 92.5, uD - hV, uD, zF - 0.5, zF), box(Xc - 0.5, Xc + 5.5, uD - hv, uD, zF - 0.5, zF)], { fn: 'Atan VF y TA a la viga de borde del entrepiso.', sec: 'Chapa 3/16″ plegada', med: '4 bulones M10 cada uno', u: 'U2' });
   Pt('HM', 'HM · Ménsula de esquina de V4', 'herraje', box(Xc + 80, Xc + 87, uC1 - 20, uC1 - 19.5, 80, 87), { fn: 'Apoyo de la punta de V4 en la esquina de la medianera.', sec: 'Chapa 3/16″', med: '2 brocas químicas Ø10', u: 'U3' });
 
+  /* hoy: faldones, baranda de listones y puntal */
+  if (V === 'hoy') { const yF = uC1 - 25;
+    Pt('F1', 'F1 · Faldón del frente (fondo del giro)', 'wood2', box(Xc + 92, Xc + 94.5, yF, yD + 30, zF, 92), { fn: 'Tablas horizontales que forran VF hacia el vacío y suben 30 sobre el piso como antepecho. Es madera que sobra: VF no las necesita.' + nota, sec: 'tablas 1″ × 25 (≈2,5 × 25)', med: `${f1(92 - zF)} × ${f1(yD + 30 - yF)}`, u: 'Hoy' });
+    Pt('F6', 'F6 · Faldón del costado', 'wood2', box(Xc + 5, Xc + 87, yF, uD, -7.5, -5), { fn: 'Forra la viga de borde libre del lado del entrepiso.' + nota, sec: 'tablas 1″ × 25', med: `82 × ${f1(uD - yF)}`, u: 'Hoy' });
+    Pt('B3', 'B3 · Baranda de listones', 'wood2', [box(Xc + 84.5, Xc + 92, yD, yD + 95, 84.5, 92), box(Xc + 84.5, Xc + 92, yD, yD + 95, -12.5, -5), box(Xc + 89.5, Xc + 92, yD + 30, yD + 95, 40, 47.5), box(Xc + 84.5, Xc + 92, yD + 95, yD + 100, -12.5, 92)], { fn: 'Marco de listones sobre el fondo del giro: dos postes, pasamanos y un listón al medio.' + nota, sec: 'listones 2″ × 3″', med: '1,05 de largo, a 1,00 del piso', u: 'Hoy' });
+    Pt('PU', 'PU · Puntal provisorio', 'puntal', rod([Xc + 2.5, 0, -2.5], [Xc + 2.5, yVb, -2.5], 2.4, 12), { fn: 'Puntal telescópico bajo el ángulo interior del giro. Se saca: el giro cuelga del tensor y se ancla a la pared.', sec: 'puntal de obra Ø48', med: f1(yVb), u: 'Hoy' }); }
+
+  if (V !== 'hoy') {
   /* baranda: R1 a lo largo del tramo, R4 en el fondo del giro (de la medianera hasta donde sigue la BA-1) */
   const Wp = M === 'wood' ? s ** 3 / 6 : (s ** 4 - (s - 0.4) ** 4) / (6 * s), Wr = M === 'wood' ? RL.h * RL.w ** 2 / 6 : Math.PI * (RL.D ** 4 - (RL.D - 0.4) ** 4) / (32 * RL.D);
   const Mp = Math.min(FW[M] * Wp, fx.M), sRail = Math.sqrt(8 * FW[M] * Wr / q);
@@ -83,7 +103,7 @@ export function escaleraGiro(geo, P) {
     if (r.id === 'R1') { r.top = u => r.base(u) + r.H; r.pts = [-s2 - OV, r.Lh + s2 + OV]; } else { r.top = () => topL; r.pts = [0, r.Lh + s2 + OV]; } }
   const under = (r, u) => r.top(u) - railH;
   const newel = { P0: { run: 0, u: 0, y0: 0, name: 'P0 · Poste de arranque', fn: 'Arranque de R1. Llega al piso con herraje y se bulona al pie de ZE.' },
-    PR: { run: 0, u: runs[0].Lh, y0: yN(Xc) - 40, name: 'PR · Poste de remate de R1', fn: 'Remate de R1 en el giro, abulonado a PA y a ZE.' },
+    PR: { run: 0, u: runs[0].Lh, y0: yN(Xc) - 40, name: 'PR · Poste de remate de R1', fn: 'Remate de R1 en el giro, abulonado a ZE y a VD1.' },
     PE4: { run: 1, u: runs[1].Lh, y0: uD - 30, name: 'PE4 · Poste de remate de R4', fn: 'Remate de R4 donde sigue la baranda del entrepiso (BA-1), abulonado a la viga de borde.' } };
   const pc = M === 'steel' ? 'steel' : 'wood';
   for (const [id, nw] of Object.entries(newel)) { const r = runs[nw.run];
@@ -116,6 +136,7 @@ export function escaleraGiro(geo, P) {
     else if (F.type === 'panel') for (const [a2, b2] of bays) { const gg = 1.5, lo = u => (D.bot ? botTop(u) : r.base(u) + 5) + gg, hi = u => und(u) - gg;
       fg.push(quad([P3(r, a2 + gg, lo(a2 + gg)), P3(r, b2 - gg, lo(b2 - gg)), P3(r, b2 - gg, hi(b2 - gg)), P3(r, a2 + gg, hi(a2 + gg))], F.t, r.n)); }
     if (fg.length) Pt(r.id + 'f', 'Relleno ' + r.name, F.mat, fg, { fn: D.fix[0].toUpperCase() + D.fix.slice(1) + '.', sec: D.name, med: `luz ≤ ${gap}`, u: 'U7' });
+  }
   }
   return { parts, Xc, yC1, yC2, yD };
 }
