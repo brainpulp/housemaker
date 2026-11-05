@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.17', fecha: '2026-11-04',
+export const META = { nombre: 'Cocinas', version: '0.1.18', fecha: '2026-11-04',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-05', v: '0.1.18', txt: 'Motor (Maxi 5/11): los frentes se abren arrastrándolos, como las hojas de las ventanas (el cajón sigue a la mano; la puerta gira con el arrastre), y un toque seco abre o cierra del todo. Veta horizontal en todas las caras verticales, también en las piezas altas; madera oscura con la veta oscura más clara y menos contraste.' },
   { fecha: '2026-11-05', v: '0.1.17', txt: 'Arcos: la fosa del estar queda a 4,55 de la medianera S (medido en obra el 5/11; antes 3,71 del SketchUp), heredado del modelo de la casa (Arcos 0.10.26). El recorte de la cocina llega ahora hasta pasado el escalón. D-01 reformulada: sobra lugar, ¿se corre la isla hacia el estar?' },
   { fecha: '2026-11-05', v: '0.1.16', txt: 'Motor (Maxi 4/11): los frentes se abren al tocarlos, animados. Mesadas, islas y bloque: carcasa de melamina con divisorias, cajones con caja de madera y guías telescópicas (el perfil del mueble queda, el del cajón sale), frentes de 2 cm con juntas de 3 mm; módulos con dos puertas batientes y bisagras cazoleta (Ø35 en la puerta, brazo y base en el lateral); alacenas con puertas proyectadas hacia arriba con brazos de elevación; torre del horno con dos cajones abajo y puerta con cazoletas arriba. Arcos: puertas bajo la bacha.' },
   { fecha: '2026-11-04', v: '0.1.15', txt: 'Maxi 4/11: una vista guardada ya no muestra lo que escondiste (sólo suma lo suyo). Arcos: piso de tablones como en la casa (tablones.js pasó al motor); frentes de cajones oscuros; la mesa de la isla con canto vivo en los dos bordes largos (tapa en L de una pieza); mueble sobre la heladera, continuación de la torre del horno. Pendiente: cajones y alacenas que se abren, con herrajes.' },

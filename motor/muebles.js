@@ -17,7 +17,7 @@ export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8
    anillos finos de madera tardía deformados con ruido, poro fino a lo largo, variación de tabla; el mismo cálculo da el mapa de rugosidad.
    Paño de 160 × 80 cm; las UV se proyectan por caja en coordenadas locales de la pieza (uvMadera), así la veta corre a lo largo (x) de cada pieza
    cualquiera sea su tamaño o giro. [madera temprana, madera tardía, anillos por paño, contraste] */
-export const MADERAS={roble:['#c9a06c','#8a6137',30,.5],madClara:['#d8b58a','#a8824f',26,.4],madOsc:['#7e5637','#43291a',32,.55],madRust:['#ad7349','#643820',28,.65]};
+export const MADERAS={roble:['#c9a06c','#8a6137',30,.5],madClara:['#d8b58a','#a8824f',26,.4],madOsc:['#7e5637','#5a3b26',32,.42]/* Maxi 5/11: mismo tono, la veta oscura más clara y menos contraste */,madRust:['#ad7349','#643820',28,.65]};
 const _texMad={};
 export function texturaMadera(THREE,k){if(_texMad[k])return _texMad[k];const d=MADERAS[k];if(!d)return null;const W=1024,H=512;
   const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const img=x.createImageData(W,H),px=img.data;
@@ -46,10 +46,9 @@ export function materialMadera(THREE,k){let m=_matMad.get(THREE);if(!m)_matMad.s
   return m[k]=new THREE.MeshStandardMaterial({color:'#ffffff',map:t.map,roughnessMap:t.rough,roughness:1,metalness:0});}
 /* UV por proyección de caja en coordenadas locales (cm): la veta corre a lo largo de x; en las caras de testa (normal x), a lo largo de z */
 export function uvMadera(THREE,geo,pano=[160,80]){const P=geo.attributes.position,N=geo.attributes.normal;if(!P||!N||geo.userData.uvMad)return geo;const uv=new Float32Array(P.count*2);
-  /* en las caras verticales la veta va a lo largo de la cara: horizontal si la pieza es más ancha que alta (frentes, tapas de canto), vertical si es más alta que ancha (patas panel, montantes) */
-  geo.computeBoundingBox();const sz=geo.boundingBox.getSize(new THREE.Vector3()),vx=sz.y>sz.z,vz=sz.y>sz.x;
+    /* Maxi 5/11: la veta va siempre horizontal en las caras verticales (frentes, laterales, patas), también en las piezas altas */
   for(let i=0;i<P.count;i++){const nx=Math.abs(N.getX(i)),ny=Math.abs(N.getY(i)),nz=Math.abs(N.getZ(i)),x=P.getX(i),y=P.getY(i),z=P.getZ(i);let u,v;
-    if(ny>=nx&&ny>=nz){u=x;v=z;}else if(nz>=nx){if(vz){u=y;v=x;}else{u=x;v=y;}}else{if(vx){u=y;v=z;}else{u=z;v=y;}}uv[i*2]=u/pano[0];uv[i*2+1]=v/pano[1];}
+    if(ny>=nx&&ny>=nz){u=x;v=z;}else if(nz>=nx){u=x;v=y;}else{u=z;v=y;}uv[i*2]=u/pano[0];uv[i*2+1]=v/pano[1];}
   geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));geo.userData.uvMad=true;return geo;}
 
 export function catalogoMuebles(THREE){

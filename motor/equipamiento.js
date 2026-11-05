@@ -227,9 +227,17 @@ export function initEquipamiento(visor,stage,D){
   let movT=0;(function movLoop(){requestAnimationFrame(movLoop);const now=performance.now();if(!MOVS.size){movT=now;return;}const dt=Math.max(0,Math.min(.25,(now-movT)/1000));movT=now;
     for(const sg of [...MOVS]){const m=sg.userData.mov;const d=m.tgt-m.cur;const paso=dt/.45;if(Math.abs(d)<=paso){m.cur=m.tgt;MOVS.delete(sg);}else m.cur+=Math.sign(d)*paso;aplicarMov(sg);}
     cajCache=null;window.__despertar&&window.__despertar();})();
-  function abrirMov(sg){const m=sg.userData.mov;m.tgt=m.tgt?0:1;MOVS.add(sg);hint(m.tgt?(m.tipo==='desl'?'Cajón abierto · tocalo de nuevo para cerrarlo':'Puerta abierta · tocala de nuevo para cerrarla'):(m.tipo==='desl'?'Cajón cerrado':'Puerta cerrada'));}
+  function abrirMov(sg){const m=sg.userData.mov;m.tgt=m.cur<.5?1:0;MOVS.add(sg);hint(m.tgt?(m.tipo==='desl'?'Cajón abierto · tocalo de nuevo para cerrarlo':'Puerta abierta · tocala de nuevo para cerrarla'):(m.tipo==='desl'?'Cajón cerrado':'Puerta cerrada'));}
   const movDe=o=>{for(let q=o;q;q=q.parent){if(q.userData&&q.userData.mov)return q;if(q.userData&&q.userData.item&&q.isGroup&&!q.userData.mov&&q.parent===G)return null;}return null;};
-  let pendMov=null;addEventListener('pointerup',e=>{if(!pendMov)return;const q=pendMov;pendMov=null;if(Math.hypot(e.clientX-q.x,e.clientY-q.y)>5)return;abrirMov(q.g);},true);
+  /* arrastrar un frente lo abre lo que lo arrastres, como las hojas de las ventanas (Maxi 5/11); un toque seco lo abre o lo cierra del todo */
+  let drMov=null;const dirPantalla=(sg,ejeLocal)=>{const p0=sg.getWorldPosition(new THREE.Vector3()),w=ejeLocal.clone().transformDirection(sg.parent.matrixWorld),p1=p0.clone().addScaledVector(w,30);
+    const r=view.getBoundingClientRect(),toS=v=>{const q=v.clone().project(camera);return [(q.x+1)/2*r.width,(1-q.y)/2*r.height];},a=toS(p0),b=toS(p1);const d=[b[0]-a[0],b[1]-a[1]],L=Math.hypot(d[0],d[1])||1;return {d:[d[0]/L,d[1]/L],pxCm:L/30};};
+  addEventListener('pointermove',e=>{if(!drMov)return;e.stopPropagation();const q=drMov,m=q.g.userData.mov,dx=e.clientX-q.x,dy=e.clientY-q.y;if(!q.moved&&Math.hypot(dx,dy)<4)return;q.moved=true;
+    const dp=dirPantalla(q.g,m.tipo==='desl'?m.eje:new THREE.Vector3(0,0,1)),along=dx*dp.d[0]+dy*dp.d[1];
+    m.cur=Math.max(0,Math.min(1,q.c0+(m.tipo==='desl'?along/(dp.pxCm*Math.abs(m.max)):along/140)));m.tgt=m.cur;aplicarMov(q.g);cajCache=null;window.__despertar&&window.__despertar();},true);
+  const finMov=e=>{if(!drMov)return;const q=drMov;drMov=null;visor.controls.enabled=true;try{view.releasePointerCapture(e.pointerId);}catch(x){}const m=q.g.userData.mov;
+    if(!q.moved){abrirMov(q.g);return;}if(m.cur<.12){m.tgt=0;MOVS.add(q.g);}else if(m.cur>.88){m.tgt=1;MOVS.add(q.g);}};
+  addEventListener('pointerup',finMov,true);addEventListener('pointercancel',finMov,true);
   const selDims=new THREE.Group();G.add(selDims);
   function marcarSel(){pintarIconos();if(selBox){G.remove(selBox);selBox.geometry.dispose();selBox=null;}visor.quitarEtiquetas&&visor.quitarEtiquetas(selDims);const g=sel&&groups.get(sel);if(!g)return;
     /* la caja mide sólo las mallas visibles (sin el ícono); la de la caja roja incluye el ícono, como siempre */
@@ -279,7 +287,7 @@ export function initEquipamiento(visor,stage,D){
     if(!h){const ms=[];for(const g of groups.values())if(g.visible&&(abierto?g.userData.capa===capa||g.userData.capa==='mue'||g.userData.capa==='luz':g.userData.capa==='mue'||g.userData.capa==='luz'))g.traverse(o=>{if(o.isMesh&&!o.isSprite)ms.push(o);});
       h=rc.intersectObjects(ms,false).find(okClip)||null;
       if(h){const pm=[];for(const q of visor.parts||[]){if(!q.grp||q.grp.visible===false)continue;q.grp.traverse(o=>{if(o.isMesh&&o.visible)pm.push(o);});}const hp=rc.intersectObjects(pm,false).find(x=>okClip(x)&&!(x.object.material&&x.object.material.transparent&&x.object.material.opacity<.6));if(hp&&hp.distance<h.distance-2)h=null;}}
-    if(!h){return;}const id=h.object.userData.item;const m=item(id);if(!m)return;{const mg=movDe(h.object);if(mg)pendMov={g:mg,x:e.clientX,y:e.clientY};}
+    if(!h){return;}const id=h.object.userData.item;const m=item(id);if(!m)return;{const mg=movDe(h.object);if(mg&&visor.editorTool!=='mover'){e.stopImmediatePropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;drMov={g:mg,x:e.clientX,y:e.clientY,c0:mg.userData.mov.cur,moved:false};return;}}
     /* sólo se mueven con su ícono activo (Maxi 15/10); si no, un toque sin arrastre lo elige (y activa su ícono) y arrastrar orbita la cámara */
     /* Maxi 4/11: con la herramienta Mover del editor prendida, el mueble se arrastra directo aunque el panel de equipamiento esté cerrado (se abre solo y pasa a su capa) */
     if(visor.editorTool==='mover'&&(card.hidden||groups.get(id).userData.capa!==capa)){const g0=groups.get(id);amb=g0.userData.amb;capa=g0.userData.capa;card.hidden=false;try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}}
