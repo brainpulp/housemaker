@@ -15,11 +15,11 @@ export function equipArcos({ itA }) {
     return [I(t, cx + d, cy - e, 0), I(t, cx + d, cy + e, 180), I(t, cx - e, cy + d, 90), I(t, cx + e, cy + d, -90)]; });
   const AMB = {
     living: { n: 'Living (PB)', piso: PB, vista: { p: [520, 650, 3150], t: [520, 90, 3600] }, esc: () => { const I = itA('living'); return {
-      A: { nombre: 'Estar mirando a la calle', items: [I('alfombra', 520, 3650, 0, { L: 300, D: 220 }), I('sofaRaffey', 520, 3515, 0, { L: 260, D: 99 }), I('ratonaJoco', 520, 3670, 0, { L: 140, D: 115 }),
-        I('butacaAm', 320, 3770, 135, { tela: 'lino' }), I('butacaAm', 720, 3770, -135, { tela: 'mostaza' })] },
-      /* Maxi 4/11: su mesa octet (la diseñó en la página octet: 3 × 3 celdas de L 45, vidrio 2,05 × 2,05 con 35 de vuelo; motor/octet-modelos.js), con dos sillas por lado afuera del vidrio */
-      B: { nombre: 'Comedor + estar', items: [I('octet', 520, 3250, 0, { modelo: 'mesa-konstandt' }), ...sillas4(I, 520, 3250, 205, 2),
+      /* Maxi 4/11 y 5/11: su mesa octet va en el escenario de entrada (A) (la diseñó en la página octet: 3 × 3 celdas de L 45, vidrio 2,05 × 2,05 con 35 de vuelo; motor/octet-modelos.js), con dos sillas por lado afuera del vidrio */
+      A: { nombre: 'Comedor + estar', items: [I('octet', 520, 3250, 0, { modelo: 'mesa-konstandt' }), ...sillas4(I, 520, 3250, 205, 2),
         I('alfombra', 560, 3730, 0, { L: 280, D: 200 }), I('sofaRaffey', 560, 3590, 0, { L: 240, D: 99 }), I('ratonaJoco', 560, 3740, 0, { L: 130, D: 105 }), I('butacaAm', 330, 3800, 135, { tela: 'mostaza' })] },
+      B: { nombre: 'Estar mirando a la calle', items: [I('alfombra', 520, 3650, 0, { L: 300, D: 220 }), I('sofaRaffey', 520, 3515, 0, { L: 260, D: 99 }), I('ratonaJoco', 520, 3670, 0, { L: 140, D: 115 }),
+        I('butacaAm', 320, 3770, 135, { tela: 'lino' }), I('butacaAm', 720, 3770, -135, { tela: 'mostaza' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     estar: { n: 'Estar hundido (foso del living)', piso: HUND, vista: { p: [520, 560, 2350], t: [600, 40, 2720] }, esc: () => { const I = itA('estar'); return {
       /* el foso va de x 4,70 (4,55 de la medianera S, Maxi 5/11) a 8,30 y de y 24,25 a 28,63: el sillón en L apoya el respaldo largo contra el lado este y la chaise contra el norte */
@@ -64,15 +64,19 @@ export function equipArcos({ itA }) {
     if (Object.values(s.esc).some(e => (e.items || []).some(m => VIEJOS.has(m.t)))) { s.esc = AMB[a].esc(); s.activo = Object.keys(s.esc)[0]; s.borrados = []; } migrar.push([a, k]); };
   /* 4/11: el comedor del living pasa a la mesa de nodos de Maxi; si el escenario B guardado todavía tiene la mesa de 2,20, se repone el B nuevo (una vez) */
   const alMezclar2 = (a, k, s, migrar) => { alMezclar(a, k, s, migrar); if (k !== 'mue' || a !== 'living' || s.migr.includes('mesaNodos0411')) return; s.migr.push('mesaNodos0411');
-    if ((s.esc.B?.items || []).some(m => m.t === 'mesaComedor')) s.esc.B = AMB.living.esc().B; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
+    if ((s.esc.B?.items || []).some(m => m.t === 'mesaComedor')) s.esc.B = AMB.living.esc().A; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
   /* 4/11 (noche): la mesa de nodos provisoria pasa a ser la mesa octet que diseñó Maxi; si el escenario B guardado tiene mesaNodos, se repone el B nuevo (una vez) */
   const alMezclar3 = (a, k, s, migrar) => { alMezclar2(a, k, s, migrar); if (k !== 'mue' || a !== 'living' || s.migr.includes('octet0411')) return; s.migr.push('octet0411');
-    if ((s.esc.B?.items || []).some(m => m.t === 'mesaNodos')) s.esc.B = AMB.living.esc().B; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
+    if ((s.esc.B?.items || []).some(m => m.t === 'mesaNodos')) s.esc.B = AMB.living.esc().A; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
   /* 5/11: el foso arranca a 4,55 de la medianera S (Maxi); si los escenarios guardados del estar son los de antes, se reponen (una vez) */
   const alMezclar4 = (a, k, s, migrar) => { alMezclar3(a, k, s, migrar); if (k !== 'mue' || a !== 'estar' || s.migr.includes('fosa0511')) return; s.migr.push('fosa0511');
     const nu = AMB.estar.esc(); for (const e of ['A', 'B']) if ((s.esc[e]?.items || []).some(m => m.t === 'sofaLcb' || m.t === 'mesaComedor')) s.esc[e] = nu[e]; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
   /* 5/11: el comedor del estar hundido pasa a la mesa Konstandt; si el B guardado tiene la mesa de comedor, se repone (una vez) */
   const alMezclar5 = (a, k, s, migrar) => { alMezclar4(a, k, s, migrar); if (k !== 'mue' || a !== 'estar' || s.migr.includes('konstandtFosa0511')) return; s.migr.push('konstandtFosa0511');
     if ((s.esc.B?.items || []).some(m => m.t === 'mesaComedor')) s.esc.B = AMB.estar.esc().B; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
-  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar5 };
+  /* 5/11 (Maxi: «no está»): la mesa Konstandt pasa al escenario A del living, que es el que se ve; el A guardado sin la mesa pasa a ser el B (una vez) */
+  const alMezclar6 = (a, k, s, migrar) => { alMezclar5(a, k, s, migrar); if (k !== 'mue' || a !== 'living' || s.migr.includes('konstandtA0511')) return; s.migr.push('konstandtA0511');
+    if (!(s.esc.A?.items || []).some(m => m.t === 'octet')) { const nu = AMB.living.esc(); s.esc.B = s.esc.A ? { ...s.esc.A, nombre: nu.B.nombre } : nu.B; s.esc.A = nu.A; }
+    s.activo = 'A'; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
+  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar6 };
 }
