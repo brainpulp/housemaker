@@ -175,7 +175,7 @@ export function initEquipamiento(visor,stage,D){
     const piso=AMB[a].piso??PISO;
     if(k==='veg'){if(!visor.arboles)return null;const pl=visor.arboles.planta(p.esp,p.seed,Math.max(10,+p.alto||100));pl.traverse(o=>{if(o.isMesh)o.userData.item=m.id;});g.add(pl);g.userData.capaV=c.capaV;
       g.position.set(m.x,sueloEn(m.x,m.y),m.y);g.rotation.y=(m.r||0)*Math.PI/180;return g;}
-    if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{let mn=Infinity;for(const dx of [-r,0,r])for(const dz of [-r,0,r])mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));return mn;}};for(const [geo,mk] of c.g(p,ctx)){if(MADERAS[mk]&&!c.glb)uvMadera(THREE,geo);const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;if(c.glb)mesh.userData.ph=true;g.add(mesh);}
+    if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{let mn=Infinity;for(const dx of [-r,0,r])for(const dz of [-r,0,r])mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));return mn;}};for(const [geo,mk,ex] of c.g(p,ctx)){if(MADERAS[mk]&&!c.glb)uvMadera(THREE,geo);const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;if(c.glb)mesh.userData.ph=true;let padre=g;if(ex&&ex.mov&&!c.glb){padre=movGrupo(g,ex.mov);const pv=padre.userData.mov.pivot;geo.translate(-pv[0],-pv[1],-pv[2]);}padre.add(mesh);}
       if(c.glb){/* modelo 3D real: la caja queda hasta que carga */const poner=()=>{const o=vestirModelo(THREE,c.glb,p);if(!o)return;for(const ch of g.children)if(ch.userData.ph)ch.visible=false;/* las cajas quedan invisibles: son la planta real del mueble para tocarlo, para las personas y para la prueba de colisiones */o.traverse(x=>{if(x.isMesh)x.userData.item=m.id;});g.add(o);glbN++;mueCache=null;cajCache=null;if(sel===m.id)marcarSel();window.__despertar&&window.__despertar();};
         if(modeloListo(c.glb))poner();else cargarModelo(THREE,c.glb).then(poner).catch(e=>console.warn('modelo',c.glb,e));}
       g.position.set(m.x,piso+(m.z??c.z??0),m.y);}
@@ -218,6 +218,18 @@ export function initEquipamiento(visor,stage,D){
     if(visor.noche)visor.noche.setFuentes(L);}
   function setNoche(k,fn){setTimeout(pintarIconos,0);const was=nocheOn;nocheK=k;nocheOn=k>=1;if(fn)prendidaFn=fn;for(const g of groups.values())if(g.userData.mats){const on=prendidaFn(g.userData.item);for(const mt of g.userData.mats)mt.emissiveIntensity=on?mt.userData.emit*k:0;}
     if(was!==nocheOn){G.visible=visor.params.equip!==false||nocheOn;for(const g of groups.values())g.visible=visOf(g);}}
+  /* ---------- frentes que se abren (Maxi 4/11): cajones, puertas con cazoletas, alacenas proyectadas ---------- 
+     Las geometrías del catálogo que traen {mov} se agrupan por id en un subgrupo con su pivote; tocar una pieza del subgrupo lo abre o lo cierra, animado. */
+  const MOVS=new Set();
+  function movGrupo(g,mv){let sg=g.children.find(c=>c.userData.mov&&c.userData.mov.id===mv.id);if(sg)return sg;sg=new THREE.Group();const pivot=mv.pivot||[0,0,0];
+    sg.userData.mov={id:mv.id,tipo:mv.tipo,eje:new THREE.Vector3(...mv.eje).normalize(),max:mv.max,pivot,cur:0,tgt:0};sg.position.set(...pivot);g.add(sg);return sg;}
+  const aplicarMov=sg=>{const m=sg.userData.mov;if(m.tipo==='desl')sg.position.set(m.pivot[0],m.pivot[1],m.pivot[2]).addScaledVector(m.eje,m.cur*m.max);else sg.quaternion.setFromAxisAngle(m.eje,m.cur*m.max);};
+  let movT=0;(function movLoop(){requestAnimationFrame(movLoop);const now=performance.now();if(!MOVS.size){movT=now;return;}const dt=Math.max(0,Math.min(.25,(now-movT)/1000));movT=now;
+    for(const sg of [...MOVS]){const m=sg.userData.mov;const d=m.tgt-m.cur;const paso=dt/.45;if(Math.abs(d)<=paso){m.cur=m.tgt;MOVS.delete(sg);}else m.cur+=Math.sign(d)*paso;aplicarMov(sg);}
+    cajCache=null;window.__despertar&&window.__despertar();})();
+  function abrirMov(sg){const m=sg.userData.mov;m.tgt=m.tgt?0:1;MOVS.add(sg);hint(m.tgt?(m.tipo==='desl'?'Cajón abierto · tocalo de nuevo para cerrarlo':'Puerta abierta · tocala de nuevo para cerrarla'):(m.tipo==='desl'?'Cajón cerrado':'Puerta cerrada'));}
+  const movDe=o=>{for(let q=o;q;q=q.parent){if(q.userData&&q.userData.mov)return q;if(q.userData&&q.userData.item&&q.isGroup&&!q.userData.mov&&q.parent===G)return null;}return null;};
+  let pendMov=null;addEventListener('pointerup',e=>{if(!pendMov)return;const q=pendMov;pendMov=null;if(Math.hypot(e.clientX-q.x,e.clientY-q.y)>5)return;abrirMov(q.g);},true);
   const selDims=new THREE.Group();G.add(selDims);
   function marcarSel(){pintarIconos();if(selBox){G.remove(selBox);selBox.geometry.dispose();selBox=null;}visor.quitarEtiquetas&&visor.quitarEtiquetas(selDims);const g=sel&&groups.get(sel);if(!g)return;
     /* la caja mide sólo las mallas visibles (sin el ícono); la de la caja roja incluye el ícono, como siempre */
@@ -267,7 +279,7 @@ export function initEquipamiento(visor,stage,D){
     if(!h){const ms=[];for(const g of groups.values())if(g.visible&&(abierto?g.userData.capa===capa||g.userData.capa==='mue'||g.userData.capa==='luz':g.userData.capa==='mue'||g.userData.capa==='luz'))g.traverse(o=>{if(o.isMesh&&!o.isSprite)ms.push(o);});
       h=rc.intersectObjects(ms,false).find(okClip)||null;
       if(h){const pm=[];for(const q of visor.parts||[]){if(!q.grp||q.grp.visible===false)continue;q.grp.traverse(o=>{if(o.isMesh&&o.visible)pm.push(o);});}const hp=rc.intersectObjects(pm,false).find(x=>okClip(x)&&!(x.object.material&&x.object.material.transparent&&x.object.material.opacity<.6));if(hp&&hp.distance<h.distance-2)h=null;}}
-    if(!h){return;}const id=h.object.userData.item;const m=item(id);if(!m)return;
+    if(!h){return;}const id=h.object.userData.item;const m=item(id);if(!m)return;{const mg=movDe(h.object);if(mg)pendMov={g:mg,x:e.clientX,y:e.clientY};}
     /* sólo se mueven con su ícono activo (Maxi 15/10); si no, un toque sin arrastre lo elige (y activa su ícono) y arrastrar orbita la cámara */
     /* Maxi 4/11: con la herramienta Mover del editor prendida, el mueble se arrastra directo aunque el panel de equipamiento esté cerrado (se abre solo y pasa a su capa) */
     if(visor.editorTool==='mover'&&(card.hidden||groups.get(id).userData.capa!==capa)){const g0=groups.get(id);amb=g0.userData.amb;capa=g0.userData.capa;card.hidden=false;try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}}

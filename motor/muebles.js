@@ -68,6 +68,40 @@ export function catalogoMuebles(THREE){
   function frente(L,D,y0,y1,{mods=1,filas=1,tirador='h'}={}){const g=[],z=D/2;for(let i=1;i<mods;i++){const x=-L/2+L*i/mods;g.push(ran(x-.2,x+.2,y0,y1,z));}
     for(let j=1;j<filas;j++){const y=y0+(y1-y0)*j/filas;g.push(ran(-L/2+.5,L/2-.5,y-.2,y+.2,z));}
     for(let i=0;i<mods;i++)for(let j=0;j<filas;j++){const xc=-L/2+L*(i+.5)/mods,yt=y0+(y1-y0)*(j+1)/filas;g.push(tirador==='v'?tir(xc+(L/mods)/2-6,(y0+y1)/2,z,24,true):tir(xc,yt-4,z,Math.min(24,L/mods*.5)));}return g;}
+  /* ---------- frentes que se abren, con sus herrajes (Maxi 4/11) ----------
+     Una geometría puede llevar un tercer elemento {mov:{id,tipo:'desl'|'giro',eje:[x,y,z],max,pivot:[x,y,z]}}: el visor agrupa las piezas con el mismo id
+     y, al tocarlas, las desliza (max en cm) o las gira (max en radianes) alrededor del pivote. El catálogo las dibuja cerradas. */
+  const MEL='blanco',CAJ='madClara';
+  const CZ=(r,z0,z1,x,y,s=16)=>{const g=new THREE.CylinderGeometry(r,r,z1-z0,s);g.rotateX(Math.PI/2);g.translate(x,y,(z0+z1)/2);return g;};/* cilindro con el eje en z */
+  /* carcasa de melamina: laterales de 1,8 (los de afuera, del material del frente), piso, techo, fondo de 0,8 y divisorias entre módulos; el frente queda en zf */
+  function carcasa(x0,x1,y0,y1,zb,zf,fr,mods,{techo=true,piso=true,extFr=true}={}){const g=[],e=1.8;
+    g.push([B(x0,x0+e,y0,y1,zb,zf),extFr?fr:MEL],[B(x1-e,x1,y0,y1,zb,zf),extFr?fr:MEL]);
+    if(piso)g.push([B(x0+e,x1-e,y0,y0+e,zb,zf),MEL]);if(techo)g.push([B(x0+e,x1-e,y1-e,y1,zb,zf),MEL]);
+    g.push([B(x0+e,x1-e,y0,y1,zb,zb+.8),MEL]);
+    for(let i=1;i<mods;i++){const x=x0+(x1-x0)*i/mods;g.push([B(x-.9,x+.9,y0,y1,zb+.8,zf),MEL]);}return g;}
+  /* módulo i: límites del frente (xl, xr) y luz interior entre laterales o divisorias (xa, xb) */
+  const modX=(x0,x1,mods,i)=>{const xl=x0+(x1-x0)*i/mods,xr=x0+(x1-x0)*(i+1)/mods;return [xl,xr,i===0?xl+1.8:xl+.9,i===mods-1?xr-1.8:xr-.9];};
+  /* cajón: frente de 2 con juntas de 3 mm, caja de madera clara (laterales, fondo y piso), guías telescópicas de acero: el perfil del mueble queda, el del cajón sale con él */
+  function cajon(id,xl,xr,xa,xb,ya,yb,zb,zf,fr,tirador=true){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Dc*.9}};
+    g.push([B(xl+.15,xr-.15,ya+.15,yb-.15,zf,zf+2),fr,mv]);
+    const hb=Math.max(6,Math.min(yb-ya-6,24));
+    g.push([B(xa+2.2,xa+3.8,ya+1.5,ya+1.5+hb,zf-Dc,zf-.3),CAJ,mv],[B(xb-3.8,xb-2.2,ya+1.5,ya+1.5+hb,zf-Dc,zf-.3),CAJ,mv],[B(xa+3.8,xb-3.8,ya+1.5,ya+1.5+hb,zf-Dc,zf-Dc+1.6),CAJ,mv],[B(xa+2.2,xb-2.2,ya+1.5,ya+2.5,zf-Dc,zf-.3),CAJ,mv]);
+    for(const [a,b] of [[xa,xa+1.3],[xb-1.3,xb]])g.push([B(a,b,ya+2,ya+6,zf-Dc,zf-.3),'acero']);
+    for(const [a,b] of [[xa+1.3,xa+2.2],[xb-2.2,xb-1.3]])g.push([B(a,b,ya+2.5,ya+5.5,zf-Dc,zf-.3),'acero',mv]);
+    if(tirador)g.push([...tir((xl+xr)/2,yb-4,zf+2,Math.min(24,(xr-xl)*.5)),mv]);return g;}
+  /* puerta batiente con bisagras cazoleta (Ø35 embutida en la puerta, brazo, base atornillada al lateral); lado −1: bisagras a la izquierda (−x) */
+  function puerta(id,xl,xr,xa,xb,y0,y1,zf,fr,lado=-1,tirador=true){const g=[],hx=lado<0?xl+.15:xr-.15,xs=lado<0?xa:xb;
+    const mv={mov:{id,tipo:'giro',eje:[0,1,0],max:(lado<0?-1:1)*100*Math.PI/180,pivot:[hx,0,zf]}};
+    g.push([B(xl+.15,xr-.15,y0+.15,y1-.15,zf,zf+2),fr,mv]);
+    const xcz=lado<0?hx+2.2:hx-2.2;/* centro de la cazoleta, a 22 mm del canto */
+    for(const y of [y0+9,y1-9]){g.push([CZ(1.75,zf,zf+1.3,xcz,y),'acero',mv]);
+      const a=Math.min(xs,xcz),b=Math.max(xs,xcz);g.push([B(a+(lado<0?.3:0),b-(lado<0?0:.3),y-.9,y+.9,zf-3.2,zf-1.4),'acero',mv]);/* brazo */
+      g.push([B(lado<0?xs:xs-.3,lado<0?xs+.3:xs,y-2.5,y+2.5,zf-6.5,zf-2),'acero']);}/* base en el lateral */
+    if(tirador)g.push([...tir(lado<0?xr-6:xl+6,(y0+y1)/2,zf+2,24,true),mv]);return g;}
+  /* puerta de alacena proyectada hacia arriba: gira sobre su canto superior y queda horizontal adelante; brazos de elevación a los dos lados (base fija en el lateral, brazo en la puerta) */
+  function puertaArriba(id,xl,xr,xa,xb,y0,y1,zf,fr){const g=[],mv={mov:{id,tipo:'giro',eje:[1,0,0],max:-100*Math.PI/180,pivot:[0,y1-.15,zf]}};
+    g.push([B(xl+.15,xr-.15,y0+.15,y1-.15,zf,zf+2),fr,mv]);
+    for(const [s,x] of [[1,xa],[-1,xb]]){g.push([B(x,x+s*1,y1-13,y1-4,zf-10,zf-2.5),'acero']);g.push([B(x+s*1,x+s*1.6,y0+5,y1-9,zf-1.6,zf-.2),'acero',mv]);}return g;}
   const cojin=(x0,x1,y0,y1,z0,z1,m)=>[R(x0,x1,y0,y1,z0,z1,Math.min(6,(y1-y0)/2.2)),m];
   const CYL=C;
   const P={
@@ -115,8 +149,12 @@ export function catalogoMuebles(THREE){
   aparador:{n:'Aparador bajo de listones sobre patas',cat:'comedor',p:{L:150,D:45,H:75,fr:'madOsc'},g:p=>{const g=[[R(-p.L/2,p.L/2,16,p.H,-p.D/2,p.D/2,.8),p.fr]];for(let x=-p.L/2+3;x<p.L/2-3;x+=4.5)g.push([B(x,x+.5,19,p.H-3,p.D/2-.1,p.D/2+.05),'junta']);
     g.push(ran(-.2,.2,19,p.H-3,p.D/2));for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(1.3,0,16,sx*(p.L/2-8),sz*(p.D/2-7),10),'negro']);return g;}},
   /* ---------- cocina ---------- */
-  mesada:{n:'Bajo mesada con zócalo rehundido',cat:'cocina',p:{L:240,D:62,H:90,fr:'madOsc',top:'granito',filas:3},/* Maxi 4/11: tres cajones por columna */g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-8),'negro'],[B(-p.L/2,p.L/2,10,p.H-3,-p.D/2,p.D/2-2),p.fr],...tapaHuecos(p.L,p.D,p.H,p.huecos,p.top),
-    ...frente(p.L,p.D-2,10,p.H-3,{mods:Math.max(1,Math.round(p.L/60)),filas:p.filas??3})]},
+  mesada:{n:'Bajo mesada con zócalo rehundido',cat:'cocina',p:{L:240,D:62,H:90,fr:'madOsc',top:'granito',filas:3},/* Maxi 4/11: tres cajones por columna; «puertas»: módulos con dos puertas batientes (p. ej. bajo la bacha) */
+    g:p=>{const zf=p.D/2-2,zb=-p.D/2,mods=Math.max(1,Math.round(p.L/60)),filas=p.filas??3,pu=p.puertas||[],y0=10,y1=p.H-3;
+      const g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,y0,y1,zb,zf,p.fr,mods),...tapaHuecos(p.L,p.D,p.H,p.huecos,p.top)];
+      for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
+        if(pu.includes(i)){const xm=(xl+xr)/2;g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}a`,xl,xm,xa,xb,y0,y1,zf,p.fr,-1),...puerta(`p${i}b`,xm,xr,xa,xb,y0,y1,zf,p.fr,1));continue;}
+        for(let j=0;j<filas;j++){const ya=y0+(y1-y0)*j/filas,yb=y0+(y1-y0)*(j+1)/filas;g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));}}return g;}},
   isla:{n:'Isla con barra y laterales de piedra',cat:'cocina',p:{L:200,D:90,H:90,vol:30,fr:'madOsc',top:'granito',top2:'',corte:0,filas:3},g:p=>{const z0=-p.D/2+p.vol;
     /* tapa doble (top2): del lado de los cajones (+z) piedra en «corte» cm; del lado de la barra (−z) tablón de madera de 6 con canto rústico irregular, laterales de cada material */
     const zc=p.top2?p.D/2-(p.corte||p.D/2):-p.D/2,tapa=[];
@@ -125,9 +163,20 @@ export function catalogoMuebles(THREE){
       for(let i=n;i>=0;i--){const x=-p.L/2+p.L*i/n,e=1.6*Math.sin(x*.045+.7)+.9*Math.sin(x*.13+2.1)+.45*Math.sin(x*.41);sh.lineTo(x,-p.D/2-e-.5);}
       const ge=new THREE.ExtrudeGeometry(sh,{depth:6,bevelEnabled:true,bevelThickness:.6,bevelSize:.6,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.6,0);tapa.push([ge,p.top2]);
       tapa.push([B(-p.L/2,-p.L/2+4,0,p.H-6,-p.D/2,zc),p.top2],[B(p.L/2-4,p.L/2,0,p.H-6,-p.D/2,zc),p.top2]);}
-    return [[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],[B(-p.L/2+4,p.L/2-4,10,p.H-(p.top2?6:4),z0,p.D/2-2),p.fr],...tapa,...frente(p.L-8,p.D-2,10,p.H-4,{mods:Math.max(1,Math.round((p.L-8)/60)),filas:p.filas??3})];}},
-  alacena:{n:'Alacena alta sin tiradores, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2-1),p.fr],...frente(p.L,p.D-1,0,p.H,{mods:Math.max(1,Math.round(p.L/60))}).filter(([,m])=>m!=='negro'),...(p.led===false?[]:[[B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']])]},
-  columna:{n:'Columna con horno empotrado',cat:'cocina',p:{L:60,D:60,H:220,fr:'madOsc'},g:p=>[[B(-p.L/2,p.L/2,0,10,-p.D/2,p.D/2-8),'negro'],[B(-p.L/2,p.L/2,10,p.H,-p.D/2,p.D/2-2),p.fr],[B(-p.L/2+3,p.L/2-3,80,140,p.D/2-2,p.D/2-.5),'negro'],[B(-p.L/2+6,p.L/2-6,90,128,p.D/2-.5,p.D/2),'vidrioN'],tir(0,134,p.D/2-.5,40),ran(-p.L/2+1,p.L/2-1,79.8,80.2,p.D/2-2),ran(-p.L/2+1,p.L/2-1,140,140.4,p.D/2-2)]},
+    const zf=p.D/2-2,mods=Math.max(1,Math.round((p.L-8)/60)),filas=p.filas??3,y0=10,y1=p.H-(p.top2?6:4),g=[[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],...carcasa(-p.L/2+4,p.L/2-4,y0,y1,z0,zf,p.fr,mods,{extFr:false}),...tapa];
+    for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2+4,p.L/2-4,mods,i);for(let j=0;j<filas;j++){const ya=y0+(y1-y0)*j/filas,yb=y0+(y1-y0)*(j+1)/filas;g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,z0,zf,p.fr));}}return g;}},
+  alacena:{n:'Alacena alta, puertas proyectadas hacia arriba, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,/* Maxi 4/11: se abren hacia arriba con brazos de elevación */
+    g:p=>{const zf=p.D/2-2,zb=-p.D/2,mods=Math.max(1,Math.round(p.L/60)),g=[...carcasa(-p.L/2,p.L/2,0,p.H,zb,zf,p.fr,mods)];
+      if(p.H>40)g.push([B(-p.L/2+1.8,p.L/2-1.8,p.H/2-.9,p.H/2+.9,zb+.8,zf-2),MEL]);
+      for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);g.push(...puertaArriba(`a${i}`,xl,xr,xa,xb,0,p.H,zf,p.fr));}
+      if(p.led!==false)g.push([B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']);return g;}},
+  columna:{n:'Columna con horno empotrado',cat:'cocina',p:{L:60,D:60,H:220,fr:'madOsc'},/* Maxi 4/11: abajo del horno, dos cajones; arriba, puerta con bisagras cazoleta */
+    g:p=>{const zf=p.D/2-2,zb=-p.D/2,g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,10,p.H,zb,zf,p.fr,1)];
+      const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,1,0);
+      g.push([B(xa,xb,79,80.8,zb+.8,zf),MEL],[B(xa,xb,140,141.8,zb+.8,zf),MEL]);/* estantes que enmarcan el horno */
+      g.push([B(-p.L/2+3,p.L/2-3,81,139.5,zf,zf+1.5),'negro'],[B(-p.L/2+6,p.L/2-6,90,128,zf+1.5,zf+2),'vidrioN'],tir(0,134,zf+1.5,40));/* horno */
+      g.push(...cajon('c0',xl,xr,xa,xb,10,45,zb,zf,p.fr),...cajon('c1',xl,xr,xa,xb,45,79,zb,zf,p.fr));
+      if(p.H-142>20)g.push(...puerta('pa',xl,xr,xa,xb,142,p.H,zf,p.fr,-1));return g;}},
   heladera:{n:'Heladera con freezer abajo',cat:'cocina',p:{L:70,D:70,H:190,col:'acero'},g:p=>[[R(-p.L/2,p.L/2,2,p.H,-p.D/2,p.D/2,2.5),p.col],ran(-p.L/2+1,p.L/2-1,72,72.4,p.D/2),[B(p.L/2-6,p.L/2-4.5,85,140,p.D/2,p.D/2+3),'negro'],[B(p.L/2-6,p.L/2-4.5,40,66,p.D/2,p.D/2+3),'negro'],[B(-p.L/2+3,p.L/2-3,0,2,-p.D/2+3,p.D/2-3),'negro']]},
   bacha:{n:'Bacha bajo mesada con grifería negra',cat:'cocina',p:{L:80},z:90,g:p=>[[B(-p.L/2+6,p.L/2-6,-18,-17,-18,18),'acero'],[B(-p.L/2+6,p.L/2-6,-18,0,-18.5,-18),'acero'],[C(2,0,28,0,-24,14),'grifo'],[VAR([0,28,-24],[0,30,-8],1.1),'grifo'],[C(1.2,22,30,0,-8,10),'grifo']]},
   bachaFarm:{n:'Bacha farm de cerámica con frente a la vista',cat:'cocina',p:{L:80,D:50,P:24},z:90,g:p=>{/* origen arriba de la mesada, al centro; el frente (+z) queda al ras del canto de la tapa. Va con un hueco en la tapa de la mesada (huecos) */
@@ -213,8 +262,9 @@ export function catalogoMuebles(THREE){
        Patas panel de la mesa: en la punta −x (ancho completo) y en la punta +x de la tira; la tira también apoya en el bloque. */
     islaMesa:{n:'Isla de piedra con mesa de madera en L',cat:'cocina',p:{L:380,D:120,Lb:160,Db:70,H:75,Hb:90,fr:'madClara',top:'granito',mad:'madRust',filas:3},
       g:p=>{const xb=p.L/2-p.Lb,zb=p.D/2-p.Db,g=[];
-        g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],[B(xb+4,p.L/2-4,10,p.Hb-4,zb+4,p.D/2-2),p.fr],[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
-        g.push(...frente(p.Lb-8,p.D-2,10,p.Hb-4,{mods:Math.max(1,Math.round((p.Lb-8)/60)),filas:p.filas??3}).map(([ge,m])=>[ge.translate(xb+p.Lb/2,0,0),m]));
+        const zf=p.D/2-2,mods=Math.max(1,Math.round((p.Lb-8)/60)),filas=p.filas??3;
+        g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],...carcasa(xb+4,p.L/2-4,10,p.Hb-4,zb+4,zf,p.fr,mods,{extFr:false}),[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
+        for(let i=0;i<mods;i++){const [xl,xr,xa,xq]=modX(xb+4,p.L/2-4,mods,i);for(let j=0;j<filas;j++){const ya=10+(p.Hb-14)*j/filas,yb=10+(p.Hb-14)*(j+1)/filas;g.push(...cajon(`c${i}${j}`,xl,xr,xa,xq,ya,yb,zb+4,zf,p.fr));}}
         /* tapa en L de una pieza, con canto vivo irregular (±2,5 cm) en los dos bordes largos (Maxi 4/11: «borde vivo en ambos lados»); rectos: las puntas y el borde contra el bloque */
         {const e=(x,f)=>1.6*Math.sin(x*.045+f)+.9*Math.sin(x*.13+2.1*f)+.45*Math.sin(x*.41+f),n=Math.max(8,Math.round(p.L/4)),sh=new THREE.Shape();
           sh.moveTo(-p.L/2,-p.D/2-e(-p.L/2,.7));for(let i=1;i<=n;i++){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2-e(x,.7));}/* borde −z, largo entero */
