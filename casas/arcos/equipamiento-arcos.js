@@ -22,9 +22,9 @@ export function equipArcos({ itA }) {
         I('alfombra', 560, 3730, 0, { L: 280, D: 200 }), I('sofaRaffey', 560, 3590, 0, { L: 240, D: 99 }), I('ratonaJoco', 560, 3740, 0, { L: 130, D: 105 }), I('butacaAm', 330, 3800, 135, { tela: 'mostaza' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     estar: { n: 'Estar hundido (foso del living)', piso: HUND, vista: { p: [520, 560, 2350], t: [600, 40, 2720] }, esc: () => { const I = itA('estar'); return {
-      /* el foso va de x 3,85 a 8,30 y de y 24,25 a 28,63: el sillón en L apoya el respaldo largo contra el lado este y la chaise contra el norte */
-      A: { nombre: 'Sillón en L y mesa baja', items: [I('sofaLcb', 622, 2745, 180, { L: 410, D: 230, H: 78, lado: 'izq' }), I('mesaBaja', 560, 2660, 0, { L: 130, D: 70, H: 40 })] },
-      B: { nombre: 'Comedor mirando al jardín', items: [I('mesaComedor', 590, 2650, 0, { L: 220, D: 95 }), ...sillas(I, 590, 2650, 220, 95, 3)] },
+      /* el foso va de x 4,70 (4,55 de la medianera S, Maxi 5/11) a 8,30 y de y 24,25 a 28,63: el sillón en L apoya el respaldo largo contra el lado este y la chaise contra el norte */
+      A: { nombre: 'Sillón en L y mesa baja', items: [I('sofaLcb', 652, 2745, 180, { L: 350, D: 230, H: 78, lado: 'izq' }), I('mesaBaja', 610, 2660, 0, { L: 130, D: 70, H: 40 })] },
+      B: { nombre: 'Comedor mirando al jardín', items: [I('mesaComedor', 650, 2650, 0, { L: 200, D: 95 }), ...sillas(I, 650, 2650, 200, 95, 3)] },
       C: { nombre: 'Vacío', items: [] } }; } },
     toilette: { n: 'Baño de PB (M-33, hacia la calle)', piso: PB, vista: { p: [300, 330, 3500], t: [100, 80, 3360] }, esc: () => { const I = itA('toilette'); return {
       A: { nombre: 'Inodoro y lavatorio', items: [I('inodoroK', 55, 3330, 90, { L: 45, D: 75, H: 78 }), I('lavatorioS', 140, 3311, 0, { L: 55, D: 45, H: 50 }, 35)] },
@@ -67,5 +67,8 @@ export function equipArcos({ itA }) {
   /* 4/11 (noche): la mesa de nodos provisoria pasa a ser la mesa octet que diseñó Maxi; si el escenario B guardado tiene mesaNodos, se repone el B nuevo (una vez) */
   const alMezclar3 = (a, k, s, migrar) => { alMezclar2(a, k, s, migrar); if (k !== 'mue' || a !== 'living' || s.migr.includes('octet0411')) return; s.migr.push('octet0411');
     if ((s.esc.B?.items || []).some(m => m.t === 'mesaNodos')) s.esc.B = AMB.living.esc().B; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
-  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar3 };
+  /* 5/11: el foso arranca a 4,55 de la medianera S (Maxi); si los escenarios guardados del estar son los de antes, se reponen (una vez) */
+  const alMezclar4 = (a, k, s, migrar) => { alMezclar3(a, k, s, migrar); if (k !== 'mue' || a !== 'estar' || s.migr.includes('fosa0511')) return; s.migr.push('fosa0511');
+    const nu = AMB.estar.esc(); for (const e of ['A', 'B']) if ((s.esc[e]?.items || []).some(m => m.t === 'sofaLcb' || m.t === 'mesaComedor')) s.esc[e] = nu[e]; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
+  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar4 };
 }
