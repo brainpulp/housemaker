@@ -8,7 +8,7 @@
    La planta tiene dos variantes (4 × 4 y 4 × 3): las tablas salen de modelo(D), con D = fondo interior de la habitación (y).
    Las exportaciones fijas (MUROS, LOSAS…) son la variante por defecto (4 × 4); casa.js arma la que esté elegida en «Planta». */
 
-export const META = { nombre: 'Casita de Malabrigo', version: '0.1.1', fecha: '2026-11-05',
+export const META = { nombre: 'Casita de Malabrigo', version: '0.1.2', fecha: '2026-11-05',
   resumen: 'Casita de 4 × 4 (o 4 × 3) para trabajadores de campo en Malabrigo: una habitación con cama y bacha, sin baño, y una galería de 2,00 al este bajo el mismo techo de chapa a un agua, con lugar para la hamaca paraguaya.',
   ejes: 'x de sur a norte, y de oeste a este; 0,0 en la esquina interior SO de la habitación; alturas sobre el piso terminado. Galería al este (D-01).',
   planta: { vb: { x: -250, y: -250, w: 1000, h: 1150 }, casa: { cx: 200, cy: 320, w: 600, h: 800 }, lote: { cx: 200, cy: 320, w: 900, h: 1100 }, ejesExt: { x0: -120, x1: 520, y0: -120, y1: 760 }, ghost: 'PB',
@@ -101,6 +101,7 @@ export const DUDAS = [
 ];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-05', v: '0.1.2', txt: 'Motor 11ede6c: el sillón en L alarga sólo la chaise cuando cambia el fondo (el asiento y el respaldo quedan a su medida); la campana de isla sube hasta lo más bajo del techo sobre ella; el techo sobre un mueble se mide con una grilla más fina.' },
   { fecha: '2026-11-05', v: '0.1.1', txt: 'La página no abría: al visor de planta le faltaba calco-glb.js (vacío en esta casa, que no tiene calco). Probado el modo Planta y el 3D con los archivos publicados.' },
   { fecha: '2026-11-05', v: '0.1.0', txt: 'Primera versión de la casita (Maxi 5/11, para un amigo): habitación de 4 × 4 (variante 4 × 3), sin baño, con mesada y bacha bajo la ventana del fondo, puerta y ventana a la galería; galería de 2,00 al este bajo el mismo techo de chapa a un agua (12 %), con dos postes de madera dura, viga 3″ × 8″, tirantes 3″ × 6″ cada 0,60 y clavaderas; hamaca paraguaya entre los postes; opción de cielorraso de machimbre con lana. Muebles de partida (A: una cama; B: cucheta), recorrido a pie y vuelo de dron, asoleamiento de Malabrigo y térmica con el clima de Reconquista. Todo es supuesto: nueve dudas para el amigo.' },
 ];
