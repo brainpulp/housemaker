@@ -117,7 +117,11 @@ body.m3d .spec{font-size:11px}
 .stage #selFiltro{top:38px;left:44px;transform:none}.stage #selFiltro button{padding:4px 8px}
 #topright{top:4px;right:4px;gap:4px}#capasPanel{top:0;right:0;border-top:0;border-right:0;border-radius:0 0 0 8px}
 #edPanel,#senPanel,#marcasPanel,#medPanel{left:38px!important;top:70px!important;width:calc(100vw - 42px);max-height:calc(100% - 80px)}
-#modo-3d aside{border-radius:0;border-left:0;border-right:0}}
+#modo-3d aside{border-radius:0;border-left:0;border-right:0}
+/* en el teléfono sólo se mira (Maxi 6/11): sin herramientas de edición ni panel; quedan navegar, seleccionar, capas, variantes, vistas y tours */
+#toolbar3d .tbg[data-g=mover],#toolbar3d .tb[data-k=estirar],#toolbar3d .tb[data-k=undo],#toolbar3d .tb[data-k=medir],#toolbar3d .tb[data-k=marcar],#toolbar3d .tb[data-k=equip],#toolbar3d .tb[data-k=luces],#toolbar3d .tb[data-k=termica],#toolbar3d .tb[data-k=estructura],#toolbar3d .tb[data-k=personas],#toolbar3d .tbsep,#toolbar3d .tbg[data-g=sel] .tbfly::after{display:none}
+.stage #selFiltro,#edPanel,#senPanel,#marcasPanel,#medPanel,#modo-3d aside,#modo-3d .gutter,#topright #asideTg{display:none!important}
+#modo-3d{grid-template-rows:calc(100svh - 34px) auto}}
 #modo-3d aside{font-size:11px}
 #modo-3d .sel{padding:10px 12px;min-height:90px;flex:0 1 auto;overflow:auto}#modo-3d aside .tabs,#varCard{flex:none}#modo-3d aside.tabsfold .sel{flex:1 1 auto}
 #modo-3d .sel h2{font-size:15px}

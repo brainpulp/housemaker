@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.1.8', fecha:'2026-11-05',
+  nombre:'Carhué', version:'1.1.9', fecha:'2026-11-05',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-06', v:'1.1.9', txt:'En el teléfono sólo se mira (Maxi 6/11): se van las herramientas de edición (mover, estirar, deshacer, medir, marcar, vértices, equipamiento, luces, térmica, estructura, personas) y el panel lateral; quedan navegar, seleccionar, capas, variantes, vistas, tours y Planta/3D.'},
   {fecha:'2026-11-06', v:'1.1.8', txt:'Pantalla de teléfono (Maxi 6/11): en 3D se van los márgenes y las calles; la barra queda pegada al borde, el visor ocupa toda la pantalla y el panel sigue debajo. La página declara el viewport del teléfono.'},
   {fecha:'2026-11-05', v:'1.1.7', txt:'Motor 11ede6c: el sillón en L alarga sólo la chaise cuando cambia el fondo (el asiento y el respaldo quedan a su medida); la campana de isla sube hasta lo más bajo del techo sobre ella; el techo sobre un mueble se mide con una grilla más fina.'},
   {fecha:'2026-11-02', v:'1.1.6', txt:'Cocina, versión D (Maxi): anafe de 5 hornallas en la isla (la pata norte-sur), con la campana encima; bacha farm de cerámica con el frente a la vista en la mesada bajo la ventana (la pata este-oeste); tapa de la isla doble: granito negro del lado del anafe y tablón de madera de canto rústico del lado de las banquetas.'},

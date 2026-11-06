@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.22', fecha: '2026-11-05',
+export const META = { nombre: 'Cocinas', version: '0.1.23', fecha: '2026-11-05',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-06', v: '0.1.23', txt: 'En el teléfono sólo se mira (Maxi 6/11): se van las herramientas de edición (mover, estirar, deshacer, medir, marcar, vértices, equipamiento, luces, térmica, estructura, personas) y el panel lateral; quedan navegar, seleccionar, capas, variantes, vistas, tours y Planta/3D.' },
   { fecha: '2026-11-06', v: '0.1.22', txt: 'Pantalla de teléfono (Maxi 6/11): en 3D se van los márgenes y las calles; la barra queda pegada al borde, el visor ocupa toda la pantalla y el panel sigue debajo. La página declara el viewport del teléfono.' },
   { fecha: '2026-11-05', v: '0.1.21', txt: 'Maxi 5/11: la mesa de la ventana de Arcos (#10) pasa a 1,60 de largo, con sus dos bancos; sigue arrancando en la medianera y termina a 7 cm de la isla.' },
   { fecha: '2026-11-05', v: '0.1.20', txt: 'Maxi 5/11: paño de inox detrás de la mesada de Arcos (pieza nueva «revestimiento», entre la tapa y las alacenas). En la ficha de cada mueble se eligen los materiales de la paleta (frentes, tapa, madera, material, color): inox, piedra negra, maderas, negro mate, etc. Sillas pintadas (negro de arranque; nueve colores a elegir). Al seleccionar un mueble aparece su etiqueta flotante con nombre y número. La mesa larga apoya en un timón de acero de 1/2″, 50 cm a lo largo de la mesa, que atraviesa la tapa; la tira este no lleva pata, se encaja en el bloque.' },
