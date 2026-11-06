@@ -170,7 +170,7 @@ export function catalogoMuebles(THREE){
     const zf=p.D/2-2,mods=Math.max(1,Math.round((p.L-8)/60)),filas=p.filas??3,y0=10,y1=p.H-(p.top2?6:4),g=[[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],...carcasa(-p.L/2+4,p.L/2-4,y0,y1,z0,zf,p.fr,mods,{extFr:false}),...tapa];
     for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2+4,p.L/2-4,mods,i);for(let j=0;j<filas;j++){const ya=y0+(y1-y0)*j/filas,yb=y0+(y1-y0)*(j+1)/filas;g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,z0,zf,p.fr));}}return g;}},
   alacena:{n:'Alacena alta, puertas proyectadas hacia arriba, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,/* Maxi 4/11: se abren hacia arriba con brazos de elevación */
-    g:p=>{const zf=p.D/2-2,zb=-p.D/2,mods=Math.max(1,Math.round(p.L/120))/* Maxi 6/11: puertas del doble de ancho (una cada 1,20), la mitad de puertas */,g=[...carcasa(-p.L/2,p.L/2,0,p.H,zb,zf,p.fr,mods)];
+    g:p=>{const zf=p.D/2-2,zb=-p.D/2,mods=Math.max(1,Math.round(p.L/90))/* Maxi 6/11: puertas anchas, una cada 0,90 (1,20 era mucho) */,g=[...carcasa(-p.L/2,p.L/2,0,p.H,zb,zf,p.fr,mods)];
       if(p.H>40)g.push([B(-p.L/2+1.8,p.L/2-1.8,p.H/2-.9,p.H/2+.9,zb+.8,zf-2),MEL]);
       for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);g.push(...puertaArriba(`a${i}`,xl,xr,xa,xb,0,p.H,zf,p.fr));}
       if(p.led!==false)g.push([B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']);return g;}},
