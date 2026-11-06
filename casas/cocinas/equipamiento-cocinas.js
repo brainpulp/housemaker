@@ -29,8 +29,8 @@ export function equipCocinas({ it, itA }) {
         /* Maxi 4/11: un solo rectángulo de 3,80 × 1,20 en dos materiales (pieza «islaMesa»): bloque de cocinar de piedra de 1,60 × 0,70 a 0,90 en la punta este, del lado de la mesada,
            y mesa de madera a 0,75 en L: 2,20 de ancho completo al oeste más la tira de 0,50 que sigue junto al bloque hasta su punta este (ahí se sienta gente frente a la mesada negra).
            Cara sur en x 182 (pasillo de 1,05 a la mesada); sillas sólo del lado del estar y en la punta. El escalón del estar hundido está a x 386 (a medir). */
-        I('islaMesa', 242, 2440, -90, { L: 380, D: 120, Lb: 160, Db: 70, H: 75, Hb: 90, fr: 'madOsc', top: 'granito', mad: 'madRust', mod: 76 }) /* Maxi 6/11: dos columnas de cajones anchos en el bloque, no tres */, I('anafe', 217, 2550, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 217, 2550, -90, { L: 90, D: 60 }),
-        I('sillaCover', 330, 2300, -90, { pint: 'negro' }), I('sillaCover', 330, 2400, -90, { pint: 'negro' }), I('sillaCover', 330, 2500, -90, { pint: 'negro' }), I('sillaCover', 330, 2600, -90, { pint: 'negro' }), I('sillaCover', 242, 2225, 0, { pint: 'negro' })] },
+        /* Maxi 6/11: la isla/mesa 30 cm más al este, con sus sillas, el anafe y la campana */ I('islaMesa', 242, 2470, -90, { L: 380, D: 120, Lb: 160, Db: 70, H: 75, Hb: 90, fr: 'madOsc', top: 'granito', mad: 'madRust', mod: 76 }) /* Maxi 6/11: dos columnas de cajones anchos en el bloque, no tres */, I('anafe', 217, 2580, -90, { L: 90, D: 52, n: 5 }), I('campanaIsla', 217, 2580, -90, { L: 90, D: 60 }),
+        I('sillaCover', 330, 2330, -90, { pint: 'negro' }), I('sillaCover', 330, 2430, -90, { pint: 'negro' }), I('sillaCover', 330, 2530, -90, { pint: 'negro' }), I('sillaCover', 330, 2630, -90, { pint: 'negro' }), I('sillaCover', 242, 2255, 0, { pint: 'negro' })] },
       B: { nombre: 'Vacía', items: [] } }; } },
     mocoreta: { n: 'Mocoretá', piso: 0, ver: p => p.verMO !== false, vista: { p: [740, 330, 80], t: [200, 70, 300] }, esc: () => { const I = itA('mocoreta'); return {
       A: { nombre: 'Como está hoy (croquis 3/11)', items: [
