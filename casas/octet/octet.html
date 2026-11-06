@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Octet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -106,6 +107,17 @@ body.m3d header{margin-bottom:4px;gap:4px 14px}
 body.m3d h1{font-size:20px}
 body.m3d .spec{font-size:11px}
 @media (max-width:620px){#modo-3d{grid-template-columns:minmax(0,1fr);grid-template-rows:60vh auto auto;height:auto}#modo-3d .stage,#modo-3d .bottombar,#modo-3d aside{grid-column:1}#modo-3d .stage{grid-row:1}#modo-3d .bottombar{grid-row:2}#modo-3d aside{grid-row:3}#modo-3d .gutter{display:none}}
+/* teléfono (Maxi 6/11): sin márgenes ni calles; la barra pegada al borde, el visor ocupa la pantalla y el panel queda debajo (se baja con el dedo) */
+@media (max-width:620px){body.m3d{padding:0;margin:0}
+#modo-3d{grid-template-rows:calc(100svh - 34px) auto auto}
+#modo-3d .stage{border:0;border-radius:0;height:auto}#modo-3d .bottombar{border-radius:0;border-left:0;border-right:0}
+#toolbar3d{left:0;top:0;padding:2px;gap:1px;border-left:0;border-top:0;border-radius:0 0 8px 0;max-height:100%;overflow-y:auto;scrollbar-width:none}
+#toolbar3d .tb{width:30px;height:30px}#toolbar3d .tbsep{margin:1px 3px}
+#modo-3d #modeSw{left:44px;top:4px}#modeSw button{padding:4px 9px}
+.stage #selFiltro{top:38px;left:44px;transform:none}.stage #selFiltro button{padding:4px 8px}
+#topright{top:4px;right:4px;gap:4px}#capasPanel{top:0;right:0;border-top:0;border-right:0;border-radius:0 0 0 8px}
+#edPanel,#senPanel,#marcasPanel,#medPanel{left:38px!important;top:70px!important;width:calc(100vw - 42px);max-height:calc(100% - 80px)}
+#modo-3d aside{border-radius:0;border-left:0;border-right:0}}
 #modo-3d aside{font-size:11px}
 #modo-3d .sel{padding:10px 12px;min-height:90px;flex:0 1 auto;overflow:auto}#modo-3d aside .tabs,#varCard{flex:none}#modo-3d aside.tabsfold .sel{flex:1 1 auto}
 #modo-3d .sel h2{font-size:15px}

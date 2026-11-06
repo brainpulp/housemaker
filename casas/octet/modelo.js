@@ -1,7 +1,7 @@
 /* Octet — escena para diseñar estructuras espaciales de tubos y nodos (octet truss, retícula FCC) con el motor de housemaker.
    Los modelos (nodos, tubos, L, Ø, R, tapa, regatones) no viven acá: se editan en la página y se guardan en la base del artifact (colección «octet»).
    Esta tabla sólo tiene lo que el motor espera de toda casa (META, NIVELES, LOCALES, DUDAS, CAMBIOS) y el modelo semilla con que arranca una base vacía. */
-export const META = { nombre: 'Octet', version: '0.1.2', fecha: '2026-11-04', lugar: 'Ingeniero Maschwitz' };
+export const META = { nombre: 'Octet', version: '0.1.3', fecha: '2026-11-04', lugar: 'Ingeniero Maschwitz' };
 export const NIVELES = { PB: { nombre: 'Piso', z: 0 } };
 export const LOCALES = [];
 export const DUDAS = [
@@ -12,6 +12,7 @@ export const DUDAS = [
 export const SEMILLA = { v: 1, nombre: 'Mesa de la foto', L: 50, d: 1.6, R: 2.6, desc: 0, tapa: { on: true, e: 1, vuelo: 6, disco: 1.5 }, pies: { on: true, h: 1.5 },
   capas: [{ k: 2, a: [0, 2, 4, 6], b: [0, 2, 4] }, { k: 1, a: [1, 3, 5], b: [1, 3] }, { k: 0, a: [2, 4], b: [2] }] };
 export const CAMBIOS = [
+  { fecha: '6/11/2026', v: '0.1.3', txt: 'Pantalla de teléfono (Maxi 6/11): en 3D se van los márgenes y las calles; la barra queda pegada al borde, el visor ocupa toda la pantalla y el panel sigue debajo. La página declara el viewport del teléfono.' },
   { fecha: '4/11/2026', v: '0.1.2', txt: 'Caja total de la mesa (ancho × fondo × alto, con vidrio y regatones) en la lista de materiales, bajo el nombre del modelo y en la línea de arriba.' },
   { fecha: '4/11/2026', v: '0.1.1', txt: 'Vidrio con medidas: ancho, fondo y corrido en x y z (en 0, sigue saliendo de los nodos más el vuelo).' },
   { fecha: '4/11/2026', v: '0.1.0', txt: 'Primera versión: editor de octet truss (agregar, quitar y mover tubos y nodos sobre la retícula, nodos full y half, bloque semilla, lista de materiales, modelos guardados) con el visor, las vistas y la barra del motor.' },

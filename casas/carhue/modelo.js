@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.1.7', fecha:'2026-11-05',
+  nombre:'Carhué', version:'1.1.8', fecha:'2026-11-05',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -272,7 +272,9 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-11-05', v:'1.1.7', txt:'Motor 11ede6c: el sillón en L alarga sólo la chaise cuando cambia el fondo (el asiento y el respaldo quedan a su medida); la campana de isla sube hasta lo más bajo del techo sobre ella; el techo sobre un mueble se mide con una grilla más fina.'},
+export const CAMBIOS = [
+  {fecha:'2026-11-06', v:'1.1.8', txt:'Pantalla de teléfono (Maxi 6/11): en 3D se van los márgenes y las calles; la barra queda pegada al borde, el visor ocupa toda la pantalla y el panel sigue debajo. La página declara el viewport del teléfono.'},
+  {fecha:'2026-11-05', v:'1.1.7', txt:'Motor 11ede6c: el sillón en L alarga sólo la chaise cuando cambia el fondo (el asiento y el respaldo quedan a su medida); la campana de isla sube hasta lo más bajo del techo sobre ella; el techo sobre un mueble se mide con una grilla más fina.'},
   {fecha:'2026-11-02', v:'1.1.6', txt:'Cocina, versión D (Maxi): anafe de 5 hornallas en la isla (la pata norte-sur), con la campana encima; bacha farm de cerámica con el frente a la vista en la mesada bajo la ventana (la pata este-oeste); tapa de la isla doble: granito negro del lado del anafe y tablón de madera de canto rústico del lado de las banquetas.'},
   {fecha:'2026-11-02', v:'1.1.5', txt:'Cocina, versión D (Maxi): anafe en la isla con campana colgada del techo, heladera negra suelta, salpicadero de pizarra en lajas bajo las ventanas y puerta de pizarra que tapa el tablero eléctrico en el pilar. Luces: nueva versión C con el riel sobre la mesada y dos colgantes a los lados de la campana.'},
   {fecha:'2026-11-02', v:'1.1.4', txt:'Cocina: nueva versión D, «Como la foto de referencia (propuesta)», para comparar con la actual (Maxi). Misma planta; bajo mesada negro mate con tapa de piedra negra, isla y heladera revestidas en roble, bacha bajo la ventana del fondo. La versión activa sigue siendo la de hoy.'},
