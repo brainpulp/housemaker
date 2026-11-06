@@ -714,7 +714,7 @@ function build(p){
       Pt(d.id+'z',`${d.id} · zinguería`,'acero',fl,{fn:'Babetas a los dos costados (chapa plegada bajo la chapa del faldón y contra el lateral) y cupertina al frente.'},{...TE});
       Pt(d.id+'m',`${d.id} · marco de la ventana`,'roble',mk,{fn:d.integrada?'Contramarco de las ventanas del dormer corrido, de piso a techo: paño fijo abajo y hoja proyectante arriba.':'Ventana del dormer: paño fijo arriba y hoja proyectante abajo, sobre la franja de ventanas VE de la fachada.'},{...TE});
       Pt(d.id+'v',`${d.id} · vidrios`,'glass',gl,{fn:'Vidrios del dormer.'},{...TE,opt:{noEdges:true}});
-      if(d.integrada&&xa-7.5>31)Pt(d.id+'f',`${d.id} · cierre de la punta sur`,'chapa',[box(30,xa-7.5,262,352,YF-7,YF+6)],{fn:'Con el dormer corrido la franja VE-1…3 se reemplaza por las ventanas del dormer, de piso a techo; este paño cierra lo que queda de VE-1 al sur.'},{...TE});}
+      if(d.integrada&&d.xl<100&&xa-7.5>31)Pt(d.id+'f',`${d.id} · cierre de la punta sur`,'chapa',[box(30,xa-7.5,262,352,YF-7,YF+6)],{fn:'Con el dormer corrido la franja VE-1…3 se reemplaza por las ventanas del dormer, de piso a techo; este paño cierra lo que queda de VE-1 al sur.'},{...TE});}
     if(DORM_ALT(p)){/* DM-3: altillo, faldón norte del ala (hacia la pileta), un agua a 6° */
       const D=DORM_A,T6=Math.tan(6*Math.PI/180),DT=x=>495-(x-D.x0)*T6,DU=x=>DT(x)-15,RW=x=>wingZ(x)+6,RU=x=>wingZ(x)-15,XF=D.xf,ym=(D.y0+D.y1)/2,yw0=ym-120,yw1=ym+120,zw0=350,zw1=440;
       const es=[],ch=[],gl=[],mk=[],tc=[],fl=[];
