@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.25', fecha: '2026-11-05',
+export const META = { nombre: 'Cocinas', version: '0.1.26', fecha: '2026-11-05',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-06', v: '0.1.26', txt: 'La mesa de la ventana y sus bancos, 15 cm más adentro (igual que en la casa Arcos, donde el banco tocaba el marco del ventanal). La cocina de Arcos quedó igual a ésta: inox, sillas negras, alacenas de cuatro puertas, mesa de 1,60.' },
   { fecha: '2026-11-06', v: '0.1.25', txt: 'Maxi 6/11: cuatro puertas proyectadas de 0,90 sobre la mesada de Arcos en vez de tres de 1,20 (dos alacenas de 1,81 con dos puertas cada una); el motor abre una puerta cada 0,90.' },
   { fecha: '2026-11-06', v: '0.1.24', txt: 'Maxi 6/11: las puertas proyectadas de las alacenas superiores, del doble de ancho (una cada 1,20): la mitad de puertas.' },
   { fecha: '2026-11-06', v: '0.1.23', txt: 'En el teléfono sólo se mira (Maxi 6/11): se van las herramientas de edición (mover, estirar, deshacer, medir, marcar, vértices, equipamiento, luces, térmica, estructura, personas) y el panel lateral; quedan navegar, seleccionar, capas, variantes, vistas, tours y Planta/3D.' },
