@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.19', fecha: '2026-11-05',
+export const META = { nombre: 'Cocinas', version: '0.1.20', fecha: '2026-11-05',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-05', v: '0.1.20', txt: 'Maxi 5/11: paño de inox detrás de la mesada de Arcos (pieza nueva «revestimiento», entre la tapa y las alacenas). En la ficha de cada mueble se eligen los materiales de la paleta (frentes, tapa, madera, material, color): inox, piedra negra, maderas, negro mate, etc. Sillas pintadas (negro de arranque; nueve colores a elegir). Al seleccionar un mueble aparece su etiqueta flotante con nombre y número. La mesa larga apoya en un timón de acero de 1/2″, 50 cm a lo largo de la mesa, que atraviesa la tapa; la tira este no lleva pata, se encaja en el bloque.' },
   { fecha: '2026-11-05', v: '0.1.19', txt: 'Motor 11ede6c: el sillón en L alarga sólo la chaise cuando cambia el fondo (el asiento y el respaldo quedan a su medida); la campana de isla sube hasta lo más bajo del techo sobre ella; el techo sobre un mueble se mide con una grilla más fina.' },
   { fecha: '2026-11-05', v: '0.1.18', txt: 'Motor (Maxi 5/11): los frentes se abren arrastrándolos, como las hojas de las ventanas (el cajón sigue a la mano; la puerta gira con el arrastre), y un toque seco abre o cierra del todo. Veta horizontal en todas las caras verticales, también en las piezas altas; madera oscura con la veta oscura más clara y menos contraste.' },
   { fecha: '2026-11-05', v: '0.1.17', txt: 'Arcos: la fosa del estar queda a 4,55 de la medianera S (medido en obra el 5/11; antes 3,71 del SketchUp), heredado del modelo de la casa (Arcos 0.10.26). El recorte de la cocina llega ahora hasta pasado el escalón. D-01 reformulada: sobra lugar, ¿se corre la isla hacia el estar?' },

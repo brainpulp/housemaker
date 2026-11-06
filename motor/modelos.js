@@ -4,6 +4,7 @@
    (como las personas: el artifact no sirve binarios sueltos). Se carga sólo cuando aparece el mueble; mientras tanto se ve una caja gris.
    El modelo se lleva a la medida del mueble: largo (L, x local), fondo (D, z local) y alto (H); el frente mira a +z local.
    Licencia CC BY 4.0: el autor figura acá y en el catálogo. */
+import { PINTURAS } from './muebles.js';
 export const MODELOS={
   sofaLcb:{n:'Sillón en L, tela gris (C&B Lounge II)',cat:'estar',p:{L:340,D:172,H:73,lado:'izq'},ui:[['L','largo','num'],['D','fondo','num'],['H','alto','num'],['lado','chaise',['izq','der']]],
     titulo:'C&B++ Lounge II 2-piece Sectional',autor:'gham3d',uid:'0a05df5d02574dd9a678c835237704bc',
@@ -12,7 +13,7 @@ export const MODELOS={
   sofaRaffey:{n:'Sofá largo, tela gris',cat:'estar',p:{L:300,D:99,H:81},titulo:'Grey Sofa',autor:'Raffey',uid:'e94e15859aff4c5ebf4791c46ab8ba42'},
   butacaAm:{n:'Butaca tapizada de respaldo alto',cat:'estar',p:{L:82,D:77,H:86,tela:'tela'},ui:[['L','largo','num'],['D','fondo','num'],['H','alto','num'],['tela','tela',['tela','lino','grafito','petroleo','mostaza','cuero']]],
     /* el original es de cuero suela; Maxi la eligió vista en gris: el tapizado toma la tela elegida («cuero» deja el original) */tapiz:/leather/i,titulo:'armchair',autor:'gurbetoglu61',uid:'60afe0998936456e803f6a469c7f1482'},
-  sillaCover:{n:'Silla de roble con apoyabrazos (tipo Cover)',cat:'comedor',p:{L:56,D:51,H:76},titulo:'Cover Chair',autor:'rocio133',uid:'86c6d5e7bb954a949b9977decbd3009b'},
+  sillaCover:{n:'Silla de roble con apoyabrazos (tipo Cover)',cat:'comedor',p:{L:56,D:51,H:76,pint:'natural'},/* pint: pintada de un color de PINTURAS (muebles.js), o natural */titulo:'Cover Chair',autor:'rocio133',uid:'86c6d5e7bb954a949b9977decbd3009b'},
   sillaDSW:{n:'Silla de cáscara blanca con patas de madera',cat:'comedor',p:{L:47,D:54,H:81},titulo:'chair 3d Vitra',autor:'3d-dca',uid:'bdf18bc95bcb437180d896c164aa97f2'},
   ratonaJoco:{n:'Mesas ratonas redondas encastradas (par)',cat:'estar',p:{L:160,D:130,H:32},titulo:'Side table Joco Stone',autor:'lep511',uid:'4037cdd7d3b047de93618f24f9a0b663',
     /* la chica adelante a la izquierda, la grande atrás a la derecha */caja:p=>[[-p.L/2,-p.L/2+p.L*.47,-p.D/2+p.D*.42,p.D/2],[p.L/2-p.L*.58,p.L/2,-p.D/2,-p.D/2+p.D*.71]]},
@@ -105,6 +106,9 @@ export function vestirModelo(THREE,k,p){const b=BASE[k],d=MODELOS[k];if(!b)retur
   if(d.tapiz&&TELAS[p.tela])o.traverse(m=>{if(!m.isMesh)return;const sw=x=>{if(!x||!d.tapiz.test(x.name||''))return x;const key=k+'|'+p.tela+'|'+x.uuid;
       return TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(TELAS[p.tela]),roughness:.95,metalness:0,normalMap:x.normalMap||null,name:x.name}));};
     m.material=Array.isArray(m.material)?m.material.map(sw):sw(m.material);});
+  /* pintura (Maxi 5/11): todas las mallas del modelo pasan a un esmalte satinado del color elegido; 'natural' deja el modelo como viene */
+  if(p.pint&&p.pint!=='natural'&&PINTURAS[p.pint]){const key=k+'|pint|'+p.pint;const pm=TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(PINTURAS[p.pint]),roughness:.45,metalness:0,name:'pintura'}));
+    o.traverse(m=>{if(m.isMesh)m.material=pm;});}
   return o;}
 
 /* entradas para el catálogo de equipamiento: mientras carga, una caja con la planta del mueble */

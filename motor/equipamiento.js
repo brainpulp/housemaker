@@ -7,7 +7,7 @@ import * as N from './nombres.js';
 import { catalogoLuces, kelvin } from './luminarias.js';
 import { progDef, hhmm } from './noche.js';
 import { catalogoCal } from './calefaccion.js';
-import { catalogoMuebles, MATERIALES, MADERAS, materialMadera, uvMadera } from './muebles.js';
+import { catalogoMuebles, MATERIALES, MADERAS, materialMadera, uvMadera, PALETA, PARAM_MAT, PINTURAS } from './muebles.js';
 import { catalogoModelos, cargarModelo, vestirModelo, modeloListo } from './modelos.js';
 
 export function initEquipamiento(visor,stage,D){
@@ -243,6 +243,8 @@ export function initEquipamiento(visor,stage,D){
     /* la caja mide sólo las mallas visibles (sin el ícono); la de la caja roja incluye el ícono, como siempre */
     const bm=new THREE.Box3();g.updateMatrixWorld(true);g.traverse(o=>{if(o.isMesh&&o.visible&&o.parent.visible)bm.expandByObject(o);});
     const bb=new THREE.Box3().setFromObject(g);bb.expandByScalar(1.5);selBox=new THREE.Box3Helper(bb,new THREE.Color('#e2462b'));selBox.material.depthTest=false;selBox.renderOrder=2000;G.add(selBox);
+    /* etiqueta con el nombre del mueble elegido (Maxi 5/11: «así te puedo decir a qué me refiero»): nombre del catálogo y número en su ambiente */
+    if(visor.etiqueta&&!bm.isEmpty()){const mm=item(sel),cc=mm&&catOf(mm.t,capa);const nm=(mm&&mm.nombre)||(cc&&cc.n)||sel;const n=sel.split('_').pop();visor.etiqueta(`${nm}<span class="nm" style="display:inline;opacity:.8"> · #${n} ${(AMB[amb]&&AMB[amb].n)||amb}</span>`,[(bm.min.x+bm.max.x)/2,bm.max.y+6,(bm.min.z+bm.max.z)/2],'tag pick',selDims,true);}
     /* cotas como las de las partes del edificio (Maxi 4/11): largo, fondo y alto en las aristas de arriba de la caja, en cm */
     if(visor.etiqueta&&!bm.isEmpty()){const s=bm.getSize(new THREE.Vector3()),f=visor.f1,c=camera.position;
       /* en las aristas que salen de la esquina más cercana a la cámara, para que no queden atrás del mueble */
@@ -329,7 +331,11 @@ export function initEquipamiento(visor,stage,D){
   function campos(m){const c=catOf(m.t,capa);const ui=c.ui||UI_MUE.filter(([k])=>c.p[k]!=null);
     return `<div class="eqg">${ui.map(([k,lab,ty])=>{const v=(m.p&&m.p[k])??c.p[k];if(Array.isArray(ty))return `<label>${lab.trim()}<select data-p="${k}">${ty.map(o=>`<option${String(o)===String(v)?' selected':''}>${o}</option>`).join('')}</select></label>`;
       if(ty==='time')return `<label>${lab.trim()}<input data-p="${k}" type="time" value="${v}"></label>`;
-      return `<label>${lab.trim()}<input data-p="${k}" type="number" step="${k==='dim'||k==='tilt'?5:k==='lm'||k==='lmm'?50:5}" value="${v}"></label>`;}).join('')}</div>`+(capa==='luz'?programa(m):'');}
+      return `<label>${lab.trim()}<input data-p="${k}" type="number" step="${k==='dim'||k==='tilt'?5:k==='lm'||k==='lmm'?50:5}" value="${v}"></label>`;}).join('')}</div>`+materiales(m,c)+(capa==='luz'?programa(m):'');}
+  /* Maxi 5/11: en la ficha, cada parámetro de material del mueble (frentes, tapa, madera, material, color, pintura) se elige de la paleta */
+  function materiales(m,c){const ks=Object.keys(c.p).filter(k=>PARAM_MAT[k]&&typeof c.p[k]==='string');if(!ks.length)return '';
+    return `<div class="eqg eqmat">${ks.map(k=>{const v=(m.p&&m.p[k])??c.p[k];const ops=k==='pint'?Object.keys(PINTURAS).map(x=>[x,x]):k==='col'?[['acero','inox'],['negro','negro mate'],['blanco','blanco'],['rojo','rojo']]:[...(c.p[k]===''?[['','sin']]:[]),...Object.entries(PALETA)];
+      return `<label>${PARAM_MAT[k]}<select data-p="${k}">${ops.map(([val,lab])=>`<option value="${val}"${String(val)===String(v)?' selected':''}>${lab}</option>`).join('')}</select></label>`;}).join('')}</div>`;}
   function programa(m){const pr=(m.p&&m.p.prog)||progDef(m.t);const nz=visor.noche;const on=nz?nz.prendida(pr):false;const md=pr.modo||'prog';
     const ev=(k,lab)=>{const e=pr[k]||{t:'atardecer',m:0};return `<div class="eqr"><span>${lab}</span><select data-g="${k}.t" style="flex:1.3">${['atardecer','amanecer','hora'].map(o=>`<option${o===e.t?' selected':''}>${o}</option>`).join('')}</select>${e.t==='hora'?`<input data-g="${k}.h" type="time" value="${e.h||'19:00'}" style="flex:1">`:`<input data-g="${k}.m" type="number" step="5" value="${e.m||0}" title="minutos (− antes, + después)" style="flex:.8">`}</div>`;};
     return `<div style="border-top:1px dashed var(--rule);margin-top:6px;padding-top:5px"><div class="eqr"><span>Programa</span><select data-g="modo">${[['prog','programada'],['on','siempre'],['off','apagada']].map(([v,t])=>`<option value="${v}"${v===md?' selected':''}>${t}</option>`).join('')}</select><small style="flex:none;color:${on?'#c98a00':'var(--muted)'}">${on?'●':'○'}</small></div>

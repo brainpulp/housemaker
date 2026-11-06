@@ -9,10 +9,15 @@ import { MODELOS as OCTET } from './octet-modelos.js';
 /* materiales que usan las piezas (el visor los crea con MeshStandardMaterial) */
 export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
   mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#161718',.35],grafito:['#3b3e40',.55],
-  piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#c9cdd1',.3,.7],
+  piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
   junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a']};
 /* [color, rugosidad, metal, emisivo] */
 
+/* Paleta para elegir materiales en la ficha de cada mueble (Maxi 5/11): clave del material → etiqueta. Las claves de parámetro que son material: fr (frentes), top/top2 (tapa), mad (madera), mat (material), col (color de electrodoméstico), pint (pintura). */
+export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara (petiribí)',madOsc:'madera oscura',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
+export const PARAM_MAT={fr:'frentes',top:'tapa',top2:'tapa 2',mad:'madera',mat:'material',col:'color',pint:'pintura'};
+/* pinturas para sillas y piezas pintadas (Maxi 5/11: «las sillas hacelas pintadas»): nombre → color; 'natural' deja el material del modelo */
+export const PINTURAS={natural:null,negro:'#1f1f20',blanco:'#e9e6df',rojo:'#9b3a2a',verde:'#5d6b3f',azul:'#2f4a5c',mostaza:'#c99a3a',terracota:'#b5633f',gris:'#8a8d8f'};
 /* Maderas con veta (Maxi 4/11: «mejorá mucho las texturas de las maderas»). Texturas procedurales en canvas, sin imágenes externas:
    anillos finos de madera tardía deformados con ruido, poro fino a lo largo, variación de tabla; el mismo cálculo da el mapa de rugosidad.
    Paño de 160 × 80 cm; las UV se proyectan por caja en coordenadas locales de la pieza (uvMadera), así la veta corre a lo largo (x) de cada pieza
@@ -188,6 +193,8 @@ export function catalogoMuebles(THREE){
   campanaIsla:{n:'Campana de isla colgada del techo',cat:'cocina',p:{L:90,D:60},z:165,g:(p,ctx)=>{/* cuerpo negro a 1,65 sobre el piso (z fijo) y chimenea hasta el techo real sobre la isla */
     const T=ctx&&ctx.techoMin?ctx.techoMin(Math.max(p.L,p.D)/2):250,h=Math.max(25,Math.min(T-167,700));/* hasta lo más bajo del techo sobre toda la campana (cabios incluidos) */
     return [[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero']];}},
+  /* Maxi 5/11: paño de revestimiento de pared (inox detrás de la mesada de Arcos). Chapa de e cm apoyada en la pared, de z a z+H; el frente mira a +z. mat: cualquiera de la paleta */
+  revestimiento:{n:'Revestimiento de pared (paño)',cat:'cocina',p:{L:200,H:60,e:1.5,mat:'acero'},z:90,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e,0),p.mat]]},
   salpicadero:{n:'Salpicadero de pizarra en lajas',cat:'cocina',p:{L:200,H:10,caja:0},z:90,g:p=>{/* lajas de pizarra en hiladas de 10, largos alternados y canto irregular; con caja > 0 es una puerta de pizarra separada de la pared (tapa un tablero, por ejemplo) */
     const g=[],c=p.caja||0,LS=[37,52,29,45,60,33,48],X=p.L/2;let k=0;
     if(c>0)g.push([B(-X,X,0,1.5,-1,c),'pizarra'],[B(-X,X,p.H-1.5,p.H,-1,c),'pizarra'],[B(-X,-X+1.5,0,p.H,-1,c),'pizarra'],[B(X-1.5,X,0,p.H,-1,c),'pizarra']);
@@ -259,7 +266,7 @@ export function catalogoMuebles(THREE){
     /* Maxi 4/11 (Arcos): isla en dos materiales, un solo rectángulo L × D. Bloque de cocinar de piedra en la punta +x (Lb × Db, alto Hb, frentes de cajones hacia +z),
        y mesa de madera a altura H que ocupa el resto en L: el tramo libre de ancho completo y la «tira» de ancho D−Db que sigue junto al bloque, del lado −z, hasta su punta.
        Patas panel de la mesa: en la punta −x (ancho completo) y en la punta +x de la tira; la tira también apoya en el bloque. */
-    islaMesa:{n:'Isla de piedra con mesa de madera en L',cat:'cocina',p:{L:380,D:120,Lb:160,Db:70,H:75,Hb:90,fr:'madClara',top:'granito',mad:'madRust',filas:3},
+    islaMesa:{n:'Isla de piedra con mesa de madera en L',cat:'cocina',p:{L:380,D:120,Lb:160,Db:70,H:75,Hb:90,fr:'madClara',top:'granito',mad:'madRust',filas:3,tim:45},/* tim: centro del timón desde la punta oeste */
       g:p=>{const xb=p.L/2-p.Lb,zb=p.D/2-p.Db,g=[];
         const zf=p.D/2-2,mods=Math.max(1,Math.round((p.Lb-8)/60)),filas=p.filas??3;
         g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],...carcasa(xb+4,p.L/2-4,10,p.Hb-4,zb+4,zf,p.fr,mods,{extFr:false}),[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
@@ -270,7 +277,8 @@ export function catalogoMuebles(THREE){
           sh.lineTo(p.L/2,zb-.5);sh.lineTo(xb-.5,zb-.5);/* punta +x de la tira y borde contra el bloque */
           const n2=Math.max(6,Math.round((xb+p.L/2)/4));for(let i=0;i<=n2;i++){const x=xb-(xb+p.L/2)*i/n2;sh.lineTo(x,p.D/2+e(x,2.9));}/* borde +z del tramo libre */
           const ge=new THREE.ExtrudeGeometry(sh,{depth:7,bevelEnabled:true,bevelThickness:.6,bevelSize:.6,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.6,0);g.push([ge,p.mad]);}
-        g.push([B(-p.L/2+28,-p.L/2+36,0,p.H-7,-p.D/2+12,p.D/2-12),p.mad],[B(p.L/2-12,p.L/2-4,0,p.H-7,-p.D/2+8,zb-8),p.mad]);return g;}},
+        /* Maxi 5/11: la pata de la mesa es un «timón», chapón de acero de 1/2″ (1,27 cm) a lo largo de la mesa, de 50 × alto de mesa, que atraviesa la tapa por un tajo y asoma 3 mm arriba; la punta este no lleva pata: la tira se encaja en el bloque de piedra */
+        const xt=-p.L/2+(p.tim??45);g.push([B(xt-25,xt+25,0,p.H+.3,-.635,.635),'acero']);return g;}},
     sillaCurva:{n:'Silla de respaldo curvo',p:{mad:'madOsc',tela:'lino'},
       g:p=>{const g=[[B(-22,22,42,46,-20,20),p.mad],[B(-20,20,46,48,-18,18),p.tela]];for(const sx of [-1,1])for(const sz of [-1,1])g.push([CYL(1.6,0,44,sx*18,sz*16,10),p.mad]);
         const arco=new THREE.TorusGeometry(22,1.8,8,24,Math.PI);arco.rotateX(Math.PI/2);arco.rotateY(Math.PI);arco.translate(0,74,0);/* el respaldo abraza: medio aro horizontal a 74 */g.push([arco,p.mad]);
