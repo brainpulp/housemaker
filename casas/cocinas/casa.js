@@ -137,19 +137,7 @@ root.addEventListener('click', e => { const h = e.target.closest('[data-hide]');
 /* nombres propios y ediciones: al cambiar, se reconstruye */
 N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); }); ED.onChange(() => { visor.rebuild(); applyClips(); });
 
-/* teclado: WASD, Q/E, flechas (Shift = rápido) */
-{ const keys = new Set(); const K = ['w', 'a', 's', 'd', 'q', 'e', 'arrowleft', 'arrowright', 'arrowup', 'arrowdown'];
-  const busy = t => t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
-  addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (root.hidden || busy(e.target) || e.metaKey || e.ctrlKey || !K.includes(k)) return; e.preventDefault(); keys.add(k); if (e.shiftKey) keys.add('shift'); window.__despertar && window.__despertar(); });
-  addEventListener('keyup', e => { keys.delete(e.key.toLowerCase()); if (!e.shiftKey) keys.delete('shift'); }); addEventListener('blur', () => keys.clear());
-  let last = performance.now(); const V = THREE.Vector3, f = new V(), r = new V(), up = new V(0, 1, 0), d = new V();
-  const tick = t => { const dt = Math.min(.05, (t - last) / 1000); last = t; if (keys.size) { window.__despertar && window.__despertar(); const cam = visor.camera, tg = visor.controls.target; const sp = Math.max(120, Math.min(1500, cam.position.distanceTo(tg) * .5)) * dt;
-      f.copy(tg).sub(cam.position).normalize(); r.crossVectors(f, up); if (r.lengthSq() < 1e-6) r.set(1, 0, 0); r.normalize(); d.set(0, 0, 0);
-      if (keys.has('w')) d.add(f); if (keys.has('s')) d.sub(f); if (keys.has('d')) d.add(r); if (keys.has('a')) d.sub(r); if (keys.has('e')) d.y += 1; if (keys.has('q')) d.y -= 1;
-      if (d.lengthSq()) { d.normalize().multiplyScalar(sp); cam.position.add(d); tg.add(d); }
-      const yaw = ((keys.has('arrowleft') ? 1 : 0) - (keys.has('arrowright') ? 1 : 0)) * 1.4 * dt, pit = ((keys.has('arrowup') ? 1 : 0) - (keys.has('arrowdown') ? 1 : 0)) * 1.0 * dt;
-      if (yaw || pit) { const v = tg.clone().sub(cam.position); if (yaw) v.applyAxisAngle(up, yaw); if (pit) { const ax = new V().crossVectors(v, up).normalize(); const nv = v.clone().applyAxisAngle(ax, pit); if (Math.abs(Math.asin(nv.clone().normalize().y)) < 1.45) v.copy(nv); } tg.copy(cam.position).add(v); }
-      visor.controls.update(); } requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+/* teclado (WASD, flechas) y «caminar hasta acá» (W): motor/caminar.js, lo prende la barra de herramientas */
 
 try { initMarcas(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('marcas', e); }
 try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { madera: ['madera', 120], medianera: ['revoque', 200], muro: ['revoque', 200], losa: ['cemento', 300] } }); } catch (e) { console.error('realismo', e); }

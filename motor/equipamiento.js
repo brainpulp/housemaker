@@ -280,7 +280,7 @@ export function initEquipamiento(visor,stage,D){
     EG.position.set(egC.x,egBB.max.y+6,egC.z);EG.scale.setScalar(Math.max(.06,camera.position.distanceTo(EG.position)/2250));/* Maxi 15/10: 20 % del tamaño anterior */
     ER.position.set(g.position.x,egBB.min.y+2,g.position.z);ER.scale.setScalar(Math.max(egS.x,egS.z)/2+14);})();
   /* en la captura de la ventana, antes que las herramientas de edición: si se toca un mueble o su gizmo, gana el mueble aunque haya una pieza de la casa elegida (Maxi 15/10) */
-  const otraHerr=()=>['marcasPanel','medPanel','senPanel'].some(i=>{const el=document.getElementById(i);return el&&!el.hidden&&el.offsetParent!==null;});/* con marcar, medir o señalar activos, el toque es de esa herramienta */
+  const otraHerr=()=>!!(visor.caminar&&visor.caminar.on)||['marcasPanel','medPanel','senPanel'].some(i=>{const el=document.getElementById(i);return el&&!el.hidden&&el.offsetParent!==null;});/* con marcar, medir o señalar activos, el toque es de esa herramienta */
   addEventListener('pointerdown',e=>{if(e.button!==0||!card||e.target!==visor.renderer.domElement)return;if(otraHerr())return;const abierto=(!card.hidden||visor.editorTool==='mover')&&(G.visible||capa==='veg');if(!abierto&&!G.visible)return;setRay(e);
     if(EG.visible){const hh=rc.intersectObjects([...EG.children,...ER.children],true)[0];const m=hh&&item(sel),g=hh&&groups.get(sel);
       if(m&&g){e.stopPropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-hh.point.y);const p0=hh.point.clone();rc.ray.intersectPlane(pl,p0);

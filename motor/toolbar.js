@@ -7,6 +7,7 @@
    · Barra de abajo: sólo estado (herramienta activa, qué hacer, GLB, fps).
    · Planta / 3D arriba a la izquierda; pestañas del panel derecho plegables. */
 import { icon } from './icons.js';
+import { initCaminar } from './caminar.js';
 
 export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   const $=id=>document.getElementById(id);
@@ -35,6 +36,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   const edTool=t=>{['senalarTg','marcarTg','medirTg'].forEach(close);open('editarTg');const b=document.querySelector(`#edPanel [data-tool="${t}"]`);if(b)b.click();};
   const T={
     nav:{ic:'nav',n:'Navegar',k:'Esc',d:'Orbitar, desplazar y hacer zoom (hacia el cursor). Cierra la herramienta activa.',run:()=>ALL.forEach(close)},
+    caminar:{ic:'persona',n:'Caminar hasta acá',k:'W',d:'Cada clic es un destino: si estás en el aire, baja; después camina hasta ahí con los ojos a 1,70 m. W (tocada) prende y apaga; mantenida, avanza.',run:()=>CAM.set(true)},
     sel:{ic:'sel',n:'Seleccionar',d:'Tocá una pieza: ves su ficha, sus variantes y los códigos de puntos y aristas.',run:()=>edTool('')},
     mover:{ic:'mover',n:'Mover',k:'M',d:'Arrastrá una flecha para mover en ese eje, o la pieza sobre el piso (Shift: sube o baja).',run:()=>edTool('mover')},
     ab:{ic:'ab',n:'Mover punto a punto',d:'Un punto de la pieza elegida y el punto donde tiene que quedar.',run:()=>edTool('ab')},
@@ -44,8 +46,9 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     senalar:{ic:'senalar',n:'Vértices, aristas y caras',d:'Como en un CAD: elegí vértices, aristas o caras (Shift suma). Coordenadas, largos, áreas; con dos, distancia o ángulo. Códigos para pasármelos.',run:()=>only('senalarTg')},
     marcar:{ic:'marcar',n:'Marcar',d:'Dibujá líneas y puntos con una nota; quedan guardados (K-xx).',run:()=>only('marcarTg')},
   };
+  const CAM=initCaminar(visor,{activo:()=>!M3.hidden});CAM.alPrender=()=>{ALL.forEach(close);closeFly&&closeFly();};CAM.alCambiar=()=>sync();
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['sel','senalar'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
+  const BAR=[['nav'],['caminar'],['sel','senalar'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
   const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
@@ -168,7 +171,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   bar.addEventListener('pointerup',()=>{if(hold&&hold!=='open')clearTimeout(hold);});
   bar.addEventListener('contextmenu',e=>{const b=e.target.closest('.tbfly');if(!b)return;e.preventDefault();subMenu(b,group(b.dataset.k));});
   bar.addEventListener('click',e=>{const b=e.target.closest('.tb');if(!b)return;const k=b.dataset.k;
-    if(hold==='open'){hold=null;return;}hold=null;
+    if(hold==='open'){hold=null;return;}hold=null;if(k!=='caminar')CAM.set(false);
     if(b.classList.contains('tbfly')){const r=b.getBoundingClientRect();if(e.clientX>r.right-11&&e.clientY>r.bottom-11){subMenu(b,group(k));return;}}
     if(PANELS[k]){if(flyFor===b){closeFly();return;}
       if(k==='vistas')openFly(b,el=>{el.className='fymenu fyvistas';vistas&&vistas.renderInto(el,closeFly);visor.tours&&visor.tours.appendInto(el,closeFly);});
@@ -187,14 +190,14 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   const bb=document.querySelector('#modo-3d .bottombar');
   const st=document.createElement('span');st.id='stTool';bb.prepend(st);
   {const f=$('fps');if(f)bb.appendChild(f);const q=$('quick');if(q)q.style.display='none';}
-  const HINT={nav:'Arrastrá para orbitar, botón derecho para desplazar, rueda para acercarte al cursor. W A S D Q E para caminar.',
+  const HINT={nav:'Arrastrá para orbitar, botón derecho para desplazar, rueda para acercarte al cursor. W A S D Q E para moverte; W tocada: caminar hasta donde hagas clic.',caminar:T.caminar.d,
     sel:'Tocá una pieza para ver su ficha.',mover:T.mover.d,ab:T.ab.d,estirar:T.estirar.d,medir:T.medir.d,senalar:T.senalar.d,marcar:T.marcar.d};
-  function active(){const on=id=>isOpen(id);if(on('medirTg'))return 'medir';if(on('senalarTg'))return 'senalar';if(on('marcarTg'))return 'marcar';
+  function active(){const on=id=>isOpen(id);if(CAM.on&&ALL.some(isOpen))CAM.set(false);if(CAM.on)return 'caminar';if(on('medirTg'))return 'medir';if(on('senalarTg'))return 'senalar';if(on('marcarTg'))return 'marcar';
     if(on('editarTg')){const p=document.querySelector('#edPanel [data-tool][aria-pressed=true]');const t=p?p.dataset.tool:'';return ({'':'sel',mover:'mover',estirar:'estirar',ab:'ab'})[t]||'sel';}return 'nav';}
   function sync(){const a=active();
     const g=group(a);if(g&&g.length>1&&cur[g[0]]!==a)setSub(g,a);
     bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):'false'):String(k===a));});
-    st.innerHTML=`<b>${T[a].n}</b> ${HINT[a]||''}`;stage.classList.toggle('conpanel',a!=='nav');}
+    st.innerHTML=`<b>${T[a].n}</b> ${HINT[a]||''}`;stage.classList.toggle('conpanel',a!=='nav'&&a!=='caminar');}
   setInterval(sync,400);sync();
 
   /* ---------- Planta / 3D arriba a la izquierda; panel derecho ---------- */

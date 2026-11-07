@@ -1011,20 +1011,7 @@ const VI=initVistas(visor,{M,root,pref:'carhue',rango:{x:[-100,4700],y:[-1000,20
 const applyClips=()=>VI.applyClips(),renderVistas=()=>VI.renderVistas();
 let vdb=null;N.getDb().then(d=>{vdb=d;});/* base del artifact para parámetros y aberturas (las vistas las maneja el motor) */
 try{initMarcas(visor,document.querySelector('#modo-3d .stage'));}catch(e){console.error('marcas',e);}
-/* navegación con teclado: WASD avanza/retrocede/costados, Q/E baja/sube, flechas giran la vista (Shift = rápido) */
-{const keys=new Set();const K=['w','a','s','d','q','e','arrowleft','arrowright','arrowup','arrowdown'];
-  const busy=t=>t&&(t.tagName==='INPUT'||t.tagName==='SELECT'||t.tagName==='TEXTAREA'||t.isContentEditable);
-  addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(document.getElementById('modo-3d').hidden||busy(e.target)||e.metaKey||e.ctrlKey||!K.includes(k))return;e.preventDefault();keys.add(k);if(e.shiftKey)keys.add('shift');});
-  addEventListener('keyup',e=>{keys.delete(e.key.toLowerCase());if(!e.shiftKey)keys.delete('shift');});addEventListener('blur',()=>keys.clear());
-  let last=performance.now();const V=visor.THREE.Vector3,f=new V(),r=new V(),up=new V(0,1,0),d=new V();
-  const tick=t=>{const dt=Math.min(.05,(t-last)/1000);last=t;if(keys.size){const cam=visor.camera,tg=visor.controls.target;const sp=Math.max(120,Math.min(1500,cam.position.distanceTo(tg)*.5))*dt;
-      f.copy(tg).sub(cam.position).normalize();r.crossVectors(f,up);if(r.lengthSq()<1e-6)r.set(1,0,0);r.normalize();d.set(0,0,0);
-      if(keys.has('w'))d.add(f);if(keys.has('s'))d.sub(f);if(keys.has('d'))d.add(r);if(keys.has('a'))d.sub(r);if(keys.has('e'))d.y+=1;if(keys.has('q'))d.y-=1;const sh=keys.has('shift');if(sh&&keys.has('arrowup'))d.y+=1;if(sh&&keys.has('arrowdown'))d.y-=1;
-      if(d.lengthSq()){d.normalize().multiplyScalar(sp);cam.position.add(d);tg.add(d);}
-      const yaw=((keys.has('arrowleft')?1:0)-(keys.has('arrowright')?1:0))*1.4*dt,pit=sh?0:((keys.has('arrowup')?1:0)-(keys.has('arrowdown')?1:0))*1.0*dt;
-      if(yaw||pit){const v=tg.clone().sub(cam.position);if(yaw)v.applyAxisAngle(up,yaw);if(pit){const ax=new V().crossVectors(v,up).normalize();const nv=v.clone().applyAxisAngle(ax,pit);const el=Math.asin(nv.clone().normalize().y);if(Math.abs(el)<1.45)v.copy(nv);}tg.copy(cam.position).add(v);}
-      visor.controls.update();}
-    requestAnimationFrame(tick);};requestAnimationFrame(tick);}
+/* teclado (WASD, flechas) y «caminar hasta acá» (W): motor/caminar.js, lo prende la barra de herramientas */
 /* aberturas (hojas corredizas, proyectantes, lucarnas): quedan en la base del artifact, así se mantienen entre sesiones y dispositivos */
 /* variables de diseño (todas menos las de «Ver») en la base: así los cambios valen en cualquier dispositivo (Maxi 14/10) */
 const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver'||/^esc(Tipo|N|Alto|Dy|Giro)$/.test(q.id)).map(q=>q.id));/* la escalera al entrepiso se guarda en la casa, no sólo en el navegador (Maxi 18/10) */const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));

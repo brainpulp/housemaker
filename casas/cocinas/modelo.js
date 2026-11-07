@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.29', fecha: '2026-11-05',
+export const META = { nombre: 'Cocinas', version: '0.1.30', fecha: '2026-11-07',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–17,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -183,6 +183,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  {fecha:'2026-11-07', v:'0.1.30', txt:'Motor compartido (Maxi 7/11): «Caminar hasta acá». W tocada prende el modo (también desde la barra, debajo de Navegar); cada clic marca un destino: si la cámara está en el aire, aterriza cerca, y después camina hasta ahí con los ojos a 1,70 m. Se apaga con W, con Esc o eligiendo otra herramienta; W mantenida sigue avanzando como antes. El teclado (WASD, flechas) pasó del archivo de cada casa al motor.'},
   { fecha: '2026-11-07', v: '0.1.29', txt: 'Maxi 7/11: frentes de petiribí (veta recta con rayas negras, textura nueva) en mesada, columna, alacena de la heladera, bloque de la isla y estante; la tapa de la isla (#13) de nogal oscuro; la mesa de la ventana (#10) de petiribí, con patas centrales livianas (dos montantes de 4 × 30 sobre el eje, pie cruzado y viga bajo la tapa) para que pasen las piernas.' },
   { fecha: '2026-11-06', v: '0.1.28', txt: 'Maxi 6/11: filas de cajones escalonadas en todo el motor (arriba fino, medio mediano, abajo alto para ollas: 20 / 33 / 47 % del alto; en la columna del horno 28 / 41); la isla/mesa de Arcos 30 cm más al este, con sillas, anafe y campana.' },
   { fecha: '2026-11-06', v: '0.1.27', txt: 'Maxi 6/11: mesada de 3,92 con cinco módulos de 75 y un bandejero de 17 en la punta de la ventana (la mesa y los bancos se corren hacia el ventanal; el banco de la ventana pasa a 1,50 y arranca a 25 de la medianera por el parante del ventanal); puertas bajo la bacha, que pasa a 70; estante de 15 de fondo a 1,30 bajo las alacenas; el bloque de la isla con dos columnas de cajones anchos.' },
