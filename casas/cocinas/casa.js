@@ -12,6 +12,8 @@ import { initViewCube } from './viewcube.js';
 import { initEquipamiento } from './equipamiento.js';
 import { equipCocinas } from './equipamiento-cocinas.js';
 import * as M from './modelo.js';
+import * as CH from './fuente-carhue.js';
+import { escaleraAltilloB } from './fuente-carhue-escalera.js';
 import * as A from './armador.js';
 import * as N from './nombres.js';
 import { videoHTML } from './video.js';
@@ -97,6 +99,11 @@ function build(p) {
   /* el tablero eléctrico de Carhué va dibujado al ras de la pared (1 cm): en la realidad sale 8; la puerta de pizarra del escenario D lo tapa, y así la prueba de muebles no lo cuenta como choque */
   for (const c of M.CHIMENEAS) if (c.box) { const b = c.box.slice(); if (/TAB-/.test(c.id)) { b[1] = b[0] + .4; b[0] -= .6; }
     Pt(c.id, `${c.id} · ${c.nombre}`, 'herraje', geo.box(b[0], b[1], b[2], b[3], b[4], b[5]), { ...base(c), med: /TAB-/.test(c.id) ? `${f2(c.box[5] - c.box[4])} × ${f2(c.box[3] - c.box[2])} · sale ${f2(c.box[1] - c.box[0])} de la pared (dibujado al ras)` : '' }, ex(c)); }
+  /* escalera al altillo de Carhué (Maxi 7/11: «debe estar incluida»): la arma el mismo código que la casa (escalera-altillo.js), con sus valores por defecto (B3: 14 alzadas,
+     huella 20, 5 escalones arriba), y acá se traslada a la escena con el corrimiento de Carhué */
+  { const c = M.CASAS.find(q => q.pre === 'CH'); if (c && p.verCH !== false) { const [dx, dy, dz] = c.d;
+      const PtCH = (id, name, cat, geos, info, ex2 = {}) => Pt('CH:' + id, 'CH:' + name, cat, [].concat(geos).map(g => geo.mapGeo(g, (x, y, z) => [x + dx, y + dz, z + dy])), { ...info, fn: 'Carhué: ' + (info.fn || '') }, { group: c.nombre, tags: ['escalera'] });
+      escaleraAltilloB(geo, CH, PtCH, { escAlt: 'B3', escB3n: 14, escB3G: 20, escB3k: 5 }); } }
   /* techos y cielorrasos */
   if (p.techos) for (const t of M.TECHOS) Pt(t.id, `${t.id} · ${t.nombre}`, 'techo', A.techoGeo(t), { ...base(t), med: `${t.pend} · de ${f2(t.z[0])} a ${f2(t.z[1])}` }, exT(t));
   /* cartel con el nombre de cada cocina, en el piso al norte de la caja (de letras no hay: una placa fina con el código de la casa) */
@@ -110,7 +117,7 @@ function build(p) {
   const materiales = `<h3>Lo que hay (inventario de Maxi, ${esc(M.INVENTARIO.fecha)})</h3><table><tbody>${M.INVENTARIO.tiene.map(i => `<tr><td><b>${i.n}</b></td><td>${esc(i.que)}${i.nota ? `<br><small style="color:var(--muted)">${esc(i.nota)}</small>` : ''}${i.uso ? `<br><small>→ ${esc(i.uso)}</small>` : ''}</td></tr>`).join('')}</tbody></table>
     <h3>Para comprar, si hace falta</h3><ul>${M.INVENTARIO.comprar.map(i => `<li>${esc(i.que)}</li>`).join('')}</ul><p style="color:var(--muted);font-size:12px">Las flechas (→) son la asignación a cada cocina: la decide Maxi, pieza por pieza. Faltan las fotos y las medidas del tablón de 4″.</p>`;
   const panes = { video3d: videoHTML(), materiales, ayuda: `<h3>Qué es esto</h3><p>Las tres cocinas de Maxi, una al lado de la otra y sin techo, para diseñarlas en detalle con el mismo motor que las casas. <b>Carhué</b> y <b>Arcos</b> no son copias: se recortan al cargar desde sus modelos reales, así que sus paredes, ventanas y estructura siguen a cada casa. <b>Mocoretá</b> no tiene modelo: sale del croquis del 3/11, con lo supuesto marcado en las dudas (D-M1 a D-M7).</p>
-    <h3>Ejes</h3><p>x de sur a norte, y de oeste a este, piso de cada cocina en 0. Las tres tienen la mesada principal contra su pared sur: se comparan mirando desde el norte. De oeste a este: Mocoretá (y 0–6,30), Carhué (9,30–17,10), Arcos (20,10–27,55). Cada pieza lleva el prefijo de su casa: <b>MO:</b>, <b>CH:</b>, <b>AR:</b>.</p>
+    <h3>Ejes</h3><p>x de sur a norte, y de oeste a este, piso de cada cocina en 0. Las tres tienen la mesada principal contra su pared sur: se comparan mirando desde el norte. De oeste a este: Mocoretá (y 0–6,30), Carhué (9,30–19,10), Arcos (20,10–27,55). Cada pieza lleva el prefijo de su casa: <b>MO:</b>, <b>CH:</b>, <b>AR:</b>.</p>
     <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es y sus medidas. Con <b>✥ Editar</b> la movés, le estirás una cara o la borrás; queda guardado y yo lo leo.</li><li><b>Equipamiento</b>: cada cocina tiene sus escenarios de muebles; podés moverlos, cambiarlos y agregar del catálogo.</li><li><b>Techos</b> prende el cielorraso real de cada cocina (el techo del ala en Carhué, la losa del 2P en Arcos, el supuesto de Mocoretá).</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` };
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>tres cocinas</span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;
   const V = {}; for (const c of M.CASAS) { const { x, y } = c.caja_escena, cx = (x[0] + x[1]) / 2, cy = (y[0] + y[1]) / 2, w = Math.max(x[1] - x[0], y[1] - y[0]);
@@ -123,7 +130,7 @@ function build(p) {
     dims: ({ dimLine }) => { dimLine([0, 2, -40], [535, 2, -40], [0, 0, -8], '5,35'); dimLine([-60, 2, 0], [-60, 2, 630], [-8, 0, 0], '6,30 ?'); dimLine([-60, 2, 930], [-60, 2, 1710], [-8, 0, 0], '7,80'); dimLine([-60, 2, 2021], [-60, 2, 2741.5], [-8, 0, 0], '7,21'); dimLine([15, 53, 2000], [315, 53, 2000], [0, 0, -8], '3,00'); } };
 }
 
-const COL = { muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#9a9a96', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', tabla1: '#b59672', tabla2: '#9c7c5b', tabla3: '#8a7765', madera: '#a8865c', col: '#9a948a', viga: '#ad6338', techo: '#6f767c', herreria: '#24282b', herraje: '#59616a' };
+const COL = { muro: '#d8d2c6', medianera: '#c9c2b4', tabique: '#e6e0d4', cerco: '#9a9a96', glass: '#9fc4cf', perfil: '#2f3438', puerta: '#8a6a4a', losa: '#cfcac0', tabla1: '#b5805c', tabla2: '#b5805c', tabla3: '#b5805c' /* Maxi 7/11: un solo tono, eucalipto con cetol roble (más rojizo); antes tres tonos */, madera: '#a8865c', col: '#9a948a', viga: '#ad6338', techo: '#6f767c', herreria: '#24282b', herraje: '#59616a' };
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 40000 });
 /* relleno desde abajo: de día ilumina cielorrasos por dentro (noche.js lo maneja como luz de relleno y lo apaga de noche) */

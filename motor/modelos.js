@@ -104,10 +104,10 @@ export function vestirModelo(THREE,k,p){const b=BASE[k],d=MODELOS[k];if(!b)retur
   o.scale.set(1,1,1);let sZ=p.D/n.z;if(d.tramoZ&&d.p&&d.p.D&&Math.abs(p.D-d.p.D)>1)sZ=tramoZ(THREE,k,o,n,d.p.D,p.D,d.tramoZ);
   o.scale.set(p.L/n.x*(p.lado==='der'?-1:1),p.H/n.y,sZ);
   if(d.tapiz&&TELAS[p.tela])o.traverse(m=>{if(!m.isMesh)return;const sw=x=>{if(!x||!d.tapiz.test(x.name||''))return x;const key=k+'|'+p.tela+'|'+x.uuid;
-      return TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(TELAS[p.tela]),roughness:.95,metalness:0,normalMap:x.normalMap||null,name:x.name}));};
+      return TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(TELAS[p.tela]),roughness:.95,metalness:0,normalMap:x.normalMap||null,side:x.side,name:x.name}));};
     m.material=Array.isArray(m.material)?m.material.map(sw):sw(m.material);});
   /* pintura (Maxi 5/11): todas las mallas del modelo pasan a un esmalte satinado del color elegido; 'natural' deja el modelo como viene */
-  if(p.pint&&p.pint!=='natural'&&PINTURAS[p.pint]){const key=k+'|pint|'+p.pint;const pm=TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(PINTURAS[p.pint]),roughness:.45,metalness:0,name:'pintura'}));
+  if(p.pint&&p.pint!=='natural'&&PINTURAS[p.pint]){const key=k+'|pint|'+p.pint;const pm=TAPIZ[key]||(TAPIZ[key]=new THREE.MeshStandardMaterial({color:new THREE.Color(PINTURAS[p.pint]),roughness:.45,metalness:0,side:THREE.DoubleSide,name:'pintura'}));/* a dos caras (Maxi 7/11, «las sillas aparecen rotas»): las mallas de estos modelos son superficies sin espesor y el esmalte a una cara las dejaba huecas */
     o.traverse(m=>{if(m.isMesh)m.material=pm;});}
   return o;}
 

@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.1.12', fecha:'2026-11-07',
+  nombre:'Carhué', version: '1.1.13', fecha:'2026-11-07',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-07', v:'1.1.13', txt:'La escalera al altillo (B2/B3) pasó de casa.js a escalera-altillo.js, para que la escena Cocinas la arme igual (Maxi 7/11). Sin cambios en la casa. Motor: el esmalte de las sillas pintadas a dos caras (se veían rotas).'},
   {fecha:'2026-11-07', v:'1.1.12', txt:'Cocina: módulos de cajones de 76 por defecto (Maxi 7/11, para las tres cocinas): la mesada queda en 5 × 72 y la isla en 3 × 84; filas escalonadas (fino, mediano, alto).'},
   {fecha:'2026-11-07', v:'1.1.11', txt:'Motor compartido (Maxi 7/11): «Caminar hasta acá». W tocada prende el modo (también desde la barra, debajo de Navegar); cada clic marca un destino: si la cámara está en el aire, aterriza cerca, y después camina hasta ahí con los ojos a 1,70 m. Se apaga con W, con Esc o eligiendo otra herramienta; W mantenida sigue avanzando como antes. El teclado (WASD, flechas) pasó del archivo de cada casa al motor.'},  {fecha:'2026-11-07', v:'1.1.10', txt:'Dormer corrido hasta la galería unificado (Maxi): un solo techo en línea, sin el murito de la esquina, todo madera y vidrio; montantes de 12 sobre los tabiques y cada ambiente en paños iguales, fijo abajo y proyectante arriba con amortiguadores. MEN-1 pasa a ser una cercha: travesaño a la altura del riel PV-RT hasta una columna nueva de 45 × 45 (C-08) a 30 cm del árbol, y brazo hasta la cumbrera y bajando hasta C-08. C-06 de 45 × 45. PIL-2 con su borde sur en el de la pileta. Galería: mesa ratona de petiribí de 1,50 × 0,70 con tablas de 2″ y dos BKF de cuero suela en lugar de las butacas. Comedor 1,5 m hacia el ventanal. Etiquetas de los muebles en dos renglones, más legibles y con el ambiente correcto. Fuera DM-C2f (paño suelto de chapa).'},
 

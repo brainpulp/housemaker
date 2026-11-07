@@ -5,3 +5,4 @@ set -euo pipefail
 OUT="$1"
 cp casas/carhue/modelo.js "$OUT/fuente-carhue.js"
 cp casas/arcos/modelo.js "$OUT/fuente-arcos.js"
+cp casas/carhue/escalera-altillo.js "$OUT/fuente-carhue-escalera.js"
