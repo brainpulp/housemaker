@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version:'1.1.9', fecha:'2026-11-05',
+  nombre:'Carhué', version:'1.1.10', fecha:'2026-11-07',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -272,7 +272,7 @@ export const VIDEO = [
   {id:'FOT-11', img:'f_18', tt:'foto 18', titulo:'Toda la casa desde el jardín', ref:['T-01','T-04','T-05','D-1','AR-1','CH-1','CH-2'], est:'ok',   ve:'Dos chimeneas, chapa sobre el ala dormitorios, vidrio sobre el living, quincho de madera clara al norte con el árbol en el deck.', modelo:'Coincide en lo general.'},
 ];
 
-export const CAMBIOS = [  {fecha:'2026-11-07', v:'1.1.7', txt:'Dormer corrido hasta la galería unificado (Maxi): un solo techo en línea, sin el murito de la esquina, todo madera y vidrio; montantes de 12 sobre los tabiques y cada ambiente en paños iguales, fijo abajo y proyectante arriba con amortiguadores. MEN-1 pasa a ser una cercha: travesaño a la altura del riel PV-RT hasta una columna nueva de 45 × 45 (C-08) a 30 cm del árbol, y brazo hasta la cumbrera y bajando hasta C-08. C-06 de 45 × 45. PIL-2 con su borde sur en el de la pileta. Galería: mesa ratona de petiribí de 1,50 × 0,70 con tablas de 2″ y dos BKF de cuero suela en lugar de las butacas. Comedor 1,5 m hacia el ventanal. Etiquetas de los muebles en dos renglones, más legibles y con el ambiente correcto. Fuera DM-C2f (paño suelto de chapa).'},
+export const CAMBIOS = [  {fecha:'2026-11-07', v:'1.1.10', txt:'Dormer corrido hasta la galería unificado (Maxi): un solo techo en línea, sin el murito de la esquina, todo madera y vidrio; montantes de 12 sobre los tabiques y cada ambiente en paños iguales, fijo abajo y proyectante arriba con amortiguadores. MEN-1 pasa a ser una cercha: travesaño a la altura del riel PV-RT hasta una columna nueva de 45 × 45 (C-08) a 30 cm del árbol, y brazo hasta la cumbrera y bajando hasta C-08. C-06 de 45 × 45. PIL-2 con su borde sur en el de la pileta. Galería: mesa ratona de petiribí de 1,50 × 0,70 con tablas de 2″ y dos BKF de cuero suela en lugar de las butacas. Comedor 1,5 m hacia el ventanal. Etiquetas de los muebles en dos renglones, más legibles y con el ambiente correcto. Fuera DM-C2f (paño suelto de chapa).'},
 
   {fecha:'2026-11-06', v:'1.1.9', txt:'En el teléfono sólo se mira (Maxi 6/11): se van las herramientas de edición (mover, estirar, deshacer, medir, marcar, vértices, equipamiento, luces, térmica, estructura, personas) y el panel lateral; quedan navegar, seleccionar, capas, variantes, vistas, tours y Planta/3D.'},
   {fecha:'2026-11-06', v:'1.1.8', txt:'Pantalla de teléfono (Maxi 6/11): en 3D se van los márgenes y las calles; la barra queda pegada al borde, el visor ocupa toda la pantalla y el panel sigue debajo. La página declara el viewport del teléfono.'},
