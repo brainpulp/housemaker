@@ -6,5 +6,5 @@
 - **Versión publicada:** 0.1.29 (7/11/2026). Se publican sólo los archivos que importa la página (motor sin personas, árboles, tours ni térmica) más los `mueble-*.js` del catálogo.
 - **Capacidades:** `db`.
 - **Página:** `cocinas.html`. Archivos propios: `modelo.js` (composición y recortes), `mocoreta.js`, `casa.js`, `equipamiento-cocinas.js`, `video.js`, `fuente-carhue.js`, `fuente-arcos.js`, `armar-extra.sh`.
-- **Motor publicado:** 69460c7 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** fc43854 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
 - **Para volcar lo diseñado a cada casa:** los muebles viven en `equipamiento-cocinas.js` y en la base de esta página; las coordenadas de la escena se vuelven a las de cada casa restando el traslado `d` de `CASAS` en `modelo.js` (Carhué: x +1817, y −1550; Arcos: y +330, z +21).
