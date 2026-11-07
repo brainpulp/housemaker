@@ -28,13 +28,13 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       D:{nombre:'Bajo y cálido (referencias)',items:[I('alfombraYute',1640,320,0,{L:300,D:220}),I('sofaPlat',1640,475,180,{L:280,D:100,tela:'lino',mad:'roble'}),I('ratonaTab',1640,310,0,{L:150,D:80,H:36}),I('taburete',1450,300,0),I('taburete',1830,300,0)]}};}},
     comedor:{n:'Comedor',piso:PISO,vista:{p:[2250,480,1150],t:[2250,60,380]},esc:()=>{const I=itA('comedor');const sillasRect=(cx,cy,L,D,n)=>{const r=[];for(let i=0;i<n;i++){const yy=cy-L/2+L*(i+.5)/n;r.push(I('silla',cx-D/2-22,yy,90),I('silla',cx+D/2+22,yy,-90));}r.push(I('silla',cx,cy-L/2-22,0),I('silla',cx,cy+L/2+22,180));return r;};
       const ronda=(cx,cy,R,n)=>[...Array(n)].map((_,i)=>{const a=i/n*Math.PI*2;return I('silla',cx+Math.sin(a)*R,cy+Math.cos(a)*R,Math.round((a*180/Math.PI+180)%360));});return {
-      A:{nombre:'Mesa larga',items:[I('mesa',2250,430,90,{L:300,D:100}),...sillasRect(2250,430,300,100,4),I('aparador',2445,68,0,{L:150,D:45})]},
+      A:{nombre:'Mesa larga',items:[I('mesa',2250,580,90,{L:300,D:100}),...sillasRect(2250,580,300,100,4),/* Maxi 7/11: 1,5 m al este, hacia el ventanal */I('aparador',2445,68,0,{L:150,D:45})]},
       B:{nombre:'Mesa redonda',items:[I('mesaR',2250,420,0,{L:140}),...ronda(2250,420,95,6),I('aparador',2445,68,0,{L:150,D:45})]},
       C:{nombre:'Mesa maciza (referencias)',items:[I('mesaMaciza',2250,430,90,{L:300,D:100}),...sillasRect(2250,430,300,100,4).map(s=>({...s,t:'sillaCurva',p:{}})),I('aparador',2445,68,0,{L:150,D:45})]}};}},
     galeriaV:{n:'Galería (bajo el techo de vidrio)',piso:PISO,vista:{p:[1700,330,420],t:[1700,60,900]},esc:()=>{const I=itA('galeriaV');return {
       /* Maxi 16/10: rincón cálido en la franja bajo T-04 (y 6,90–9,30, contra el ventanal), con el sillón mirando al jardín */
-      A:{nombre:'Rincón cálido mirando al jardín',items:[I('alfombraYute',1700,815,0,{L:360,D:200}),I('sofaPlat',1700,758,0,{L:320,D:96,tela:'lino',mad:'roble'}),I('ratonaTab',1700,868,0,{L:140,D:56,H:34}),
-        I('butaca',1450,830,90,{tela:'mostaza'}),I('butaca',1950,830,-90,{tela:'petroleo'}),I('taburete',1525,890,0),I('taburete',1875,890,0)]},
+      A:{nombre:'Rincón cálido mirando al jardín',items:[I('alfombraYute',1700,815,0,{L:360,D:200}),I('sofaPlat',1700,758,0,{L:320,D:96,tela:'lino',mad:'roble'}),I('ratonaTab',1700,838,0,{L:150,D:70,H:38,mad:'petiribi',e:5}),
+        I('bkf',1450,830,90),I('bkf',1950,830,-90)/* Maxi 7/11: BKF de cuero suela en vez de las butacas */,I('taburete',1525,890,0),I('taburete',1875,890,0)]},
       B:{nombre:'Vacía',items:[]}};}},
     galeria:{n:'Galería (quincho)',piso:PISO,vista:{p:[3250,500,1350],t:[2746,60,500]},esc:()=>{const I=itA('galeria');const S=[];for(let i=0;i<4;i++){const yy=450-150+300*(i+.5)/4;S.push(I('silla',2746-50-22,yy,90),I('silla',2746+50+22,yy,-90));}return {
       A:{nombre:'Comedor afuera',items:[I('mesa',2746,450,90,{L:300,D:100}),...S,I('silla',2746,450-150-22,0),I('silla',2746,450+150+22,180)]},
@@ -104,7 +104,7 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       else if(m.t==='ratonaTab')items[i]={...m,t:'ratonaJoco',y:868,p:{L:84,D:64,H:30}};}},
     comedor:items=>SILLAS(items,'sillaCover'),galeria:items=>SILLAS(items,'sillaDSW')};
   /* agregados posteriores (Maxi 14/10): se suman una vez al escenario activo guardado, para que aparezcan aunque ya hubiera algo guardado */
-  const MIG={luz:{exterior:[['reflectores200',()=>[{t:'reflector',x:2955,y:480,r:90,p:{tilt:12,beam:60}},{t:'reflector',x:2746,y:946,r:0,p:{tilt:15,beam:90}}]],['reflectoresDorm',()=>[{t:'reflector',x:22,y:732,r:20,p:{tilt:22,beam:90,z:318}},{t:'reflector',x:972,y:732,r:-20,p:{tilt:22,beam:90,z:318}}]]],
+  const MIG={luz:{exterior:[['reflectores200',()=>[{t:'reflector',x:2955,y:480,r:90,p:{tilt:12,beam:60}},{t:'reflector',x:2746,y:946,r:0,p:{tilt:15,beam:90}}]],['reflectoresDorm',()=>[{t:'reflector',x:22,y:712,r:20,p:{tilt:22,beam:90,z:240}},{t:'reflector',x:972,y:712,r:-20,p:{tilt:22,beam:90,z:240}}]]],
     living:[['galponeras',()=>[{t:'galponera',x:1540,y:352,r:0,p:{}},{t:'galponera',x:1740,y:352,r:0,p:{}}]]]}};
   const MUT_CAL=[['salExistente',items=>{for(let i=items.length-1;i>=0;i--){const m=items[i];if(m.t==='salamandra'&&Math.hypot(m.x-1960,m.y-600)<150)items.splice(i,1);}if(!items.some(m=>m.t==='salExist'))items.unshift({id:'Csal'+Date.now().toString(36),t:'salExist',x:2043,y:638,r:0,p:{}});}]];/* Maxi 14/10: la salamandra ya existe (SAL-1); la diseñada queda en el catálogo */
   const MUT_MUE={cocina:[['islaAdosada',items=>{const A=items.some(m=>m.t==='desayunador');if(!A)return;for(let i=items.length-1;i>=0;i--){const m=items[i];if(m.t==='desayunador'||(m.t==='banqueta'&&Math.abs(m.y-122)<3))items.splice(i,1);}
@@ -126,6 +126,8 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
   (MUT.mue.dormS=MUT.mue.dormS||[]).push(['bano190',items=>{for(const m of items)if(m.x>300&&m.t!=='mesaLuz')m.x-=30;}]);
   MUT.luz=MUT.luz||{};(MUT.luz.banoEP=MUT.luz.banoEP||[]).push(['bano190',items=>{for(const m of items){if(m.t==='emb'&&Math.abs(m.x-485)<3)m.x=470;else if(m.x<420)m.x-=30;}}]);
   (MUT.luz.dormS=MUT.luz.dormS||[]).push(['bano190',items=>{for(const m of items)if(m.x>300)m.x-=30;}]);
+  /* Maxi 6/11: con el dormer al ras ya no hay alero a +3,18 en y 7,32 (y se saca el murito): los dos reflectores del frente bajan al muro de la planta baja */
+  (MUT.luz.exterior=MUT.luz.exterior||[]).push(['reflectoresMuro',items=>{for(const m of items)if(m.t==='reflector'&&(Math.abs(m.x-22)<4||Math.abs(m.x-972)<4)&&Math.abs(m.y-732)<4){m.y=712;m.p={...(m.p||{}),z:240};}}]);
   /* luces y calefacción de partida por ambiente */
   function escLuces(a,I){
   const R90=90;
@@ -152,9 +154,9 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
     case 'estudio':return {A:{nombre:'Lineal sobre el escritorio + lectura',items:[I('linea',1280,190,90,{L:150,drop:70,lm:2200,K:4000}),I('velador',1290,115,0,{z:75,lm:400}),I('pie',1060,560,0),I('emb',1180,330,90,{n:2,sep:120,lm:500})]}};
     case 'altillo':return {A:{nombre:'Colgante en la cumbrera + tira',items:[I('colgante',2103,-560,0,{drop:40,diam:35,lm:1200}),I('tira',2103,-748,0,{L:200,z:120,dir:'arriba',lmm:500})]}};
     case 'exterior':return {
-      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',22,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
+      A:{nombre:'Árbol + balizas + pileta',items:[I('reflector',22,712,20,{tilt:22,beam:90,z:240}),I('reflector',972,712,-20,{tilt:22,beam:90,z:240}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('proyector',2860,110,-60,{tilt:12,lm:2000}),I('proyector',2985,-20,120,{tilt:12,lm:1500}),
         ...[1500,1800,2100,2400].map(x=>I('baliza',x,1135,0)),I('pileta',3332,700,R90,{z:-45}),I('pileta',3332,1250,R90,{z:-45})]},
-      B:{nombre:'Sólo pileta',items:[I('reflector',22,732,20,{tilt:22,beam:90,z:318}),I('reflector',972,732,-20,{tilt:22,beam:90,z:318}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('pileta',3332,700,R90,{z:-45}),I('pileta',3332,1250,R90,{z:-45})]}};
+      B:{nombre:'Sólo pileta',items:[I('reflector',22,712,20,{tilt:22,beam:90,z:240}),I('reflector',972,712,-20,{tilt:22,beam:90,z:240}),I('reflector',2945,352,62,{tilt:22,beam:60,z:478}),I('reflector',2746,946,0,{tilt:15,beam:90,z:222}),I('pileta',3332,700,R90,{z:-45}),I('pileta',3332,1250,R90,{z:-45})]}};
     default:return {A:{nombre:'Sin luces',items:[]}};
   }
 }

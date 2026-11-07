@@ -7,14 +7,14 @@ import { armar as armarOctet } from './octet.js';
 import { MODELOS as OCTET } from './octet-modelos.js';
 
 /* materiales que usan las piezas (el visor los crea con MeshStandardMaterial) */
-export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
+export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],petiribi:['#b98654',.7],suela:['#9a5a2b',.6],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
   mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#161718',.35],grafito:['#3b3e40',.55],
   piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
   junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a']};
 /* [color, rugosidad, metal, emisivo] */
 
 /* Paleta para elegir materiales en la ficha de cada mueble (Maxi 5/11): clave del material → etiqueta. Las claves de parámetro que son material: fr (frentes), top/top2 (tapa), mad (madera), mat (material), col (color de electrodoméstico), pint (pintura). */
-export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara',petiribi:'petiribí',madOsc:'madera oscura',nogal:'nogal oscuro',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
+export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara',petiribi:'petiribí',suela:'cuero suela',madOsc:'madera oscura',nogal:'nogal oscuro',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
 export const PARAM_MAT={fr:'frentes',top:'tapa',top2:'tapa 2',mad:'madera',mat:'material',col:'color',pint:'pintura'};
 /* pinturas para sillas y piezas pintadas (Maxi 5/11: «las sillas hacelas pintadas»): nombre → color; 'natural' deja el material del modelo */
 export const PINTURAS={natural:null,negro:'#1f1f20',blanco:'#e9e6df',rojo:'#9b3a2a',verde:'#5d6b3f',azul:'#2f4a5c',mostaza:'#c99a3a',terracota:'#b5633f',gris:'#8a8d8f'};
@@ -269,8 +269,14 @@ export function catalogoMuebles(THREE){
     sofaMod:{n:'Sofá modular de lino (bloques)',p:{n:3,mod:95,D:105,tela:'lino'},
       g:p=>{const g=[],L=p.n*p.mod;for(let i=0;i<p.n;i++){const x0=-L/2+i*p.mod;g.push([B(x0+.5,x0+p.mod-.5,4,44,-p.D/2+24,p.D/2),p.tela],[B(x0+.5,x0+p.mod-.5,4,78,-p.D/2,-p.D/2+24),p.tela]);}
         g.push([B(-L/2-26,-L/2,4,64,-p.D/2,p.D/2),p.tela],[B(L/2,L/2+26,4,64,-p.D/2,p.D/2),p.tela],[B(-L/2-26,L/2+26,0,4,-p.D/2+4,p.D/2-4),'madOsc']);return g;}},
-    ratonaTab:{n:'Mesa ratona de tablones',p:{L:160,D:90,H:38,mad:'madRust'},
-      g:p=>{const g=[],n=3,w=(p.D-2*(n-1))/n;for(let i=0;i<n;i++){const z0=-p.D/2+i*(w+2);g.push([B(-p.L/2,p.L/2,p.H-9,p.H,z0,z0+w),p.mad]);}for(const x of [-p.L/2+25,p.L/2-25])g.push([B(x-9,x+9,0,p.H-9,-p.D/2+12,p.D/2-12),p.mad]);return g;}},
+    ratonaTab:{n:'Mesa ratona de tablones',p:{L:160,D:90,H:38,mad:'madRust',e:9},
+      g:p=>{const g=[],n=3,e=p.e||9,w=(p.D-2*(n-1))/n;for(let i=0;i<n;i++){const z0=-p.D/2+i*(w+2);g.push([B(-p.L/2,p.L/2,p.H-e,p.H,z0,z0+w),p.mad]);}for(const x of [-p.L/2+25,p.L/2-25])g.push([B(x-9,x+9,0,p.H-e,-p.D/2+12,p.D/2-12),p.mad]);return g;}},
+    bkf:{n:'Sillón BKF (Hardoy) de cuero suela',p:{cuero:'suela'},
+      g:p=>{/* Maxi 7/11: varilla de hierro negra de 12 mm y cuero colgado de las cuatro puntas; frente hacia +z */const g=[],r=.6,W=39,F=[37,60],K=[-37,88];
+        for(const s of [-1,1]){const x=s*W,xf=s*34;g.push([VAR([x,K[1],K[0]],[xf,0,30],r),'negro'],[VAR([x,F[1],F[0]],[xf,0,-32],r),'negro'],[VAR([xf,0,-32],[xf,0,30],r),'negro']);}
+        const nu=12,nt=16,pos=[],idx=[];for(let j=0;j<=nt;j++){const t=j/nt,sn=Math.sin(Math.PI*t);for(let i=0;i<=nu;i++){const u=-1+2*i/nu;pos.push(u*W*(1-.18*sn),F[1]+(K[1]-F[1])*t-40*sn*(1-.12*u*u),F[0]+(K[0]-F[0])*t);}}
+        for(let j=0;j<nt;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,b=a+1,c=a+nu+1,d=c+1;idx.push(a,c,b,b,c,d,a,b,c,b,d,c);}
+        const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setIndex(idx);sg.computeVertexNormals();g.push([sg,p.cuero]);return g;}},
     ratonaBaja:{n:'Mesa ratona redonda baja',p:{L:110,H:30,mad:'roble'},g:p=>[[CYL(p.L/2,p.H-5,p.H,0,0,48),p.mad],[CYL(p.L/2-22,0,p.H-5,0,0,40),p.mad]]},
     camaPlat:{n:'Cama baja sobre tarima con cabecero de listones',p:{L:180,D:205,ala:35,mad:'roble',tela:'sabana'},
       g:p=>{const g=[],H0=16,W=p.L+2*p.ala;g.push([B(-W/2,W/2,0,H0,-p.D/2,p.D/2+p.ala),p.mad],[B(-p.L/2,p.L/2,H0,H0+22,-p.D/2+4,p.D/2),'sabana'],[B(-p.L/2-1,p.L/2+1,H0+18,H0+26,-p.D/2+60,p.D/2+1),p.tela]);
@@ -318,7 +324,7 @@ export function catalogoMuebles(THREE){
     taburete:{n:'Taburete tronco',p:{H:45,mad:'madRust'},g:p=>[[CYL(18,0,p.H,0,0,20),p.mad]]},
     alfombraYute:{n:'Alfombra de yute',p:{L:240,D:170},g:p=>[[B(-p.L/2,p.L/2,0,.8,-p.D/2,p.D/2),'yute']]},
   };
-  const FAM={desayunador:'cocina',ducha:'baño',sofaPlat:'estar',sofaMod:'estar',ratonaTab:'estar',ratonaBaja:'estar',camaPlat:'dormitorio',mesaMaciza:'comedor',sillaCurva:'comedor',vanitorioMad:'baño',taburete:'estar',alfombraYute:'estar'};
+  const FAM={bkf:'estar',desayunador:'cocina',ducha:'baño',sofaPlat:'estar',sofaMod:'estar',ratonaTab:'estar',ratonaBaja:'estar',camaPlat:'dormitorio',mesaMaciza:'comedor',sillaCurva:'comedor',vanitorioMad:'baño',taburete:'estar',alfombraYute:'estar'};
   for(const [k,v] of Object.entries(P))if(!v.cat)v.cat=FAM[k]||'otros';
   return P;
 }
