@@ -190,9 +190,13 @@ export function catalogoMuebles(THREE){
     const zf=p.D/2-2,mods=Math.max(1,Math.round((p.L-8)/(p.mod||76))),filas=p.filas??3,y0=10,y1=p.H-(p.top2?6:4),g=[[B(-p.L/2+4,p.L/2-4,0,10,z0,p.D/2-8),'negro'],...carcasa(-p.L/2+4,p.L/2-4,y0,y1,z0,zf,p.fr,mods,{extFr:false}),...tapa];
     for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2+4,p.L/2-4,mods,i);for(let j=0;j<filas;j++){const [ya,yb]=filaY(y0,y1,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,z0,zf,p.fr));}}return g;}},
   alacena:{n:'Alacena alta, puertas proyectadas hacia arriba, con LED abajo',cat:'cocina',p:{L:120,D:35,H:70,fr:'madOsc'},z:150,/* Maxi 4/11: se abren hacia arriba con brazos de elevación */
-    g:p=>{const zf=p.D/2-2,zb=-p.D/2,mods=Math.max(1,Math.round(p.L/90))/* Maxi 6/11: puertas anchas, una cada 0,90 (1,20 era mucho) */,g=[...carcasa(-p.L/2,p.L/2,0,p.H,zb,zf,p.fr,mods)];
-      if(p.H>40)g.push([B(-p.L/2+1.8,p.L/2-1.8,p.H/2-.9,p.H/2+.9,zb+.8,zf-2),MEL]);
-      for(let i=0;i<mods;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);g.push(...puertaArriba(`a${i}`,xl,xr,xa,xb,0,p.H,zf,p.fr));}
+    /* Maxi 7/11: «band» = ancho de un bandejero vertical (bandejas de alambre que salen hacia adelante) en la punta +x («bandLado:-1», en la −x); las puertas se reparten en el resto */
+    g:p=>{const zf=p.D/2-2,zb=-p.D/2,band=p.band||0,resto=p.L-band,n=Math.max(1,Math.round(resto/90))/* Maxi 6/11: puertas anchas, una cada 0,90 (1,20 era mucho) */;
+      let mods=Array(n).fill(resto/n),iB=-1;if(band>0){if((p.bandLado||1)<0){mods.unshift(band);iB=0;}else{mods.push(band);iB=n;}}
+      const g=[...carcasa(-p.L/2,p.L/2,0,p.H,zb,zf,p.fr,mods)];
+      for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
+        if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,0,p.H,zb,zf,p.fr));continue;}
+        if(p.H>40)g.push([B(xa,xb,p.H/2-.9,p.H/2+.9,zb+.8,zf-2),MEL]);g.push(...puertaArriba(`a${i}`,xl,xr,xa,xb,0,p.H,zf,p.fr));}
       if(p.led!==false)g.push([B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']);return g;}},
   columna:{n:'Columna con horno empotrado',cat:'cocina',p:{L:60,D:60,H:220,fr:'madOsc'},/* Maxi 4/11: abajo del horno, dos cajones; arriba, puerta con bisagras cazoleta */
     g:p=>{const zf=p.D/2-2,zb=-p.D/2,g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,10,p.H,zb,zf,p.fr,1)];
