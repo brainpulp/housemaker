@@ -14,7 +14,7 @@ export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8
 /* [color, rugosidad, metal, emisivo] */
 
 /* Paleta para elegir materiales en la ficha de cada mueble (Maxi 5/11): clave del material → etiqueta. Las claves de parámetro que son material: fr (frentes), top/top2 (tapa), mad (madera), mat (material), col (color de electrodoméstico), pint (pintura). */
-export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara (petiribí)',madOsc:'madera oscura',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
+export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara',petiribi:'petiribí',madOsc:'madera oscura',nogal:'nogal oscuro',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
 export const PARAM_MAT={fr:'frentes',top:'tapa',top2:'tapa 2',mad:'madera',mat:'material',col:'color',pint:'pintura'};
 /* pinturas para sillas y piezas pintadas (Maxi 5/11: «las sillas hacelas pintadas»): nombre → color; 'natural' deja el material del modelo */
 export const PINTURAS={natural:null,negro:'#1f1f20',blanco:'#e9e6df',rojo:'#9b3a2a',verde:'#5d6b3f',azul:'#2f4a5c',mostaza:'#c99a3a',terracota:'#b5633f',gris:'#8a8d8f'};
@@ -22,7 +22,9 @@ export const PINTURAS={natural:null,negro:'#1f1f20',blanco:'#e9e6df',rojo:'#9b3a
    anillos finos de madera tardía deformados con ruido, poro fino a lo largo, variación de tabla; el mismo cálculo da el mapa de rugosidad.
    Paño de 160 × 80 cm; las UV se proyectan por caja en coordenadas locales de la pieza (uvMadera), así la veta corre a lo largo (x) de cada pieza
    cualquiera sea su tamaño o giro. [madera temprana, madera tardía, anillos por paño, contraste] */
-export const MADERAS={roble:['#c9a06c','#8a6137',30,.5],madClara:['#d8b58a','#a8824f',26,.4],madOsc:['#7e5637','#5a3b26',32,.42]/* Maxi 5/11: mismo tono, la veta oscura más clara y menos contraste */,madRust:['#ad7349','#643820',28,.65]};
+export const MADERAS={roble:['#c9a06c','#8a6137',30,.5],madClara:['#d8b58a','#a8824f',26,.4],madOsc:['#7e5637','#5a3b26',32,.42]/* Maxi 5/11: mismo tono, la veta oscura más clara y menos contraste */,madRust:['#ad7349','#643820',28,.65],
+  /* Maxi 7/11: petiribí (fondo dorado grisáceo con vetas negras irregulares; el quinto valor es la fuerza de esas rayas) y nogal oscuro para la tapa de la isla */
+  petiribi:['#ab8459','#6a4628',44,.38,1,.25],nogal:['#5e3a22','#3a2314',26,.5,.35,.6]};
 const _texMad={};
 export function texturaMadera(THREE,k){if(_texMad[k])return _texMad[k];const d=MADERAS[k];if(!d)return null;const W=1024,H=512;
   const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const img=x.createImageData(W,H),px=img.data;
@@ -35,12 +37,14 @@ export function texturaMadera(THREE,k){if(_texMad[k])return _texMad[k];const d=M
   const col=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];const E=col(d[0]),Lc=col(d[1]),R=d[2],con=d[3];
   for(let j=0;j<H;j++)for(let i=0;i<W;i++){const u=i/W,v=j/H;
     const w=(fbm(u*2,v*9,3)-.5)*.9+(fbm(u*7+7,v*22+3,2)-.5)*.2;/* ondulación: el espaciado entre anillos varía */
-    const arc=(1-Math.cos(2*Math.PI*(u+(fbm(v*3+9,u*2,2)-.5)*.3)))*1.6;const ring=v*R+w*R*.22+arc,f=ring-Math.floor(ring);/* todo periódico en el paño: frecuencias enteras, para que no se vea el empalme *//* anillos a lo largo, con arcos de catedral (tabla cortada plana) */
+    const arc=(1-Math.cos(2*Math.PI*(u+(fbm(v*3+9,u*2,2)-.5)*.3)))*1.6*(d[5]??1);/* el sexto valor baja los arcos de catedral: veta más recta */const ring=v*R+w*R*.22+arc,f=ring-Math.floor(ring);/* todo periódico en el paño: frecuencias enteras, para que no se vea el empalme *//* anillos a lo largo, con arcos de catedral (tabla cortada plana) */
     const late=Math.pow(Math.max(0,1-Math.abs(f-.8)*5.5),1.3)*(.45+fbm(u*24+5,v*48,2)*1.1);/* línea fina de madera tardía, que se afina y se corta */
     const poro=(fbm(u*140,v*6+11,2)-.5);/* poro fino, estirado a lo largo */
     const tabla=(fbm(u*2+3,v*2+5,2)-.5);/* variación lenta de color */
     const t=Math.min(1,Math.max(0,(.22*f+late)*con+tabla*.25));
-    const o=(j*W+i)*4;for(let q=0;q<3;q++){const e=E[q]*(1+tabla*.12);px[o+q]=Math.max(0,Math.min(255,e+(Lc[q]-e)*t+poro*26));}px[o+3]=255;
+    /* rayas oscuras irregulares (petiribí, nogal): bandas que siguen la veta, aparecen y se cortan */
+    const raya=d[4]?Math.pow(Math.max(0,fbm(u*3+13,v*46+2,3)-.56)*3.2,1.4)*Math.min(1,Math.max(0,fbm(u*5+21,v*3,2)*2.2-.6))*d[4]:0;
+    const o=(j*W+i)*4;for(let q=0;q<3;q++){const e=E[q]*(1+tabla*.12);const base=e+(Lc[q]-e)*t+poro*26;px[o+q]=Math.max(0,Math.min(255,base*(1-Math.min(.85,raya))));}px[o+3]=255;
     const rg=Math.round(165+late*con*60+poro*70);pr[o]=pr[o+1]=pr[o+2]=Math.max(0,Math.min(255,rg));pr[o+3]=255;}
   x.putImageData(img,0,0);xr.putImageData(imr,0,0);
   const mk=(cv,srgb)=>{const t=new THREE.CanvasTexture(cv);t.wrapS=t.wrapT=THREE.RepeatWrapping;if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;};
@@ -272,8 +276,12 @@ export function catalogoMuebles(THREE){
       g:p=>{const g=[],H0=16,W=p.L+2*p.ala;g.push([B(-W/2,W/2,0,H0,-p.D/2,p.D/2+p.ala),p.mad],[B(-p.L/2,p.L/2,H0,H0+22,-p.D/2+4,p.D/2),'sabana'],[B(-p.L/2-1,p.L/2+1,H0+18,H0+26,-p.D/2+60,p.D/2+1),p.tela]);
         for(const x of p.L>=120?[-p.L/4,p.L/4]:[0])g.push([B(x-p.L/4+6,x+p.L/4-6,H0+22,H0+36,-p.D/2+8,-p.D/2+45),'almohada']);
         for(let x=-W/2;x<=W/2-4;x+=9)g.push([B(x,x+4,0,150,-p.D/2-6,-p.D/2-2),p.mad]);g.push([B(-W/2,W/2,0,150,-p.D/2-9,-p.D/2-6),'madOsc']);return g;}},
+    /* Maxi 7/11: patas centrales y livianas (antes eran dos paneles macizos en las puntas): dos montantes de tabla de 4 × 30 sobre el eje de la mesa, a 30 de cada punta,
+       con un pie cruzado de 4 × 6 abajo y una viga longitudinal de 4 × 8 bajo la tapa que los une; las piernas pasan por los costados */
     mesaMaciza:{n:'Mesa maciza de tapa gruesa',p:{L:240,D:95,H:76,mad:'madOsc'},
-      g:p=>[[B(-p.L/2,p.L/2,p.H-8,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2+28,-p.L/2+38,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad],[B(p.L/2-38,p.L/2-28,0,p.H-8,-p.D/2+14,p.D/2-14),p.mad]]},
+      g:p=>{const g=[[B(-p.L/2,p.L/2,p.H-6,p.H,-p.D/2,p.D/2),p.mad]],xs=[-p.L/2+30,p.L/2-30],pf=Math.min(p.D-24,56);
+        for(const x of xs)g.push([B(x-2,x+2,6,p.H-6,-15,15),p.mad],[B(x-2,x+2,0,6,-pf/2,pf/2),p.mad]);
+        g.push([B(xs[0]-2,xs[1]+2,p.H-14,p.H-6,-4,4),p.mad]);return g;}},
     /* Maxi 4/11 (Arcos, mesita del ventanal): banco corrido de tabla con respaldo en ángulo, de dos cuerpos. H es la altura del asiento (45 para mesa de 0,75);
        el respaldo va atrás (−z), inclinado «inc» grados hacia atrás, y sube 40 sobre el asiento; patas panel en las puntas; con asiento alto (>55), travesaño apoyapiés adelante. */
     bancoTabla:{n:'Banco corrido de tabla con respaldo en ángulo',cat:'cocina',p:{L:120,D:38,H:45,inc:14,mad:'madOsc'},
