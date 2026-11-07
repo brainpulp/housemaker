@@ -118,13 +118,14 @@ export function initCaminar(visor, { activo = () => true } = {}) {
   });
   addEventListener('blur', () => { keys.clear(); wAbajo = null; });
 
+  const VT = visor.velTeclado || [120, 1500];  /* cm/s mín. y máx. de WASD; Octet (una mesa) usa menos */
   let last = performance.now(); const f = new V(), r = new V(), up = new V(0, 1, 0), d = new V();
   const tick = t => {
     const dt = Math.min(.05, (t - last) / 1000); last = t;
     if (wAbajo != null && !keys.has('w') && t - wAbajo > TAP) { keys.add('w'); cancelar(); }
     if (anim) paso(t);
     else if (keys.size && !(keys.size === 1 && keys.has('shift'))) {
-      despertar(); const cam = visor.camera, tg = visor.controls.target, sp = Math.max(120, Math.min(1500, cam.position.distanceTo(tg) * .5)) * dt;
+      despertar(); const cam = visor.camera, tg = visor.controls.target, sp = Math.max(VT[0], Math.min(VT[1], cam.position.distanceTo(tg) * .5)) * dt;
       f.copy(tg).sub(cam.position).normalize(); r.crossVectors(f, up); if (r.lengthSq() < 1e-6) r.set(1, 0, 0); r.normalize(); d.set(0, 0, 0);
       if (keys.has('w')) d.add(f); if (keys.has('s')) d.sub(f); if (keys.has('d')) d.add(r); if (keys.has('a')) d.sub(r); if (keys.has('e')) d.y += 1; if (keys.has('q')) d.y -= 1;
       const sh = keys.has('shift'); if (sh && keys.has('arrowup')) d.y += 1; if (sh && keys.has('arrowdown')) d.y -= 1;

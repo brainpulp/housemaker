@@ -66,7 +66,8 @@ const applyClips = () => VI.applyClips();
 root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); });
 
-/* teclado (WASD, flechas) y «caminar hasta acá» (W): motor/caminar.js, lo prende la barra de herramientas */
+/* teclado (WASD, flechas) y «caminar hasta acá» (W): motor/caminar.js, lo prende la barra de herramientas; acá más lento, es una mesa */
+visor.velTeclado = [60, 800];
 
 const stage = document.querySelector('#modo-3d .stage');
 try { initMarcas(visor, stage); } catch (e) { console.error('marcas', e); }
