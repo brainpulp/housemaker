@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.14', fecha:'2026-11-07',
+  nombre:'Carhué', version: '1.1.15', fecha:'2026-11-07',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-07', v:'1.1.15', txt:'Cocina, escenario E según el croquis de Maxi (7/11): mesada negra con la bacha bajo V-21 y una península perpendicular desde su frente: bloque negro de piedra con el anafe de 4 y mesa de madera en L (roble) hacia el living y el norte, con sillas negras.'},
   {fecha:'2026-11-07', v:'1.1.14', txt:'Maxi 7/11: la puerta del baño piletero (P-26) va por defecto en M-24, mirando al sur. La escalera al altillo y esa puerta se guardan ahora en la base de la casa (antes sólo en el navegador), para que Cocinas copie lo mismo.'},
   {fecha:'2026-11-07', v:'1.1.13', txt:'La escalera al altillo (B2/B3) pasó de casa.js a escalera-altillo.js, para que la escena Cocinas la arme igual (Maxi 7/11). Sin cambios en la casa. Motor: el esmalte de las sillas pintadas a dos caras (se veían rotas).'},
   {fecha:'2026-11-07', v:'1.1.12', txt:'Cocina: módulos de cajones de 76 por defecto (Maxi 7/11, para las tres cocinas): la mesada queda en 5 × 72 y la isla en 3 × 84; filas escalonadas (fino, mediano, alto).'},

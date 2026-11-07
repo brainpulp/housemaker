@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.34', fecha: '2026-11-07',
+export const META = { nombre: 'Cocinas', version: '0.1.35', fecha: '2026-11-07',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-07', v: '0.1.35', txt: 'Maxi 7/11: Carhué, escenario D según su croquis: mesada negra con la bacha bajo la ventana y una península perpendicular (bloque negro con anafe de 4 pegado a la mesada, mesa de madera en L hacia el living) con sillas al este y en la punta norte.' },
   { fecha: '2026-11-07', v: '0.1.34', txt: 'Maxi 7/11: Carhué con las mismas opciones de diseño que la casa: la puerta del baño piletero P-26 en M-24, mirando al sur (antes en M-26, como en las tablas); la escalera al altillo B3 ya estaba.' },
   { fecha: '2026-11-07', v: '0.1.33', txt: 'Maxi 7/11: en Arcos, las alacenas llegan a 3,92 como la mesada: un bandejero vertical de 0,30 en la punta de la ventana (motor: «band» en la alacena, como en la mesada) y el estante de abajo también a 3,92.' },
   { fecha: '2026-11-07', v: '0.1.32', txt: 'Maxi 7/11: el piso de tablones de Arcos en un solo tono, eucalipto con cetol roble (más rojizo); antes tres tonos.' },

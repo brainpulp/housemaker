@@ -20,6 +20,12 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
         it('salpicadero',1835.5,-127,R90,{L:270,H:10}),it('salpicadero',1834.5,-157,R90,{L:30,H:108,caja:10},92),it('campanaIsla',2027,20,180,{L:90,D:60}),
         it('isla',2027,45,180,{L:260,D:110,vol:30,fr:'roble',top:'granito',top2:'madRust',corte:60}),it('anafe',2027,20,180,{L:90,D:52,n:5}),
         it('banqueta',1955,122,0,{mad:'roble'}),it('banqueta',2015,122,0,{mad:'roble'}),it('banqueta',2075,122,0,{mad:'roble'}),it('banqueta',2135,122,0,{mad:'roble'})]},
+      E:{nombre:'Croquis de Maxi (7/11): península negra + mesa de madera en L',items:[/* Maxi 7/11, croquis: mesada negra a lo largo de M-20 con la bacha bajo V-21; desde su frente sale, perpendicular, una península: bloque negro de piedra con el anafe de 4 hornallas pegado a la mesada
+           y mesa de madera a 0,75 en L (el resto del largo más la tira del lado del living), con sillas del lado del living y en la punta norte. Misma pieza «islaMesa» que la cocina de Arcos, girada 180: el bloque queda en la punta sur (contra la mesada) y del lado oeste; la madera, al este y al norte. 3,40 × 1,20; queda 0,75 libre hasta M-22 detrás de las sillas de la punta. */
+        it('heladera',1869.5,-299.5,0,{L:65,D:65,H:190,col:'negro'}),it('mesada',xw(62),-81,R90,{L:362,D:62,fr:'negro',top:'granito',huecos:[[161,80,50]]}),it('bachaFarm',1872.5,-242,R90,{L:80,D:50}),
+        it('salpicadero',1835.5,-127,R90,{L:270,H:10}),it('salpicadero',1834.5,-157,R90,{L:30,H:108,caja:10},92),
+        it('islaMesa',2067,0,180,{L:340,D:120,Lb:160,Db:70,H:75,Hb:90,fr:'negro',top:'granito',mad:'roble',mod:76}),it('anafe',1977,-25,180,{L:60,D:52,n:4}),it('campanaIsla',1977,-25,180,{L:90,D:60}),
+        it('sillaCover',2087,88,180,{pint:'negro'}),it('sillaCover',2147,88,180,{pint:'negro'}),it('sillaCover',2207,88,180,{pint:'negro'}),it('sillaCover',2265,-30,-90,{pint:'negro'}),it('sillaCover',2265,30,-90,{pint:'negro'})]},
     }),ocultar:['MES-1','HEL-1'],piso:PISO},
     living:{n:'Living',piso:PISO,vista:{p:[1650,520,1250],t:[1640,60,330]},esc:()=>{const I=itA('living');return {
       A:{nombre:'Frente al hogar',items:[I('alfombra',1700,300,0,{L:340,D:240}),I('sofaPlat',1712,470,180,{L:360,D:100,esq:1,Le:200,tela:'lino',mad:'roble'}),I('butaca',1465,280,90,{tela:'mostaza'}),I('ratona',1650,290,0,{L:120,D:60})]},
