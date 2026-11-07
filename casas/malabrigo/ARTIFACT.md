@@ -7,4 +7,4 @@
 - **Capacidades:** `db`.
 - **Página:** `malabrigo.html`. Archivos propios: `modelo.js` (tablas; `modelo(D)` genera las dos plantas), `casa.js` (armado, tirantes inclinados, hamaca, cielorraso, cómputo), `equipamiento-malabrigo.js`, `tours-malabrigo.js`, `video.js`, `calco-glb.js` (vacío: el visor de planta lo importa siempre).
 - **Pruebas (5/11/2026):** apoyos 2 bien / 0 mal; intersecciones 0 cruces (66 encuentros esperados); muebles 0 choques en los cuatro escenarios. Los tirantes y clavaderas son tipo 'tirante' / 'clavadera' en ESTRUCTURA: apoyos.mjs no los revisa (sólo vigas horizontales); se armaron para apoyar en los dos muros y la viga.
-- **Motor publicado:** ce38263 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** bb6c4ac (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
