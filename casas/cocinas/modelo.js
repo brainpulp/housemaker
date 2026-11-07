@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.35', fecha: '2026-11-07',
+export const META = { nombre: 'Cocinas', version: '0.1.36', fecha: '2026-11-07',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -25,10 +25,10 @@ export const META = { nombre: 'Cocinas', version: '0.1.35', fecha: '2026-11-07',
 export const CASAS = [
   { pre: 'MO', nombre: 'Mocoretá', fuente: 'croquis de Maxi (3/11/2026)', M: MO, caja: [{ x: [-10, 545], y: [-20, 640] }], d: [0, 0, 0], niveles: ['PB'], tope: 260, techosPropios: true,
     piso: 0, caja_escena: { x: [-10, 545], y: [-20, 640] } },
-  { pre: 'CH', nombre: 'Carhué', fuente: 'casas/carhue/modelo.js', M: CARHUE, caja: [{ x: [1817, 2050], y: [-645, 360] }, { x: [2036, 2382], y: [-340, 360] }] /* Maxi 7/11: 2 m más de living hacia el este (antes hasta 160), para otra mesa */, d: [-1817, 1550, 0], niveles: ['PB'], ocultar: ['MES-1', 'HEL-1'],
+  { pre: 'CH', nombre: 'Carhué', fuente: 'casas/carhue/modelo.js', M: CARHUE, caja: [{ x: [1817, 2050], y: [-645, 360] }, { x: [2036, 2382], y: [-340, 360] }, { x: [1567, 1817], y: [0, 360] }] /* Maxi 7/11: 2 m más de living hacia el este (antes hasta 160), para otra mesa; y 2,50 del living al sur de la cocina, para que se vea que la pared sur (M-20) termina ahí porque la casa dobla: sigue M-02 hacia el sur */, d: [-1817, 1550, 0], niveles: ['PB'], ocultar: ['MES-1', 'HEL-1'],
     /* opciones de diseño de Carhué que tocan la cocina (Maxi 7/11): la puerta del baño piletero P-26 va en M-24, mirando al sur (la variante «m24» de casa.js); la escalera al altillo es la B3 con sus valores de siempre (casa.js) */
     ajustes: { 'P-26': { muro: 'M-24', d: 134, w: 78 } },
-    topes: { 'M-20': 292, 'M-22': 302, 'M-26': 335, 'M-02': 255, 'M-03': 255, 'M-24': 262, 'M-28': 262, 'M-25': 262, 'M-23': 262 }, tope: 340, piso: 0, caja_escena: { x: [0, 565], y: [905, 1910] } },
+    topes: { 'M-20': 292, 'M-22': 302, 'M-26': 335, 'M-02': 255, 'M-03': 255, 'M-24': 262, 'M-28': 262, 'M-25': 262, 'M-23': 262 }, tope: 340, piso: 0, caja_escena: { x: [-250, 565], y: [905, 1910] } },
   { pre: 'AR', nombre: 'Arcos', fuente: 'casas/arcos/modelo.js', M: ARCOS, caja: [{ x: [-20, 540], y: [2340, 3085] }],/* hasta 70 pasado el borde de la fosa (x 470, medido 5/11), para ver el escalón */ d: [0, -330, -21], niveles: ['PB', 'EP'], techoNiveles: ['P2'], tope: 592,
     piso: 51, caja_escena: { x: [-20, 470], y: [2010, 2755] } },
 ];
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-07', v: '0.1.36', txt: 'Maxi 7/11: Carhué, escenario D: mesada y península en L (no en T) y la mesa de madera cuadrada de 2,20 × 2,20. El recorte suma 2,50 del living al sur de la cocina: la pared sur termina porque la casa dobla ahí (sigue M-02 hacia el sur).' },
   { fecha: '2026-11-07', v: '0.1.35', txt: 'Maxi 7/11: Carhué, escenario D según su croquis: mesada negra con la bacha bajo la ventana y una península perpendicular (bloque negro con anafe de 4 pegado a la mesada, mesa de madera en L hacia el living) con sillas al este y en la punta norte.' },
   { fecha: '2026-11-07', v: '0.1.34', txt: 'Maxi 7/11: Carhué con las mismas opciones de diseño que la casa: la puerta del baño piletero P-26 en M-24, mirando al sur (antes en M-26, como en las tablas); la escalera al altillo B3 ya estaba.' },
   { fecha: '2026-11-07', v: '0.1.33', txt: 'Maxi 7/11: en Arcos, las alacenas llegan a 3,92 como la mesada: un bandejero vertical de 0,30 en la punta de la ventana (motor: «band» en la alacena, como en la mesada) y el estante de abajo también a 3,92.' },
