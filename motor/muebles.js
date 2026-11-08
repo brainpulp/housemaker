@@ -309,7 +309,7 @@ export function catalogoMuebles(THREE){
         g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],...carcasa(xb+4,p.L/2-4,10,p.Hb-4,zb+4,zf,p.fr,mods,{extFr:false}),[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
         for(let i=0;i<mods;i++){const [xl,xr,xa,xq]=modX(xb+4,p.L/2-4,mods,i);for(let j=0;j<filas;j++){const [ya,yb]=filaY(10,p.Hb-4,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xq,ya,yb,zb+4,zf,p.fr));}}
         /* tapa en L de una pieza, con canto vivo irregular (±2,5 cm) en los dos bordes largos (Maxi 4/11: «borde vivo en ambos lados»); rectos: las puntas y el borde contra el bloque */
-        {const e=(x,f)=>1.6*Math.sin(x*.045+f)+.9*Math.sin(x*.13+2.1*f)+.45*Math.sin(x*.41+f),n=Math.max(8,Math.round(p.L/4)),sh=new THREE.Shape();
+        {const e=p.canto==='recto'?()=>0:(x,f)=>1.6*Math.sin(x*.045+f)+.9*Math.sin(x*.13+2.1*f)+.45*Math.sin(x*.41+f)/* Maxi 7/11 (Carhué): canto:'recto' = bordes rectos, sin canto vivo */,n=Math.max(8,Math.round(p.L/4)),sh=new THREE.Shape();
           sh.moveTo(-p.L/2,-p.D/2-e(-p.L/2,.7));for(let i=1;i<=n;i++){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2-e(x,.7));}/* borde −z, largo entero */
           sh.lineTo(p.L/2,zb-.5);sh.lineTo(xb-.5,zb-.5);/* punta +x de la tira y borde contra el bloque */
           const n2=Math.max(6,Math.round((xb+p.L/2)/4));for(let i=0;i<=n2;i++){const x=xb-(xb+p.L/2)*i/n2;sh.lineTo(x,p.D/2+e(x,2.9));}/* borde +z del tramo libre */

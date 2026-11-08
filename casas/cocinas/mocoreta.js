@@ -11,7 +11,7 @@ export const MO = {
     { id: 'M-02', nivel: 'PB', a: [538, 0], b: [538, 630], e: 6, tipo: 'vidrio', top: 260, modulos: 3, estado: 'existente', conf: 'supuesto', nombre: 'Ventanal N (pasillo)', nota: 'Croquis 3/11: «ventanal» en toda la pared norte, del lado del pasillo. Mismos supuestos que M-01.' },
     { id: 'M-03', nivel: 'PB', a: [0, -7.5], b: [335, -7.5], e: 15, tipo: 'ladrillo', carga: true, top: 260, estado: 'existente', conf: 'medido', nombre: 'Pared O', nota: 'Croquis 3/11: desde el ventanal S hasta el pasillo (5,35 − 2,00 = 3,35). Espesor supuesto 15.' },
     { id: 'M-04', nivel: 'PB', a: [330, 0], b: [330, 90], e: 10, tipo: 'tabique', carga: false, top: 260, estado: 'existente', conf: 'estimado', nombre: 'Tabique de la heladera, lado del pasillo', nota: 'Maxi 3/11: «falta un tabique que rodea a H». Lado norte, contra el pasillo. Altura supuesta hasta el techo (D-M4).' },
-    { id: 'M-05', nivel: 'PB', a: [253, 0], b: [253, 90], e: 10, tipo: 'tabique', carga: false, top: 260, estado: 'existente', conf: 'estimado', nombre: 'Tabique de la heladera, lado de la mesada', nota: 'Maxi 3/11: «el tabique está bien». Lo armé como nicho: tabique al norte (pasillo) y al sur (contra la punta de la mesada 1), y la heladera abre hacia el este, a la cocina. Si el tabique del lado este existe de verdad, la heladera no abre: por eso lo pregunto (D-M7).' },
+    /* M-05 (tabique de la heladera del lado de la mesada) salió el 7/11: Maxi, «MO:M-05 no debe estar». Queda sólo M-04, del lado del pasillo. */
   ],
   ABERTURAS: [],
   LOCALES: [
@@ -31,7 +31,7 @@ export const MO = {
     { id: 'D-M3', ref: ['L-01'], q: 'Mocoretá: en el borde este la casa sigue. ¿Hay pared, o la cocina queda abierta al resto?' },
     { id: 'D-M4', ref: ['M-04', 'M-05'], q: 'Mocoretá: el tabique de la heladera, ¿llega al techo o remata a la altura de la heladera?' },
     { id: 'D-M5', ref: ['L-02', 'M-03'], q: 'Mocoretá: el pasillo sigue hacia el oeste pasando la pared O. ¿Hasta dónde, y el ventanal N sigue con él?' },
-    { id: 'D-M6', ref: ['L-01'], q: 'Mocoretá: medidas de la mesa del comedor y de las mesadas (fondo) que no están en el croquis. Puse mesa de 2,00 × 0,95 y mesadas de 0,85 (O) y 0,65 (S).' },
+    { id: 'D-M6', ref: ['L-01'], q: 'Mocoretá: medidas de la mesa del comedor y de las mesadas (fondo) que no están en el croquis. Mesa de 2,80 × 1,20 (Maxi 7/11); puse mesadas de 0,85 (O) y 0,65 (S).' },
     { id: 'D-M7', ref: ['M-04', 'M-05'], q: 'Mocoretá: el tabique de la heladera lo armé como nicho abierto al este (tabiques al norte y al sur, la puerta de la heladera mira a la cocina). En mi dibujo anterior el lado este estaba punteado: si de verdad hay tabique al este, ¿hacia dónde abre la heladera?' },
   ],
 };

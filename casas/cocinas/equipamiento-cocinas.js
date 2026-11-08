@@ -11,8 +11,8 @@ export function equipCocinas({ it, itA }) {
   const AMB = {
     carhue: { n: 'Carhué', piso: 0, ver: p => p.verCH !== false, vista: { p: [720, 260, 1790], t: [140, 80, 1400] }, esc: () => { const I = itA('carhue'); return {
       A: { nombre: 'Versión D (2/11): negro mate, piedra negra, roble', items: [/* Carhué, casas/carhue/equipamiento-carhue.js escenario D, trasladado */
-        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'negro', top: 'granito', huecos: [[161, 80, 50]] }), I('bachaFarm', 55.5, 1308, 90, { L: 80, D: 50 }),
-        I('salpicadero', 18.5, 1423, 90, { L: 270, H: 10 }), I('salpicadero', 17.5, 1393, 90, { L: 30, H: 108, caja: 10 }, 92), I('campanaIsla', 210, 1570, 180, { L: 90, D: 60 }),
+        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1405.5, 90, { L: 235, D: 62, fr: 'negro', top: 'granito', huecos: [[97.5, 80, 50]] }), I('bachaFarm', 55.5, 1308, 90, { L: 80, D: 50 }),
+        I('salpicadero', 18.5, 1405.5, 90, { L: 235, H: 10 }), I('salpicadero', 17.5, 1393, 90, { L: 30, H: 108, caja: 10 }, 92), I('campanaIsla', 210, 1570, 180, { L: 90, D: 60 }),
         I('isla', 210, 1595, 180, { L: 260, D: 110, vol: 30, fr: 'roble', top: 'granito', top2: 'madRust', corte: 60 }), I('anafe', 210, 1570, 180, { L: 90, D: 52, n: 5 }),
         I('banqueta', 138, 1672, 0, { mad: 'roble' }), I('banqueta', 198, 1672, 0, { mad: 'roble' }), I('banqueta', 258, 1672, 0, { mad: 'roble' }), I('banqueta', 318, 1672, 0, { mad: 'roble' })] },
       B: { nombre: 'Como está hoy (15/10): verde, heladera roja', items: [
@@ -23,8 +23,10 @@ export function equipCocinas({ it, itA }) {
         I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'negro', top: 'granito', huecos: [[161, 80, 50]] }), I('bachaFarm', 55.5, 1308, 90, { L: 80, D: 50 }),
         I('salpicadero', 18.5, 1423, 90, { L: 270, H: 10 }), I('salpicadero', 17.5, 1393, 90, { L: 30, H: 108, caja: 10 }, 92),
         /* Maxi 7/11 (2.ª vuelta): en L y no en T (cara este al ras de la punta de la mesada) y la madera cuadrada, 2,20 × 2,20, con el bloque sobre su esquina sudoeste */
-        I('islaMesa', 190, 1540, 180, { L: 220, D: 220, Lb: 160, Db: 70, H: 75, Hb: 90, fr: 'negro', top: 'granito', mad: 'roble', mod: 76 }), I('anafe', 160, 1465, 180, { L: 60, D: 52, n: 4 }), I('campanaIsla', 160, 1465, 180, { L: 90, D: 60 }),
-        I('sillaCover', 120, 1678, 180, { pint: 'negro' }), I('sillaCover', 190, 1678, 180, { pint: 'negro' }), I('sillaCover', 260, 1678, 180, { pint: 'negro' }), I('sillaCover', 328, 1470, -90, { pint: 'negro' }), I('sillaCover', 328, 1540, -90, { pint: 'negro' }), I('sillaCover', 328, 1610, -90, { pint: 'negro' })] } }; } },
+        /* Maxi 7/11 (4.ª vuelta): la L de mesadas negras dobla justo donde termina la pared sur (y 1593, cara norte de M-02): mesada de 2,35 y el bloque negro de 1,60 × 0,70 en la esquina, de la pared hacia el norte; la mesa de madera (bordes rectos) sigue hacia el este pasando la pared y al norte del bloque */
+        /* Maxi 7/11 (3.ª vuelta): «dije una L»: la península arranca en la pared sur pasada la punta este de la mesada; el bloque negro sigue a la mesada doblando hacia el norte y la madera, de bordes rectos, queda al este y al norte */
+        I('islaMesa', 127.5, 1633, 180, { L: 220, D: 220, Lb: 160, Db: 70, H: 75, Hb: 90, fr: 'negro', top: 'granito', mad: 'roble', mod: 76, canto: 'recto' }), I('anafe', 97.5, 1558, 180, { L: 60, D: 52, n: 4 }), I('campanaIsla', 97.5, 1558, 180, { L: 90, D: 60 }),
+        I('sillaCover', 58, 1771, 180, { pint: 'negro' }), I('sillaCover', 128, 1771, 180, { pint: 'negro' }), I('sillaCover', 198, 1771, 180, { pint: 'negro' }), I('sillaCover', 265, 1563, -90, { pint: 'negro' }), I('sillaCover', 265, 1633, -90, { pint: 'negro' }), I('sillaCover', 265, 1703, -90, { pint: 'negro' })] } }; } },
     arcos: { n: 'Arcos', piso: 51, ver: p => p.verAR !== false, vista: { p: [640, 250, 2130], t: [120, 130, 2440] }, esc: () => { const I = itA('arcos'); return {
       A: { nombre: 'Propuesta 2/11 + pared del 3/11', items: [/* Maxi 4/11: frentes de cajones oscuros (madOsc) en mesada, columna y bloque. Maxi 3/11: la heladera va entre el horno y la despensa (punta este, contra la pared del depósito); donde estaba, una mesita de desayuno con banquetas perpendicular a la medianera */
         I('heladera', 52, 2697, 90, { L: 75, D: 70, H: 190, col: 'negro' }), I('columna', 46, 2630, 90, { L: 58, D: 62, H: 228, fr: 'petiribi' }), /* Maxi 4/11: mueble sobre la heladera, continuación de la torre del horno (sin LED abajo) */ I('alacena', 46, 2697, 90, { L: 75, D: 62, H: 38, fr: 'petiribi', led: false }, 190),
@@ -43,7 +45,8 @@ export function equipCocinas({ it, itA }) {
         I('mesada', 124, 42.5, 0, { L: 248, D: 85, H: 90, fr: 'madClara', top: 'granito' }), I('anafe', 125, 44, 0, { L: 60, D: 52 }), I('heladera', 291.5, 36, 0, { L: 65, D: 70, H: 190, col: 'acero' }),
         I('mesada', 32.5, 300, 90, { L: 300, D: 65, H: 90, fr: 'madClara', top: 'granito' }), I('bacha', 34.5, 192, 90, { L: 80 }),
         I('isla', 235, 240, 0, { L: 220, D: 90, vol: 0, fr: 'madRust', top: 'madRust' }),
-        I('mesaComedor', 267, 530, 0, { L: 200, D: 95 }), ...sillas(I, 267, 530, 200, 95, 3)] },
+        /* Maxi 7/11: la mesa (#7) de 2,80 × 1,20 */ I('mesaComedor', 267, 530, 0, { L: 280, D: 120 }), ...sillas(I, 267, 530, 280, 120, 3),
+        /* Maxi 7/11: alacenas altas sobre la mesada 1, contra la pared O (M-03): 2,48 en tres puertas proyectadas */ I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150)] },
       B: { nombre: 'Vacía', items: [] } }; } },
   };
   return { inicial: 'carhue', AMB, orden: ['mocoreta', 'carhue', 'arcos'] };
