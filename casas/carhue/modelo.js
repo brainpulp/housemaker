@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.17', fecha:'2026-11-07',
+  nombre:'Carhué', version: '1.1.18', fecha:'2026-11-07',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-08', v:'1.1.18', txt:'Cocina E como la dejó Maxi en Cocinas (8/11): mesa de madera de 2,60 × 1,50 junto al bloque, anafe corrido hacia la pared, cinco sillas.'},
   {fecha:'2026-11-07', v:'1.1.17', txt:'Cocina E en L de verdad (Maxi 7/11): la mesada negra (2,35) dobla justo donde termina la pared sur (y 43), con el bloque negro de 1,60 × 0,70 en la esquina hacia el norte; la mesa de madera, de bordes rectos, sigue hacia el este pasando la pared y al norte del bloque.'},
   {fecha:'2026-11-07', v:'1.1.16', txt:'Cocina E: mesada y península en L (no en T) y la mesa de madera cuadrada, 2,20 × 2,20 (Maxi 7/11).'},
   {fecha:'2026-11-07', v:'1.1.15', txt:'Cocina, escenario E según el croquis de Maxi (7/11): mesada negra con la bacha bajo V-21 y una península perpendicular desde su frente: bloque negro de piedra con el anafe de 4 y mesa de madera en L (roble) hacia el living y el norte, con sillas negras.'},
