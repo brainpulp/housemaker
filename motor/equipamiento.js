@@ -243,8 +243,7 @@ export function initEquipamiento(visor,stage,D){
     /* la caja mide sólo las mallas visibles (sin el ícono); la de la caja roja incluye el ícono, como siempre */
     const bm=new THREE.Box3();g.updateMatrixWorld(true);g.traverse(o=>{if(o.isMesh&&o.visible&&o.parent.visible)bm.expandByObject(o);});
     const bb=new THREE.Box3().setFromObject(g);bb.expandByScalar(1.5);selBox=new THREE.Box3Helper(bb,new THREE.Color('#e2462b'));selBox.material.depthTest=false;selBox.renderOrder=2000;G.add(selBox);
-    /* etiqueta con el nombre del mueble elegido (Maxi 5/11: «así te puedo decir a qué me refiero»): nombre del catálogo y número en su ambiente */
-    if(visor.etiqueta&&!bm.isEmpty()){const mm=item(sel),cc=mm&&catOf(mm.t,capa);const nm=(mm&&mm.nombre)||(cc&&cc.n)||sel;const n=sel.split('_').pop();const ia=sel.split('_')[0],ka=AMB[ia]?ia:amb;/* Maxi 7/11: el ambiente es el del mueble (su id), no el que está abierto en el panel; en dos renglones y sobre fondo lleno, para que se lea */visor.etiqueta(`<div style="margin:-2px -7px;padding:3px 8px;border-radius:3px;background:#8e3515;color:#fff;line-height:1.25;text-align:left;white-space:nowrap"><b>${nm}</b><br><span style="font-weight:400;opacity:.9">#${n} · ${(AMB[ka]&&AMB[ka].n)||ka}</span></div>`,[(bm.min.x+bm.max.x)/2,bm.max.y+6,(bm.min.z+bm.max.z)/2],'tag pick',selDims,true);}
+    /* el nombre del mueble ya no va con la selección: aparece al posar el puntero (Maxi 8/11), ver etiquetaHover más abajo */
     /* cotas como las de las partes del edificio (Maxi 4/11): largo, fondo y alto en las aristas de arriba de la caja, en cm */
     if(visor.etiqueta&&!bm.isEmpty()){const s=bm.getSize(new THREE.Vector3()),f=visor.f1,c=camera.position;
       /* en las aristas que salen de la esquina más cercana a la cámara, para que no queden atrás del mueble */
@@ -252,13 +251,8 @@ export function initEquipamiento(visor,stage,D){
       visor.etiqueta(f(s.x),[(bm.min.x+bm.max.x)/2,bm.max.y,ez],'edge',selDims,true);
       visor.etiqueta(f(s.z),[ex,bm.max.y,(bm.min.z+bm.max.z)/2],'edge',selDims,true);
       visor.etiqueta(f(s.y),[ex,(bm.min.y+bm.max.y)/2,ez],'edge',selDims,true);}}
-  /* etiqueta del elegido: qué es y, si es una luz, lúmenes, color y si está prendida */
-  const tag=document.createElement('div');tag.id='eqTag';tag.hidden=true;(stage||document.body).appendChild(tag);const _t=new THREE.Vector3();let tagTxt='';
-  function ponerTag(){const g=sel&&groups.get(sel),m=g&&item(sel);if(!g||!m||card.hidden||!g.visible){tag.hidden=true;return;}const k=g.userData.capa;
-    const txt=`${esc(nombreCorto(m,k))} · ${esc(AMB[g.userData.amb].n)}${k==='luz'?`<small>${resumen(m)}</small>`:''}`;if(txt!==tagTxt){tag.innerHTML=txt;tagTxt=txt;}
-    const bb=new THREE.Box3();g.traverse(o=>{if(o.isMesh)bb.expandByObject(o);});_t.set((bb.min.x+bb.max.x)/2,bb.max.y+4,(bb.min.z+bb.max.z)/2).project(camera);
-    if(_t.z>1){tag.hidden=true;return;}const r=view.getBoundingClientRect(),sr=(stage||document.body).getBoundingClientRect();tag.hidden=false;tag.style.left=(r.left-sr.left+(_t.x+1)/2*r.width)+'px';tag.style.top=(r.top-sr.top+(1-_t.y)/2*r.height-8)+'px';}
-  let lastEp=null,lastPk='';requestAnimationFrame(function loop(){requestAnimationFrame(loop);const io=!card.hidden&&capa==='luz';if(io!==iconsOn){iconsOn=io;pintarIconos();}ponerTag();G.visible=visor.params.equip!==false||nocheOn;const pk=JSON.stringify(visor.params);/* cualquier variable de la casa puede cambiar qué se ve (ep, equip, ext, las llaves por ambiente) */if(pk!==lastPk){lastPk=pk;if(visor.params.ep!==lastEp){lastEp=visor.params.ep;tParts=null;}vis();}});
+  /* la etiqueta negra del elegido (#eqTag) se fue el 8/11 (Maxi: «tiene doble etiqueta, eliminá la negra»); lo que decía (nombre, ambiente y, en las luces, lúmenes y color) va en la etiqueta al posar el puntero */
+  let lastEp=null,lastPk='';requestAnimationFrame(function loop(){requestAnimationFrame(loop);const io=!card.hidden&&capa==='luz';if(io!==iconsOn){iconsOn=io;pintarIconos();}G.visible=visor.params.equip!==false||nocheOn;const pk=JSON.stringify(visor.params);/* cualquier variable de la casa puede cambiar qué se ve (ep, equip, ext, las llaves por ambiente) */if(pk!==lastPk){lastPk=pk;if(visor.params.ep!==lastEp){lastEp=visor.params.ep;tParts=null;}vis();}});
 
   /* ---------- arrastrar / girar ---------- */
   const rc=new THREE.Raycaster(),mv=new THREE.Vector2();
@@ -280,15 +274,27 @@ export function initEquipamiento(visor,stage,D){
     EG.position.set(egC.x,egBB.max.y+6,egC.z);EG.scale.setScalar(Math.max(.06,camera.position.distanceTo(EG.position)/2250));/* Maxi 15/10: 20 % del tamaño anterior */
     ER.position.set(g.position.x,egBB.min.y+2,g.position.z);ER.scale.setScalar(Math.max(egS.x,egS.z)/2+14);})();
   /* en la captura de la ventana, antes que las herramientas de edición: si se toca un mueble o su gizmo, gana el mueble aunque haya una pieza de la casa elegida (Maxi 15/10) */
+  /* qué mueble hay bajo el rayo (rc ya apuntado): primero los íconos, después las mallas de muebles y luces; si una pared lo tapa, nada */
+  function hitMueble(abierto){const ics=[];if(abierto&&iconsOn)for(const g of groups.values())if(g.visible&&g.userData.ico)ics.push(g.userData.ico);let h=rc.intersectObjects(ics,false)[0];
+    if(!h){const ms=[];for(const g of groups.values())if(g.visible&&(abierto?g.userData.capa===capa||g.userData.capa==='mue'||g.userData.capa==='luz':g.userData.capa==='mue'||g.userData.capa==='luz'))g.traverse(o=>{if(o.isMesh&&!o.isSprite)ms.push(o);});
+      h=rc.intersectObjects(ms,false).find(okClip)||null;
+      if(h){const pm=[];for(const q of visor.parts||[]){if(!q.grp||q.grp.visible===false)continue;q.grp.traverse(o=>{if(o.isMesh&&o.visible)pm.push(o);});}const hp=rc.intersectObjects(pm,false).find(x=>okClip(x)&&!(x.object.material&&x.object.material.transparent&&x.object.material.opacity<.6));if(hp&&hp.distance<h.distance-2)h=null;}}
+    return h||null;}
+  /* etiqueta al posar el puntero (Maxi 8/11: «on hover while idle, after 1 sec or so»): quieto un segundo sobre un mueble, aparece su nombre, número y ambiente (y en las luces, lúmenes, color y si está prendida); se va al mover el puntero */
+  const hovDims=new THREE.Group();G.add(hovDims);let hovT=0,hovId=null;
+  const sinHover=()=>{if(hovT){clearTimeout(hovT);hovT=0;}if(hovId){hovId=null;visor.quitarEtiquetas&&visor.quitarEtiquetas(hovDims);window.__despertar&&window.__despertar();}};
+  function etiquetaHover(e){if(!visor.etiqueta||!G.visible||dr||drMov||otraHerr())return;setRay(e);const h=hitMueble(!card.hidden);const id=h&&h.object.userData.item;const g=id&&groups.get(id),m=g&&item(id);if(!g||!m)return;
+    const k=g.userData.capa,cc=catOf(m.t,k),nm=m.nombre||(cc&&cc.n)||id,n=id.split('_').pop(),ia=id.split('_')[0],ka=AMB[ia]?ia:g.userData.amb;
+    const bm=new THREE.Box3();g.updateMatrixWorld(true);g.traverse(o=>{if(o.isMesh&&o.visible&&o.parent.visible)bm.expandByObject(o);});if(bm.isEmpty())return;hovId=id;
+    visor.etiqueta(`<div style="margin:-2px -7px;padding:3px 8px;border-radius:3px;background:#8e3515;color:#fff;line-height:1.25;text-align:left;white-space:nowrap"><b>${esc(nm)}</b><br><span style="font-weight:400;opacity:.9">#${n} · ${esc((AMB[ka]&&AMB[ka].n)||ka)}${k==='luz'?' · '+esc(resumen(m)):''}</span></div>`,[(bm.min.x+bm.max.x)/2,bm.max.y+6,(bm.min.z+bm.max.z)/2],'tag pick',hovDims,true);window.__despertar&&window.__despertar();/* el visor en reposo no redibuja: hay que despertarlo para que la etiqueta aparezca */}
+  view.addEventListener('pointermove',e=>{sinHover();if(e.pointerType==='touch'||e.buttons)return;const ev={clientX:e.clientX,clientY:e.clientY};hovT=setTimeout(()=>{hovT=0;etiquetaHover(ev);},900);});
+  view.addEventListener('pointerleave',sinHover);view.addEventListener('pointerdown',sinHover,true);addEventListener('wheel',sinHover,{passive:true});
   const otraHerr=()=>!!(visor.caminar&&visor.caminar.on)||['marcasPanel','medPanel','senPanel'].some(i=>{const el=document.getElementById(i);return el&&!el.hidden&&el.offsetParent!==null;});/* con marcar, medir o señalar activos, el toque es de esa herramienta */
   addEventListener('pointerdown',e=>{if(e.button!==0||!card||e.target!==visor.renderer.domElement)return;if(otraHerr())return;const abierto=(!card.hidden||visor.editorTool==='mover')&&(G.visible||capa==='veg');if(!abierto&&!G.visible)return;setRay(e);
     if(EG.visible){const hh=rc.intersectObjects([...EG.children,...ER.children],true)[0];const m=hh&&item(sel),g=hh&&groups.get(sel);
       if(m&&g){e.stopPropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-hh.point.y);const p0=hh.point.clone();rc.ray.intersectPlane(pl,p0);
         dr={id:sel,pl,eg:hh.object.userData.eg,p0,mx:m.x,my:m.y,r0:m.r||0,a0:Math.atan2(p0.z-g.position.z,p0.x-g.position.x),moved:false};return;}}
-    const ics=[];if(abierto&&iconsOn)for(const g of groups.values())if(g.visible&&g.userData.ico)ics.push(g.userData.ico);let h=rc.intersectObjects(ics,false)[0];
-    if(!h){const ms=[];for(const g of groups.values())if(g.visible&&(abierto?g.userData.capa===capa||g.userData.capa==='mue'||g.userData.capa==='luz':g.userData.capa==='mue'||g.userData.capa==='luz'))g.traverse(o=>{if(o.isMesh&&!o.isSprite)ms.push(o);});
-      h=rc.intersectObjects(ms,false).find(okClip)||null;
-      if(h){const pm=[];for(const q of visor.parts||[]){if(!q.grp||q.grp.visible===false)continue;q.grp.traverse(o=>{if(o.isMesh&&o.visible)pm.push(o);});}const hp=rc.intersectObjects(pm,false).find(x=>okClip(x)&&!(x.object.material&&x.object.material.transparent&&x.object.material.opacity<.6));if(hp&&hp.distance<h.distance-2)h=null;}}
+    const h=hitMueble(abierto);
     if(!h){return;}const id=h.object.userData.item;const m=item(id);if(!m)return;{const mg=movDe(h.object);if(mg&&visor.editorTool!=='mover'){e.stopImmediatePropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;drMov={g:mg,x:e.clientX,y:e.clientY,c0:mg.userData.mov.cur,moved:false};return;}}
     /* sólo se mueven con su ícono activo (Maxi 15/10); si no, un toque sin arrastre lo elige (y activa su ícono) y arrastrar orbita la cámara */
     /* Maxi 4/11: con la herramienta Mover del editor prendida, el mueble se arrastra directo aunque el panel de equipamiento esté cerrado (se abre solo y pasa a su capa) */
@@ -324,8 +330,7 @@ export function initEquipamiento(visor,stage,D){
 #eqCard .eqg input,#eqCard .eqg select,#eqCard .eqr select,#eqCard .eqr input{width:100%;min-width:0;font-size:11px;padding:1px 3px;box-sizing:border-box}#eqCard .eqr{display:flex;gap:4px;align-items:center;margin-bottom:5px}
 #eqCard .eqr>span{flex:none;color:var(--muted);font-size:10px;width:52px}#eqCard .eqi{display:flex;align-items:center;gap:5px;padding:2px 4px;border-radius:3px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #eqCard .eqi:hover{background:var(--accent-soft)}#eqCard .eqi.on{background:var(--accent-soft);font-weight:600}#eqCard .ib{padding:1px 5px;font-size:11px;line-height:16px}#eqCard input[type=range]{height:12px}
-#eqTag{position:absolute;z-index:7;pointer-events:none;transform:translate(-50%,-100%);background:rgba(20,22,24,.88);color:#fff;font:11px/1.3 var(--f-mono,monospace);padding:3px 7px;border-radius:3px;white-space:nowrap}
-#eqTag small{color:#d9c58a;display:block}`;document.head.appendChild(CSS);
+`;document.head.appendChild(CSS);
   const UI_MUE=[['L','largo','num'],['D','fondo','num'],['H','alto','num']];
   const ib=(a,t,tip='')=>`<button class="btn ib" data-a="${a}" title="${esc(tip)}">${t}</button>`;
   function campos(m){const c=catOf(m.t,capa);const ui=c.ui||UI_MUE.filter(([k])=>c.p[k]!=null);
