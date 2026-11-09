@@ -138,7 +138,12 @@ export function catalogoMuebles(THREE){
   banco:{n:'Banco de madera maciza',cat:'estar',p:{L:180,D:38,H:45,mad:'roble'},g:p=>[[R(-p.L/2,p.L/2,p.H-6,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+14,-p.L/2+20,0,p.H-6,-p.D/2+4,p.D/2-4),p.mad],[B(p.L/2-20,p.L/2-14,0,p.H-6,-p.D/2+4,p.D/2-4),p.mad]]},
   alfombra:{n:'Alfombra de lana tejida',cat:'estar',p:{L:240,D:170},g:p=>[[R(-p.L/2,p.L/2,0,1,-p.D/2,p.D/2,.4),'alfombra']]},
   /* ---------- comedor ---------- */
-  mesa:{n:'Mesa de madera maciza, patas cónicas',cat:'comedor',p:{L:180,D:90,H:76,mad:'madOsc'},g:p=>{const g=[[p.canto==='vivo'?B(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2):R(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2,1),p.mad]/* canto 'vivo': bordes vivos (Maxi 8/11) */,[B(-p.L/2+12,p.L/2-12,p.H-12,p.H-5,-p.D/2+12,p.D/2-12),p.mad]];
+  mesa:{n:'Mesa de madera maciza, patas cónicas',cat:'comedor',p:{L:180,D:90,H:76,mad:'madOsc'},g:p=>{const tapa=()=>{/* canto 'vivo' (Maxi 8/11): los dos cantos largos con el borde natural del tronco, ondulación irregular, tablón de 6; las puntas cortadas a escuadra */
+      const sh=new THREE.Shape(),n=Math.max(10,Math.round(p.L/4)),ola=(x,f)=>1.8*Math.sin(x*.035+f)+1.0*Math.sin(x*.11+2.1*f)+.5*Math.sin(x*.37+f*3);
+      for(let i=0;i<=n;i++){const x=-p.L/2+p.L*i/n,y=p.D/2-1.5-ola(x,.7);i?sh.lineTo(x,y):sh.moveTo(x,y);}
+      for(let i=n;i>=0;i--){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2+1.5+ola(x,2.3));}
+      const ge=new THREE.ExtrudeGeometry(sh,{depth:5.4,bevelEnabled:true,bevelThickness:.3,bevelSize:.5,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.3,0);return ge;};
+    const g=[[p.canto==='vivo'?tapa():R(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+12,p.L/2-12,p.H-12,p.H-5,-p.D/2+12,p.D/2-12),p.mad]];
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(2.2,0,p.H-5,sx*(p.L/2-14),sz*(p.D/2-14),16,3.6),p.mad]);return g;}},
   /* Maxi 4/11: estructuras octet diseñadas en la página casas/octet (editor), copiadas en octet-modelos.js; con «modelo» se elige cuál. Nodos, tubos, discos, vidrio y regatones salen de octet.js */
   octet:{n:'Estructura octet (tubos y nodos, del editor Octet)',cat:'comedor',p:{modelo:Object.keys(OCTET)[0]||''},ui:[['modelo','modelo',Object.keys(OCTET)]],g:p=>{const m=OCTET[p.modelo];if(!m)return [[B(-20,20,0,2,-20,20),'rojo']];
