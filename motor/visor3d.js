@@ -22,6 +22,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import * as N from './nombres.js';
 
 /* ---------- geometría ---------- */
 /* une muchas geometrías en una sola (un solo dibujado): árboles, arbustos */
@@ -80,7 +81,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const P={};for(const q of model.params){P[q.id]=q.value;if(okVal(q,PRED[q.id]))P[q.id]=PRED[q.id];if(okVal(q,SAVED[q.id]))P[q.id]=SAVED[q.id];}
   const saveParams=()=>{try{localStorage.setItem('carhue-params',JSON.stringify(P));}catch(e){}if(hooksP.onParam)try{hooksP.onParam({...P});}catch(e){}};const hooksP={onParam:null};
   function setParams(obj){let ch=false;for(const q of model.params){if(!(q.id in obj))continue;let v=obj[q.id];if(!okVal(q,v))continue;if(String(P[q.id])!==String(v)){P[q.id]=v;syncParams(q.id);ch=true;}}if(ch){try{localStorage.setItem('carhue-params',JSON.stringify(P));}catch(e){}showIfs();syncPred();rebuild();}}
-  let out=null,parts=[],byId={},tokens={},G0=null,dims=null,curDims=null,focusSet=null,selId=null,stepIdx=-1,stepMode=false,ex=0,tween=null;const hidden=new Set(),transp=new Set();/* lo escondido con el ojo del outliner queda guardado por página (Maxi 4/11: «lo que escondo, dejalo escondido») */const KEYH='ocultas:'+location.pathname;try{for(const i of JSON.parse(localStorage.getItem(KEYH)||'[]'))hidden.add(i);}catch(e){}const saveHidden=()=>{try{localStorage.setItem(KEYH,JSON.stringify([...hidden]));}catch(e){}};const hooks={render:null};
+  let out=null,parts=[],byId={},tokens={},G0=null,dims=null,curDims=null,focusSet=null,selId=null,stepIdx=-1,stepMode=false,ex=0,tween=null;const hidden=new Set(),transp=new Set();/* lo escondido con el ojo del outliner queda guardado por página (Maxi 4/11: «lo que escondo, dejalo escondido») *//* Maxi 8/11: «por qué volvés a mostrar todo lo que escondo cada vez que hacés algo»: el localStorage por ruta se perdía con cada publicación. Ahora la lista vive en la base del artifact (estado/ocultas), como los candados; el navegador guarda una copia para arrancar */const KEYH='housemaker-ocultas';let dbH=null;try{for(const i of JSON.parse(localStorage.getItem(KEYH)||'[]'))hidden.add(i);}catch(e){}const saveHidden=()=>{const ids=[...hidden].sort();try{localStorage.setItem(KEYH,JSON.stringify(ids));}catch(e){}if(dbH)dbH.collection('estado').doc('ocultas').set({ids,ts:new Date().toISOString()}).catch(()=>{});};N.getDb().then(d=>{dbH=d;if(!d)return;d.collection('estado').doc('ocultas').onSnapshot(x=>{if(!x.exists)return;const ids=(x.data()||{}).ids;if(!Array.isArray(ids))return;hidden.clear();ids.forEach(i=>hidden.add(i));try{localStorage.setItem(KEYH,JSON.stringify(ids));}catch(e){}applyVis();},()=>{});});const hooks={render:null};
 
   /* ----- variables ----- */
   function paramInput(q,prefix){const id=prefix+q.id;

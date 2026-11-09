@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.44', fecha: '2026-11-08',
+export const META = { nombre: 'Cocinas', version: '0.1.45', fecha: '2026-11-08',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-08', v: '0.1.45', txt: 'Motor (Maxi 8/11): lo que escondés con el ojo ya no vuelve a aparecer con cada publicación; la lista de piezas escondidas se guarda en la base de la página (estado/ocultas), como los candados.' },
   { fecha: '2026-11-08', v: '0.1.44', txt: 'Motor (Maxi 8/11, regla): en todas las cajoneras el cajón grande va abajo y el finito arriba. Carhué: la escalera al altillo B3 gira con escalones compensados y sigue subiendo contra la pared hasta la puerta.' },
   { fecha: '2026-11-08', v: '0.1.43', txt: 'Arcos: la mesa de madera de la isla se acorta a 3,00 (era 3,80); el bloque de piedra queda en su lugar; tres sillas del lado del estar y una en la punta (Maxi 8/11).' },
   { fecha: '2026-11-08', v: '0.1.42', txt: 'Motor (Maxi 8/11): las vistas guardadas recuerdan el lente (fov) y si eran en perspectiva o paralela; al volver a una vista se restituyen.' },
