@@ -138,7 +138,7 @@ export function catalogoMuebles(THREE){
   banco:{n:'Banco de madera maciza',cat:'estar',p:{L:180,D:38,H:45,mad:'roble'},g:p=>[[R(-p.L/2,p.L/2,p.H-6,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+14,-p.L/2+20,0,p.H-6,-p.D/2+4,p.D/2-4),p.mad],[B(p.L/2-20,p.L/2-14,0,p.H-6,-p.D/2+4,p.D/2-4),p.mad]]},
   alfombra:{n:'Alfombra de lana tejida',cat:'estar',p:{L:240,D:170},g:p=>[[R(-p.L/2,p.L/2,0,1,-p.D/2,p.D/2,.4),'alfombra']]},
   /* ---------- comedor ---------- */
-  mesa:{n:'Mesa de madera maciza, patas cónicas',cat:'comedor',p:{L:180,D:90,H:76,mad:'madOsc'},g:p=>{const g=[[R(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+12,p.L/2-12,p.H-12,p.H-5,-p.D/2+12,p.D/2-12),p.mad]];
+  mesa:{n:'Mesa de madera maciza, patas cónicas',cat:'comedor',p:{L:180,D:90,H:76,mad:'madOsc'},g:p=>{const g=[[p.canto==='vivo'?B(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2):R(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2,1),p.mad]/* canto 'vivo': bordes vivos (Maxi 8/11) */,[B(-p.L/2+12,p.L/2-12,p.H-12,p.H-5,-p.D/2+12,p.D/2-12),p.mad]];
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(2.2,0,p.H-5,sx*(p.L/2-14),sz*(p.D/2-14),16,3.6),p.mad]);return g;}},
   /* Maxi 4/11: estructuras octet diseñadas en la página casas/octet (editor), copiadas en octet-modelos.js; con «modelo» se elige cuál. Nodos, tubos, discos, vidrio y regatones salen de octet.js */
   octet:{n:'Estructura octet (tubos y nodos, del editor Octet)',cat:'comedor',p:{modelo:Object.keys(OCTET)[0]||''},ui:[['modelo','modelo',Object.keys(OCTET)]],g:p=>{const m=OCTET[p.modelo];if(!m)return [[B(-20,20,0,2,-20,20),'rojo']];
@@ -276,11 +276,28 @@ export function catalogoMuebles(THREE){
     ratonaTab:{n:'Mesa ratona de tablones',p:{L:160,D:90,H:38,mad:'madRust',e:9},
       g:p=>{const g=[],n=3,e=p.e||9,w=(p.D-2*(n-1))/n;for(let i=0;i<n;i++){const z0=-p.D/2+i*(w+2);g.push([B(-p.L/2,p.L/2,p.H-e,p.H,z0,z0+w),p.mad]);}for(const x of [-p.L/2+25,p.L/2-25])g.push([B(x-9,x+9,0,p.H-e,-p.D/2+12,p.D/2-12),p.mad]);return g;}},
     bkf:{n:'Sillón BKF (Hardoy) de cuero suela',p:{cuero:'suela'},
-      g:p=>{/* Maxi 7/11: varilla de hierro negra de 12 mm y cuero colgado de las cuatro puntas; frente hacia +z */const g=[],r=.6,W=39,F=[37,60],K=[-37,88];
-        for(const s of [-1,1]){const x=s*W,xf=s*34;g.push([VAR([x,K[1],K[0]],[xf,0,30],r),'negro'],[VAR([x,F[1],F[0]],[xf,0,-32],r),'negro'],[VAR([xf,0,-32],[xf,0,30],r),'negro']);}
-        const nu=12,nt=16,pos=[],idx=[];for(let j=0;j<=nt;j++){const t=j/nt,sn=Math.sin(Math.PI*t);for(let i=0;i<=nu;i++){const u=-1+2*i/nu;pos.push(u*W*(1-.18*sn),F[1]+(K[1]-F[1])*t-40*sn*(1-.12*u*u),F[0]+(K[0]-F[0])*t);}}
+      g:p=>{/* Maxi 8/11: la geometría del BKF real, no una simplificación. Dos varillas macizas de 12 mm, cada una un lazo cerrado con cuatro horquillas:
+         una punta de atrás, la punta de adelante del OTRO lado y dos patas (la de adelante del lado de su punta de atrás y la de atrás del otro lado).
+         De costado se ve la X; atrás y adelante, las diagonales que cruzan. Medidas de la estructura fotografiada y acotada por Stefanos Cueros
+         (puntas de atrás a 70, de adelante a 63, punta de atrás a punta de adelante 78, piernas a 74 a la altura de las puntas de adelante)
+         y del plano de Muebles Lluesma (alto 91, ancho 79–82); las dos varillas se sueldan donde se cruzan de costado. Frente hacia +z. */
+        const g=[],r=.6,RB=2.2;
+        const PB=s=>[s*35,90,-36],PF=s=>[s*31.5,55,34],FF=s=>[s*41,0,30],FB=s=>[s*41,0,-30];
+        const V3=a=>new THREE.Vector3(...a);
+        const lazo=s=>{/* punta de atrás (lado s) → pata de adelante (lado s) → punta de adelante (lado −s) → pata de atrás (lado −s) → vuelve */
+          const P=[PB(s),FF(s),PF(-s),FB(-s)].map(V3),cp=new THREE.CurvePath();const n=P.length;
+          const ent=k=>{const a=P[k],b=P[(k+n-1)%n];return a.clone().add(b.clone().sub(a).setLength(RB*3));},sal=k=>{const a=P[k],b=P[(k+1)%n];return a.clone().add(b.clone().sub(a).setLength(RB*3));};
+          for(let k=0;k<n;k++){cp.add(new THREE.QuadraticBezierCurve3(ent(k),P[k],sal(k)));cp.add(new THREE.LineCurve3(sal(k),ent((k+1)%n)));}
+          return new THREE.TubeGeometry(cp,260,r,8,true);};
+        g.push([lazo(1),'negro'],[lazo(-1),'negro']);
+        /* cuero: cuelga de las cuatro puntas (los bolsillos las envuelven); el borde de los costados queda libre y el asiento baja a ~32 */
+        const nu=14,nt=18,pos=[],idx=[],F=PF(1),Bk=PB(1);
+        for(let j=0;j<=nt;j++){const t=j/nt,sn=Math.sin(Math.PI*t);for(let i=0;i<=nu;i++){const u=-1+2*i/nu;
+          const w=F[0]+(Bk[0]-F[0])*t,y=F[1]+(Bk[1]-F[1])*t-27*sn-11*(1-u*u)*Math.sqrt(sn),z=F[2]+(Bk[2]-F[2])*t-4*sn;
+          pos.push(u*w*(1-.2*sn),y,z);}}
         for(let j=0;j<nt;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,b=a+1,c=a+nu+1,d=c+1;idx.push(a,c,b,b,c,d,a,b,c,b,d,c);}
-        const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setIndex(idx);sg.computeVertexNormals();g.push([sg,p.cuero]);return g;}},
+        const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setIndex(idx);sg.computeVertexNormals();g.push([sg,p.cuero]);
+        return g;}},
     ratonaBaja:{n:'Mesa ratona redonda baja',p:{L:110,H:30,mad:'roble'},g:p=>[[CYL(p.L/2,p.H-5,p.H,0,0,48),p.mad],[CYL(p.L/2-22,0,p.H-5,0,0,40),p.mad]]},
     camaPlat:{n:'Cama baja sobre tarima con cabecero de listones',p:{L:180,D:205,ala:35,mad:'roble',tela:'sabana'},
       g:p=>{const g=[],H0=16,W=p.L+2*p.ala;g.push([B(-W/2,W/2,0,H0,-p.D/2,p.D/2+p.ala),p.mad],[B(-p.L/2,p.L/2,H0,H0+22,-p.D/2+4,p.D/2),'sabana'],[B(-p.L/2-1,p.L/2+1,H0+18,H0+26,-p.D/2+60,p.D/2+1),p.tela]);

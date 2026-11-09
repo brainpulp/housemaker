@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.18', fecha:'2026-11-07',
+  nombre:'Carhué', version: '1.1.19', fecha:'2026-11-07',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-08', v:'1.1.19', txt:'Living (Maxi 8/11): el sillón pasa a ser una L de brazos iguales (3,30 × 3,30), modelo real modular blanco sin el puf ni el último módulo de un brazo; la ratona, como la de la galería (petiribí, 1,50 × 0,70, tablas de 2″). Comedor: mesa de 4 m de bordes vivos y las sillas derechas, de frente a la mesa (cuatro por lado y una en cada cabecera). Motor: el BKF con la geometría real, dos varillas de 12 mm en lazos cerrados (punta de atrás, pata de adelante, punta de adelante del otro lado, pata de atrás) que de costado hacen la X, con las medidas de una estructura acotada (puntas a 70 y 63, 78 de punta a punta, 91 de alto).'},
   {fecha:'2026-11-08', v:'1.1.18', txt:'Cocina E como la dejó Maxi en Cocinas (8/11): mesa de madera de 2,60 × 1,50 junto al bloque, anafe corrido hacia la pared, cinco sillas.'},
   {fecha:'2026-11-07', v:'1.1.17', txt:'Cocina E en L de verdad (Maxi 7/11): la mesada negra (2,35) dobla justo donde termina la pared sur (y 43), con el bloque negro de 1,60 × 0,70 en la esquina hacia el norte; la mesa de madera, de bordes rectos, sigue hacia el este pasando la pared y al norte del bloque.'},
   {fecha:'2026-11-07', v:'1.1.16', txt:'Cocina E: mesada y península en L (no en T) y la mesa de madera cuadrada, 2,20 × 2,20 (Maxi 7/11).'},

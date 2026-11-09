@@ -10,6 +10,10 @@ export const MODELOS={
     titulo:'C&B++ Lounge II 2-piece Sectional',autor:'gham3d',uid:'0a05df5d02574dd9a678c835237704bc',
     /* el modelo trae la chaise a la izquierda (−x), hacia adelante; «der» la espeja *//* Maxi 5/11: la chaise se alarga sola (el fondo D estira sólo lo que está delante del sillón; el asiento y el respaldo quedan de su medida) */tramoZ:.55,
     caja:p=>{const d=Math.min(p.D,165);return [[-p.L/2,p.L/2,-p.D/2,-p.D/2+d],[-p.L/2,-p.L/2+p.L*.3,-p.D/2+d,p.D/2]];}},
+  sofaLx:{n:'Sillón en L de brazos iguales, modular blanco',cat:'estar',p:{L:330,D:330,H:85},ui:[['L','largo','num'],['D','fondo','num'],['H','alto','num']],
+    titulo:'Large Corner Sectional Sofa',autor:'vrspace01',uid:'1680cc4638ba4902ada718b8b03f6a4b',
+    /* Maxi 8/11: «una L de los dos lados del mismo largo». Del modular original se sacaron el puf de una punta y el último módulo del otro brazo (esquina + dos módulos por lado); con L = D los dos brazos quedan iguales. La esquina va en −x −z y los asientos miran a +z y +x */
+    caja:p=>[[-p.L/2,p.L/2,-p.D/2,-p.D/2+p.D*.336],[-p.L/2,-p.L/2+p.L*.36,-p.D/2,p.D/2]]},
   sofaRaffey:{n:'Sofá largo, tela gris',cat:'estar',p:{L:300,D:99,H:81},titulo:'Grey Sofa',autor:'Raffey',uid:'e94e15859aff4c5ebf4791c46ab8ba42'},
   butacaAm:{n:'Butaca tapizada de respaldo alto',cat:'estar',p:{L:82,D:77,H:86,tela:'tela'},ui:[['L','largo','num'],['D','fondo','num'],['H','alto','num'],['tela','tela',['tela','lino','grafito','petroleo','mostaza','cuero']]],
     /* el original es de cuero suela; Maxi la eligió vista en gris: el tapizado toma la tela elegida («cuero» deja el original) */tapiz:/leather/i,titulo:'armchair',autor:'gurbetoglu61',uid:'60afe0998936456e803f6a469c7f1482'},
