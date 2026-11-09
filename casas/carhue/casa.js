@@ -138,7 +138,6 @@ const params=[
   {id:'luTipo',label:'Lucarnas',type:'select',value:'1',quick:true,group:'Ver',options:[['1','Una hoja'],['2','Dos hojas plegables (tipo garage)'],['3','Corrediza hacia arriba (una hoja)'],['4','Corrediza hacia el costado (una hoja)']],help:'Marco móvil de una pieza que gira sobre el borde de arriba, o partido en dos hojas que se pliegan.'},
   {id:'escB3G',label:'B3 huella',type:'number',slider:true,value:20,min:16,max:26,step:1,unit:'cm',quick:true,showIf:P=>P.escAlt==='B3',group:'Ver',help:'Profundidad de cada escalón del tramo recto. Menos = más empinada.'},
   {id:'escB3n',label:'B3 alzadas',type:'number',slider:true,value:14,min:12,max:16,step:1,quick:true,showIf:P=>P.escAlt==='B3',group:'Ver',help:'Cantidad total de alzadas hasta +2,62.'},
-  {id:'escB3k',label:'B3 escalones arriba',type:'number',slider:true,value:5,min:1,max:7,step:1,quick:true,showIf:P=>P.escAlt==='B3',group:'Ver',help:'Alzadas del puentecito a la puerta. Menos = puentecito más alto y más largo (y menos altura libre en el rincón).'},
   {id:'corte',label:'Corte horizontal',type:'select',value:'0',quick:true,group:'Ver',options:[['0','Sin corte'],['120','a +1,20 (planta baja)'],['400','a +4,00 (entrepiso)'],['270','a +2,70 (bajo el techo)']],help:'Saca todo lo que está por encima de esa altura, como una planta.'},
 ];
 
@@ -532,17 +531,24 @@ function build(p){
     const MAT=new THREE.Matrix4().makeTranslation(ex,0,ey).multiply(new THREE.Matrix4().makeRotationY(rot));
     const CAT={herraje:'acero',perno:'acero',pedada:'ep',c1:'ep',c2:'ep',exist:'cabio'};
     for(const q of ps){const gs=q.geos.map(g=>g.clone().applyMatrix4(MAT));Pt(`ESC-${q.id}`,`ESC-1 · ${q.name}`,CAT[q.cat]||'cabio',gs,{fn:(q.info&&q.info.fn)||'',sec:q.info&&q.info.sec,med:q.info&&q.info.med},{group:'Escalera',tags:['PB','escalera']});}}}
-  /* S · caracol Ø1,60 frente a la puerta, centrado bajo la cumbrera (es donde hay altura); el último escalón apunta a la puerta */
-  if(p.escAlt==='S'){const v=M.ABERTURAS.find(o=>o.id==='P-34'),HZ=262,WF=-332.5,n=14,Rz=HZ/n,RO=80,RI=6,cx=1817+(v?v.d+v.w/2:286),cy=WF+RO+2,da=22.5*Math.PI/180,u=x=>wingZ(x)-19,t=[],rods=[];
-    let hmin=1e9,hwhere='';const rw=RO*2/3;
-    for(let i=1;i<n;i++){const am=-Math.PI/2-(n-1-i)*da,a0=am-da/2,a1=am+da/2,pts=[];for(let k=0;k<=4;k++){const a=a0+(a1-a0)*k/4;pts.push([cx+RO*Math.cos(a),cy+RO*Math.sin(a)]);}
-      pts.push([cx+RI*Math.cos(a1),cy+RI*Math.sin(a1)],[cx+RI*Math.cos(a0),cy+RI*Math.sin(a0)]);t.push(prism(pts,i*Rz-4,i*Rz,'XZ'));
+  /* S · caracol Ø1,60 frente a la puerta, centrado bajo la cumbrera (es donde hay altura). Maxi 8/11: la llegada es un descanso a +2,62 de 90°
+     enfrentado a la puerta, que se ensancha hasta la pared (1,13 de ancho contra M-26, la puerta mide 0,80): se sale del caracol mirando a la puerta.
+     Los 13 escalones ocupan los otros 270°. */
+  if(p.escAlt==='S'){const v=M.ABERTURAS.find(o=>o.id==='P-34'),HZ=262,WF=-332.5,n=14,Rz=HZ/n,RO=80,RI=6,cx=1817+(v?v.d+v.w/2:286),cy=WF+RO+2,LA=-3*Math.PI/4,LB=-Math.PI/4,da=(3*Math.PI/2)/(n-1),u=x=>wingZ(x)-19,t=[],rods=[];
+    let hmin=1e9,hwhere='';const rw=RO*2/3,P=(a,r=RO)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
+    for(let i=1;i<n;i++){const a1=LA-(n-1-i)*da,a0=a1-da,am=(a0+a1)/2,pts=[];for(let k=0;k<=4;k++)pts.push(P(a0+(a1-a0)*k/4));
+      pts.push(P(a1,RI),P(a0,RI));t.push(prism(pts,i*Rz-4,i*Rz,'XZ'));
       const hx=u(cx+rw*Math.cos(am))-i*Rz;if(hx<hmin){hmin=hx;hwhere='escalón '+i;}
-      const px=cx+(RO-3)*Math.cos(am),py=cy+(RO-3)*Math.sin(am);if(i%2)rods.push(rod([px,i*Rz,py],[px,i*Rz+90,py],1.4,8));
-      if(i>1){const ap=am-da;rods.push(rod([cx+(RO-3)*Math.cos(ap),(i-1)*Rz+90,cy+(RO-3)*Math.sin(ap)],[px,i*Rz+90,py],1.8,8));}}
-    rods.push(rod([cx,0,cy],[cx,HZ+20,cy],5.5,16));const hd=(v?v.s+v.h:440)-HZ;if(hd<hmin){hmin=hd;hwhere='la puerta P-34';}
-    Pt('ESC-S','ESC-S · Escalera caracol al altillo','ep',t,{fn:`Caracol de Ø1,60 frente a la puerta P-34, con la columna bajo la cumbrera de T-06 (la única franja con altura). 13 escalones en abanico de 22,5° y la última alzada entra por la puerta. Arranca mirando al norte. Altura libre mínima sobre la línea de paso: ${f1(hmin/100)} m (${hwhere}).`,sec:'huellas de 2″ en abanico, columna central de caño Ø11',med:`14 alzadas de ${f1(Rz)} · 22,5° por escalón · huella en la línea de paso ${f1(rw*da)} · ocupa 1,60 × 1,62`},{group:'Escalera',tags:['PB','escalera']});
-    Pt('ESC-Sr','ESC-S · columna y baranda','acero',rods,{fn:'Columna central y baranda helicoidal de hierro.'},{group:'Escalera',tags:['PB','escalera']});}
+      const [px,py]=P(am,RO-3);if(i%2)rods.push(rod([px,i*Rz,py],[px,i*Rz+90,py],1.4,8));
+      if(i>1){const [qx,qy]=P(am-da,RO-3);rods.push(rod([qx,(i-1)*Rz+90,qy],[px,i*Rz+90,py],1.8,8));}}
+    /* descanso de llegada: el sector de 90° frente a la puerta, llevado hasta la pared */
+    const xw=RO*Math.cos(Math.PI/4),land=[[cx,cy],P(LA),[cx-xw,WF],[cx+xw,WF],P(LB)];t.push(prism(land,HZ-4,HZ,'XZ'));
+    {const hl=u(cx)-HZ;if(hl<hmin){hmin=hl;hwhere='el descanso';}}
+    {const [ax,ay]=P(LA-da/2,RO-3),[bx,by]=P(LA,RO-3);rods.push(rod([ax,(n-1)*Rz+90,ay],[bx,HZ+90,by],1.8,8),rod([bx,HZ+90,by],[cx-xw+3,HZ+90,WF+3],1.8,8),rod([bx,HZ,by],[bx,HZ+90,by],1.4,8));
+     const [ex,ey]=P(LB,RO-3);rods.push(rod([cx,HZ+90,cy],[ex,HZ+90,ey],1.8,8),rod([ex,HZ+90,ey],[cx+xw-3,HZ+90,WF+3],1.8,8),rod([ex,HZ,ey],[ex,HZ+90,ey],1.4,8),rod([cx+xw-3,HZ,WF+3],[cx+xw-3,HZ+90,WF+3],1.4,8),rod([cx-xw+3,HZ,WF+3],[cx-xw+3,HZ+90,WF+3],1.4,8));}
+    rods.push(rod([cx,0,cy],[cx,HZ+90,cy],5.5,16));const hd=(v?v.s+v.h:440)-HZ;if(hd<hmin){hmin=hd;hwhere='la puerta P-34';}
+    Pt('ESC-S','ESC-S · Escalera caracol al altillo','ep',t,{fn:`Caracol de Ø1,60 frente a la puerta P-34, con la columna bajo la cumbrera de T-06 (la única franja con altura). 13 escalones en abanico de ${f1(da*180/Math.PI)}° en 270° y, arriba, un descanso de 90° enfrentado a la puerta que se ensancha hasta la pared (${f1(2*xw/100)} m contra M-26): se llega mirando a la puerta. Altura libre mínima sobre la línea de paso: ${f1(hmin/100)} m (${hwhere}).`,sec:'huellas de 2″ en abanico, columna central de caño Ø11',med:`14 alzadas de ${f1(Rz)} · ${f1(da*180/Math.PI)}° por escalón · huella en la línea de paso ${f1(rw*da)} · ocupa 1,60 × 1,62`},{group:'Escalera',tags:['PB','escalera']});
+    Pt('ESC-Sr','ESC-S · columna y baranda','acero',rods,{fn:'Columna central, baranda helicoidal de hierro y baranda a los dos lados del descanso.'},{group:'Escalera',tags:['PB','escalera']});}
   /* B2 (Maxi): la primera versión —tramo recto contra M-22 y puentecito contra M-26— con el puentecito más bajo y unos escalones
      junto a la puerta, para ganar altura libre en el rincón. Se calcula la altura libre en cada punto del recorrido. */
   /* B3 (Maxi, 13/10): segunda versión de B2, más empinada y con menos escalones arriba (puentecito más largo). Huella, alzadas y
@@ -1082,12 +1088,12 @@ try{initTermica(visor,M,{zonas:(l,P)=>l.id!=='L-23'&&(l.nivel==='PB'||l.nivel===
 {try{const v=JSON.parse(localStorage.getItem('carhue-cam')||'null');if(v&&v.p&&v.t){visor.camera.position.set(...v.p);visor.controls.target.set(...v.t);visor.controls.update();}}catch(e){}
   let last='';setInterval(()=>{const v=visor.getView();const k=JSON.stringify(v);if(k!==last){last=k;try{localStorage.setItem('carhue-cam',k);}catch(e){}}},1000);}
 {const q=document.getElementById('quick');if(q){const s1=document.createElement('span');s1.id='escInfo1';s1.className='escInfoX';s1.textContent=window.__escInfo1||'';q.appendChild(s1);}}
-{const q=document.getElementById('quick');if(q){const s=document.createElement('span');s.id='escInfo';s.textContent=window.__escInfo||'';{const a=document.getElementById('q-escB3k');const l=a&&a.closest('label');if(l)l.after(s);else q.appendChild(s);}const upd=()=>{s.style.display=visor.params.escAlt==='B3'?'':'none';};upd();document.addEventListener('change',upd);}}
+{const q=document.getElementById('quick');if(q){const s=document.createElement('span');s.id='escInfo';s.textContent=window.__escInfo||'';{const a=document.getElementById('q-escB3n');const l=a&&a.closest('label');if(l)l.after(s);else q.appendChild(s);}const upd=()=>{s.style.display=visor.params.escAlt==='B3'?'':'none';};upd();document.addEventListener('change',upd);}}
 try{initEditor(visor,document.querySelector('#modo-3d .stage'),WALL_TOP,H_EP);}catch(e){console.error('editor',e);}
 try{initSenalar(visor,document.querySelector('#modo-3d .stage'));}catch(e){console.error('senalar',e);}
 try{initMedir(visor,document.querySelector('#modo-3d .stage'));}catch(e){console.error('medir',e);}
 /* zonas con variantes de diseño: la tarjeta aparece al elegir una de sus piezas */
-const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B2|B3)[a-z]?|PAS-1|P-34)$/,params:['escAlt','escB3G','escB3n','escB3k','escB2k'],info:'escInfo',
+const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B2|B3)[a-z]?|PAS-1|P-34)$/,params:['escAlt','escB3G','escB3n','escB2k'],info:'escInfo',
   label:Object.fromEntries((params.find(q=>q.id==='escAlt').options)),vista:{p:[1850,330,330],t:[2230,170,-230]}},
   {id:'esc-ep',nombre:'Escalera al entrepiso',piezas:/^(ESC1-[TZPBVLHK]|ESC-(ZE\d|TE|Z\d|E\d|P\d|V\d|C\d|T\d|H\d|B\d|L\d))$/,params:['escTipo','escN','escAlto','escGiro','escDy'],info:'escInfo1',label:Object.fromEntries((params.find(q=>q.id==='escTipo').options)),vista:{p:[1950,520,1000],t:[1400,120,560]}},
   {id:'ventJ',nombre:'Ventanas al jardín (P-05, P-06)',piezas:/^(P-05|P-06)(h|d|h2|v2|k|k2|c|p|m)?$/,params:['ventJ'],label:Object.fromEntries((params.find(q=>q.id==='ventJ').options)),vista:{p:[700,240,1250],t:[650,120,690]}},

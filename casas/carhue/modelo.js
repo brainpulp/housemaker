@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.26', fecha:'2026-11-08',
+  nombre:'Carhué', version: '1.1.27', fecha:'2026-11-08',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -281,6 +281,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-08', v:'1.1.27', txt:'Maxi 8/11: escalera al altillo B3 con descanso quebrado: el giro del rincón son 4 escalones compensados alrededor de un pilarote y del rincón a la puerta los escalones siguen subiendo contra M-26 (sin descanso plano ni puentecito). Ya no tapa la ventana V-24 y la altura libre mínima pasa de 1,60 a 1,90. Caracol S: arriba, un descanso de 90° enfrentado a la puerta P-34 que llega hasta la pared; se sale mirando a la puerta. Cajones (regla de Maxi): el grande siempre abajo y el finito arriba.'},
   {fecha:'2026-11-08', v:'1.1.26', txt:'Maxi 8/11: alero nuevo T-08 al oeste de la viga VQ-1, con caída al oeste, hasta pasar la puerta del baño piletero: chapa trapezoidal al 7 % (de +2,79 a +2,42) sobre correas CO-8, tres vigas VT-1…3 que bajan de VQ-1 y tres postes C-09…11 en y −4,74. Va del alero del ala (x 24,43) hasta antes del árbol AR-1 (x 28,66).'},
   {fecha:'2026-11-08', v:'1.1.25', txt:'Cercha MEN-1: el horizontal va quebrado en dos alturas (Maxi 8/11). Al este de C-03 queda donde estaba, a la altura del riel PV-RT; al oeste sube a 1 m bajo la cumbrera y va de brazo a brazo, cortado en bisel contra los dos. El tramo bajo entre C-08 y C-03 se va.'},
   {fecha:'2026-11-08', v:'1.1.24', txt:'La mesa del comedor de 4 m pasa a tener canto vivo: los dos cantos largos con el borde natural del tronco, tablón de 6 (Maxi 8/11; antes le había hecho aristas rectas por error). C-06 y C-08 se ven de metal, como C-03.'},

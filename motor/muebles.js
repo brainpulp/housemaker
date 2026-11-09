@@ -90,8 +90,9 @@ export function catalogoMuebles(THREE){
     if(piso)g.push([B(x0+e,x1-e,y0,y0+e,zb,zf),MEL]);if(techo)g.push([B(x0+e,x1-e,y1-e,y1,zb,zf),MEL]);
     g.push([B(x0+e,x1-e,y0,y1,zb,zb+.8),MEL]);
     for(let i=1;i<c.length-1;i++){const x=c[i];g.push([B(x-.9,x+.9,y0,y1,zb+.8,zf),MEL]);}return g;}
-  /* filas de cajones (Maxi 6/11): de arriba abajo, finos, medianos y altos (3 filas: 20 / 33 / 47 % del alto; 2 filas: 40 / 60 %), para cubiertos arriba y ollas abajo */
-  const filaY=(y0,y1,filas,j)=>{const P=filas===3?[0,.2,.53,1]:filas===2?[0,.4,1]:null;const f=k=>P?P[k]:k/filas;return [y0+(y1-y0)*f(j),y0+(y1-y0)*f(j+1)];};
+  /* filas de cajones (Maxi 6/11): de arriba abajo, finos, medianos y altos (3 filas: 20 / 33 / 47 % del alto; 2 filas: 40 / 60 %), para cubiertos arriba y ollas abajo.
+     REGLA (Maxi 8/11): el cajón grande siempre abajo y el finito arriba. y0 es abajo: la fila 0 es la más alta */
+  const filaY=(y0,y1,filas,j)=>{const P=filas===3?[0,.47,.8,1]:filas===2?[0,.6,1]:null;const f=k=>P?P[k]:k/filas;return [y0+(y1-y0)*f(j),y0+(y1-y0)*f(j+1)];};
   /* módulo i: límites del frente (xl, xr) y luz interior entre laterales o divisorias (xa, xb) */
   const modX=(x0,x1,mods,i)=>{const c=cortes(x0,x1,mods),xl=c[i],xr=c[i+1];return [xl,xr,i===0?xl+1.8:xl+.9,i===c.length-2?xr-1.8:xr-.9];};
   /* bandejero: frente entero de la altura del módulo que sale con tres bandejas de alambre en un bastidor, sobre guías telescópicas abajo (igual que un cajón) */
@@ -208,7 +209,7 @@ export function catalogoMuebles(THREE){
       const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,1,0);
       g.push([B(xa,xb,79,80.8,zb+.8,zf),MEL],[B(xa,xb,140,141.8,zb+.8,zf),MEL]);/* estantes que enmarcan el horno */
       g.push([B(-p.L/2+3,p.L/2-3,81,139.5,zf,zf+1.5),'negro'],[B(-p.L/2+6,p.L/2-6,90,128,zf+1.5,zf+2),'vidrioN'],tir(0,134,zf+1.5,40));/* horno */
-      g.push(...cajon('c0',xl,xr,xa,xb,10,38,zb,zf,p.fr),...cajon('c1',xl,xr,xa,xb,38,79,zb,zf,p.fr));
+      g.push(...cajon('c0',xl,xr,xa,xb,10,51,zb,zf,p.fr),...cajon('c1',xl,xr,xa,xb,51,79,zb,zf,p.fr));/* grande abajo, finito arriba (Maxi 8/11) */
       if(p.H-142>20)g.push(...puerta('pa',xl,xr,xa,xb,142,p.H,zf,p.fr,-1));return g;}},
   heladera:{n:'Heladera con freezer abajo',cat:'cocina',p:{L:70,D:70,H:190,col:'acero'},g:p=>[[R(-p.L/2,p.L/2,2,p.H,-p.D/2,p.D/2,2.5),p.col],ran(-p.L/2+1,p.L/2-1,72,72.4,p.D/2),[B(p.L/2-6,p.L/2-4.5,85,140,p.D/2,p.D/2+3),'negro'],[B(p.L/2-6,p.L/2-4.5,40,66,p.D/2,p.D/2+3),'negro'],[B(-p.L/2+3,p.L/2-3,0,2,-p.D/2+3,p.D/2-3),'negro']]},
   bacha:{n:'Bacha bajo mesada con grifería negra',cat:'cocina',p:{L:80},z:90,g:p=>[[B(-p.L/2+6,p.L/2-6,-18,-17,-18,18),'acero'],[B(-p.L/2+6,p.L/2-6,-18,0,-18.5,-18),'acero'],[C(2,0,28,0,-24,14),'grifo'],[VAR([0,28,-24],[0,30,-8],1.1),'grifo'],[C(1.2,22,30,0,-8,10),'grifo']]},
