@@ -3,4 +3,4 @@
 Artifact: https://claude.ai/artifact/RKTvbqwcUQ8ickDLSYgET5
 
 Publicar `dist/catalogo/catalogo.html` con `muebles.js`, `modelos.js` y los `mueble-*.js` (modelos 3D en base64) como archivos extra.
-- **Motor publicado:** 185e458 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** 1879ce8 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
