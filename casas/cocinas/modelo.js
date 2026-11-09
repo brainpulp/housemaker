@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.41', fecha: '2026-11-08',
+export const META = { nombre: 'Cocinas', version: '0.1.42', fecha: '2026-11-08',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-08', v: '0.1.42', txt: 'Motor (Maxi 8/11): las vistas guardadas recuerdan el lente (fov) y si eran en perspectiva o paralela; al volver a una vista se restituyen.' },
   { fecha: '2026-11-08', v: '0.1.41', txt: 'Carhué, escenario D: queda como lo movió Maxi en la página (8/11, noche): la península negra pisa la punta este de la mesada y las dos forman una sola L (el anafe se corre con ella); la bacha, con su borde a 50 del rincón. Pasó igual a la casa de Carhué (escenario E) y a lo guardado en las dos páginas.' },
   { fecha: '2026-11-08', v: '0.1.40', txt: 'Maxi 8/11: en Carhué (escenario D) la bacha pasa junto al anafe, a 50 del rincón de la L. Motor: perspectiva/paralela (botón y tecla P; P + rueda cambia el lente), quemadores individuales en la mesada, luz bajo la campana, bacha farm redondeada color marfil, deshacer para los muebles, nombre del mueble al posar el puntero.' },
   { fecha: '2026-11-08', v: '0.1.39', txt: 'Carhué, escenario D: queda como lo ajustó Maxi en la página (8/11): mesa de madera de 2,60 × 1,50, anafe corrido hacia la pared, cinco sillas; pasó igual a la casa de Carhué.' },

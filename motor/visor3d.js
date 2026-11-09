@@ -255,7 +255,9 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       else if(e.key==='Escape')closeCm();});
     addEventListener('keydown',e=>{if((e.key==='f'||e.key==='F')&&!e.metaKey&&!e.ctrlKey&&!/INPUT|SELECT|TEXTAREA/.test((e.target.tagName||''))&&selId&&byId[selId]){const p=byId[selId];const b=new THREE.Box3().setFromObject(p.grp);const c=b.getCenter(new THREE.Vector3()),r=Math.max(60,b.getSize(new THREE.Vector3()).length()*.9);
       const d=new THREE.Vector3().subVectors(camera.position,controls.target).normalize();fly(c.clone().addScaledVector(d,r*1.6).toArray(),c.toArray());}});}
-  function fly(p,t){const P1=new THREE.Vector3(...p),T1=new THREE.Vector3(...t);if(reduce){camera.position.copy(P1);controls.target.copy(T1);return;}tween={P0:camera.position.clone(),T0:controls.target.clone(),P1,T1,t0:performance.now(),d:650};}
+  function fly(p,t,o){if(o&&o.par!=null&&!!o.par!==paralela)setParalela(!!o.par);/* primero la proyección: al cambiarla se recoloca la cámara, y el vuelo termina igual en p */
+    const P1=new THREE.Vector3(...p),T1=new THREE.Vector3(...t);if(reduce){camera.position.copy(P1);controls.target.copy(T1);}else tween={P0:camera.position.clone(),T0:controls.target.clone(),P1,T1,t0:performance.now(),d:650};
+    if(o){if(o.fov){camera.fov=Math.max(10,Math.min(110,o.fov));try{localStorage.setItem('visor-fov',String(Math.round(camera.fov)));}catch(e){}}if(paralela&&o.h){camera.zoom=1;camera.top=o.h;camera.bottom=-o.h;camera.right=o.h*camera.aspect;camera.left=-o.h*camera.aspect;}camera.updateProjectionMatrix();lblDirty=true;window.__despertar&&window.__despertar();}}
   function fitTo(ids,keepDir=true){const bb=new THREE.Box3();ids.forEach(id=>byId[id]&&bb.union(byId[id].bb));if(bb.isEmpty())return;
     const c=bb.getCenter(new THREE.Vector3()),r=Math.max(60,bb.getSize(new THREE.Vector3()).length()*.5);
     const dir=keepDir?camera.position.clone().sub(controls.target).normalize():new THREE.Vector3(1,.7,-1).normalize();
@@ -353,7 +355,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   /* cortes: {axis:'x'|'y'|'z', value, side:+1|-1} — se conserva el lado hacia donde apunta side */
   function setClips(list){renderer.clippingPlanes=(list||[]).map(c=>{const n=new THREE.Vector3(c.axis==='x'?1:0,c.axis==='y'?1:0,c.axis==='z'?1:0).multiplyScalar(c.side||-1);return new THREE.Plane(n,-n.dot(new THREE.Vector3(c.axis==='x'?c.value:0,c.axis==='y'?c.value:0,c.axis==='z'?c.value:0)));});curClips=list||[];lblDirty=true;}
   let curClips=[];
-  function getView(){return {p:camera.position.toArray().map(v=>Math.round(v)),t:controls.target.toArray().map(v=>Math.round(v))};}
+  function getView(){/* Maxi 8/11: la vista guarda también el lente (fov) y si es paralela (con su encuadre h) */const v={p:camera.position.toArray().map(v=>Math.round(v)),t:controls.target.toArray().map(v=>Math.round(v)),fov:Math.round(camera.fov),par:paralela};if(paralela)v.h=Math.round(camera.top/camera.zoom);return v;}
   function setHidden(ids){hidden.clear();(ids||[]).forEach(i=>hidden.add(i));applyVis();saveHidden();}
   function toggleTransp(id,on){if(on==null)on=!transp.has(id);if(on)transp.add(id);else transp.delete(id);applyFocus();window.__despertar&&window.__despertar();}
   function toggleHidden(id,on){if(on==null)on=!hidden.has(id);if(on)hidden.add(id);else hidden.delete(id);applyVis();saveHidden();}

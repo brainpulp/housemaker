@@ -8,7 +8,7 @@
    La planta tiene dos variantes (4 × 4 y 4 × 3): las tablas salen de modelo(D), con D = fondo interior de la habitación (y).
    Las exportaciones fijas (MUROS, LOSAS…) son la variante por defecto (4 × 4); casa.js arma la que esté elegida en «Planta». */
 
-export const META = { nombre: 'Casita de Malabrigo', version: '0.1.5', fecha: '2026-11-07',
+export const META = { nombre: 'Casita de Malabrigo', version: '0.1.6', fecha: '2026-11-08',
   resumen: 'Casita de 4 × 4 (o 4 × 3) para trabajadores de campo en Malabrigo: una habitación con cama y bacha, sin baño, y una galería de 2,00 al este bajo el mismo techo de chapa a un agua, con lugar para la hamaca paraguaya.',
   ejes: 'x de sur a norte, y de oeste a este; 0,0 en la esquina interior SO de la habitación; alturas sobre el piso terminado. Galería al este (D-01).',
   planta: { vb: { x: -250, y: -250, w: 1000, h: 1150 }, casa: { cx: 200, cy: 320, w: 600, h: 800 }, lote: { cx: 200, cy: 320, w: 900, h: 1100 }, ejesExt: { x0: -120, x1: 520, y0: -120, y1: 760 }, ghost: 'PB',
@@ -101,6 +101,7 @@ export const DUDAS = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-08', v:'0.1.6', txt:'Motor (Maxi 8/11): las vistas guardadas recuerdan el lente (fov) y si eran en perspectiva o paralela; al volver a una vista se restituyen.'},
   {fecha:'2026-11-07', v:'0.1.5', txt:'Motor compartido (Maxi 7/11): «Caminar hasta acá». W tocada prende el modo (también desde la barra, debajo de Navegar); cada clic marca un destino: si la cámara está en el aire, aterriza cerca, y después camina hasta ahí con los ojos a 1,70 m. Se apaga con W, con Esc o eligiendo otra herramienta; W mantenida sigue avanzando como antes. El teclado (WASD, flechas) pasó del archivo de cada casa al motor.'},
   { fecha: '2026-11-06', v: '0.1.4', txt: 'En el teléfono sólo se mira (Maxi 6/11): se van las herramientas de edición (mover, estirar, deshacer, medir, marcar, vértices, equipamiento, luces, térmica, estructura, personas) y el panel lateral; quedan navegar, seleccionar, capas, variantes, vistas, tours y Planta/3D.' },
   { fecha: '2026-11-06', v: '0.1.3', txt: 'Pantalla de teléfono (Maxi 6/11): en 3D se van los márgenes y las calles; la barra queda pegada al borde, el visor ocupa toda la pantalla y el panel sigue debajo. La página declara el viewport del teléfono.' },
