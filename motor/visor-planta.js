@@ -30,7 +30,7 @@ function reg(id,cat,data,bbox){REG[id]={id,cat,data,bbox,nombre:data.nombre||id,
 
 /* ---------- estado ---------- */
 const S={nivel:'PB',sel:null,hover:null,measure:false,mpts:[],vb:PL&&PL.vb?{...PL.vb}:{x:-350,y:-400,w:3400,h:1800},
-  capas:{muros:true,aberturas:true,locales:true,estructura:true,escaleras:true,deck:true,techos:true,cotas:true,ejes:true,etiquetas:true,implantacion:true,calco:true}};
+  capas:{muros:true,aberturas:true,locales:true,estructura:true,escaleras:true,deck:true,techos:true,cotas:true,ejes:true,etiquetas:true,implantacion:true,calco:true,muebles:true}};
 if(!M.NIVELES[S.nivel])S.nivel=ORDEN[0];
 try{const s=JSON.parse(localStorage.getItem('carhue-vista')||'null');if(s&&s.capas)Object.assign(S.capas,s.capas);if(s&&s.nivel)S.nivel=s.nivel;}catch(e){}
 function persist(){try{localStorage.setItem('carhue-vista',JSON.stringify({capas:S.capas,nivel:S.nivel}));}catch(e){}}
@@ -40,7 +40,7 @@ const PR=document.getElementById('modo-planta');
 const svg=$('plano');
 const root=el('g',{id:'root'},svg);
 const L={};   // capas
-for(const k of ['implantacion','techos','locales','deck','calco','muros_ghost','muros','aberturas','estructura','escaleras','chimeneas','ejes','cotas','etiquetas','medir','marcas','hi'])L[k]=el('g',{class:'ly ly-'+k,'data-ly':k},root);
+for(const k of ['implantacion','techos','locales','deck','calco','muros_ghost','muros','aberturas','estructura','escaleras','chimeneas','muebles','ejes','cotas','etiquetas','medir','marcas','hi'])L[k]=el('g',{class:'ly ly-'+k,'data-ly':k},root);
 
 function wallPoly(m){const [ax,ay]=m.a,[bx,by]=m.b;const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);const nx=-dy/len*m.e/2,ny=dx/len*m.e/2;return [[ax+nx,ay+ny],[bx+nx,by+ny],[bx-nx,by-ny],[ax-nx,ay-ny]];}
 function wallFrame(m){const [ax,ay]=m.a,[bx,by]=m.b;const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);return {ux:dx/len,uy:dy/len,nx:-dy/len,ny:dx/len,len};}
@@ -129,6 +129,8 @@ function build(){
     reg(c.id,'chimenea',c,{x0:c.pos[0]-100,y0:c.pos[1]-40,x1:c.pos[0]+100,y1:c.pos[1]+40,cx:c.pos[0],cy:c.pos[1],w:200,h:80});lblW(c.id,c.id,c.pos[0],c.pos[1]+(hog?55:-52),{cls:hog?'small':''});}
 
   /* ejes */
+  /* muebles del equipamiento (Maxi 8/11): las huellas que calcula motor/equipamiento.js para el escenario activo de cada ambiente, en el nivel de la planta que se mira */
+  if(show('muebles')&&window.__equipHuellas){for(const h of window.__equipHuellas()){if((h.nivel||'PB')!==niv)continue;const pg=el('polygon',{points:h.poly.map(q=>q.join(',')).join(' '),class:'mueble mu-'+h.t,'data-id':h.id},L.muebles);const tt=el('title',{},pg);tt.textContent=h.nombre;}}
   if(show('ejes')){const ext=PL&&PL.ejesExt?PL.ejesExt:S.capas.implantacion?{x0:-260,x1:4050,y0:-920,y1:1930}:{x0:-260,x1:3050,y0:-920,y1:1300};
     for(const e of M.EJES){const v=e.dir==='v';el('line',{x1:v?e.pos:ext.x0,y1:v?ext.y0:e.pos,x2:v?e.pos:ext.x1,y2:v?ext.y1:e.pos,class:'eje'},L.ejes);
       const bx=v?e.pos:ext.x0,by=v?ext.y0:e.pos;const g=el('g',{class:'ejeb','data-id':e.id,transform:`translate(${bx} ${by})`},L.ejes);el('circle',{r:22},g);const t=el('text',{'text-anchor':'middle','dominant-baseline':'central'},g);t.textContent=e.id;
@@ -264,6 +266,7 @@ function renderLeyenda(){if(PL){$('pane-leyenda').innerHTML=`<h3>Estado</h3><div
 /* niveles, capas, pestañas */
 function setNivel(n,quiet){S.nivel=n;document.querySelectorAll('[data-nivel]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.nivel===n));persist();build();if(!quiet)select(null);}
 document.querySelectorAll('[data-nivel]').forEach(b=>b.addEventListener('click',()=>setNivel(b.dataset.nivel)));
+addEventListener('equip-cambio',()=>{if(S.capas.muebles&&!document.getElementById('modo-planta')?.hidden)build();});
 function syncCapas(){document.querySelectorAll('[data-capa]').forEach(c=>{c.checked=!!S.capas[c.dataset.capa];});}
 document.querySelectorAll('[data-capa]').forEach(c=>c.addEventListener('change',()=>{S.capas[c.dataset.capa]=c.checked;persist();build();}));
 PR.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{PR.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===t?'true':'false'));PR.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!=='pane-'+t.dataset.tab);}));

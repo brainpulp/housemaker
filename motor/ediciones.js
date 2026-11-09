@@ -40,7 +40,9 @@ apply();
 /* historial para deshacer (Ctrl/Cmd+Z): guarda cómo estaba cada pieza antes de cada cambio */
 const HIST=[],PEND={};const snap=id=>E[id]?JSON.parse(JSON.stringify(E[id])):null;
 export const puedeDeshacer=()=>HIST.length>0;
-export async function undo(){const h=HIST.pop();if(!h)return null;if(h.prev){E[h.id]=h.prev;apply();local();fire();if(db){try{await db.doc('ediciones/'+h.id).set(h.prev);}catch(e){}}}else{delete E[h.id];apply();local();fire();if(db){try{await db.doc('ediciones/'+h.id).delete();}catch(e){}}}return h.id;}
+/* acciones de otros módulos en el mismo historial (muebles, Maxi 8/11: «arreglá el undo de mover muebles»): fn deshace y devuelve un nombre para el mensaje */
+export function pushExterno(fn){HIST.push({ext:fn});if(HIST.length>200)HIST.shift();}
+export async function undo(){const h=HIST.pop();if(!h)return null;if(h.ext){try{return (await h.ext())||'muebles';}catch(e){console.error('undo externo',e);return 'muebles';}}if(h.prev){E[h.id]=h.prev;apply();local();fire();if(db){try{await db.doc('ediciones/'+h.id).set(h.prev);}catch(e){}}}else{delete E[h.id];apply();local();fire();if(db){try{await db.doc('ediciones/'+h.id).delete();}catch(e){}}}return h.id;}
 export async function editar(id,patch,persist=true){if(!persist){if(!(id in PEND))PEND[id]=snap(id);}else{HIST.push({id,prev:(id in PEND)?PEND[id]:snap(id)});delete PEND[id];if(HIST.length>200)HIST.shift();}
   const e={...(E[id]||{})};
   if(patch.borrado!=null)e.borrado=patch.borrado;

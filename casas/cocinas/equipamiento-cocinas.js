@@ -11,7 +11,7 @@ export function equipCocinas({ it, itA }) {
   const AMB = {
     carhue: { n: 'Carhué', piso: 0, ver: p => p.verCH !== false, vista: { p: [720, 260, 1790], t: [140, 80, 1400] }, esc: () => { const I = itA('carhue'); return {
       A: { nombre: 'Versión D (2/11): negro mate, piedra negra, roble', items: [/* Carhué, casas/carhue/equipamiento-carhue.js escenario D, trasladado */
-        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1405.5, 90, { L: 235, D: 62, fr: 'negro', top: 'granito', huecos: [[97.5, 80, 50]] }), I('bachaFarm', 55.5, 1308, 90, { L: 80, D: 50 }),
+        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1405.5, 90, { L: 235, D: 62, fr: 'negro', top: 'granito', huecos: [[-27.5, 80, 50]] }), /* Maxi 8/11: la bacha cerca del anafe, a 50 del rincón de la L */ I('bachaFarm', 55.5, 1433, 90, { L: 80, D: 50 }),
         I('salpicadero', 18.5, 1405.5, 90, { L: 235, H: 10 }), I('salpicadero', 17.5, 1393, 90, { L: 30, H: 108, caja: 10 }, 92), I('campanaIsla', 210, 1570, 180, { L: 90, D: 60 }),
         I('isla', 210, 1595, 180, { L: 260, D: 110, vol: 30, fr: 'roble', top: 'granito', top2: 'madRust', corte: 60 }), I('anafe', 210, 1570, 180, { L: 90, D: 52, n: 5 }),
         I('banqueta', 138, 1672, 0, { mad: 'roble' }), I('banqueta', 198, 1672, 0, { mad: 'roble' }), I('banqueta', 258, 1672, 0, { mad: 'roble' }), I('banqueta', 318, 1672, 0, { mad: 'roble' })] },

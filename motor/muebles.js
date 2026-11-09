@@ -10,7 +10,7 @@ import { MODELOS as OCTET } from './octet-modelos.js';
 export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],petiribi:['#b98654',.7],suela:['#9a5a2b',.6],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
   mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#161718',.35],grafito:['#3b3e40',.55],
   piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
-  junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a']};
+  junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a'],marfil:['#ebe2cf',.32]/* Maxi 8/11: loza color marfil (bacha farm) */,hierroN:['#1f2022',.8,.15]/* parrillas de los quemadores */};
 /* [color, rugosidad, metal, emisivo] */
 
 /* Paleta para elegir materiales en la ficha de cada mueble (Maxi 5/11): clave del material → etiqueta. Las claves de parámetro que son material: fr (frentes), top/top2 (tapa), mad (madera), mat (material), col (color de electrodoméstico), pint (pintura). */
@@ -207,16 +207,35 @@ export function catalogoMuebles(THREE){
       if(p.H-142>20)g.push(...puerta('pa',xl,xr,xa,xb,142,p.H,zf,p.fr,-1));return g;}},
   heladera:{n:'Heladera con freezer abajo',cat:'cocina',p:{L:70,D:70,H:190,col:'acero'},g:p=>[[R(-p.L/2,p.L/2,2,p.H,-p.D/2,p.D/2,2.5),p.col],ran(-p.L/2+1,p.L/2-1,72,72.4,p.D/2),[B(p.L/2-6,p.L/2-4.5,85,140,p.D/2,p.D/2+3),'negro'],[B(p.L/2-6,p.L/2-4.5,40,66,p.D/2,p.D/2+3),'negro'],[B(-p.L/2+3,p.L/2-3,0,2,-p.D/2+3,p.D/2-3),'negro']]},
   bacha:{n:'Bacha bajo mesada con grifería negra',cat:'cocina',p:{L:80},z:90,g:p=>[[B(-p.L/2+6,p.L/2-6,-18,-17,-18,18),'acero'],[B(-p.L/2+6,p.L/2-6,-18,0,-18.5,-18),'acero'],[C(2,0,28,0,-24,14),'grifo'],[VAR([0,28,-24],[0,30,-8],1.1),'grifo'],[C(1.2,22,30,0,-8,10),'grifo']]},
-  bachaFarm:{n:'Bacha farm de cerámica con frente a la vista',cat:'cocina',p:{L:80,D:50,P:24},z:90,g:p=>{/* origen arriba de la mesada, al centro; el frente (+z) queda al ras del canto de la tapa. Va con un hueco en la tapa de la mesada (huecos) */
-    const X=p.L/2,Z=p.D/2,e=2.5,P=p.P;return [[B(-X,X,-P,-P+e,-Z,Z),'loza'],[B(-X,X,-P,0,Z-e,Z+.5),'loza'],[B(-X,X,-P,0,-Z,-Z+e),'loza'],[B(-X,-X+e,-P,0,-Z,Z),'loza'],[B(X-e,X,-P,0,-Z,Z),'loza'],
-      [C(2.2,-P+e,-P+e+.4,0,0,20),'acero'],[C(2,0,30,0,-Z-6,14),'grifo'],[VAR([0,30,-Z-6],[0,32,-Z+12],1.1),'grifo'],[C(1.2,24,32,0,-Z+12,10),'grifo'],[C(1.6,0,8,8,-Z-6,12),'grifo']];}},
-  anafe:{n:'Anafe vitrocerámico',cat:'cocina',p:{L:60,D:52,n:4},z:90,g:p=>{const g=[[R(-p.L/2,p.L/2,0,.7,-p.D/2,p.D/2,.3),'vidrioN']];
-    const H4=[[-p.L/4,-p.D/4,9],[p.L/4,-p.D/4,7],[-p.L/4,p.D/4,7],[p.L/4,p.D/4,9]],H5=[[-p.L/3,-p.D/4,8],[-p.L/3,p.D/4,7],[0,0,12],[p.L/3,-p.D/4,7],[p.L/3,p.D/4,8]];/* 5: cuatro en las esquinas y una grande al medio */
-    for(const [x,z,r] of (p.n===5?H5:H4)){const t=new THREE.TorusGeometry(r,.3,6,32);t.rotateX(Math.PI/2);t.translate(x,.75,z);g.push([t,'grafito']);}return g;}},
+  bachaFarm:{n:'Bacha farm de cerámica con frente a la vista',cat:'cocina',p:{L:80,D:50,P:24,col:'marfil'},z:90,g:p=>{/* origen arriba de la mesada, al centro; el frente (+z) queda al ras del canto de la tapa. Va con un hueco en la tapa de la mesada (huecos).
+      Maxi 8/11: más redondeada, marfil y mejor modelada: cuba de paredes de 2,5 con esquinas redondeadas (anillo extruido con agujero), fondo con caída al desagüe, labio superior y frente (delantal) con los cantos redondeados; grifo cuello de cisne. */
+    const X=p.L/2,Z=p.D/2,e=2.5,P=p.P,col=p.col||'marfil',g=[];
+    const rr=(sh,x0,z0,x1,z1,r)=>{sh.moveTo(x0+r,z0);sh.lineTo(x1-r,z0);sh.quadraticCurveTo(x1,z0,x1,z0+r);sh.lineTo(x1,z1-r);sh.quadraticCurveTo(x1,z1,x1-r,z1);sh.lineTo(x0+r,z1);sh.quadraticCurveTo(x0,z1,x0,z1-r);sh.lineTo(x0,z0+r);sh.quadraticCurveTo(x0,z0,x0+r,z0);return sh;};
+    const sh=rr(new THREE.Shape(),-X,-Z,X,Z,6);const ho=rr(new THREE.Path(),-X+e,-Z+e,X-e,Z-e,4);sh.holes.push(ho);
+    const an=new THREE.ExtrudeGeometry(sh,{depth:P-e,bevelEnabled:false});an.rotateX(Math.PI/2);/* la extrusión (z de 0 a P−e) girada queda de y 0 a −(P−e): las paredes de la cuba */g.push([an,col]);
+    /* fondo con caída suave hacia el centro: una placa redondeada un poco más baja en el medio (dos piezas inclinadas) */
+    g.push([R(-X+e-.5,X-e+.5,-P,-P+e+.4,-Z+e-.5,Z-e+.5,1.5),col]);
+    /* labio superior redondeado, 1,5 más ancho que la cuba, apenas sobre la tapa */
+    { const lab=rr(new THREE.Shape(),-X-1.5,-Z-1.5,X+1.5,Z+1.5,7);lab.holes.push(rr(new THREE.Path(),-X+e,-Z+e,X-e,Z-e,4));const lg=new THREE.ExtrudeGeometry(lab,{depth:1.2,bevelEnabled:true,bevelThickness:.5,bevelSize:.5,bevelSegments:3});lg.rotateX(-Math.PI/2);lg.translate(0,-.6,0);g.push([lg,col]); }
+    /* delantal: el frente a la vista, redondeado en sus cuatro cantos, 1 cm por delante de la cuba */
+    g.push([R(-X-1.5,X+1.5,-P-1,1,Z-e,Z+1.5,2.2),col]);
+    /* desagüe y grifería */
+    g.push([C(2.4,-P+e-.2,-P+e+.6,0,0,20),'acero'],[C(1.1,-P+e+.4,-P+e+.7,0,0,16),'grafito']);
+    g.push([C(2.2,0,26,0,-Z-6,16),'grifo'],[VAR([0,26,-Z-6],[0,33,-Z+2],1.3),'grifo'],[VAR([0,33,-Z+2],[0,30,-Z+12],1.3),'grifo'],[C(1.3,24,32,0,-Z+12,10),'grifo'],[C(1.6,0,10,7,-Z-6,12),'grifo']);
+    return g;}},
+  anafe:{n:'Quemadores individuales en la mesada',cat:'cocina',p:{L:60,D:52,n:4},z:90,g:p=>{/* Maxi 8/11: sin base unificadora: cada quemador va en su agujero de la mesada (un disco oscuro a ras, el cuerpo de aluminio fundido, la tapa esmaltada y su parrilla de hierro) */
+    const g=[];const H4=[[-p.L/4,-p.D/4,9],[p.L/4,-p.D/4,7],[-p.L/4,p.D/4,7],[p.L/4,p.D/4,9]],H5=[[-p.L/3,-p.D/4,8],[-p.L/3,p.D/4,7],[0,0,12],[p.L/3,-p.D/4,7],[p.L/3,p.D/4,8]];/* 5: cuatro en las esquinas y una grande al medio */
+    for(const [x,z,r] of (p.n===5?H5:H4)){const Rq=r+4;
+      g.push([C(Rq,-1.2,.15,x,z,28),'grafito']);/* el agujero en la piedra: disco oscuro apenas hundido */
+      g.push([C(r*.62,0,1.6,x,z,24,r*.55),'aluFund'],[C(r*.5,1.6,2.6,x,z,24,r*.46),'negro'],[C(r*.3,2.6,3.1,x,z,16),'negro']);/* cuerpo, corona de llama y tapa */
+      { const t=new THREE.TorusGeometry(Rq-.6,.55,6,36);t.rotateX(Math.PI/2);t.translate(x,3.4,z);g.push([t,'hierroN']);/* aro de la parrilla */
+        for(let k=0;k<4;k++){const a=Math.PI/4+k*Math.PI/2;const b=new THREE.BoxGeometry(Rq-r*.45+.6,1.1,1.2);b.translate((Rq+r*.45)/2-.3,0,0);b.rotateY(a);b.translate(x,3.4,z);g.push([b,'hierroN']);} }}
+    return g;}},
   campana:{n:'Campana de pared negra',cat:'cocina',p:{L:60,D:50,H:100},z:155,g:p=>[[R(-p.L/2,p.L/2,0,5,-p.D/2,p.D/2,1),'negro'],[B(-12,12,5,p.H,-p.D/2,-p.D/2+22),'negro']]},
   campanaIsla:{n:'Campana de isla colgada del techo',cat:'cocina',p:{L:90,D:60},z:165,g:(p,ctx)=>{/* cuerpo negro a 1,65 sobre el piso (z fijo) y chimenea hasta el techo real sobre la isla */
     const T=ctx&&ctx.techoMin?ctx.techoMin(Math.max(p.L,p.D)/2):250,h=Math.max(25,Math.min(T-167,700));/* hasta lo más bajo del techo sobre toda la campana (cabios incluidos) */
-    return [[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero']];}},
+    /* Maxi 8/11: luz abajo de la campana (panel LED cálido entre dos filtros de acero), para que se vea el anafe */
+    return [[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,-p.L/2+4+(p.L-8)*.3,-.3,0,-p.D/2+4,p.D/2-4),'acero'],[B(p.L/2-4-(p.L-8)*.3,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero'],[B(-p.L/2+4+(p.L-8)*.3,p.L/2-4-(p.L-8)*.3,-.6,0,-p.D/2+6,p.D/2-6),'ledCalido']];}},
   /* Maxi 5/11: paño de revestimiento de pared (inox detrás de la mesada de Arcos). Chapa de e cm apoyada en la pared, de z a z+H; el frente mira a +z. mat: cualquiera de la paleta */
   revestimiento:{n:'Revestimiento de pared (paño)',cat:'cocina',p:{L:200,H:60,e:1.5,mat:'acero'},z:90,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e,0),p.mat]]},
   /* Maxi 6/11: estante de pared angosto (especias, frascos) bajo las alacenas: tabla de «e» sobre ménsulas en L de planchuela cada ~0,80, la espalda en z 0 local, la tabla hacia +z (el ambiente) */

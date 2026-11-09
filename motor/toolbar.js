@@ -40,7 +40,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     sel:{ic:'sel',n:'Seleccionar',d:'Tocá una pieza: ves su ficha, sus variantes y los códigos de puntos y aristas.',run:()=>edTool('')},
     mover:{ic:'mover',n:'Mover',k:'M',d:'Arrastrá una flecha para mover en ese eje, o la pieza sobre el piso (Shift: sube o baja).',run:()=>edTool('mover')},
     ab:{ic:'ab',n:'Mover punto a punto',d:'Un punto de la pieza elegida y el punto donde tiene que quedar.',run:()=>edTool('ab')},
-    estirar:{ic:'estirar',n:'Estirar',k:'P',d:'Empujá o tirá una cara plana de la pieza elegida.',run:()=>edTool('estirar')},
+    estirar:{ic:'estirar',n:'Estirar',k:'T',d:'Empujá o tirá una cara plana de la pieza elegida.',run:()=>edTool('estirar')},
     undo:{ic:'undo',n:'Deshacer',k:'Ctrl/⌘ Z',d:'Deshace el último cambio de las herramientas de edición.',run:()=>{open('editarTg');click('edUndoAll');}},
     medir:{ic:'medir',n:'Medir',d:'Dos puntos: distancia real y lo que avanza en x, y y altura.',run:()=>only('medirTg')},
     senalar:{ic:'senalar',n:'Vértices, aristas y caras',d:'Como en un CAD: elegí vértices, aristas o caras (Shift suma). Coordenadas, largos, áreas; con dos, distancia o ángulo. Códigos para pasármelos.',run:()=>only('senalarTg')},
@@ -48,7 +48,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   };
   const CAM=initCaminar(visor,{activo:()=>!M3.hidden});CAM.alPrender=()=>{ALL.forEach(close);closeFly&&closeFly();};CAM.alCambiar=()=>sync();
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['caminar'],['sel','senalar'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
+  const BAR=[['nav'],['caminar'],['sel','senalar'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas','|','proy'];
   const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
@@ -57,7 +57,8 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     luces:{ic:'lampara',n:'Luces',d:'Artefactos de iluminación por ambiente (sets de spots, tiras LED, colgantes, apliques, lámparas, exterior) con escenarios; prende la noche.'},
     termica:{ic:'termometro',n:'Térmica',d:'Simulación térmica por ambiente: temperaturas a lo largo del día, mapa en 3D, consumo de cada sistema (capa «Calor»).'},
     estructura:{ic:'viga',n:'Estructura',d:'Cálculo estructural (prototipo): vigas de acero con sus apoyos y cargas de techo; % de uso por pieza, diagramas y mapa de uso en el 3D.'},
-    personas:{ic:'persona',n:'Personas',d:'Figuras de 1,70 para controlar alturas libres: se arrastran por cualquier piso y pueden caminar solas.'}};
+    personas:{ic:'persona',n:'Personas',d:'Figuras de 1,70 para controlar alturas libres: se arrastran por cualquier piso y pueden caminar solas.'},
+    proy:{ic:'proy',n:'Perspectiva / paralela',k:'P',d:'Cambia entre perspectiva y proyección paralela (axonométrica). P tocada hace lo mismo; P mantenida + rueda o dos dedos cambia el lente (en paralela, el zoom).'}};
   const cur=LS.get('carhue-tb-cur',{});
   const bar=document.createElement('div');bar.id='toolbar3d';bar.setAttribute('role','toolbar');bar.setAttribute('aria-label','Herramientas');
   const btn=(k,d,extra='')=>`<button class="tb${extra}" data-k="${k}" data-tip="${d.n}|${d.d}"${d.k?` data-key="${d.k}"`:''} aria-label="${d.n}">${icon(d.ic)}</button>`;
@@ -182,6 +183,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
       else if(k==='termica'){closeFly();visor.termica&&visor.termica.toggle();sync();}
       else if(k==='estructura'){closeFly();visor.estructura&&visor.estructura.toggle();sync();}
       else if(k==='personas'){closeFly();if(window.__side)window.__side.toggle('personas');}
+      else if(k==='proy'){closeFly();visor.setParalela&&visor.setParalela(!visor.esParalela());sync();}
       else if(k==='capas'){closeFly();cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);if(!cp.hidden)posCp();}
       sync();return;}
     closeFly();T[k].run();sync();});
@@ -196,7 +198,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     if(on('editarTg')){const p=document.querySelector('#edPanel [data-tool][aria-pressed=true]');const t=p?p.dataset.tool:'';return ({'':'sel',mover:'mover',estirar:'estirar',ab:'ab'})[t]||'sel';}return 'nav';}
   function sync(){const a=active();
     const g=group(a);if(g&&g.length>1&&cur[g[0]]!==a)setSub(g,a);
-    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):'false'):String(k===a));});
+    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):k==='proy'?!!(visor.esParalela&&visor.esParalela()):'false'):String(k===a));});
     st.innerHTML=`<b>${T[a].n}</b> ${HINT[a]||''}`;stage.classList.toggle('conpanel',a!=='nav'&&a!=='caminar');}
   setInterval(sync,400);sync();
 

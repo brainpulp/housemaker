@@ -31,7 +31,7 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
   P.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
   q('edSnap').addEventListener('change',e=>snap=+e.target.value);
   addEventListener('keydown',e=>{if(P.hidden||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;const k=e.key.toLowerCase();
-    if(k==='m')setTool('mover');else if(k==='p')setTool('estirar');else if(k===' '&&tool){}else if((k==='delete'||k==='backspace')&&visor.selected){e.preventDefault();borrar(base(visor.selected));}});
+    if(k==='m')setTool('mover');else if(k==='t')setTool('estirar');/* era P; P pasó a perspectiva/paralela (Maxi 8/11) */else if(k===' '&&tool){}else if((k==='delete'||k==='backspace')&&visor.selected){e.preventDefault();borrar(base(visor.selected));}});
   const sn=v=>Math.round(v/snap)*snap;
 
   /* formulario de la pieza elegida */

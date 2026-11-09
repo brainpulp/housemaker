@@ -117,7 +117,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       d.occ=false;if(cps.length&&!cps.every(pl=>pl.distanceToPoint(_v)>=0))d.occ=true;
       if(!d.occ&&!d.noOcc&&occ.length){_dir.copy(_v).sub(camera.position).normalize();_ray.set(camera.position,_dir);_ray.far=dist-6;_ray.near=1;const hits=_ray.intersectObjects(occ,false);d.occ=hits.some(h=>cps.every(pl=>pl.distanceToPoint(h.point)>=0));}
       _v.project(camera);
-      d.x=(_v.x+1)/2*W;d.y=(1-_v.y)/2*H;d.k=Math.max(K0,Math.min(K1,H/(2*dist*tf)/PXREF));
+      d.x=(_v.x+1)/2*W;d.y=(1-_v.y)/2*H;d.k=Math.max(K0,Math.min(K1,(paralela?H/(2*camera.top/camera.zoom):H/(2*dist*tf))/PXREF));
       if(!d.sz||!d.sz[0]){d.sz=[d.inn.offsetWidth,d.inn.offsetHeight];}}
     L.sort((a,b)=>{const A=a.userData.lbl,B=b.userData.lbl;return B.pri-A.pri||B.w-A.w;});
     const placed=[];
@@ -173,7 +173,29 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const resolve=list=>[...new Set((list||[]).flatMap(t=>tokens[t]||[]))];
 
   /* ----- cámara ----- */
-  function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);lr.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();lblDirty=true;}
+  /* proyección: perspectiva o paralela (Maxi 8/11). Es la MISMA cámara la que cambia de proyección, porque los módulos guardan la referencia a `camera` al arrancar:
+     en paralela se le ponen las banderas y el updateProjectionMatrix de una ortográfica, con la altura visible igual a la que tenía la perspectiva en el objetivo, y OrbitControls hace zoom en vez de acercar.
+     Lente (P + rueda): el fov de la perspectiva, de 10° a 110°; se guarda en el navegador. */
+  let paralela=false;const persUPM=camera.updateProjectionMatrix.bind(camera);
+  const ortoUPM=function(){const dx=(this.right-this.left)/(2*this.zoom),dy=(this.top-this.bottom)/(2*this.zoom),cx=(this.right+this.left)/2,cy=(this.top+this.bottom)/2;this.projectionMatrix.makeOrthographic(cx-dx,cx+dx,cy+dy,cy-dy,this.near,this.far,this.coordinateSystem);this.projectionMatrixInverse.copy(this.projectionMatrix).invert();};
+  const tf=()=>Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
+  function setParalela(on){on=!!on;if(on===paralela)return;paralela=on;const d=camera.position.distanceTo(controls.target);
+    if(on){const h=d*tf();camera.isPerspectiveCamera=false;camera.isOrthographicCamera=true;camera.type='OrthographicCamera';camera.zoom=1;camera.top=h;camera.bottom=-h;camera.right=h*camera.aspect;camera.left=-h*camera.aspect;camera.near=1;camera.updateProjectionMatrix=ortoUPM;}
+    else{const h=camera.top/camera.zoom;camera.isPerspectiveCamera=true;camera.isOrthographicCamera=false;camera.type='PerspectiveCamera';camera.zoom=1;camera.near=5;camera.updateProjectionMatrix=persUPM;
+      /* se conserva el encuadre: la distancia al objetivo que da la misma altura visible */const d2=Math.max(30,h/tf());const dir=camera.position.clone().sub(controls.target).normalize();camera.position.copy(controls.target).addScaledVector(dir,d2);}
+    camera.updateProjectionMatrix();controls.update();lblDirty=true;window.__despertar&&window.__despertar();try{localStorage.setItem('visor-paralela',on?'1':'0');}catch(e){}for(const f of alProyectar)try{f(on);}catch(e){}}
+  const alProyectar=[];
+  function setFov(v){v=Math.max(10,Math.min(110,v));if(paralela){/* en paralela el «lente» es el zoom */return;}camera.fov=v;camera.updateProjectionMatrix();lblDirty=true;window.__despertar&&window.__despertar();try{localStorage.setItem('visor-fov',String(Math.round(v)));}catch(e){}}
+  try{const f=+localStorage.getItem('visor-fov');if(f>=10&&f<=110)camera.fov=f;}catch(e){}
+  {/* P: tocada, cambia perspectiva/paralela; mantenida + rueda (o dos dedos), cambia el lente */let pOn=false,pRueda=false,hud=null,hudT=0;
+    const esTexto=e=>/INPUT|SELECT|TEXTAREA/.test((e.target&&e.target.tagName)||'')||(e.target&&e.target.isContentEditable);
+    const mostrar=txt=>{if(!hud){hud=document.createElement('div');hud.style.cssText='position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:9;background:rgba(20,22,24,.85);color:#fff;font:12px/1.3 var(--f-mono,monospace);padding:4px 9px;border-radius:4px;pointer-events:none';view.parentElement.appendChild(hud);}hud.textContent=txt;hud.hidden=false;clearTimeout(hudT);hudT=setTimeout(()=>{hud.hidden=true;},900);};
+    const mm=()=>Math.round(12/tf());/* equivalente en 35 mm (fov vertical, sensor de 24 de alto) */
+    addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='p'||e.metaKey||e.ctrlKey||e.altKey||esTexto(e)||e.repeat)return;if(document.getElementById('modo-3d')&&document.getElementById('modo-3d').hidden)return;pOn=true;pRueda=false;mostrar(paralela?'Paralela · P: perspectiva':`Lente ${mm()} mm (fov ${Math.round(camera.fov)}°) · rueda: cambiar · P: paralela`);});
+    addEventListener('keyup',e=>{if(e.key.toLowerCase()!=='p'||!pOn)return;pOn=false;if(!pRueda){setParalela(!paralela);mostrar(paralela?'Proyección paralela':`Perspectiva · ${mm()} mm`);}});
+    addEventListener('blur',()=>{pOn=false;});
+    view.addEventListener('wheel',e=>{if(!pOn)return;e.preventDefault();e.stopImmediatePropagation();pRueda=true;const d=Math.sign(e.deltaY)*(Math.abs(e.deltaY)>40?3:1);if(paralela){camera.zoom=Math.max(.05,Math.min(40,camera.zoom*(d>0?.94:1.06)));camera.updateProjectionMatrix();lblDirty=true;window.__despertar&&window.__despertar();mostrar(`Paralela · zoom ${camera.zoom.toFixed(2)}`);}else{setFov(camera.fov+d);mostrar(`Lente ${mm()} mm (fov ${Math.round(camera.fov)}°)`);}},{passive:false,capture:true});}
+  function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);lr.setSize(w,h);camera.aspect=w/h;if(paralela){camera.right=camera.top*camera.aspect;camera.left=-camera.right;}camera.updateProjectionMatrix();lblDirty=true;}
   new ResizeObserver(resize).observe(view);resize();
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* Órbita alrededor de lo que tocás (Maxi): al apretar, el rayo del cursor da el punto de giro; si no toca nada (cielo), queda el último.
@@ -318,6 +340,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
 
   renderParams();rebuild();
   {const v=out.views[out.defaultView||'iso'];camera.position.set(...v.p);controls.target.set(...v.t);}
+  try{if(localStorage.getItem('visor-paralela')==='1')setParalela(true);}catch(e){}
   const FPS={n:0,t:performance.now()};
   const LR={t:0,on:true};window.__act=performance.now();window.__despertar=()=>{window.__act=performance.now();};
   for(const ev of ['pointermove','pointerdown','wheel','keydown','resize'])addEventListener(ev,()=>{window.__act=performance.now();},{passive:true,capture:true});
@@ -334,7 +357,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   function setHidden(ids){hidden.clear();(ids||[]).forEach(i=>hidden.add(i));applyVis();saveHidden();}
   function toggleTransp(id,on){if(on==null)on=!transp.has(id);if(on)transp.add(id);else transp.delete(id);applyFocus();window.__despertar&&window.__despertar();}
   function toggleHidden(id,on){if(on==null)on=!hidden.has(id);if(on)hidden.add(id);else hidden.delete(id);applyVis();saveHidden();}
-  const api={setParams,get onParam(){return hooksP.onParam;},set onParam(f){hooksP.onParam=f;},rebuild,setStep,exitSteps,highlight,showPart,resetSel,setClip,setClips,get clips(){return curClips;},fly,getView,setHidden,toggleHidden,toggleTransp,isTransp:id=>transp.has(id),get transp(){return [...transp];},get hidden(){return [...hidden];},isHidden:id=>hidden.has(id),scene,renderer,camera,controls,THREE,params:P,get parts(){return parts;},get selected(){return selId;},get renderHook(){return hooks.render;},togglePred(id,on){if(on)PRED[id]=P[id];else delete PRED[id];try{localStorage.setItem('carhue-pred',JSON.stringify(PRED));}catch(e){}syncPred();},syncPred(){syncPred();},set renderHook(f){hooks.render=f;},
+  const api={setParalela,esParalela:()=>paralela,alProyectar:f=>alProyectar.push(f),setFov,getFov:()=>camera.fov,setParams,get onParam(){return hooksP.onParam;},set onParam(f){hooksP.onParam=f;},rebuild,setStep,exitSteps,highlight,showPart,resetSel,setClip,setClips,get clips(){return curClips;},fly,getView,setHidden,toggleHidden,toggleTransp,isTransp:id=>transp.has(id),get transp(){return [...transp];},get hidden(){return [...hidden];},isHidden:id=>hidden.has(id),scene,renderer,camera,controls,THREE,params:P,get parts(){return parts;},get selected(){return selId;},get renderHook(){return hooks.render;},togglePred(id,on){if(on)PRED[id]=P[id];else delete PRED[id];try{localStorage.setItem('carhue-pred',JSON.stringify(PRED));}catch(e){}syncPred();},syncPred(){syncPred();},set renderHook(f){hooks.render=f;},
     /* etiquetas para otros módulos (equipamiento: cotas del mueble elegido). Las etiquetas quedan en el grupo que se pasa y se sacan con quitarEtiquetas, que también borra sus elementos del DOM */
     etiqueta(text,pos,cls,parent,noOcc){const t=tag(text,pos,cls||'edge',parent,0);if(noOcc)t.userData.lbl.noOcc=true;return t;},quitarEtiquetas(g){lblDirty=true;g.traverse(ob=>{if(ob.isCSS2DObject&&ob.element)ob.element.remove();});for(const c of [...g.children])g.remove(c);},f1};/* versión del motor junto a los fps: el commit del último cambio en motor/ con el que se armó la casa (lo escribe herramientas/armar.sh) */import('./motor-version.js').then(m=>{const f=document.getElementById('fps');if(!f||document.getElementById('motorVer'))return;const s=document.createElement('span');s.id='motorVer';s.textContent='motor '+m.MOTOR.commit;s.title=`Motor ${m.MOTOR.commit} del ${m.MOTOR.fecha}`;s.style.cssText='font-family:var(--f-mono,monospace);font-size:10px;color:var(--muted,#888);margin-left:8px;white-space:nowrap';f.after(s);}).catch(()=>{});window.__visor=api;return api;
 }

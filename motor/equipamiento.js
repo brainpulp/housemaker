@@ -4,6 +4,7 @@
    y los escenarios se duplican, renombran y borran. Todo queda en la base del artifact (colección «equipamiento», un documento por ambiente).
    Plano: x hacia el norte, y hacia el este; en 3D X = x, Y = altura, Z = y. Muebles: origen en el centro de la planta, frente hacia +z local. */
 import * as N from './nombres.js';
+import * as ED from './ediciones.js';
 import { catalogoLuces, kelvin } from './luminarias.js';
 import { progDef, hhmm } from './noche.js';
 import { catalogoCal } from './calefaccion.js';
@@ -124,7 +125,12 @@ export function initEquipamiento(visor,stage,D){
   try{const c=localStorage.getItem('carhue-equip-capa');if(c==='luz'||c==='veg'||c==='cal')capa=c;}catch(e){}if(capa==='veg'&&AMB.exterior)amb='exterior';
   const lsPanel=()=>{try{return localStorage.getItem('carhue-equip-panel')==='1';}catch(e){return false;}};
   function cur(){return ST[capa][amb].esc[ST[capa][amb].activo];}
-  function guardar(a=amb,k=capa){const key=k+a;dirty[key]=true;clearTimeout(saveT[key]);saveT[key]=setTimeout(async()=>{if(!db){dirty[key]=false;return;}const s=ST[k][a];
+  /* deshacer (Maxi 8/11): antes de cada guardado se anota cómo estaba el ambiente (copia de su estado) en el historial común de ediciones.js, el que usan Ctrl/⌘ Z y el botón Deshacer.
+     Deshacer repone esa copia, rearma y guarda (sin anotar). ULT es la última copia conocida de cada ambiente: al cargar de la base y después de cada guardado. */
+  const ULT={},copia=s=>s?JSON.parse(JSON.stringify(s)):null;let deshaciendo=false;
+  function anotar(a,k){const key=k+a;if(deshaciendo)return;const prev=ULT[key]||null;ULT[key]=copia(ST[k][a]);if(!prev)return;
+    ED.pushExterno(async()=>{deshaciendo=true;try{ST[k][a]=copia(prev);ULT[key]=copia(prev);if(sel&&!item(sel))sel=null;armar();if(!card.hidden)panel();guardar(a,k);}finally{deshaciendo=false;}return (AMB[a]&&AMB[a].n)?`los muebles de ${AMB[a].n}`:'los muebles';});}
+  function guardar(a=amb,k=capa){const key=k+a;anotar(a,k);dirty[key]=true;clearTimeout(saveT[key]);saveT[key]=setTimeout(async()=>{if(!db){dirty[key]=false;return;}const s=ST[k][a];
     try{await db.collection(CAPA[k].col).doc(a).set({activo:s.activo,esc:s.esc,borrados:s.borrados||[],migr:s.migr||[],ts:new Date().toISOString()});}catch(e){hint('No se pudo guardar: '+(e.message||e));}dirty[key]=false;},700);}
   /* mesas de comer de 3 × 1 (Maxi 16/10): agranda la mesa rectangular y vuelve a poner las sillas alrededor, 4 por lado y una en cada cabecera, respetando su giro */
   const MESA3=items=>{const me=items.find(m=>m.t==='mesa'||m.t==='mesaMaciza');if(!me)return;const L=300,D=100;me.p={...(me.p||{}),L,D};
@@ -139,7 +145,7 @@ export function initEquipamiento(visor,stage,D){
     for(const [f,fn] of (MUT[k]&&MUT[k][a])||[]){if(s.migr.includes(f))continue;s.migr.push(f);for(const e2 of Object.values(s.esc))fn(e2.items||[]);migrar.push([a,k]);}
     if(DD.alMezclar)DD.alMezclar(a,k,s,migrar);
     return s;}
-  N.getDb().then(d=>{db=d;if(!d)return;for(const k in CAPA)for(const a of AMB_ORDEN)d.collection(CAPA[k].col).doc(a).onSnapshot(x=>{if(dr||dirty[k+a])return;if(x.exists){ST[k][a]=mezclar(a,k,x.data());armar();if(a===amb&&k===capa)panel();while(migrar.length){const [ma,mk]=migrar.shift();guardar(ma,mk);}}},()=>{});});
+  N.getDb().then(d=>{db=d;if(!d)return;for(const k in CAPA)for(const a of AMB_ORDEN)d.collection(CAPA[k].col).doc(a).onSnapshot(x=>{if(dr||dirty[k+a])return;if(x.exists){ST[k][a]=mezclar(a,k,x.data());ULT[k+a]=copia(ST[k][a]);armar();if(a===amb&&k===capa)panel();while(migrar.length){const [ma,mk]=migrar.shift();guardar(ma,mk);}}},()=>{});});
 
   /* ---------- cielorraso: lo primero que hay arriba del punto (losa del entrepiso, techo, cabio) ---------- */
   const rcT=new THREE.Raycaster();let tMeshes=null,tParts=null,tEp=null;const tCache=new Map();
@@ -206,10 +212,19 @@ export function initEquipamiento(visor,stage,D){
       g.userData.prog=p.prog||progDef(m.t);const onI=prendidaFn(m.id);for(const mt of g.userData.mats)mt.emissiveIntensity=onI?mt.userData.emit*nocheK:0;}
     g.rotation.y=(m.r||0)*Math.PI/180;return g;}
   function armar(){window.__despertar&&window.__despertar();for(const g of groups.values()){G.remove(g);GV.remove(g);if(g.userData.capa!=='veg')g.traverse(o=>{if(o.geometry&&!o.isSprite&&!o.userData.glb)o.geometry.dispose();});/* las geometrías de los modelos 3D se comparten entre copias */if(g.userData.mats)g.userData.mats.forEach(m=>m.dispose());}groups.clear();
-    for(const k in CAPA)for(const a of AMB_ORDEN){const s=ST[k][a];const e=s&&s.esc[s.activo];if(e)for(const m of e.items){const g=armarItem(m,a,k);if(g){(k==='veg'?GV:G).add(g);groups.set(m.id,g);}}}mueCache=null,cajCache=null;marcarSel();vis();pintarIconos();}
+    for(const k in CAPA)for(const a of AMB_ORDEN){const s=ST[k][a];const e=s&&s.esc[s.activo];if(e)for(const m of e.items){const g=armarItem(m,a,k);if(g){(k==='veg'?GV:G).add(g);groups.set(m.id,g);}}}mueCache=null,cajCache=null;marcarSel();vis();pintarIconos();window.dispatchEvent(new CustomEvent('equip-cambio'));}
+  /* huellas en planta de los muebles visibles (Maxi 8/11: «include furniture in the planta view»): la caja local de cada mueble girada por su r, en coordenadas de la casa (x, y) y con su altura;
+     visor-planta.js las dibuja en la capa «Muebles» y se redibuja con el evento equip-cambio */
+  function huellas(){const out=[],inv=new THREE.Matrix4(),bb=new THREE.Box3(),m4=new THREE.Matrix4();
+    for(const [id,g] of groups){if(!g.visible||g.userData.capa!=='mue')continue;const m=item(id);if(!m)continue;g.updateMatrixWorld(true);inv.copy(g.matrixWorld).invert();bb.makeEmpty();
+      g.traverse(o=>{if(!o.isMesh||!o.visible||o.isSprite||!o.geometry)return;if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();const b=o.geometry.boundingBox.clone();m4.multiplyMatrices(inv,o.matrixWorld);b.applyMatrix4(m4);bb.union(b);});
+      if(bb.isEmpty())continue;const P=g.position,c=Math.cos(g.rotation.y),sn=Math.sin(g.rotation.y),pt=(x,z)=>[Math.round((P.x+x*c+z*sn)*10)/10,Math.round((P.z-x*sn+z*c)*10)/10];
+      out.push({id,t:m.t,nombre:nombreCorto(m,'mue'),amb:g.userData.amb,nivel:(AMB[g.userData.amb]||{}).nivel||'PB',z:[Math.round(P.y+bb.min.y),Math.round(P.y+bb.max.y)],poly:[pt(bb.min.x,bb.min.z),pt(bb.max.x,bb.min.z),pt(bb.max.x,bb.max.z),pt(bb.min.x,bb.max.z)]});}
+    return out;}
+  window.__equipHuellas=huellas;
   /* AMB[a].ver(params) → false esconde el ambiente entero (cocinas: una llave por cocina, Maxi 3/11) */
   function visOf(g){const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;const A=AMB[g.userData.amb];if(A&&A.ver&&A.ver(visor.params)===false)return false;return (A.nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
-  function vis(){mueCache=null,cajCache=null;for(const g of groups.values())g.visible=visOf(g);luces();}
+  function vis(){mueCache=null,cajCache=null;for(const g of groups.values())g.visible=visOf(g);luces();window.dispatchEvent(new CustomEvent('equip-cambio'));}
   /* fuentes de luz en coordenadas del mundo → motor de noche */
   const _v=new THREE.Vector3(),_d=new THREE.Vector3();
   function luces(){window.__despertar&&window.__despertar();const L=[];for(const g of groups.values()){if(g.userData.capa!=='luz'||!g.visible||!g.userData.luz)continue;g.updateMatrixWorld(true);
