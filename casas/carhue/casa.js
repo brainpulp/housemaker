@@ -1000,7 +1000,7 @@ root.addEventListener('change',e=>{if(e.target.id==='q-calco'||e.target.id==='v-
 const $=id=>document.getElementById(id);
 /* ocultar / mostrar piezas */
 root.addEventListener('click',e=>{const h=e.target.closest('[data-hide]');if(h){visor.toggleHidden(h.dataset.hide,true);visor.resetSel();renderVistas();return;}if(e.target.closest('[data-showall]')){visor.setHidden([]);renderVistas();}});
-const VI=initVistas(visor,{M,root,pref:'carhue',rango:{x:[-100,4700],y:[-1000,2000],z:[-100,900]},ambDef:{'L-08':{xmin:1810,xmax:2390,ymin:-360,ymax:140,zmin:-25,zmax:235}}/* cocina: L-08 + L-12 + desayunador */,
+const VI=initVistas(visor,{M,root,pref:'carhue',rango:{x:[-100,4700],y:[-1000,2000],z:[-100,900]},ambDef:{'L-08':{xmin:1810,xmax:2390,ymin:-545,ymax:140,zmin:-25,zmax:235}}/* cocina: L-08 + L-12 + desayunador */,
   caja:L=>{const xs=L.poly.map(q=>q[0]),ys=L.poly.map(q=>q[1]),f=L.nivel==='EP'?H_EP:0,m=25;return {xmin:Math.min(...xs)-m,xmax:Math.max(...xs)+m,ymin:Math.min(...ys)-m,ymax:Math.max(...ys)+m,zmin:f-25,zmax:f+235};},
   params:['techos','ep','calco','ext'],dirAmb:[-.45,.95],alAplicar:()=>applyCalco()});
 const applyClips=()=>VI.applyClips(),renderVistas=()=>VI.renderVistas();
