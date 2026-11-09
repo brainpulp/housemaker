@@ -38,6 +38,8 @@ const H_EP=262;                       // cara superior del piso del entrepiso
 const AR_C08=37+Math.sqrt(36*36-22*22)+30;/* Maxi 7/11: columna C-08 a 30 cm del tronco de AR-1 (centro x 29,24 y 0,37, radio 0,36), medido en el plano de la cercha (x 29,46) */
 const ROOF={ridge:[352,507],front:[738,344],backRaised:[-81,478],backLiving:[-2,255],glass:[[581,407],[941,246]]};
 const lin=(p,q,y)=>p[1]+(q[1]-p[1])*(y-p[0])/(q[0]-p[0]);
+/* alero oeste T-08 (Maxi 8/11): de VQ-1 (y 0,38) hacia el oeste, al 7 %, hasta pasar la puerta del baño piletero. AO.u = cara de arriba de las vigas VT */
+const AO={xS:2443,xN:2866,yE:37.5,yW:-490,yP:-474,vigas:{'VT-1':2550,'VT-2':2708,'VT-3':2858},postes:{'C-09':2550,'C-10':2708,'C-11':2858},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>270+.07*(y-38)};
 /* dormers (Maxi 14/10): DM-1 y DM-2 al jardín entre cabios dobles de CAB-3 (cada 65 desde x 0,32); DM-3 en el faldón norte del ala */
 const DORM_CC=p=>['c','ca','cg'].includes(p.dormers),DORM_ON=p=>['j','ja','c','ca','cg'].includes(p.dormers),DORM_ALT=p=>p.dormAlt==='1'||['ja','ca'].includes(p.dormers),DORM_Y0=358,DORM_SKIP=p=>p.dormers==='cg'?['LU-1','LU-2','LU-4']:DORM_CC(p)?['LU-1','LU-2']:DORM_ON(p)?['LU-1']:[];
 const DORM_J2=[{id:'DM-1',xl:97,xr:357,local:'dormitorio secundario (L-25), en lugar de LU-1'},{id:'DM-2',xl:747,xr:942,local:'dormitorio principal (L-21); 1,8 m para no tocar LU-2'}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
@@ -567,6 +569,11 @@ function build(p){
       Pt('ESC-'+p.escAlt+'r',`ESC-${p.escAlt} · pasamanos`,'acero',rods,{fn:'Pasamanos de caño a ambos lados.'},{group:'Escalera',tags:['PB','escalera']});}}
   /* estructura */
   for(const s of M.ESTRUCTURA){if(s.id==='V-03')continue;
+    if(s.id in AO.vigas||s.id in AO.postes||s.id==='CO-8'){if(!p.techos)continue;const u=AO.u;
+      if(s.id in AO.vigas){const x=AO.vigas[s.id];Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[slabY(x-3.75,x+3.75,[-480,u(-480)-20],[38,u(38)-20],20)],{...base(s),sec:s.sec,med:`5,18 m, de +2,50 a ${f1((u(-480)-20)/100)}`},{group:'Techos',tags:['TE','estructura','techos']});}
+      else if(s.id in AO.postes){const x=AO.postes[s.id],zt=u(AO.yP-5)-20;Pt(s.id,`${s.id} · ${s.nombre}`,'col',box(x-5,x+5,0,zt,AO.yP-5,AO.yP+5),{...base(s),sec:s.sec,med:`alto ${f1(zt/100)} m`},{group:'Estructura',tags:['estructura']});}
+      else{const g=[box(2523,AO.xN,u(32.5),u(32.5)+7.5,27.5,32.5)];for(const y of AO.correas)g.push(box(AO.xS,AO.xN,u(y+2.5),u(y+2.5)+7.5,y-2.5,y+2.5));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${g.length} correas`},{group:'Techos',tags:['TE','estructura','techos']});}
+      continue;}
         if(s.id==='CR-1'||s.id==='CR-2'||s.id==='CR-3')continue;
     if(s.id==='CER-2'){if(p.techos){const x0=2515.5,x1=2530.5,D=5,zg=y=>407-(y-581)*(161/360)-1,rz=y=>y<352?255+(y+2)*(252/354)-6:y<690?lin(ROOF.ridge,ROOF.front,y)-6:zg(y);
         const par=(y0,y1)=>{const z0=rz(y0),z1=rz(y1),a=Math.atan2(Math.abs(z1-z0),Math.abs(y1-y0)),d=D/Math.cos(a);return box8([[x0,z0-d,y0],[x1,z0-d,y0],[x1,z1-d,y1],[x0,z1-d,y1],[x0,z0,y0],[x1,z0,y0],[x1,z1,y1],[x0,z1,y1]]);};
@@ -738,6 +745,7 @@ function build(p){
     else if(t.id==='T-04'||t.id==='T-07'){/* vidrios sueltos: uno por tramo entre cabios (cada 1,30) y dos a lo largo, cortados en la correa CR-1 (y 8,08) */
       const zg=y=>407-(y-581)*(161/360)+1;const xs=[];for(let x=1350;x<=2920;x+=130)xs.push(x);xs.push(2946);const xr=xs.filter(x=>x>=x0-1&&x<=x1+1);if(xr[0]>x0+1)xr.unshift(x0);if(xr[xr.length-1]<x1-1)xr.push(x1);g=[];
       for(let i=0;i<xr.length-1;i++)if(xr[i+1]-xr[i]>12)for(const [ya,yb] of [[690,807],[809,965]])g.push(slabY(xr[i]+3.5,xr[i+1]-3.5,[ya,zg(ya)],[yb,zg(yb)],1));}
+    else if(t.id==='T-08'){const c=y=>AO.u(y)+7.8;g=[slabY(AO.xS,AO.xN,[AO.yW,c(AO.yW)],[-2,c(-2)],1),slabY(2523,AO.xN,[-2,c(-2)],[AO.yE,c(AO.yE)],1)];}
     else if(t.id==='T-05')g=[slabY(2523,2951,[352,507],[690,lin(ROOF.ridge,ROOF.front,690)],6),slabY(2523,2951,[38,283],[352,507],6)];
     else if(t.id==='T-06'){const q=(pts)=>box8([...pts.map(([x,y])=>[x,wingZ(x),y]),...pts.map(([x,y])=>[x,wingZ(x)+6,y])]);g=[q([[1771,-828],[2103,-828],[2103,338],[1771,4]])];
       if(DORM_ALT(p)){const D=DORM_A;g.push(q([[2103,-828],[2442,-828],[2442,D.y0-7.5],[2103,D.y0-7.5]]),q([[2103,D.y1+7.5],[2442,D.y1+7.5],[2442,4],[2103,338]]),q([[2103,D.y0-7.5],[D.x0,D.y0-7.5],[D.x0,D.y1+7.5],[2103,D.y1+7.5]]),q([[D.xf+8,D.y0-7.5],[2442,D.y0-7.5],[2442,D.y1+7.5],[D.xf+8,D.y1+7.5]]));}
