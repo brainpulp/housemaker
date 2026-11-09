@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.21', fecha:'2026-11-07',
+  nombre:'Carhué', version: '1.1.22', fecha:'2026-11-08',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-08', v:'1.1.22', txt:'Cocina E: como la dejó Maxi en la página Cocinas (8/11, noche): la península negra pisa la punta este de la mesada y las dos forman una sola L (anafe y campana se corren con ella); la bacha, con su borde a 50 del rincón. Lo guardado en la página se actualizó igual.'},
   {fecha:'2026-11-08', v:'1.1.21', txt:'C-03 es de acero, 120 × 120 mm (Maxi 8/11); antes estaba de madera de 11 × 11. El suplemento y el travesaño de la cercha MEN-1 se ajustan a las caras nuevas.'},
   {fecha:'2026-11-08', v:'1.1.20', txt:'Cocina E: la bacha junto al anafe, a 50 del rincón de la L (Maxi 8/11). Motor: perspectiva/paralela (botón y tecla P; P + rueda, lente), muebles en la planta 2D (capa «Muebles»), quemadores individuales en la mesada, luz bajo la campana, bacha farm redondeada marfil, deshacer de muebles (Ctrl/⌘ Z), nombre del mueble al posar el puntero. Estirar pasa a la tecla T.'},
   {fecha:'2026-11-08', v:'1.1.19', txt:'Living (Maxi 8/11): el sillón pasa a ser una L de brazos iguales (3,30 × 3,30), modelo real modular blanco sin el puf ni el último módulo de un brazo; la ratona, como la de la galería (petiribí, 1,50 × 0,70, tablas de 2″). Comedor: mesa de 4 m de bordes vivos y las sillas derechas, de frente a la mesa (cuatro por lado y una en cada cabecera). Motor: el BKF con la geometría real, dos varillas de 12 mm en lazos cerrados (punta de atrás, pata de adelante, punta de adelante del otro lado, pata de atrás) que de costado hacen la X, con las medidas de una estructura acotada (puntas a 70 y 63, 78 de punta a punta, 91 de alto).'},
