@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.24', fecha:'2026-11-08',
+  nombre:'Carhué', version: '1.1.25', fecha:'2026-11-08',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -273,6 +273,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-08', v:'1.1.25', txt:'Cercha MEN-1: el horizontal va quebrado en dos alturas (Maxi 8/11). Al este de C-03 queda donde estaba, a la altura del riel PV-RT; al oeste sube a 1 m bajo la cumbrera y va de brazo a brazo, cortado en bisel contra los dos. El tramo bajo entre C-08 y C-03 se va.'},
   {fecha:'2026-11-08', v:'1.1.24', txt:'La mesa del comedor de 4 m pasa a tener canto vivo: los dos cantos largos con el borde natural del tronco, tablón de 6 (Maxi 8/11; antes le había hecho aristas rectas por error). C-06 y C-08 se ven de metal, como C-03.'},
   {fecha:'2026-11-08', v:'1.1.23', txt:'Motor (Maxi 8/11): las vistas guardadas recuerdan el lente (fov) y si eran en perspectiva o paralela; al volver a una vista se restituyen.'},
   {fecha:'2026-11-08', v:'1.1.22', txt:'Cocina E: como la dejó Maxi en la página Cocinas (8/11, noche): la península negra pisa la punta este de la mesada y las dos forman una sola L (anafe y campana se corren con ella); la bacha, con su borde a 50 del rincón. Lo guardado en la página se actualizó igual.'},
