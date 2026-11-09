@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.29', fecha:'2026-11-09',
+  nombre:'Carhué', version: '1.1.30', fecha:'2026-11-09',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -284,6 +284,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-09', v:'1.1.30', txt:'Con la cocina medida (Maxi 9/11): escenarios B y C rehechos (heladera y columna contra la pared de la arcada, mesada de 3,82 hasta la punta de M-20, alacena entre la columna y la ventana; la mesa redonda de C, 0,80 al norte para no tocar la escalera B3). La boca abierta bajo el hastial va sin marco. En Cocinas, la caja de Carhué y la heladera siguen las medidas nuevas.'},
   {fecha:'2026-11-09', v:'1.1.29', txt:'Medidas de Maxi en la cocina y el baño piletero: la arcada A-30 mide 1,20 y arranca a 1 m de la pared de las ventanas, pero no está bajo el hastial sino 2 m más al fondo, en una pared nueva M-29 a 5,70 del plano de la pared del hogar; bajo el hastial la cocina queda abierta (boca A-32). El baño tiene 2 m (de M-26, donde estaba su puerta, a 3,70 del hogar, hasta 5,70) y su pared con la puerta actual (M-24) está a 2,50 de la pared de las ventanas: la cocina pasa de 2,0 a 2,5 de ancho. M-25 y el dormitorio 3 se corren con el baño; la heladera va contra la pared de la arcada.'},
   {fecha:'2026-11-08', v:'1.1.28', txt:'Motor (Maxi 8/11): lo que escondés con el ojo ya no vuelve a aparecer con cada publicación; la lista de piezas escondidas se guarda en la base de la página (estado/ocultas), como los candados.'},
   {fecha:'2026-11-08', v:'1.1.27', txt:'Maxi 8/11: escalera al altillo B3 con descanso quebrado: el giro del rincón son 4 escalones compensados alrededor de un pilarote y del rincón a la puerta los escalones siguen subiendo contra M-26 (sin descanso plano ni puentecito). Ya no tapa la ventana V-24 y la altura libre mínima pasa de 1,60 a 1,90. Caracol S: arriba, un descanso de 90° enfrentado a la puerta P-34 que llega hasta la pared; se sale mirando a la puerta. Cajones (regla de Maxi): el grande siempre abajo y el finito arriba.'},

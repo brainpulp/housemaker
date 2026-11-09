@@ -11,16 +11,16 @@ export function equipCocinas({ it, itA }) {
   const AMB = {
     carhue: { n: 'Carhué', piso: 0, ver: p => p.verCH !== false, vista: { p: [720, 260, 1790], t: [140, 80, 1400] }, esc: () => { const I = itA('carhue'); return {
       A: { nombre: 'Versión D (2/11): negro mate, piedra negra, roble', items: [/* Carhué, casas/carhue/equipamiento-carhue.js escenario D, trasladado */
-        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1405.5, 90, { L: 235, D: 62, fr: 'negro', top: 'granito', huecos: [[-4.5, 80, 50]] }), /* Maxi 8/11: la bacha cerca del anafe; su borde a 50 del rincón de la L (la cara oeste del bloque) */ I('bachaFarm', 55.5, 1410, 90, { L: 80, D: 50 }),
+        I('heladera', 52.5, 1059, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1405.5, 90, { L: 235, D: 62, fr: 'negro', top: 'granito', huecos: [[-4.5, 80, 50]] }), /* Maxi 8/11: la bacha cerca del anafe; su borde a 50 del rincón de la L (la cara oeste del bloque) */ I('bachaFarm', 55.5, 1410, 90, { L: 80, D: 50 }),
         I('salpicadero', 18.5, 1405.5, 90, { L: 235, H: 10 }), I('salpicadero', 17.5, 1393, 90, { L: 30, H: 108, caja: 10 }, 92), I('campanaIsla', 210, 1570, 180, { L: 90, D: 60 }),
         I('isla', 210, 1595, 180, { L: 260, D: 110, vol: 30, fr: 'roble', top: 'granito', top2: 'madRust', corte: 60 }), I('anafe', 210, 1570, 180, { L: 90, D: 52, n: 5 }),
         I('banqueta', 138, 1672, 0, { mad: 'roble' }), I('banqueta', 198, 1672, 0, { mad: 'roble' }), I('banqueta', 258, 1672, 0, { mad: 'roble' }), I('banqueta', 318, 1672, 0, { mad: 'roble' })] },
       B: { nombre: 'Como está hoy (15/10): verde, heladera roja', items: [
-        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'rojo' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'verde', top: 'granito' }), I('isla', 210, 1595, 180, { L: 260, D: 110, vol: 30, fr: 'verde', top: 'granito' }), I('anafe', 198, 1580, 180, { L: 75, D: 52 }),
+        I('heladera', 52.5, 1059, 0, { L: 65, D: 65, H: 190, col: 'rojo' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'verde', top: 'granito' }), I('isla', 210, 1595, 180, { L: 260, D: 110, vol: 30, fr: 'verde', top: 'granito' }), I('anafe', 198, 1580, 180, { L: 75, D: 52 }),
         I('banqueta', 138, 1672, 0), I('banqueta', 198, 1672, 0), I('banqueta', 258, 1672, 0), I('banqueta', 318, 1672, 0)] },
       C: { nombre: 'Vacía', items: [] },
       D: { nombre: 'Croquis de Maxi (7/11): península negra + mesa de madera en L', items: [/* casas/carhue/equipamiento-carhue.js escenario E, trasladado (x −1817, y +1550): mesada negra contra la pared sur con la bacha bajo la ventana; península perpendicular: bloque negro con anafe de 4 pegado a la mesada y mesa de madera en L hacia el living (este) y el norte, con sillas */
-        I('heladera', 52.5, 1250.5, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'negro', top: 'granito', huecos: [[161, 80, 50]] }), I('bachaFarm', 55.5, 1308, 90, { L: 80, D: 50 }),
+        I('heladera', 52.5, 1059, 0, { L: 65, D: 65, H: 190, col: 'negro' }), I('mesada', 48.5, 1469, 90, { L: 362, D: 62, fr: 'negro', top: 'granito', huecos: [[161, 80, 50]] }), I('bachaFarm', 55.5, 1308, 90, { L: 80, D: 50 }),
         I('salpicadero', 18.5, 1423, 90, { L: 270, H: 10 }), I('salpicadero', 17.5, 1393, 90, { L: 30, H: 108, caja: 10 }, 92),
         /* Maxi 7/11 (2.ª vuelta): en L y no en T (cara este al ras de la punta de la mesada) y la madera cuadrada, 2,20 × 2,20, con el bloque sobre su esquina sudoeste */
         /* Maxi 7/11 (4.ª vuelta): la L de mesadas negras dobla justo donde termina la pared sur (y 1593, cara norte de M-02): mesada de 2,35 y el bloque negro de 1,60 × 0,70 en la esquina, de la pared hacia el norte; la mesa de madera (bordes rectos) sigue hacia el este pasando la pared y al norte del bloque */

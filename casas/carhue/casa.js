@@ -266,7 +266,7 @@ function build(p){
     const zoff=m.nivel==='EP'?H_EP:0;const s0=a.s||0;const amx=horiz?ax+a.d+a.w/2:ax,amy=horiz?ay:ay+a.d+a.w/2;const s1=Math.min(s0+a.h,m.nivel==='EP'?Math.min(roofZ(amy,amx),m.top??999)-H_EP:(m.top??WALL_TOP[m.id]??H_EP));const th=a.tipo==='ventana'?2:4;const t0=-th/2,t1=th/2;
     const pane=(d0,d1,z0,z1)=>horiz?box(ax+d0,ax+d1,z0,z1,ay+t0,ay+t1):box(ax+t0,ax+t1,z0,z1,ay+d0,ay+d1);
     const frame=(d0,d1,z0,z1,w)=>horiz?[box(ax+d0,ax+d0+w,z0,z1,ay-(m.e/2+1),ay+(m.e/2+1)),box(ax+d1-w,ax+d1,z0,z1,ay-(m.e/2+1),ay+(m.e/2+1)),box(ax+d0,ax+d1,z1-w,z1,ay-(m.e/2+1),ay+(m.e/2+1))]:[box(ax-(m.e/2+1),ax+(m.e/2+1),z0,z1,ay+d0,ay+d0+w),box(ax-(m.e/2+1),ax+(m.e/2+1),z0,z1,ay+d1-w,ay+d1),box(ax-(m.e/2+1),ax+(m.e/2+1),z1-w,z1,ay+d0,ay+d1)];
-    if(a.id==='P-34')continue;
+    if(a.id==='P-34'||a.id==='A-32')continue;/* A-32 (Maxi 9/11): boca abierta bajo el hastial, sin marco; M-20 sigue de largo */
     if(a.id==='P-03'&&horiz){/* Puerta al patio (Maxi, 13/10): una sola hoja pivotante, eje vertical a 1/3 del ancho; siete estéticas a elegir */
       Pt(a.id+'m',`${a.id} · marco`,'roble',frame(a.d,a.d+a.w,s0,s1,5),{fn:'Marco del vano.'},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});
       const X0=ax+a.d+5.5,X1=ax+a.d+a.w-5.5,Z0=1,Z1=s1-5.5,Wd=X1-X0,Hd=Z1-Z0,yc=ay,T=5,xp=X0+Wd/3,EST=p.p03Est||'tablas';
