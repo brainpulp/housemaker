@@ -11,6 +11,9 @@ export const estado=()=>({ready,canWrite,db:!!db});
 const fire=()=>{for(const fn of subs){try{fn();}catch(e){console.error(e);}}};
 (async()=>{
   try{db=await (window.claude&&window.claude.use?window.claude.use('db'):Promise.resolve(null));}catch(e){db=null;}
+  /* Maxi 8/11: todas las casas viven en un solo artifact (housemaker). La página cáscara pone window.__casa y acá cada casa escribe en sus
+     propias colecciones: «carhue_vistas», «arcos_equipamiento»… (sólo se usan collection() y doc()). Sin __casa (pruebas locales, artifact propio) no cambia nada. */
+  if(db&&window.__casa){const real=db,P=window.__casa+'_';db={collection:n=>real.collection(P+n),doc:p=>real.doc(P+p)};}
   resolveDb(db);
   if(!db){ready=true;fire();return;}
   try{const u=await window.claude.use('user');canWrite=u?await u.can('data.write'):null;}catch(e){canWrite=null;}

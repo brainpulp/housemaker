@@ -1,5 +1,8 @@
 # Arcos 4264
 
+> **Desde el 8/11/2026 esta casa se publica dentro del artifact único `housemaker`** (ver `ARTIFACT.md` en la raíz del repo; se abre con `?casa=arcos`). La URL de abajo es la página vieja: ya no se actualiza.
+
+
 - **Casa:** Arcos 4264, Núñez (CABA). Expediente EX-2024-29919671-GCABA-DGROC.
 - **Fuente:** plano de regularización (hoja 01/04, 1:100) y SketchUp `Arcos_55.dae` como calco (girado 32,2°, PB del SketchUp en +0,72).
 - **Artifact:** https://claude.ai/artifact/U6PBB3MhHLjAFJuMvv6ncj

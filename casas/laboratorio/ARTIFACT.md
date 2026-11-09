@@ -1,5 +1,8 @@
 # Laboratorio de muebles
 
+> **Desde el 8/11/2026 esta casa se publica dentro del artifact único `housemaker`** (ver `ARTIFACT.md` en la raíz del repo; se abre con `?casa=laboratorio`). La URL de abajo es la página vieja: ya no se actualiza.
+
+
 - **Artifact:** https://claude.ai/artifact/2eXNBHhaeUysX8V3Bz6qhm
 - **Capacidades:** `db` (colección `recetas`, un documento por mueble: `quitar`, `rot`, `espejo`, `p` {L,D,H}, `mats`).
 - **Página:** `laboratorio.html`. Archivos: `modelos.js` y los `mueble-*.js` del motor.

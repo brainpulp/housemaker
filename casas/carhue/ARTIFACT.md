@@ -1,5 +1,8 @@
 # Carhué
 
+> **Desde el 8/11/2026 esta casa se publica dentro del artifact único `housemaker`** (ver `ARTIFACT.md` en la raíz del repo; se abre con `?casa=carhue`). La URL de abajo es la página vieja: ya no se actualiza.
+
+
 - **Casa:** Pasaje Carhué, Ingeniero Maschwitz (Buenos Aires). No es la ciudad de Carhué.
 - **Artifact:** https://claude.ai/artifact/Y88Y892Rach7aXSqSN5zpc
 - **Capacidades:** `db`.

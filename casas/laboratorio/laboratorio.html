@@ -62,6 +62,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MODELOS, cargarCrudo, prepararModelo } from './modelos.js';
 const $=id=>document.getElementById(id);
+const REC=(window.__casa?window.__casa+'_':'')+'recetas';/* en el artifact housemaker cada página tiene sus colecciones (ver motor/nombres.js) */
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 /* ---------- visor ---------- */
 const cv=$('cv'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.outputColorSpace=THREE.SRGBColorSpace;R.setPixelRatio(Math.min(2,devicePixelRatio));R.toneMapping=THREE.ACESFilmicToneMapping;
@@ -127,12 +128,12 @@ $('mats').addEventListener('change',e=>{const d=e.target.closest('[data-m]');if(
 $('mats').addEventListener('click',e=>{const b=e.target.closest('[data-rst]');if(!b)return;delete receta.mats[b.closest('[data-m]').dataset.m];cambio();});
 /* guardar en la base del artifact (colección «recetas», un documento por mueble) */
 $('guardar').onclick=async()=>{if(!db){estado('No hay base disponible: abrí el laboratorio con tu cuenta.','mal');return;}
-  try{await db.doc('recetas/'+k).set({...receta,ts:new Date().toISOString()});cache[k]=copia(receta);guardada=copia(receta);estado('Guardada','ok');lista();}catch(e){estado('No se pudo guardar: '+(e.message||e.code||e),'mal');}};
+  try{await db.doc(REC+'/'+k).set({...receta,ts:new Date().toISOString()});cache[k]=copia(receta);guardada=copia(receta);estado('Guardada','ok');lista();}catch(e){estado('No se pudo guardar: '+(e.message||e.code||e),'mal');}};
 $('deshacer').onclick=()=>{receta=copia(guardada);sel.clear();cambio();};
 addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==='Delete'||e.key==='Backspace'){$('sacar').click();e.preventDefault();}if(e.key==='Escape'){sel.clear();pintar();}});
 /* ---------- arranque ---------- */
 lista();abrir(keys.find(kk=>MODELOS[kk].crudo)||keys[0]);
 (async()=>{try{db=await window.claude?.use?.('db');}catch(e){db=null;}if(!db)return;
-  try{const qs=await db.collection('recetas').get();for(const d of qs.docs){const x=d.data();if(x){const r=copia(x);delete r.ts;cache[d.id]=r;}}}catch(e){}
+  try{const qs=await db.collection(REC).get();for(const d of qs.docs){const x=d.data();if(x){const r=copia(x);delete r.ts;cache[d.id]=r;}}}catch(e){}
   lista();if(k&&cache[k]&&!sucio()){guardada=copia(cache[k]);receta=copia(cache[k]);armar(false);}})();
 </script>

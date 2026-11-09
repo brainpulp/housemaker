@@ -1,0 +1,76 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>housemaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style id="hub-css">
+/* housemaker: un solo artifact con todas las casas (Maxi 8/11: «stop showing me all models every time you make an update»).
+   Sin ?casa= se ve el índice; con ?casa=carhue esta cáscara carga la página de esa casa (carhue/pagina.html) y su código,
+   el motor compartido desde motor/ vía import map. Las casas no saben nada de esto: su HTML y su JS son los de siempre. */
+:root{--bg:#eceeea;--panel:#f8f9f6;--ink:#1d2321;--muted:#5c6662;--rule:#c7cdc8;--soft:#dfe3dd;--accent:#b4471f;--accent-soft:#f3dccf;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif;--f-body:"IBM Plex Sans",system-ui,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141817;--panel:#1b201f;--ink:#e4e8e6;--muted:#98a39e;--rule:#33403c;--soft:#2a3330;--accent:#e8794c;--accent-soft:#3a2419;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141817;--panel:#1b201f;--ink:#e4e8e6;--muted:#98a39e;--rule:#33403c;--soft:#2a3330;--accent:#e8794c;--accent-soft:#3a2419;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
+#hub{max-width:980px;margin:0 auto;padding:28px 16px 40px}
+#hub h1{font-family:var(--f-display);font-weight:700;font-size:34px;margin:0 0 2px;letter-spacing:.01em}
+#hub .sub{color:var(--muted);font-size:13.5px;margin:0 0 22px}
+#hub .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+#hub a.casa{display:block;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px 12px;color:inherit;text-decoration:none;min-height:120px}
+#hub a.casa:hover{border-color:var(--accent);background:var(--accent-soft)}
+#hub a.casa h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0 0 4px}
+#hub a.casa p{margin:0;font-size:13px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#hub a.casa .v{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:8px}
+#hub .pie{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:26px}
+#hub-volver{position:fixed;right:8px;bottom:34px;z-index:50;font:500 11px/1 var(--f-mono);color:var(--muted);background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;text-decoration:none;opacity:.8}
+#hub-volver:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+#hub-err{max-width:640px;margin:40px auto;padding:16px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;font-size:14px}
+</style>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search),casa=(q.get('casa')||'').replace(/[^a-z0-9-]/g,'');
+  const root=new URL('.',location.href).href;
+  if(!casa){indice();return;}
+  /* 1. la casa elegida: el motor (nombres.js) la usa para separar las colecciones de la base; el almacén local también se separa por casa */
+  window.__casa=casa;
+  try{const real=window.localStorage,P=casa+':';const S={getItem:k=>real.getItem(P+k),setItem:(k,v)=>real.setItem(P+k,v),removeItem:k=>real.removeItem(P+k),
+    clear(){for(let i=real.length-1;i>=0;i--){const k=real.key(i);if(k&&k.startsWith(P))real.removeItem(k);}},key(i){let n=0;for(let j=0;j<real.length;j++){const k=real.key(j);if(k&&k.startsWith(P)){if(n===i)return k.slice(P.length);n++;}}return null;},get length(){let n=0;for(let j=0;j<real.length;j++){const k=real.key(j);if(k&&k.startsWith(P))n++;}return n;}};
+    Object.defineProperty(window,'localStorage',{value:S,configurable:true});}catch(e){}
+  /* 2. las URL relativas de la casa (fotos, texturas, el GLB) salen de su carpeta */
+  const base=document.createElement('base');base.href=root+casa+'/';document.head.appendChild(base);
+  /* 3. import map: lo que la casa importa como ./x.js y vive en motor/ va a motor/; lo que el motor importa como ./modelo.js (y otros archivos de casa) va a la carpeta de la casa */
+  fetch(root+'casas.json').then(r=>r.json()).then(async info=>{
+    const c=info.casas.find(x=>x.id===casa);if(!c)throw new Error('No hay una casa «'+casa+'»');
+    const scopes={},deCasa={},deMotor={};
+    for(const f of info.motor)if(!c.archivos.includes(f))deCasa[root+casa+'/'+f]=root+'motor/'+f;
+    for(const f of c.archivos)if(f.endsWith('.js'))deMotor[root+'motor/'+f]=root+casa+'/'+f;
+    scopes[root+casa+'/']=deCasa;scopes[root+'motor/']=deMotor;
+    const im=document.createElement('script');im.type='importmap';im.textContent=JSON.stringify({imports:Object.assign({},info.imports,deCasa)/* también arriba: los módulos en línea de la página (catálogo, laboratorio) y los que carga esta cáscara tienen por referente a index.html, no a la carpeta de la casa */,scopes});document.head.appendChild(im);
+    /* 4. la página de la casa: estilos y cuerpo tal cual; sus scripts se corren en orden (los clásicos primero, como en la página suelta, después los módulos) */
+    const html=await (await fetch(root+casa+'/pagina.html')).text();const doc=new DOMParser().parseFromString(html,'text/html');
+    document.title=doc.title||c.nombre;
+    for(const el of doc.head.querySelectorAll('style,link[rel=stylesheet]'))document.head.appendChild(document.importNode(el,true));
+    const hub=document.getElementById('hub');if(hub)hub.remove();
+    const scripts=[];for(const s of doc.querySelectorAll('script')){if(s.type==='importmap')continue;scripts.push({type:s.type||'',src:s.getAttribute('src')||'',text:s.textContent});s.remove();}
+    for(const el of [...doc.body.childNodes])document.body.appendChild(document.importNode(el,true));
+    const volver=document.createElement('a');volver.id='hub-volver';volver.href=root;volver.textContent='⌂ housemaker';volver.title='Todas las casas';document.body.appendChild(volver);
+    for(const s of scripts)if(s.type!=='module'){const e=document.createElement('script');if(s.src){await new Promise((ok,no)=>{e.onload=ok;e.onerror=()=>no(new Error('No cargó '+s.src));e.src=new URL(s.src,base.href).href;document.body.appendChild(e);});}else{e.textContent=s.text;document.body.appendChild(e);}}
+    for(const s of scripts)if(s.type==='module'){if(s.src)await import(c.archivos.includes(s.src)?root+casa+'/'+s.src:root+'motor/'+s.src);else{const e=document.createElement('script');e.type='module';e.textContent=s.text;document.body.appendChild(e);}}
+  }).catch(e=>{console.error(e);const d=document.createElement('div');d.id='hub-err';d.innerHTML='<b>No pude abrir esta casa.</b><br>'+String(e&&e.message||e)+'<br><br><a href="'+root+'">Volver a housemaker</a>';document.body.appendChild(d);});
+
+  function indice(){document.addEventListener('DOMContentLoaded',async()=>{
+    const el=document.getElementById('hub');
+    try{const info=await (await fetch(root+'casas.json')).json();
+      el.querySelector('.grid').innerHTML=info.casas.map(c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`).join('');
+      el.querySelector('.pie').textContent='motor '+info.motorCommit+' · '+info.motorFecha;
+    }catch(e){el.querySelector('.grid').innerHTML='<div id="hub-err">No pude leer la lista de casas: '+esc(String(e))+'</div>';}
+  });}
+  function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+})();
+</script>
+<div id="hub">
+  <h1>housemaker</h1>
+  <p class="sub">Las casas de Maxi. Tocá una para abrirla; cada una guarda lo suyo (vistas, muebles, ediciones) en esta misma página.</p>
+  <div class="grid"></div>
+  <div class="pie"></div>
+</div>

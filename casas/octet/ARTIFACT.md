@@ -1,5 +1,8 @@
 # Octet
 
+> **Desde el 8/11/2026 esta casa se publica dentro del artifact único `housemaker`** (ver `ARTIFACT.md` en la raíz del repo; se abre con `?casa=octet`). La URL de abajo es la página vieja: ya no se actualiza.
+
+
 - **Qué es:** editor de octet truss (estructuras espaciales de tubos iguales y nodos, retícula FCC): la mesa de vidrio de Maxi (foto del 4/11/2026) y lo que quiera armar con ese sistema. Los modelos se guardan en la base y se llevan a cualquier casa como mueble «octet» (`motor/octet-modelos.js`).
 - **Artifact:** https://claude.ai/artifact/229ZEa1sF8HG1WGm1BwmWX
 - **Versión publicada:** 0.1.7 (9/11/2026): lo escondido se guarda en la base. Se publican sólo los archivos que importa la página (casa.js, modelo.js, octet.js, octet-editor.js y el visor con vistas, cortes, medir, señalar, marcas, inspector y barra; sin equipamiento, personas, árboles ni térmica).

@@ -27,6 +27,10 @@ Hoy contiene tres cosas:
 
 En `casa.js` también hay mucho específico de Carhué: lucarnas, dormers, la corrediza M-43, la cercha M-21, la escalera, el quincho. La deuda que hay que resolver para generalizarlo está en [DEUDA.md](DEUDA.md).
 
+## Publicación: un solo artifact
+
+Desde el 8/11/2026 todas las casas van en una página: `herramientas/armar-hub.sh` arma `dist/housemaker/` (cáscara `hub/index.html`, `casas.json`, `motor/` una sola vez y una carpeta por casa con lo propio más su HTML como `pagina.html`). La cáscara lee `?casa=`, define `window.__casa`, separa el `localStorage` por casa, pone `<base>` en la carpeta de la casa y arma un import map que manda `./x.js` del motor a `motor/` y lo que el motor importa de la casa (`modelo.js`, `video.js`, `calco-glb.js`) a la carpeta de la casa. Detalles y cómo publicar: `ARTIFACT.md` en la raíz.
+
 ## Motor: `motor/`
 
 | módulo | qué hace |
@@ -55,7 +59,7 @@ En `casa.js` también hay mucho específico de Carhué: lucarnas, dormers, la co
 
 ## Persistencia
 
-El artifact declara la capacidad `db`. Las colecciones son: `nombres`, `ediciones`, `marcas`, `vistas`, `estado`, `equipamiento`, `iluminacion`, `vegetacion`, `calefaccion` y, en la escena octet, `octet` (un documento por modelo). Las preferencias de cada usuario van en `localStorage`, siempre dentro de try/catch.
+El artifact declara la capacidad `db`. Las colecciones son: `nombres`, `ediciones`, `marcas`, `vistas`, `estado`, `equipamiento`, `iluminacion`, `vegetacion`, `calefaccion` y, en la escena octet, `octet` (un documento por modelo). En el artifact único `housemaker` (desde el 8/11/2026) cada casa las tiene con su prefijo (`carhue_vistas`, `arcos_equipamiento`…): lo pone `motor/nombres.js` a partir de `window.__casa`, que define la cáscara `hub/index.html`; el código de las casas y del motor sigue pidiendo `collection('vistas')`. Las preferencias de cada usuario van en `localStorage`, siempre dentro de try/catch.
 
 Al cambiar escenarios de fábrica con datos ya guardados, se agrega una entrada en `MIG` o `MUT` (en `equipamiento.js`) con una bandera única. Así se corrige lo guardado una sola vez sin pisar lo que el usuario cambió.
 

@@ -1,5 +1,8 @@
 # Casita de Malabrigo
 
+> **Desde el 8/11/2026 esta casa se publica dentro del artifact único `housemaker`** (ver `ARTIFACT.md` en la raíz del repo; se abre con `?casa=malabrigo`). La URL de abajo es la página vieja: ya no se actualiza.
+
+
 - **Casa:** vivienda mínima para trabajadores de campo en Malabrigo (Santa Fe), para un amigo de Maxi. Pedido del 5/11/2026: habitación de 4 × 3 o 4 × 4 con una cama, sin baño, con bacha, y una galería para tomar mate cocido o colgar la hamaca paraguaya.
 - **Fuente:** el pedido de Maxi. No hay plano ni terreno todavía: todo es proyecto, con conf 'supuesto' y nueve dudas (D-01 a D-09).
 - **Artifact:** https://claude.ai/artifact/7CRPa9SnWHdYSpH1i8XUaC
