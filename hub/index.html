@@ -61,7 +61,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
   function indice(){document.addEventListener('DOMContentLoaded',async()=>{
     const el=document.getElementById('hub');
     try{const info=await (await fetch(root+'casas.json')).json();
-      el.querySelector('.grid').innerHTML=info.casas.map(c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`).join('');
+      el.querySelector('.grid').innerHTML=info.casas.filter(c=>!c.oculta).map(c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`).join('');
       el.querySelector('.pie').textContent='motor '+info.motorCommit+' · '+info.motorFecha;
     }catch(e){el.querySelector('.grid').innerHTML='<div id="hub-err">No pude leer la lista de casas: '+esc(String(e))+'</div>';}
   });}

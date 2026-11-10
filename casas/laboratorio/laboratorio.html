@@ -38,7 +38,7 @@ label.n{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap
 .nota{font-size:11.5px;color:var(--muted);margin:0}
 #estado{font:11.5px var(--f-mono);color:var(--muted)}#estado.ok{color:var(--ok)}#estado.mal{color:var(--quita)}
 </style>
-<header><h1>Laboratorio de muebles</h1><p>Limpiá y ajustá los modelos 3D antes de que entren a la casa: sacá piezas sobrantes, girá, llevá a la medida y retocá los materiales.</p></header>
+<header><nav class="mtabs" style="display:flex;gap:4px;margin:0 0 8px" aria-label="Muebles"><a href="?casa=catalogo" style="font:600 12px var(--f-mono,monospace);padding:4px 10px;border-radius:4px;text-decoration:none;border:1px solid var(--rule,#ccc);color:inherit">Catálogo</a><a href="?casa=laboratorio" style="font:600 12px var(--f-mono,monospace);padding:4px 10px;border-radius:4px;text-decoration:none;border:1px solid var(--rule,#ccc);background:var(--ink,#222);color:var(--panel,#fff)" aria-current="page">Laboratorio</a></nav><!-- Maxi 9/11: catálogo y laboratorio son una sola entrada («Muebles») con dos pestañas --><h1>Laboratorio de muebles</h1><p>Limpiá y ajustá los modelos 3D antes de que entren a la casa: sacá piezas sobrantes, girá, llevá a la medida y retocá los materiales.</p></header>
 <main>
   <nav class="card lista" id="lista" aria-label="Muebles"></nav>
   <section class="card" id="vista"><canvas id="cv"></canvas><div id="cargando">Cargando el modelo…</div><div id="info"></div></section>

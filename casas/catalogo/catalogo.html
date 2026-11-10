@@ -36,7 +36,7 @@ pre{font:12px/1.4 "IBM Plex Mono",monospace;background:var(--bg);border:1px soli
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
 <body>
-<header><h1>Catálogo de muebles</h1><p>Las piezas del motor de housemaker, en la línea de las referencias: bajas, madera maciza, lino, piedra oscura y negro mate. Cada una se arma por parámetros (cm) y se usa en cualquier casa con su clave.</p></header>
+<header><nav class="mtabs" style="display:flex;gap:4px;margin:0 0 8px" aria-label="Muebles"><a href="?casa=catalogo" style="font:600 12px var(--f-mono,monospace);padding:4px 10px;border-radius:4px;text-decoration:none;border:1px solid var(--rule,#ccc);background:var(--ink,#222);color:var(--panel,#fff)" aria-current="page">Catálogo</a><a href="?casa=laboratorio" style="font:600 12px var(--f-mono,monospace);padding:4px 10px;border-radius:4px;text-decoration:none;border:1px solid var(--rule,#ccc);color:inherit">Laboratorio</a></nav><!-- Maxi 9/11: catálogo y laboratorio son una sola entrada («Muebles») con dos pestañas --><h1>Catálogo de muebles</h1><p>Las piezas del motor de housemaker, en la línea de las referencias: bajas, madera maciza, lino, piedra oscura y negro mate. Cada una se arma por parámetros (cm) y se usa en cualquier casa con su clave.</p></header>
 <nav class="fam" id="fam"></nav>
 <main><section class="grid" id="grid"></section>
 <aside><canvas id="vw"></canvas><div class="det" id="det"></div></aside></main>

@@ -8,7 +8,7 @@
 # importa de la casa (./modelo.js, ./video.js, ./calco-glb.js) a la carpeta de la casa. Uso: bash herramientas/armar-hub.sh [casa ...]
 set -euo pipefail
 cd "$(dirname "$0")/.."
-CASAS=${*:-"carhue arcos cocinas octet malabrigo catalogo laboratorio"}
+CASAS=${*:-"carhue arcos cocinas octet catalogo laboratorio"}  # Maxi 9/11: Malabrigo fuera del hub (queda en el repo)
 OUT=dist/housemaker
 rm -rf "$OUT"; mkdir -p "$OUT/motor"
 cp -r motor/. "$OUT/motor/"; rm -f "$OUT/motor/_clipper.js"
@@ -30,8 +30,8 @@ const motor=fs.readdirSync(path.join(OUT,'motor')).filter(f=>f.endsWith('.js'));
   for(const c of CASAS){const dir=path.join(OUT,c);const archivos=fs.readdirSync(dir).filter(f=>fs.statSync(path.join(dir,f)).isFile());
     let META={};try{const m=await import(path.resolve(dir,'modelo.js'));META=m.META||{};}catch(e){/* catálogo y laboratorio no tienen modelo */}
     const html=fs.readFileSync(path.join(dir,'pagina.html'),'utf8');const t=/<title>([^<]*)<\/title>/.exec(html);
-    const RES={octet:'Editor de estructuras de tubos y nodos (octet truss): la mesa de vidrio y sus modelos guardados.',catalogo:'Todas las piezas del motor, por familia, con sus parámetros: para copiarlas a un escenario.',laboratorio:'Banco para limpiar y ajustar los modelos 3D antes de que entren a una casa.'};
-    casas.push({id:c,nombre:META.nombre||(t?t[1]:c),resumen:META.resumen||RES[c]||'',version:META.version||'',fecha:META.fecha||'',archivos});}
+    const RES={octet:'Editor de estructuras de tubos y nodos (octet truss): la mesa de vidrio y sus modelos guardados.',catalogo:'Catálogo y laboratorio: todas las piezas del motor por familia, y el banco para limpiar y ajustar los modelos 3D antes de que entren a una casa.',laboratorio:'Banco para limpiar y ajustar los modelos 3D antes de que entren a una casa.'};
+    casas.push({id:c,nombre:c==='catalogo'?'Muebles':META.nombre||(t?t[1]:c),oculta:c==='laboratorio'/* Maxi 9/11: va como pestaña de «Muebles» */,resumen:META.resumen||RES[c]||'',version:META.version||'',fecha:META.fecha||'',archivos});}
   const imports={"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"};
   fs.writeFileSync(path.join(OUT,'casas.json'),JSON.stringify({motorCommit:MC,motorFecha:MF,imports,motor,casas},null,1));
   console.log('casas.json:',casas.map(c=>c.id+' ('+c.archivos.length+' archivos)').join(', '));})();
