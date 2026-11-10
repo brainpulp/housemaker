@@ -31,7 +31,7 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
   P.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
   q('edSnap').addEventListener('change',e=>snap=+e.target.value);
   addEventListener('keydown',e=>{if(P.hidden||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;const k=e.key.toLowerCase();
-    if(k==='m')setTool('mover');else if(k==='t')setTool('estirar');/* era P; P pasó a perspectiva/paralela (Maxi 8/11) */else if(k===' '&&tool){}else if((k==='delete'||k==='backspace')&&visor.selected){e.preventDefault();borrar(base(visor.selected));}});
+    if(k==='m')setTool('mover');else if(k==='t')setTool('estirar');/* era P; P pasó a perspectiva/paralela (Maxi 8/11) */else if(k===' '&&tool){}else if((k==='delete'||k==='backspace')&&visor.selected){e.preventDefault();const bs=selBases();(async()=>{for(const b of bs)await borrar(b);})();}});
   const sn=v=>Math.round(v/snap)*snap;
 
   /* formulario de la pieza elegida */
@@ -72,7 +72,9 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
   /* arrastre */
   const ray=new THREE.Raycaster(),mv=new THREE.Vector2();
   const setRay=e=>{const r=visor.renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,visor.camera);};
-  const selParts=()=>{const b=base(visor.selected);return visor.parts.filter(p=>base(p.id)===b);};
+  /* con selección múltiple (Shift, Maxi 9/11) Mover arrastra todas las piezas elegidas y también los muebles elegidos */
+  const selBases=()=>[...new Set((visor.multi&&visor.multi.length?visor.multi:[visor.selected]).filter(Boolean).map(base))];
+  const selParts=()=>{const bs=selBases();return visor.parts.filter(p=>bs.includes(base(p.id)));};
   const hitSel=e=>{setRay(e);const ms=[];for(const p of selParts())p.grp.traverse(o=>{if(o.isMesh)ms.push(o);});const cps=visor.renderer.clippingPlanes;
     return ray.intersectObjects(ms,false).find(h=>!cps.length||cps.every(pl=>pl.distanceToPoint(h.point)>=0));};
   const closestT=(P0,n,R0,d)=>{const w0=P0.clone().sub(R0);const a=n.dot(n),b=n.dot(d),c=d.dot(d),dd=n.dot(w0),ee=d.dot(w0);const den=a*c-b*b;return Math.abs(den)<1e-9?0:(b*ee-c*dd)/den;};
@@ -129,10 +131,10 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
   addEventListener('keydown',e=>{if(e.key==='Escape'&&ab.a){ab.a=null;dotA.visible=false;msg('Punto a punto cancelado.');}});
   view.addEventListener('pointerdown',e=>{if(P.hidden||tool!=='mover'||!visor.selected||e.button!==0||!GZ.visible)return;setRay(e);const hs=ray.intersectObjects(GZ.children,true);if(!hs.length)return;
     e.stopImmediatePropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const k=hs[0].object.userData.ax;
-    drag={kind:'eje',ax:k,dir:AX[k][0].clone(),id:base(visor.selected),p0:GZ.position.clone(),sx:e.clientX,sy:e.clientY,parts:selParts(),dv:new THREE.Vector3()};},true);
+    drag={kind:'eje',ax:k,dir:AX[k][0].clone(),id:base(visor.selected),bases:selBases(),p0:GZ.position.clone(),sx:e.clientX,sy:e.clientY,parts:selParts(),dv:new THREE.Vector3()};},true);
   view.addEventListener('pointerdown',e=>{if(!tool||tool==='ab'||P.hidden||!visor.selected||e.button!==0)return;const h=hitSel(e);if(!h)return;
     e.stopImmediatePropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;const id=base(visor.selected);
-    if(tool==='mover'){drag={kind:'mover',id,p0:h.point.clone(),plane:new THREE.Plane(new THREE.Vector3(0,1,0),-h.point.y),parts:selParts(),dv:new THREE.Vector3()};return;}
+    if(tool==='mover'){drag={kind:'mover',id,bases:selBases(),p0:h.point.clone(),plane:new THREE.Plane(new THREE.Vector3(0,1,0),-h.point.y),parts:selParts(),dv:new THREE.Vector3()};return;}
     const f=ED.find(id);const ESP=['M-04','M-21','M-10','M-09','M-26','M-20','M-22','M-06'];
     if(!f||f.k!=='MUROS'||f.d.nivel!=='PB'||ESP.includes(id)){/* cualquier pieza con caras planas: se corre la cara tocada */
       const pos=h.object.geometry.attributes.position,fa=h.face;const va=new THREE.Vector3().fromBufferAttribute(pos,fa.a),vb=new THREE.Vector3().fromBufferAttribute(pos,fa.b),vc=new THREE.Vector3().fromBufferAttribute(pos,fa.c);
@@ -146,18 +148,18 @@ export function initEditor(visor,stage,WALL_TOP,H_EP){
     drag={kind,id,d,ax,dir,p0:h.point.clone(),sx:e.clientX,sy:e.clientY,top0:d.top??WALL_TOP[id]??(d.nivel==='EP'?420:H_EP),last:0};},true);
   view.addEventListener('pointermove',e=>{if(!drag)return;e.stopPropagation();setRay(e);
     if(drag.kind==='mover'){let p;if(e.shiftKey){const n=new THREE.Vector3().subVectors(visor.camera.position,drag.p0);n.y=0;n.normalize();const pl=new THREE.Plane().setFromNormalAndCoplanarPoint(n,drag.p0);p=ray.ray.intersectPlane(pl,new THREE.Vector3());if(p){p.x=drag.p0.x;p.z=drag.p0.z;}}else p=ray.ray.intersectPlane(drag.plane,new THREE.Vector3());
-      if(!p)return;const dv=p.sub(drag.p0);const mk=mask();dv.set(mk.x?sn(dv.x):0,mk.z?sn(dv.y):0,mk.y?sn(dv.z):0);drag.dv.copy(dv);for(const pp of drag.parts)pp.grp.position.copy(dv);
+      if(!p)return;const dv=p.sub(drag.p0);const mk=mask();dv.set(mk.x?sn(dv.x):0,mk.z?sn(dv.y):0,mk.y?sn(dv.z):0);drag.dv.copy(dv);for(const pp of drag.parts)pp.grp.position.copy(dv);visor.equip&&visor.equip.moverSel&&visor.equip.moverSel(dv.x,dv.z,false);
       showTip(e,`x ${dv.x>=0?'+':''}${fmt(dv.x)} · y ${dv.z>=0?'+':''}${fmt(dv.z)}${dv.y?` · alto ${dv.y>=0?'+':''}${fmt(dv.y)}`:''} m`);return;}
     if(drag.kind==='eje'){const r=visor.renderer.domElement.getBoundingClientRect(),cam=visor.camera;const pj=v=>{const q=v.clone().project(cam);return [(q.x+1)/2*r.width,(1-q.y)/2*r.height];};
       const a=pj(drag.p0),b=pj(drag.p0.clone().addScaledVector(drag.dir,100));const sv=[b[0]-a[0],b[1]-a[1]],l2=sv[0]*sv[0]+sv[1]*sv[1]||1;const t=sn(((e.clientX-drag.sx)*sv[0]+(e.clientY-drag.sy)*sv[1])/l2*100);
-      drag.dv.copy(drag.dir).multiplyScalar(t);for(const pp of drag.parts)pp.grp.position.copy(drag.dv);showTip(e,`${drag.ax==='z'?'alto':drag.ax} ${t>=0?'+':''}${fmt(t)} m`);return;}
+      drag.dv.copy(drag.dir).multiplyScalar(t);for(const pp of drag.parts)pp.grp.position.copy(drag.dv);visor.equip&&visor.equip.moverSel&&visor.equip.moverSel(drag.dv.x,drag.dv.z,false);showTip(e,`${drag.ax==='z'?'alto':drag.ax} ${t>=0?'+':''}${fmt(t)} m`);return;}
     const r=visor.renderer.domElement.getBoundingClientRect(),cam=visor.camera;const proj=v=>{const q=v.clone().project(cam);return [(q.x+1)/2*r.width,(1-q.y)/2*r.height];};
     const s0=proj(drag.p0),s1=proj(drag.p0.clone().addScaledVector(drag.dir,100));const sv=[s1[0]-s0[0],s1[1]-s0[1]],sl2=sv[0]*sv[0]+sv[1]*sv[1];const mx=e.clientX-drag.sx,my=e.clientY-drag.sy;
     let tt;if(sl2>400)tt=(mx*sv[0]+my*sv[1])/sl2*100;else{const dist=cam.position.distanceTo(drag.p0);const wpp=2*dist*Math.tan(cam.fov*Math.PI/360)/r.height;tt=-my*wpp;}
     const t=sn(tt);if(t===drag.last)return;drag.last=t;
     showTip(e,`${t>=0?'+':''}${fmt(t)} m`);const now=performance.now();if(now-lastPrev>90){lastPrev=now;ED.editar(drag.id,patchFor(drag,t),false);}},true);
   const end=async e=>{if(!drag)return;e.stopPropagation();const d=drag;drag=null;tip.hidden=true;visor.controls.enabled=true;
-    if(d.kind==='mover'||d.kind==='eje'){for(const pp of d.parts)pp.grp.position.set(0,0,0);if(d.dv.lengthSq())await guardar(d.id,{mov:{x:d.dv.x,y:d.dv.z,z:d.dv.y}});return;}
+    if(d.kind==='mover'||d.kind==='eje'){for(const pp of d.parts)pp.grp.position.set(0,0,0);visor.equip&&visor.equip.moverSel&&visor.equip.moverSel(d.dv.x,d.dv.z,true);if(d.dv.lengthSq())for(const b of d.bases||[d.id])await guardar(b,{mov:{x:d.dv.x,y:d.dv.z,z:d.dv.y}});return;}
     await guardar(d.id,patchFor(d,d.last));};
   const patchFor=(dr,t)=>dr.kind==='cara'?{caras:[...dr.base,{n:dr.n,d:Math.round(dr.dd*10)/10,t}]}:{set:setFor(dr,t)};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);

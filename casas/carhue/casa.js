@@ -121,7 +121,7 @@ const params=[
   {id:'ext',label:'Deck, pileta y árbol',type:'check',value:true,quick:true,group:'Ver'},
   {id:'equip',label:'Equipamiento (escenarios)',type:'check',value:true,quick:true,group:'Ver'},
   {id:'escB2k',label:'B2 escalones arriba',type:'select',value:'7',quick:true,showIf:P=>P.escAlt==='B2',group:'Ver',options:[['2','2'],['3','3'],['4','4'],['5','5'],['6','6'],['7','7']],help:'Cuántas alzadas baja el puentecito respecto de la puerta.'},
-  {id:'escAlt',label:'Escalera al altillo',type:'select',value:'B3',quick:true,group:'Ver',options:[['0','Altillo: sin escalera'],['A','Altillo A · paso alternado'],['D','Altillo D · de barco 60°'],['E','Altillo E · recta 40°'],['B2','Altillo B2 · recta contra M-22 + puentecito más bajo'],['B3','Altillo B3 · como B2, más empinada y puentecito más largo'],['S','Altillo S · caracol bajo la cumbrera']],help:'Escaleras al altillo por la puerta P-34. Todas salen derecho bajo la cumbrera: es la única franja con altura libre.'},
+  {id:'escAlt',label:'Escalera al altillo',type:'select',value:'S'/* Maxi 9/11: el caracol es la variante por defecto */,quick:true,group:'Ver',options:[['0','Altillo: sin escalera'],['A','Altillo A · paso alternado'],['D','Altillo D · de barco 60°'],['E','Altillo E · recta 40°'],['B2','Altillo B2 · recta contra M-22 + puentecito más bajo'],['B3','Altillo B3 · como B2, más empinada y puentecito más largo'],['S','Altillo S · caracol bajo la cumbrera']],help:'Escaleras al altillo por la puerta P-34. Todas salen derecho bajo la cumbrera: es la única franja con altura libre.'},
   {id:'ventJ',label:'Ventanas al jardín (P-05, P-06)',type:'select',value:'proy',quick:true,group:'Ver',options:[['proy','Proyectante (una hoja)'],['pleg','Plegable tipo garage (dos hojas)'],['barn','Corrediza de vidrio tipo granero']]},
   {id:'p26',label:'Puerta del baño piletero',type:'select',value:'m24',/* Maxi 7/11: la que mira al sur, desde la cocina, es la que usa */quick:true,group:'Ver',options:[['m26','P-26 en M-26 (desde la cocina norte)'],['m24','P-26 en M-24, lado este (desde la cocina)']]},
   {id:'pv56',label:'Paños PV-05 y PV-06',type:'select',value:'corr',quick:true,group:'Ver',options:[['corr','PV-05 y PV-06 corredizas (dos rieles)'],['pleg','PV-05 y PV-06 plegadiza de dos paños, eje vertical']]},
@@ -190,11 +190,12 @@ function build(p){
     else if(m.id==='M-10'){g=[box(2511,2531,241,261,8,937),box(2511,2531,0,3,8,937),prism([[8,261],[937,261],[937,246],[738,344],[352,507],[8,262]],2515,2527,'ZY')];}
     else if(m.id==='M-09'){/* sólo los rieles del retorno (Maxi: no es un muro): abajo a ras del piso y arriba sobre los paños */g=[box(1329,1342,0,1.5,638.5,918.5),box(1329,1342,241,244,638.5,918.5)];}
     else if(m.id==='M-35'){g=[box(0,1323,388,472,-91,-77)];}
-    else if(m.id==='M-43'){const lu4=M.TECHOS.find(t=>t.id==='LU-4'),DXH=lu4?Math.min(...lu4.poly.map(q=>q[0]))-(m.a[0]+1):0,x0=m.a[0]+DXH,HT=472,/* toda la corrediza (4 hojas, riel y relleno) cae donde empieza la lucarna LU-4 (Maxi) */u2=y=>468+(y+46)*(27/397),u3=y=>490-(y-352)*(140/332),under=y=>y<352?u2(y):u3(y),hp=y=>Math.min(HT,under(y))-1;
-      const Y0=27,W=(625-27)/4/* arranca en la cara de M-42, no adentro (Maxi 15/10) */,yC=352+(490-HT)/(140/332);
+    else if(m.id==='M-43'){const lu4=M.TECHOS.find(t=>t.id==='LU-4'),DXH=lu4?Math.min(...lu4.poly.map(q=>q[0]))-(m.a[0]+1):0,x0=m.a[0]+DXH,HT=472,/* toda la corrediza (4 hojas, riel y relleno) cae donde empieza la lucarna LU-4 (Maxi) */u2=y=>468+(y+46)*(27/397),u3=y=>DORM_CU(p,x0,y)??(490-(y-352)*(140/332))/* Maxi 9/11: con el dormer corrido hasta la galería, el techo de este lado es el de sus cabios */,under=y=>y<352?u2(y):u3(y),hp=y=>Math.min(HT,under(y))-1;
+      const corte=z=>{let y=352;while(y<800&&u3(y)>z)y+=.5;return y;}/* y donde el techo baja a la altura z */;
+      const Y0=27,W=(625-27)/4/* arranca en la cara de M-42, no adentro (Maxi 15/10) */,yC=corte(HT);
       const quad=(xa,xb,a0,a1,z0f,z1f)=>box8([[xa,z0f(a0),a0],[xb,z0f(a0),a0],[xb,z0f(a1),a1],[xa,z0f(a1),a1],[xa,z1f(a0),a0],[xb,z1f(a0),a0],[xb,z1f(a1),a1],[xa,z1f(a1),a1]]);
       /* riel horizontal a +4,72 y relleno fijo entre el riel y el techo */
-      const tr=[box(x0-25,x0+3,HT,HT+5,Y0,yC)],inf=[];const y86=-46+(HT+5-468)*(397/27),yB=352+(490-(HT+5))/(140/332);
+      const tr=[box(x0-25,x0+3,HT,HT+5,Y0,yC)],inf=[];const y86=-46+(HT+5-468)*(397/27),yB=corte(HT+5);
       inf.push(quad(x0-1.5,x0+1.5,y86,352,()=>HT+5,y=>under(y)),quad(x0-1.5,x0+1.5,352,yB,()=>HT+5,y=>under(y)));
       Pt(m.id,`${m.id} · ${m.nombre}`,'madera',[...tr,...inf],{...base(m),sec:'riel horizontal a +4,72 y relleno fijo hasta el techo',med:`4 hojas H-1…H-4 · ancho ${f1(W/100)} m c/u`},{...ex(m),tags:[m.nivel,'muros'],group:'Entrepiso'});
             /* Estética de las hojas (variantes, Maxi 13/10): lisa, japonesa (shoji), tubo cuadrado con vidrio esmerilado, listones verticales */
@@ -531,29 +532,11 @@ function build(p){
     const MAT=new THREE.Matrix4().makeTranslation(ex,0,ey).multiply(new THREE.Matrix4().makeRotationY(rot));
     const CAT={herraje:'acero',perno:'acero',pedada:'ep',c1:'ep',c2:'ep',exist:'cabio'};
     for(const q of ps){const gs=q.geos.map(g=>g.clone().applyMatrix4(MAT));Pt(`ESC-${q.id}`,`ESC-1 · ${q.name}`,CAT[q.cat]||'cabio',gs,{fn:(q.info&&q.info.fn)||'',sec:q.info&&q.info.sec,med:q.info&&q.info.med},{group:'Escalera',tags:['PB','escalera']});}}}
-  /* S · caracol Ø1,60 frente a la puerta, centrado bajo la cumbrera (es donde hay altura). Maxi 8/11: la llegada es un descanso a +2,62 de 90°
-     enfrentado a la puerta, que se ensancha hasta la pared (1,13 de ancho contra M-26, la puerta mide 0,80): se sale del caracol mirando a la puerta.
-     Los 13 escalones ocupan los otros 270°. */
-  if(p.escAlt==='S'){const v=M.ABERTURAS.find(o=>o.id==='P-34'),HZ=262,WF=-332.5,n=14,Rz=HZ/n,RO=80,RI=6,cx=1817+(v?v.d+v.w/2:286),cy=WF+RO+2,LA=-3*Math.PI/4,LB=-Math.PI/4,da=(3*Math.PI/2)/(n-1),u=x=>wingZ(x)-19,t=[],rods=[];
-    let hmin=1e9,hwhere='';const rw=RO*2/3,P=(a,r=RO)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
-    for(let i=1;i<n;i++){const a1=LA-(n-1-i)*da,a0=a1-da,am=(a0+a1)/2,pts=[];for(let k=0;k<=4;k++)pts.push(P(a0+(a1-a0)*k/4));
-      pts.push(P(a1,RI),P(a0,RI));t.push(prism(pts,i*Rz-4,i*Rz,'XZ'));
-      const hx=u(cx+rw*Math.cos(am))-i*Rz;if(hx<hmin){hmin=hx;hwhere='escalón '+i;}
-      const [px,py]=P(am,RO-3);if(i%2)rods.push(rod([px,i*Rz,py],[px,i*Rz+90,py],1.4,8));
-      if(i>1){const [qx,qy]=P(am-da,RO-3);rods.push(rod([qx,(i-1)*Rz+90,qy],[px,i*Rz+90,py],1.8,8));}}
-    /* descanso de llegada: el sector de 90° frente a la puerta, llevado hasta la pared */
-    const xw=RO*Math.cos(Math.PI/4),land=[[cx,cy],P(LA),[cx-xw,WF],[cx+xw,WF],P(LB)];t.push(prism(land,HZ-4,HZ,'XZ'));
-    {const hl=u(cx)-HZ;if(hl<hmin){hmin=hl;hwhere='el descanso';}}
-    {const [ax,ay]=P(LA-da/2,RO-3),[bx,by]=P(LA,RO-3);rods.push(rod([ax,(n-1)*Rz+90,ay],[bx,HZ+90,by],1.8,8),rod([bx,HZ+90,by],[cx-xw+3,HZ+90,WF+3],1.8,8),rod([bx,HZ,by],[bx,HZ+90,by],1.4,8));
-     const [ex,ey]=P(LB,RO-3);rods.push(rod([cx,HZ+90,cy],[ex,HZ+90,ey],1.8,8),rod([ex,HZ+90,ey],[cx+xw-3,HZ+90,WF+3],1.8,8),rod([ex,HZ,ey],[ex,HZ+90,ey],1.4,8),rod([cx+xw-3,HZ,WF+3],[cx+xw-3,HZ+90,WF+3],1.4,8),rod([cx-xw+3,HZ,WF+3],[cx-xw+3,HZ+90,WF+3],1.4,8));}
-    rods.push(rod([cx,0,cy],[cx,HZ+90,cy],5.5,16));const hd=(v?v.s+v.h:440)-HZ;if(hd<hmin){hmin=hd;hwhere='la puerta P-34';}
-    Pt('ESC-S','ESC-S · Escalera caracol al altillo','ep',t,{fn:`Caracol de Ø1,60 frente a la puerta P-34, con la columna bajo la cumbrera de T-06 (la única franja con altura). 13 escalones en abanico de ${f1(da*180/Math.PI)}° en 270° y, arriba, un descanso de 90° enfrentado a la puerta que se ensancha hasta la pared (${f1(2*xw/100)} m contra M-26): se llega mirando a la puerta. Altura libre mínima sobre la línea de paso: ${f1(hmin/100)} m (${hwhere}).`,sec:'huellas de 2″ en abanico, columna central de caño Ø11',med:`14 alzadas de ${f1(Rz)} · ${f1(da*180/Math.PI)}° por escalón · huella en la línea de paso ${f1(rw*da)} · ocupa 1,60 × 1,62`},{group:'Escalera',tags:['PB','escalera']});
-    Pt('ESC-Sr','ESC-S · columna y baranda','acero',rods,{fn:'Columna central, baranda helicoidal de hierro y baranda a los dos lados del descanso.'},{group:'Escalera',tags:['PB','escalera']});}
   /* B2 (Maxi): la primera versión —tramo recto contra M-22 y puentecito contra M-26— con el puentecito más bajo y unos escalones
      junto a la puerta, para ganar altura libre en el rincón. Se calcula la altura libre en cada punto del recorrido. */
   /* B3 (Maxi, 13/10): segunda versión de B2, más empinada y con menos escalones arriba (puentecito más largo). Huella, alzadas y
      escalones del puentecito se ajustan en vivo (barra de abajo, con B3 elegida). */
-  if(p.escAlt==='B2'||p.escAlt==='B3')escaleraAltilloB(geo,M,Pt,p);   /* B2/B3 en escalera-altillo.js (compartida con la escena Cocinas, 7/11) */
+  if(p.escAlt==='B2'||p.escAlt==='B3'||p.escAlt==='S')escaleraAltilloB(geo,M,Pt,p);   /* B2, B3 y el caracol S en escalera-altillo.js (compartida con la escena Cocinas, 7/11; S desde el 9/11) */
   /* escaleras al altillo: con el techo T-06 bajando a los costados, la única franja con altura libre está bajo la cumbrera,
      así que todas salen derecho desde la puerta P-34 (centrada bajo la cumbrera) hacia la cocina. Se informa la altura libre mínima. */
   if(p.escAlt&&p.escAlt!=='0'){const v=M.ABERTURAS.find(o=>o.id==='P-34'),xc=1817+(v?v.d+v.w/2:286),HZ=262,WF=-332.5,dintel=HZ+(v?v.h:178),u=x=>wingZ(x)-14-5;
@@ -843,10 +826,14 @@ function build(p){
         al norte, nicho bajo arqueado para leña, mesada de madera y caja de estantes de madera embutida; ladrillo arriba hasta el techo. Maxi 19/10: corrido 0,58 al sur, hasta tocar el borde del entrepiso (x 1442) */
       const Y0=46,Y1=100,zt=y=>255+(y+2)*(252/354)-6,top=(xa,xb,z0)=>box8([[xa,z0,Y0],[xb,z0,Y0],[xb,z0,Y1],[xa,z0,Y1],[xa,zt(Y0),Y0],[xb,zt(Y0),Y0],[xb,zt(Y1),Y1],[xa,zt(Y1),Y1]]);
       g=[box(1442,1642,0,20,Y0,Y1+8),box(1442,1497,20,110,Y0,Y1),box(1587,1642,20,110,Y0,Y1),box(1492,1592,110,122,Y0,Y1+2),top(1442,1642,122),
-         box(1642,1654,0,95,Y0,Y1),box(1765,1777,0,95,Y0,Y1),box(1654,1765,78,95,58,Y1),top(1642,1777,230),box(1642,1647,95,230,Y0,Y1),box(1767,1777,95,230,Y0,Y1)];
-      const est=[box(1642,1777,95,101,Y0,Y1+8),box(1647,1652,101,230,Y0,Y1),box(1767,1772,101,230,Y0,Y1),box(1647,1772,222,230,Y0,Y1),box(1652,1767,101,222,Y0,52),box(1652,1767,145,148,52,Y1-4),box(1652,1767,185,188,52,Y1-4)];
-      Pt(c.id+'h',`${c.id} · fondo de la boca y del nicho de leña`,'acero',[box(1497,1587,20,110,Y0,56),box(1654,1765,0,78,Y0,58)],{fn:'Fondo ennegrecido de la boca del hogar y del nicho de leña.'},{group:'Objetos',tags:['PB','objetos',c.id]});
-      Pt(c.id+'e',`${c.id} · mesada y estantes de madera`,'madera',est,{fn:'Caja de madera oscura embutida en el macizo del hogar, con dos estantes, sobre una mesada que asoma (foto 19).'},{group:'Objetos',tags:['PB','objetos',c.id]});}
+         /* Maxi 9/11 (foto desde el living): la mitad norte llega hasta la pared de las ventanas (x 18,35), sin pilar aparte. Abajo, nicho abierto y puerta doble de madera;
+            arriba, nicho con estantes en marco de madera oscura; medidas sacadas de la foto (Maxi: «no son significativas») */
+         box(1642,1835,0,10,Y0,Y1+6),box(1642,1651,10,100,Y0,Y1),box(1718,1730,10,100,Y0,Y1),box(1826,1835,10,100,Y0,Y1),box(1730,1826,10,100,Y0,Y1-4),box(1651,1718,10,100,Y0,Y0+10),
+         box(1642,1835,100,125,Y0,Y1),top(1642,1835,245)];
+      const est=[box(1642,1835,125,131,Y0,Y1+4),box(1642,1650,131,245,Y0,Y1),box(1827,1835,131,245,Y0,Y1),box(1642,1835,237,245,Y0,Y1),box(1650,1827,131,237,Y0,Y0+6),box(1650,1827,170,173,Y0+6,Y1-4),box(1650,1827,205,208,Y0+6,Y1-4),
+         box(1651,1718,52,55,Y0+10,Y1-2),box(1731,1778,12,98,Y1-4,Y1),box(1779,1825,12,98,Y1-4,Y1)];
+      Pt(c.id+'h',`${c.id} · fondo de la boca`,'acero',[box(1497,1587,20,110,Y0,56)],{fn:'Fondo ennegrecido de la boca del hogar.'},{group:'Objetos',tags:['PB','objetos',c.id]});
+      Pt(c.id+'e',`${c.id} · estantes, mesada y puertas de madera`,'madera',est,{fn:'Nicho con dos estantes en marco de madera oscura sobre una mesada que asoma; abajo, un nicho abierto con un estante y una puerta doble de madera (foto del 9/11).'},{group:'Objetos',tags:['PB','objetos',c.id]});}
     else if(c.id==='HEL-1'){/* heladera roja (fotos 12 y 13): cuerpo, puerta de freezer arriba, puerta grande abajo, manijas y patas; frente hacia la cocina (+x) */
       const [x0,x1,z0,z1,y0,y1]=c.box,zf=z1-55;g=[box(x0,x1-3,z0+4,z1-2,y0,y1),box(x0+2,x1-5,z1-2,z1,y0+2,y1-2),box(x1-3,x1,zf+1,z1-3,y0+1,y1-1),box(x1-3,x1,z0+5,zf-1,y0+1,y1-1)];
       Pt(c.id+'k',`${c.id} · manijas, burletes y patas`,'acero',[box(x1,x1+3,zf+8,zf+38,y0+6,y0+9),box(x1,x1+3,zf-50,zf-6,y0+6,y0+9),box(x1-3.2,x1+.2,zf-1,zf+1,y0+1,y1-1),box(x0+3,x0+8,z0,z0+4,y0+3,y0+8),box(x0+3,x0+8,z0,z0+4,y1-8,y1-3),box(x1-10,x1-5,z0,z0+4,y0+3,y0+8),box(x1-10,x1-5,z0,z0+4,y1-8,y1-3)],{fn:'Manijas, burlete entre puertas y patas de la heladera.'},{group:'Objetos',tags:['PB','objetos',c.id]});}
@@ -1072,7 +1059,7 @@ ED.onChange(()=>{visor.rebuild();applyClips();});
   const end=e=>{if(!dr)return;e.stopPropagation();visor.controls.enabled=true;if(!dr.moved){const d=dr;dr=null;setTimeout(()=>{visor.rebuild();applyClips();visor.showPart(d.pid);visor.candado&&visor.candado.mostrar(d.id,d.p0);},0);return;}visor.candado&&visor.candado.mostrar(dr.id);const {id,a}=dr;dr=null;LUZ[id]=a;try{localStorage.setItem('carhue-lucarnas',JSON.stringify(LUZ));}catch(x){}guardarAberturas();setTimeout(()=>{visor.rebuild();applyClips();},0);};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);}
 try{initCandado(visor);}catch(e){console.error('candado',e);}
-try{initRealismo(visor);}catch(e){console.error('realismo',e);}
+try{initRealismo(visor,{ladrillo:['M-01','M-21','HOG-1','CH-1','CH-2']}/* Maxi 9/11: M-02 es revocada (foto desde el living); de ladrillo visto sólo el hogar */);}catch(e){console.error('realismo',e);}
 try{initLuz(visor);}catch(e){console.error('luz',e);}
 try{initCalidad(visor);}catch(e){console.error('calidad',e);}
 try{initPersonas(visor);}catch(e){console.error('personas',e);}

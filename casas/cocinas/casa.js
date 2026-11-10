@@ -104,7 +104,7 @@ function build(p) {
      huella 20, 5 escalones arriba), y acá se traslada a la escena con el corrimiento de Carhué */
   { const c = M.CASAS.find(q => q.pre === 'CH'); if (c && p.verCH !== false) { const [dx, dy, dz] = c.d;
       const PtCH = (id, name, cat, geos, info, ex2 = {}) => Pt('CH:' + id, 'CH:' + name, cat, [].concat(geos).map(g => geo.mapGeo(g, (x, y, z) => [x + dx, y + dz, z + dy])), { ...info, fn: 'Carhué: ' + (info.fn || '') }, { group: c.nombre, tags: ['escalera'] });
-      escaleraAltilloB(geo, CH, PtCH, { escAlt: 'B3', escB3n: 14, escB3G: 20, escB3k: 5 }); } }
+      escaleraAltilloB(geo, CH, PtCH, { escAlt: 'S' }); /* Maxi 9/11: el caracol es la variante por defecto de Carhué */ } }
   /* techos y cielorrasos */
   if (p.techos) for (const t of M.TECHOS) Pt(t.id, `${t.id} · ${t.nombre}`, 'techo', A.techoGeo(t), { ...base(t), med: `${t.pend} · de ${f2(t.z[0])} a ${f2(t.z[1])}` }, exT(t));
   /* cartel con el nombre de cada cocina, en el piso al norte de la caja (de letras no hay: una placa fina con el código de la casa) */

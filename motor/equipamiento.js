@@ -254,7 +254,11 @@ export function initEquipamiento(visor,stage,D){
     if(!q.moved){abrirMov(q.g);return;}if(m.cur<.12){m.tgt=0;MOVS.add(q.g);}else if(m.cur>.88){m.tgt=1;MOVS.add(q.g);}};
   addEventListener('pointerup',finMov,true);addEventListener('pointercancel',finMov,true);
   const selDims=new THREE.Group();G.add(selDims);
-  function marcarSel(){pintarIconos();if(selBox){G.remove(selBox);selBox.geometry.dispose();selBox=null;}visor.quitarEtiquetas&&visor.quitarEtiquetas(selDims);const g=sel&&groups.get(sel);if(!g)return;
+  let extraBoxes=[];
+  function marcarSel(){pintarIconos();if(selBox){G.remove(selBox);selBox.geometry.dispose();selBox=null;}for(const b of extraBoxes){G.remove(b);b.geometry.dispose();}extraBoxes=[];visor.quitarEtiquetas&&visor.quitarEtiquetas(selDims);
+    if(sel&&!multiM.has(sel)&&multiM.size)multiM.add(sel);if(!sel)multiM.clear();
+    for(const id of multiM){if(id===sel)continue;const go=groups.get(id);if(!go)continue;const b2=new THREE.Box3().setFromObject(go);b2.expandByScalar(1.5);const h=new THREE.Box3Helper(b2,new THREE.Color('#e2462b'));h.material.depthTest=false;h.renderOrder=2000;G.add(h);extraBoxes.push(h);}
+    const g=sel&&groups.get(sel);if(!g)return;
     /* la caja mide sólo las mallas visibles (sin el ícono); la de la caja roja incluye el ícono, como siempre */
     const bm=new THREE.Box3();g.updateMatrixWorld(true);g.traverse(o=>{if(o.isMesh&&o.visible&&o.parent.visible)bm.expandByObject(o);});
     const bb=new THREE.Box3().setFromObject(g);bb.expandByScalar(1.5);selBox=new THREE.Box3Helper(bb,new THREE.Color('#e2462b'));selBox.material.depthTest=false;selBox.renderOrder=2000;G.add(selBox);
@@ -273,6 +277,14 @@ export function initEquipamiento(visor,stage,D){
   const rc=new THREE.Raycaster(),mv=new THREE.Vector2();
   const setRay=e=>{const r=visor.renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);rc.setFromCamera(mv,camera);};
   const item=id=>{const g=groups.get(id);if(!g)return null;const s=ST[g.userData.capa][g.userData.amb];return s&&s.esc[s.activo].items.find(m=>m.id===id);};
+  /* selección múltiple (Maxi 9/11): Shift + toque suma o saca muebles; se mueven, giran con el teclado y se borran juntos. todos() = el elegido + los sumados */
+  const multiM=new Set();
+  const todos=()=>{const r=[...multiM].filter(id=>groups.get(id));if(sel&&groups.get(sel)&&!r.includes(sel))r.unshift(sel);return r;};
+  function alternar(id){const cur=todos();multiM.clear();const k=cur.indexOf(id);if(k>=0)cur.splice(k,1);else cur.push(id);for(const i of cur)multiM.add(i);sel=cur[0]||null;}
+  function quitar(ids){const amb0=new Set();for(const id of ids){const g=groups.get(id);if(!g)continue;const s=ST[g.userData.capa][g.userData.amb],e=s.esc[s.activo];e.items=e.items.filter(x=>x.id!==id);amb0.add(g.userData.amb+'|'+g.userData.capa);}
+    multiM.clear();sel=null;armar();panel();for(const k of amb0){const [a,c]=k.split('|');guardar(a,c);}}
+  function poner(id,x,y){const m=item(id),g=groups.get(id);if(!m||!g)return;m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);}
+  const guardarTodos=ids=>{const v=new Set();for(const id of ids){const g=groups.get(id);if(g)v.add(g.userData.amb+'|'+g.userData.capa);}for(const k of v){const [a,c]=k.split('|');guardar(a,c);}};
   /* elegir muebles y artefactos tocándolos aunque el panel esté cerrado (Maxi 15/10): gana lo que esté más cerca, respeta los cortes y las paredes que tapan */
   const okClip=h=>(visor.clips||[]).every(q=>{const v=q.axis==='x'?h.point.x:q.axis==='y'?h.point.y:h.point.z;return (q.side||-1)>0?v>=q.value-.5:v<=q.value+.5;});
   /* gizmo del elegido (Maxi 15/10: «dejame mover los muebles y girarlos, como me dejás mover otras cosas»): flechas en x y en y de planta, y un aro naranja para girar */
@@ -314,10 +326,10 @@ export function initEquipamiento(visor,stage,D){
     /* sólo se mueven con su ícono activo (Maxi 15/10); si no, un toque sin arrastre lo elige (y activa su ícono) y arrastrar orbita la cámara */
     /* Maxi 4/11: con la herramienta Mover del editor prendida, el mueble se arrastra directo aunque el panel de equipamiento esté cerrado (se abre solo y pasa a su capa) */
     if(visor.editorTool==='mover'&&(card.hidden||groups.get(id).userData.capa!==capa)){const g0=groups.get(id);amb=g0.userData.amb;capa=g0.userData.capa;card.hidden=false;try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}}
-    if(card.hidden||groups.get(id).userData.capa!==capa){pend={id,x:e.clientX,y:e.clientY};return;}
+    if(card.hidden||groups.get(id).userData.capa!==capa){pend={id,x:e.clientX,y:e.clientY,shift:e.shiftKey};if(e.shiftKey){e.stopImmediatePropagation();}return;}
     {const ga=groups.get(id).userData.amb;if(ga!==amb){amb=ga;modo='';}}e.stopPropagation();e.preventDefault();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;
-    sel=id;visor.resetSel&&visor.resetSel();marcarSel();panel();const y0=groups.get(id).position.y;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-y0);const p0=new THREE.Vector3();rc.ray.intersectPlane(pl,p0);
-    dr={id,pl,dx:m.x-p0.x,dy:m.y-p0.z,x0:e.clientX,r0:m.r||0,rot:e.shiftKey,moved:false};},true);
+    const yaEnSel=todos().includes(id);if(!e.shiftKey&&!yaEnSel)multiM.clear();if(!e.shiftKey)sel=id;if(!e.shiftKey&&!yaEnSel)visor.resetSel&&visor.resetSel();marcarSel();panel();const y0=groups.get(id).position.y;const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-y0);const p0=new THREE.Vector3();rc.ray.intersectPlane(pl,p0);
+    dr={id,pl,dx:m.x-p0.x,dy:m.y-p0.z,x0:e.clientX,r0:m.r||0,rot:e.shiftKey,shift:e.shiftKey,mx:m.x,my:m.y,otros:todos().filter(o=>o!==id).map(o=>{const mo=item(o);return mo&&{id:o,x:mo.x,y:mo.y};}).filter(Boolean),moved:false};},true);
   view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();const m=item(dr.id),g=groups.get(dr.id);if(!m||!g)return;dr.moved=true;
     if(dr.eg){setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;
       if(dr.eg==='r'){const a=Math.atan2(p.z-g.position.z,p.x-g.position.x);let r=dr.r0-(a-dr.a0)*180/Math.PI;r=e.altKey?Math.round(r):Math.round(r/15)*15;m.r=((r%360)+360)%360;g.rotation.y=m.r*Math.PI/180;hint(`${NOMBRE(m.t,capa)} · giro ${m.r}°  (de a 15°; Alt: libre)`);marcarSel();luces();return;}
@@ -325,13 +337,16 @@ export function initEquipamiento(visor,stage,D){
       m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre)`);return;}
     if(dr.rot||e.shiftKey){let r=dr.r0+(e.clientX-dr.x0)*.5;if(!e.altKey)r=Math.round(r/15)*15;m.r=((r%360)+360)%360;g.rotation.y=m.r*Math.PI/180;hint(`${NOMBRE(m.t,capa)} · giro ${m.r}°`);marcarSel();luces();return;}
     setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;let x=p.x+dr.dx,y=p.z+dr.dy;if(!e.altKey){x=Math.round(x/5)*5;y=Math.round(y/5)*5;}
-    m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre · Shift: girar)`);},true);
-  const end=e=>{if(!dr)return;e.stopPropagation();const mvd=dr.moved,g=groups.get(dr.id);dr=null;visor.controls.enabled=true;if(mvd){if(g&&g.userData.mount==='techo')armar();guardar(amb);panel();}};
+    poner(dr.id,x,y);for(const o of dr.otros)poner(o.id,o.x+(x-dr.mx),o.y+(y-dr.my));marcarSel();luces();hint(`${dr.otros.length?`${dr.otros.length+1} muebles`:NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre · Shift: girar)`);},true);
+  const end=e=>{if(!dr)return;e.stopPropagation();const d=dr,mvd=dr.moved,g=groups.get(dr.id);dr=null;visor.controls.enabled=true;
+    if(!mvd&&d.shift&&!d.eg){alternar(d.id);marcarSel();panel();const n=todos().length;hint(n>1?`<b>${n} muebles</b> elegidos · arrastrá uno para moverlos juntos · Supr los borra · Shift + toque suma o saca`:'');return;}
+    if(!mvd&&!d.eg&&d.otros.length){multiM.clear();sel=d.id;marcarSel();panel();return;}/* un toque sin Shift sobre uno del grupo deja sólo ese */
+    if(mvd){if(g&&g.userData.mount==='techo')armar();guardarTodos([d.id,...d.otros.map(o=>o.id)]);panel();}};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);
   /* sin el ícono activo, un toque sólo lo elige (caja y nombre abajo): no abre el panel ni lo deja moverse (Maxi 15/10) */
-  let pend=null;addEventListener('pointerup',e=>{if(!pend)return;const p=pend;pend=null;if(Math.hypot(e.clientX-p.x,e.clientY-p.y)>5)return;/* sin cortar el evento: la órbita tiene que recibir su pointerup (si no, la cámara queda pegada al mouse, Maxi 16/10); elijo después de que el visor procese el toque */setTimeout(()=>{visor.resetSel&&visor.resetSel();sel=p.id;marcarSel();const m=item(p.id),g=groups.get(p.id);if(m&&g)hint(`<b>${NOMBRE(m.t,g.userData.capa)}</b> · activá su ícono en la barra para moverlo o girarlo`);},0);},true);
+  let pend=null;addEventListener('pointerup',e=>{if(!pend)return;const p=pend;pend=null;if(Math.hypot(e.clientX-p.x,e.clientY-p.y)>5)return;/* sin cortar el evento: la órbita tiene que recibir su pointerup (si no, la cámara queda pegada al mouse, Maxi 16/10); elijo después de que el visor procese el toque */setTimeout(()=>{if(p.shift){alternar(p.id);marcarSel();const n=todos().length;hint(`<b>${n} ${n===1?'mueble':'muebles'}</b> elegidos · Shift + toque suma o saca`);return;}visor.resetSel&&visor.resetSel();multiM.clear();sel=p.id;marcarSel();const m=item(p.id),g=groups.get(p.id);if(m&&g)hint(`<b>${NOMBRE(m.t,g.userData.capa)}</b> · activá su ícono en la barra para moverlo o girarlo`);},0);},true);
   /* tocar el cielo o el pasto deselecciona todo (Maxi 15/10) */
-  addEventListener('hm:deseleccionar',()=>{if(!sel)return;sel=null;marcarSel();panel();});
+  addEventListener('hm:deseleccionar',()=>{if(!sel&&!multiM.size)return;sel=null;multiM.clear();marcarSel();panel();});
   function hint(t){const st=document.getElementById('stTool');if(st)st.innerHTML=t;}
 
   /* ---------- panel ---------- */
@@ -424,7 +439,7 @@ export function initEquipamiento(visor,stage,D){
     if(a==='irM'){elegir(sel,true);return;}
     if(a==='rotL'||a==='rotR'){m.r=(((m.r||0)+(a==='rotL'?90:-90))%360+360)%360;armar();panel();guardar();}
     if(a==='dupM'){const c={...JSON.parse(JSON.stringify(m)),id:(capa==='luz'?'L':'m')+Date.now().toString(36),x:m.x+30,y:m.y+30};cur().items.push(c);sel=c.id;armar();panel();guardar();}
-    if(a==='delM'){cur().items=cur().items.filter(x=>x.id!==sel);sel=null;armar();panel();guardar();}});
+    if(a==='delM'){quitar(todos());}});
   card.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-ren]')){card.querySelector('[data-a="renOk"]').click();}});
   let nudT=null;
   function elegir(id,ir){const g=groups.get(id);if(!g)return;amb=g.userData.amb;capa=g.userData.capa;sel=id;modo='';card.hidden=false;marcarSel();panel();
@@ -432,15 +447,17 @@ export function initEquipamiento(visor,stage,D){
   addEventListener('keydown',e=>{if(card.hidden||!sel||/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName))return;
     if(/^Arrow/.test(e.key)){const m=item(sel),g=groups.get(sel);if(!m||!g)return;e.preventDefault();const st=e.shiftKey?1:5;const f=new THREE.Vector3();camera.getWorldDirection(f);f.y=0;
       const ax=Math.abs(f.x)>=Math.abs(f.z)?new THREE.Vector3(Math.sign(f.x),0,0):new THREE.Vector3(0,0,Math.sign(f.z));const rt=new THREE.Vector3(-ax.z,0,ax.x);
-      const v=e.key==='ArrowUp'?ax:e.key==='ArrowDown'?ax.clone().negate():e.key==='ArrowRight'?rt:rt.clone().negate();m.x=Math.round(m.x+v.x*st);m.y=Math.round(m.y+v.z*st);
-      g.position.x=m.x;g.position.z=m.y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(m.x,m.y,pz);}marcarSel();luces();clearTimeout(nudT);nudT=setTimeout(()=>{panel();guardar(g.userData.amb,g.userData.capa);},400);return;}
-    if(e.key==='Delete'||e.key==='Backspace'){cur().items=cur().items.filter(x=>x.id!==sel);sel=null;armar();panel();guardar();e.preventDefault();}
-    if(e.key==='Escape'){sel=null;marcarSel();panel();}});
+      const v=e.key==='ArrowUp'?ax:e.key==='ArrowDown'?ax.clone().negate():e.key==='ArrowRight'?rt:rt.clone().negate();const ids=todos();for(const id of ids){const mo=item(id);if(mo)poner(id,Math.round(mo.x+v.x*st),Math.round(mo.y+v.z*st));}
+      marcarSel();luces();clearTimeout(nudT);nudT=setTimeout(()=>{panel();guardarTodos(ids);},400);return;}
+    if(e.key==='Delete'||e.key==='Backspace'){quitar(todos());e.preventDefault();}
+    if(e.key==='Escape'){sel=null;multiM.clear();marcarSel();panel();}});
 
   armar();panel();
   setTimeout(()=>{/* las lucarnas corredizas de costado esquivan los reflectores del alero: se rearman cuando ya están */if(visor.params&&visor.params.luTipo==='4'&&visor.rebuild)visor.rebuild();},1500);
   const api={toggle(k){if(k&&k!==capa&&!card.hidden){capa=k;sel=null;try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}panel();return true;}if(k)capa=k;card.hidden=!card.hidden;try{localStorage.setItem('carhue-equip-panel',card.hidden?'0':'1');}catch(e){}if(card.hidden){sel=null;marcarSel();}else panel();return !card.hidden;},
-    get open(){return !card.hidden;},get capa(){return capa;},CAT,CL,ST,setNoche,luces,panel,mallasMue,cajasMue,rearmar:()=>armar(),vis:()=>vis(),
+    get open(){return !card.hidden;},multiIds:()=>todos(),
+    /* Mover del editor con piezas y muebles elegidos a la vez: corre los muebles lo mismo (commit = soltó) */
+    moverSel(dx,dy,commit){const ids=todos();if(!ids.length)return;if(!this._b0)this._b0=Object.fromEntries(ids.map(id=>{const m=item(id);return [id,m?[m.x,m.y]:null];}));for(const id of ids){const b=this._b0[id];if(b)poner(id,Math.round(b[0]+dx),Math.round(b[1]+dy));}marcarSel();luces();if(commit){this._b0=null;if(dx||dy)guardarTodos(ids);panel();}},get capa(){return capa;},CAT,CL,ST,setNoche,luces,panel,mallasMue,cajasMue,rearmar:()=>armar(),vis:()=>vis(),
     items(k){const r=[];for(const a of AMB_ORDEN){const s=ST[k]&&ST[k][a];const e=s&&s.esc[s.activo];if(!e)continue;for(const m of e.items){const c=catOf(m.t,k);if(!c)continue;r.push({id:m.id,t:m.t,amb:a,x:m.x,y:m.y,z:(AMB[a].piso??PISO),r:m.r||0,p:{...c.p,...(m.p||{})},n:c.n,sist:c.sist});}}return r;},
     escenarios(k){return Object.fromEntries(AMB_ORDEN.map(a=>[a,{activo:ST[k][a].activo,esc:Object.fromEntries(Object.entries(ST[k][a].esc).map(([i,v])=>[i,v.nombre]))}]));},
     setActivo(k,a,i){if(ST[k][a]&&ST[k][a].esc[i]){ST[k][a].activo=i;armar();guardar(a,k);if(!card.hidden)panel();}},vegOn:()=>Object.values(vegCapas).some(v=>v!==false),vegTodo(v){for(const k of ['bajo','medio','arbol'])vegCapas[k]=!!v;try{localStorage.setItem('carhue-veg-capas',JSON.stringify(vegCapas));}catch(e){}vis();if(!card.hidden&&capa==='veg')panel();}};

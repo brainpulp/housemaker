@@ -5,6 +5,7 @@
 export const wingZ=x=>497-Math.abs(x-2103)*(238/332);   /* altura del cielorraso del ala (chapa a dos aguas) en x */
 export function escaleraAltilloB(geo,M,Pt,p){const {box,prism,rod,f1}=geo;
   if(p.escAlt==='B3')return escaleraAltilloB3(geo,M,Pt,p);
+  if(p.escAlt==='S')return escaleraAltilloS(geo,M,Pt,p);
   const B3=p.escAlt==='B3',ID=B3?'ESC-B3':'ESC-B2',v=M.ABERTURAS.find(o=>o.id==='P-34'),dx0=1817+(v?v.d:246),dx1=dx0+(v?v.w:80),HZ=262,WF=-332.5,XE=2364,R=HZ/(B3?(+p.escB3n||14):14),G=B3?(+p.escB3G||20):23,k=B3?Math.max(1,+p.escB3k||5):(+p.escB2k||5),hL=HZ-k*R,u=x=>wingZ(x)-19;
     const t=[],st=[],rods=[],pl=[],post=(x,y,z0,z1)=>rods.push(rod([x,z0,y],[x,z1,y],1.6,8)),rail=(a,b)=>rods.push(rod(a,b,2,10));
     /* tramo 1 contra M-22: sube hacia M-26 hasta el descanso del rincón (hL) */
@@ -57,4 +58,30 @@ function escaleraAltilloB3(geo,M,Pt,p){const {box,prism,rod,f1}=geo;
   Pt(ID+'z',`${ID} · zancas`,'cabio',st,{fn:'Zancas del lado abierto de los dos tramos y viga de la plataforma; del lado de la pared, los escalones van tomados al muro.'},{group:'Escalera',tags:['PB','escalera']});
   Pt('PAS-1','PAS-1 · Plataforma de la puerta del altillo','ep',pl,{fn:'Plataforma frente a P-34, a +2,62.'},{group:'Escalera',tags:['PB','escalera']});
   Pt(ID+'r',`${ID} · baranda`,'acero',rods,{fn:'Pilarote del giro, pasamanos y parantes.'},{group:'Escalera',tags:['PB','escalera']});
+}
+
+/* S · caracol Ø1,60 frente a la puerta P-34, columna bajo la cumbrera de T-06 (la franja con altura). Maxi 9/11: se sube desde el lado norte de la columna y gira en el
+   sentido de las agujas del reloj visto desde arriba (al revés que antes): 13 escalones en 405° (una vuelta y 45°) y arriba un descanso de 90° enfrentado a la puerta,
+   ensanchado hasta la pared, al que se llega por su costado este. Es la variante por defecto. */
+function escaleraAltilloS(geo,M,Pt,p){const {prism,rod,f1}=geo;
+  const v=M.ABERTURAS.find(o=>o.id==='P-34'),HZ=262,WF=-332.5,n=14,Rz=HZ/n,RO=80,RI=6,cx=1817+(v?v.d+v.w/2:286),cy=WF+RO+2,LA=-3*Math.PI/4,LB=-Math.PI/4,da=(2*Math.PI+Math.PI/4)/(n-1),u=x=>wingZ(x)-19,t=[],rods=[];
+  const rw=RO*2/3,P=(a,r=RO)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)],xw=RO*Math.cos(Math.PI/4);let hmin=1e9,hwhere='';
+  const SP=[];for(let i=1;i<n;i++){const a0=LB+(n-1-i)*da,a1=a0+da;SP.push({i,a0,a1,z:i*Rz});}
+  const nrm=a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI),solapa=(a0,a1,b0,b1)=>{for(const k of [-2,-1,0,1,2]){const o=k*2*Math.PI;if(Math.min(a1,b1+o)-Math.max(a0,b0+o)>.01)return true;}return false;};
+  for(const s of SP){const pts=[];for(let k=0;k<=4;k++)pts.push(P(s.a1-(s.a1-s.a0)*k/4));pts.push(P(s.a0,RI),P(s.a1,RI));t.push(prism(pts,s.z-4,s.z,'XZ'));
+    const am=(s.a0+s.a1)/2,hx=u(cx+rw*Math.cos(am))-s.z;if(hx<hmin){hmin=hx;hwhere='escalón '+s.i+' (techo)';}
+    /* lo que pasa por encima del mismo escalón: el escalón de la vuelta siguiente o el descanso */
+    for(const q of SP)if(q.z>s.z&&solapa(s.a0,s.a1,q.a0,q.a1)){const c=q.z-4-s.z;if(c<hmin){hmin=c;hwhere=`escalón ${s.i}, bajo el ${q.i}`;}}
+    if(solapa(s.a0,s.a1,LA,LB)){const c=HZ-4-s.z;if(c<hmin){hmin=c;hwhere=`escalón ${s.i}, bajo el descanso`;}}
+    const [px,py]=P(am,RO-3);if(s.i%2)rods.push(rod([px,s.z,py],[px,s.z+90,py],1.4,8));
+    if(s.i>1){const [qx,qy]=P(am+da,RO-3);rods.push(rod([qx,(s.i-1)*Rz+90,qy],[px,s.z+90,py],1.8,8));}}
+  /* descanso de llegada: el sector de 90° frente a la puerta, llevado hasta la pared; se entra por el costado este (LB) */
+  t.push(prism([[cx,cy],P(LB),[cx+xw,WF],[cx-xw,WF],P(LA)],HZ-4,HZ,'XZ'));{const hl=u(cx)-HZ;if(hl<hmin){hmin=hl;hwhere='el descanso';}}
+  {const [ax,ay]=P(LB+da/2,RO-3),[bx,by]=P(LB,RO-3),[ex,ey]=P(LA,RO-3);
+   rods.push(rod([ax,(n-1)*Rz+90,ay],[bx,HZ+90,by],1.8,8),rod([bx,HZ+90,by],[cx+xw-3,HZ+90,WF+3],1.8,8),rod([bx,HZ,by],[bx,HZ+90,by],1.4,8),rod([cx+xw-3,HZ,WF+3],[cx+xw-3,HZ+90,WF+3],1.4,8),
+     rod([cx,HZ+90,cy],[ex,HZ+90,ey],1.8,8),rod([ex,HZ+90,ey],[cx-xw+3,HZ+90,WF+3],1.8,8),rod([ex,HZ,ey],[ex,HZ+90,ey],1.4,8),rod([cx-xw+3,HZ,WF+3],[cx-xw+3,HZ+90,WF+3],1.4,8));}
+  rods.push(rod([cx,0,cy],[cx,HZ+90,cy],5.5,16));const hd=(v?v.s+v.h:440)-HZ;if(hd<hmin){hmin=hd;hwhere='la puerta P-34';}
+  {const txt=`caracol · ${f1(da*180/Math.PI)}° por escalón · huella ${f1(rw*da)} · mínima ${f1(hmin/100)} m`;window.__escInfo=txt;const el=typeof document!=='undefined'&&document.getElementById('escInfo');if(el)el.textContent=txt;}
+  Pt('ESC-S','ESC-S · Escalera caracol al altillo','ep',t,{fn:`Caracol de Ø1,60 frente a la puerta P-34, con la columna bajo la cumbrera de T-06. Se sube por el lado norte de la columna y gira en el sentido de las agujas del reloj: 13 escalones de ${f1(da*180/Math.PI)}° en una vuelta y 45°, y arriba un descanso de 90° enfrentado a la puerta, ensanchado hasta la pared (${f1(2*xw/100)} m contra M-26). Altura libre mínima: ${f1(hmin/100)} m (${hwhere}).`,sec:'huellas de 2″ en abanico, columna central de caño Ø11',med:`14 alzadas de ${f1(Rz)} · ${f1(da*180/Math.PI)}° por escalón · huella en la línea de paso ${f1(rw*da)} · ocupa 1,60 × 1,62`},{group:'Escalera',tags:['PB','escalera']});
+  Pt('ESC-Sr','ESC-S · columna y baranda','acero',rods,{fn:'Columna central, baranda helicoidal de hierro y baranda a los dos lados del descanso.'},{group:'Escalera',tags:['PB','escalera']});
 }
