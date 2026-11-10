@@ -1,5 +1,7 @@
-/* Personas de 1,70 para controlar alturas libres y pasos: se arrastran sobre cualquier piso (deck, entrepiso, escalones)
-   y, con «Caminan solas», pasean evitando paredes, desniveles de más de 25 cm y caídas. Quedan guardadas en este navegador. */
+/* Personas (1,70 por defecto; Maxi 10/11: cada una con su altura) para controlar alturas libres y pasos: se arrastran sobre cualquier piso (deck, entrepiso, escalones)
+   y, con «Caminan solas», pasean evitando paredes, desniveles de más de 25 cm y caídas. Quedan guardadas en la base de la página (estado/personas; Maxi 10/11, antes sólo en este navegador),
+   con copia en el navegador para arrancar sin esperar. */
+import * as N from './nombres.js';
 export function initPersonas(visor){
   const {THREE,scene,camera}=visor;const V=THREE.Vector3;
   const view=document.getElementById('view');
@@ -27,12 +29,22 @@ export function initPersonas(visor){
   const anim=(g,nm)=>{if(!g.userData.A||g.userData.cur===nm)return;const a=g.userData.A[nm],b=g.userData.A[g.userData.cur];a.reset().play();b.crossFadeTo(a,.35,false);g.userData.cur=nm;};
 
   let walk0=false;try{walk0=localStorage.getItem('carhue-personas-caminan')==='1';}catch(e){}/* valor viejo, global: pasa a cada persona */
-  let list=(ls.get()||[]).map((p,i)=>({...p,f:FN[p.f]?p.f:FIGS[i%FIGS.length][0],w:p.w??walk0}));const objs=[];
-  const save=()=>ls.set(list.map(p=>({x:Math.round(p.x),y:Math.round(p.y),z:Math.round(p.z),r:+p.r.toFixed(2),f:p.f,w:!!p.w})));
+  const norm=(p,i)=>({...p,f:FN[p.f]?p.f:FIGS[i%FIGS.length][0],w:p.w??walk0,h:+p.h||H});
+  let list=(ls.get()||[]).map(norm);const objs=[];
+  const plano=()=>list.map(p=>({x:Math.round(p.x),y:Math.round(p.y),z:Math.round(p.z),r:+p.r.toFixed(2),f:p.f,w:!!p.w,h:Math.round(p.h||H)}));
+  const save=()=>ls.set(plano());
+  /* la base: se escribe cuando el usuario cambia algo (no mientras caminan); lo que llega de la base manda, salvo que sea el eco de lo recién escrito */
+  let pdb=null,pend=0;const saveDb=()=>{save();if(!pdb)return;pend=Date.now();pdb.collection('estado').doc('personas').set({lista:plano(),ts:new Date().toISOString()}).catch(()=>{});};
+  N.getDb().then(d=>{pdb=d;if(!d)return;let primera=true;d.collection('estado').doc('personas').onSnapshot(x=>{if(dr||Date.now()-pend<1500)return;
+    if(x.exists&&Array.isArray(x.data().lista)){let nl=x.data().lista.map(norm);
+      if(primera){/* la primera vez, las que había en este navegador y no están en la base se suman */const extra=list.filter(p=>!nl.some(q=>Math.abs(q.x-p.x)<5&&Math.abs(q.z-p.z)<5));nl=nl.concat(extra);list=nl;sync();if(extra.length)saveDb();else save();}
+      else{list=nl;sync();save();}if(redraw)redraw();}
+    else if(primera&&list.length)saveDb();primera=false;},()=>{});});
+  let redraw=null;
   function sync(){while(objs.length>list.length){const o=objs.pop();if(o)G.remove(o);}
     list.forEach((p,i)=>{if(objs[i]&&objs[i].userData.f!==p.f){G.remove(objs[i]);objs[i]=null;}});
     for(let i=0;i<list.length;i++)if(!objs[i]){const o=figura(list[i].f);G.add(o);objs[i]=o;}
-    list.forEach((p,i)=>{objs[i].position.set(p.x,p.y,p.z);objs[i].rotation.y=p.r;objs[i].userData.i=i;});}
+    list.forEach((p,i)=>{objs[i].position.set(p.x,p.y,p.z);objs[i].rotation.y=p.r;objs[i].scale.setScalar((p.h||H)/H);objs[i].userData.i=i;});}
 
   /* qué se puede pisar o chocar: las piezas visibles (sin follaje ni vidrios muy transparentes) y el terreno */
   const NOPISA=new Set(['techo','chapa','chapon','lucernario','cabio']);/* los techos no cuentan: nadie camina por ahí y tapan los pisos */
@@ -52,8 +64,8 @@ export function initPersonas(visor){
   view.addEventListener('pointermove',e=>{if(!dr)return;e.stopPropagation();const p=list[dr.i];
     if(dr.rot||e.shiftKey){p.r+=(e.clientX-dr.x0)*.02;dr.x0=e.clientX;sync();return;}
     setRay(e);const hs=rc.intersectObjects(meshes(),false);const h=hs.find(h=>h.face&&h.face.normal.clone().transformDirection(h.object.matrixWorld).y>.7);
-    if(h){p.x=h.point.x;p.z=h.point.z;p.y=h.point.y;sync();hint(`Persona ${dr.i+1} · piso a ${(p.y/100).toFixed(2)} m · coronilla a ${((p.y+H)/100).toFixed(2)} m`);}},true);
-  const end=e=>{if(!dr)return;e.stopPropagation();dr=null;visor.controls.enabled=true;save();};
+    if(h){p.x=h.point.x;p.z=h.point.z;p.y=h.point.y;sync();hint(`Persona ${dr.i+1} (${((p.h||H)/100).toFixed(2)} m) · piso a ${(p.y/100).toFixed(2)} m · coronilla a ${((p.y+(p.h||H))/100).toFixed(2)} m`);}},true);
+  const end=e=>{if(!dr)return;e.stopPropagation();dr=null;visor.controls.enabled=true;saveDb();};
   view.addEventListener('pointerup',end,true);view.addEventListener('pointercancel',end,true);
   function hint(t){const st=document.getElementById('stTool');if(st)st.innerHTML=t;}
 
@@ -77,15 +89,16 @@ export function initPersonas(visor){
   requestAnimationFrame(tick);
 
   function add(fig){/* en el centro de la pantalla, sobre el piso que se vea ahí */rc.setFromCamera(new THREE.Vector2(0,0),camera);rc.far=Infinity;const hs=rc.intersectObjects(meshes(),false);const h=hs.find(h=>h.face&&h.face.normal.clone().transformDirection(h.object.matrixWorld).y>.7);
-    const t=h?h.point:visor.controls.target.clone();list.push({x:t.x,y:h?t.y:(floorAt(t.x,t.z,t.y+300,800)??0),z:t.z,r:Math.random()*6.28,f:fig||FIGS[list.length%FIGS.length][0],w:false});sync();save();}
+    const t=h?h.point:visor.controls.target.clone();list.push({x:t.x,y:h?t.y:(floorAt(t.x,t.z,t.y+300,800)??0),z:t.z,r:Math.random()*6.28,f:fig||FIGS[list.length%FIGS.length][0],w:false,h:H});sync();saveDb();}
   let nuevaFig=FIGS[0][0];
   function renderInto(el,close){el.style.width='300px';el.style.maxHeight='calc(100vh - 16px)';el.style.overflow='auto';const opts=f=>FIGS.map(([k,n])=>`<option value="${k}"${k===f?' selected':''}>${n}</option>`).join('');
-    const draw=()=>{el.innerHTML=`<div class="fyg">Personas de 1,70</div>`+(list.length?list.map((p,i)=>`<div class="fyi"><button class="fyb" data-go="${i}">${i+1}</button><select data-fig="${i}" style="flex:1;min-width:0">${opts(p.f)}</select><label title="Camina sola" style="display:flex;align-items:center;gap:2px;font-size:11px"><input type="checkbox" data-w="${i}" ${p.w?'checked':''}>camina</label><button class="fyx" data-del="${i}" data-tip="Quitar">×</button></div>`).join(''):'<div class="fye">Ninguna todavía. Se agregan en el centro de la vista.</div>')+
-      `<div class="fysep"></div><div class="fyi" style="gap:4px"><select data-newfig style="flex:1;min-width:0">${opts(nuevaFig)}</select><button class="fyb fyacc" data-add="" style="flex:none">＋ Agregar</button></div>`+`<div style="display:flex;gap:4px"><button class="fyb" data-todas="1">Caminan todas</button><button class="fyb" data-todas="0">Quietas todas</button></div><div class="fye">Arrastralas sobre cualquier piso; con Shift las girás. «camina» la hace pasear sola (no pisa la pileta). El número la muestra de cerca.</div>`;};
-    draw();el.onclick=e=>{const t=e.target;const td=t.closest('[data-todas]');if(td){list.forEach(p=>p.w=td.dataset.todas==='1');save();draw();return;}const a=t.closest('[data-add]');if(a){add(a.dataset.add||nuevaFig);draw();return;}const d=t.closest('[data-del]');if(d){list.splice(+d.dataset.del,1);const o=objs.splice(+d.dataset.del,1)[0];if(o)G.remove(o);sync();save();draw();return;}
+    const draw=()=>{el.innerHTML=`<div class="fyg">Personas</div>`+(list.length?list.map((p,i)=>`<div class="fyi"><button class="fyb" data-go="${i}">${i+1}</button><select data-fig="${i}" style="flex:1;min-width:0">${opts(p.f)}</select><input type="number" data-h="${i}" value="${Math.round(p.h||H)}" min="100" max="220" step="1" title="Altura en cm" style="width:46px;font-size:11px"><label title="Camina sola" style="display:flex;align-items:center;gap:2px;font-size:11px"><input type="checkbox" data-w="${i}" ${p.w?'checked':''}>camina</label><button class="fyx" data-del="${i}" data-tip="Quitar">×</button></div>`).join(''):'<div class="fye">Ninguna todavía. Se agregan en el centro de la vista.</div>')+
+      `<div class="fysep"></div><div class="fyi" style="gap:4px"><select data-newfig style="flex:1;min-width:0">${opts(nuevaFig)}</select><button class="fyb fyacc" data-add="" style="flex:none">＋ Agregar</button></div>`+`<div style="display:flex;gap:4px"><button class="fyb" data-todas="1">Caminan todas</button><button class="fyb" data-todas="0">Quietas todas</button></div><div class="fye">Arrastralas sobre cualquier piso; con Shift las girás. «camina» la hace pasear sola (no pisa la pileta). El número la muestra de cerca; la altura va en cm.</div>`;};redraw=draw;
+    draw();el.onclick=e=>{const t=e.target;const td=t.closest('[data-todas]');if(td){list.forEach(p=>p.w=td.dataset.todas==='1');saveDb();draw();return;}const a=t.closest('[data-add]');if(a){add(a.dataset.add||nuevaFig);draw();return;}const d=t.closest('[data-del]');if(d){list.splice(+d.dataset.del,1);const o=objs.splice(+d.dataset.del,1)[0];if(o)G.remove(o);sync();saveDb();draw();return;}
       const g=t.closest('[data-go]');if(g){const p=list[+g.dataset.go];close&&close();visor.fly([p.x+250,p.y+220,p.z+250],[p.x,p.y+100,p.z]);}};
-    el.onchange=e=>{if(e.target.matches('[data-newfig]')){nuevaFig=e.target.value;return;}if(e.target.dataset.w!=null){list[+e.target.dataset.w].w=e.target.checked;save();}
-      if(e.target.dataset.fig){list[+e.target.dataset.fig].f=e.target.value;sync();save();}};}
+    el.onchange=e=>{if(e.target.matches('[data-newfig]')){nuevaFig=e.target.value;return;}if(e.target.dataset.w!=null){list[+e.target.dataset.w].w=e.target.checked;saveDb();}
+      if(e.target.dataset.h!=null){list[+e.target.dataset.h].h=Math.max(100,Math.min(220,+e.target.value||H));sync();saveDb();}
+      if(e.target.dataset.fig){list[+e.target.dataset.fig].f=e.target.value;sync();saveDb();}};}
   sync();
-  const api={renderInto,add,get list(){return list;},setWalk(v){list.forEach(p=>p.w=!!v);save();}};visor.personas=api;return api;
+  const api={renderInto,add,get list(){return list;},setWalk(v){list.forEach(p=>p.w=!!v);saveDb();}};visor.personas=api;return api;
 }

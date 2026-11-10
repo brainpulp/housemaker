@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.35', fecha:'2026-11-09',
+  nombre:'Carhué', version: '1.1.36', fecha:'2026-11-10',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -285,6 +285,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-10', v:'1.1.36', txt:'Maxi 10/11: una persona de 1,80 parada en el primer escalón del caracol. Motor: las personas ahora tienen altura propia (en cm, en la lista) y quedan guardadas en la base de la página, no sólo en el navegador; las que ya había en un navegador se suman la primera vez.'},
   {fecha:'2026-11-09', v:'1.1.35', txt:'Maxi 9/11 (motor, todas las casas): Vistas vuelve a ser un botón propio de la barra, separado de Capas, con proyección, lente (ojo de pez, gran angular, normal y tele), vistas fijas, ambientes, guardadas y tours. Capas con la letra chica de Vistas. Sale el submenú Seleccionar / Vértices, aristas y caras (lo hace el filtro).'},
   {fecha:'2026-11-09', v:'1.1.34', txt:'Maxi 9/11, con la foto desde el living: la pared de las ventanas sigue, revocada, hasta el frente del hogar (M-44, la cara gris con los enchufes) y el hogar termina contra ella (antes se metía en la cocina y se veía la madera del nicho de costado). La mesada negra llega hasta esa punta (5,59) y la península con anafe, campana y sillas arranca ahí. En el bloque del anafe: rincón ciego (panel fijo) donde lo tapa la mesada y, bajo el anafe, frente fijo arriba y dos cajones de ollas. Motor: muebles escondibles (H o el ojo de la lista; «Mostrar todo» los vuelve), y al abrirse el inspector la vista ya no se corre. La mesada también acepta rincón ciego (sin los cajones finitos que quedaban tapados por el bloque). Mesa de 1,50 × 0,80 bajo V-24, el largo norte-sur, con un banco corrido con respaldo contra la pared oeste y otro enfrente.'},
   {fecha:'2026-11-09', v:'1.1.33', txt:'Maxi 9/11 (motor, todas las casas): el negro mate de los muebles pasa de casi negro puro a gris muy oscuro, y los frentes de cajones y puertas llevan canto redondeado de 6 mm con ranura de 4 mm, para que se lean los bordes.'},
