@@ -6,5 +6,5 @@
 - **Cómo se publica:** `Artifact` con `file_path dist/housemaker/index.html`, `root dist/housemaker` y en `files` TODOS los archivos de `dist/housemaker` menos `index.html` (la lista sale de `find dist/housemaker -type f ! -name index.html`). Hoy son ~235 archivos y ~54 MB (el tope por publicación es 255 archivos y 64 MB; si se pasa, en dos publicaciones a la misma URL). No hace falta publicar por casa: una publicación trae todo.
 - **Base de datos:** la capacidad `db` (+ `user`). Cada casa tiene sus colecciones con prefijo: `carhue_vistas`, `arcos_equipamiento`, `cocinas_ediciones`, `octet_octet`, `laboratorio_recetas`… (`motor/nombres.js` pone el prefijo a partir de `window.__casa`, que define la cáscara). Lo guardado en los artifacts viejos se copió acá el 8/11 (150 documentos).
 - **Almacén local:** la cáscara separa el `localStorage` por casa (prefijo `<casa>:`), así las preferencias de una casa no pisan las de otra.
-- **Motor publicado:** 49f4b4f (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** bc741d1 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
 - **Versiones publicadas:** las de `META.version` de cada `casas/<casa>/modelo.js` al momento de publicar (se ven en el índice).
