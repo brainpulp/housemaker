@@ -48,9 +48,9 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   };
   const CAM=initCaminar(visor,{activo:()=>!M3.hidden});CAM.alPrender=()=>{ALL.forEach(close);closeFly&&closeFly();};CAM.alCambiar=()=>sync();
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['caminar'],['sel','senalar'],'filtros',['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
+  const BAR=[['nav'],['caminar'],['sel'],'filtros',['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','vistas','variantes','equip','luces','termica','estructura','personas'];
   const PANELS={filtros:{ic:'filtro',n:'Filtros de selección',d:'Qué toma el toque: objeto entero, vértice, arista o cara. Después se suman otros filtros.'},
-    vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
+    vistas:{ic:'video',n:'Vistas',d:'Perspectiva o paralela, lente (ojo de pez, gran angular, normal, tele) y vistas fijas, de ambientes y guardadas.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
     variantes:{ic:'variantes',n:'Variantes de diseño',d:'Zonas con opciones (escalera al altillo…): ir a una y ver sus variantes.'},
@@ -173,20 +173,28 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   function filtrosMenu(b){openFly(b,el=>{el.className='fymenu fyfil';const pinta=()=>{const a=filtroActual();el.innerHTML='<div class="fyg">Seleccionar</div><div class="fyicons">'+FIL.map(([k,ic,n,d])=>`<button class="fyic${k===a?' on':''}" data-fil="${k}" data-tip="${n}|${d}" aria-label="${n}" aria-pressed="${k===a}">${icon(ic,18)}</button>`).join('')+'</div>';};pinta();
     el.onclick=e=>{const t=e.target.closest('[data-fil]');if(!t)return;const f=document.querySelector(`#selFiltro [data-f="${t.dataset.fil}"]`);if(f)f.click();pinta();sync();};});}
   {const s2=document.createElement('style');s2.textContent=`#selFiltro{display:none!important}#tbFly.fyfil{min-width:0}#tbFly .fyicons{display:flex;gap:2px;padding:2px 4px 4px}#tbFly .fyic{width:30px;height:30px;display:grid;place-items:center;border:1px solid transparent;border-radius:5px;background:none;color:var(--ink);cursor:pointer;padding:0}#tbFly .fyic:hover{background:var(--soft)}#tbFly .fyic.on{background:var(--accent);color:#fff}
-#capasPanel .cpbody{max-height:calc(100vh - 140px);overflow:auto}#capasPanel .cpseg{display:flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}#capasPanel .cpseg button{flex:1;border:0;background:none;padding:3px 6px;font:inherit;font-size:12px;cursor:pointer;color:var(--muted)}#capasPanel .cpseg button+button{border-left:1px solid var(--rule)}#capasPanel .cpseg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+#capasPanel{font-size:12px}#capasPanel label{font-size:12px}#capasPanel .cpbody{max-height:calc(100vh - 140px);overflow:auto}#capasPanel .cpseg{display:flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}#capasPanel .cpseg button{flex:1;border:0;background:none;padding:3px 6px;font:inherit;font-size:12px;cursor:pointer;color:var(--muted)}#capasPanel .cpseg button+button{border-left:1px solid var(--rule)}#capasPanel .cpseg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
 #capasPanel details>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:4px;padding:2px 0}#capasPanel details>summary::-webkit-details-marker{display:none}#capasPanel details>summary::before{content:'▸';font-size:10px;color:var(--muted);width:10px}#capasPanel details[open]>summary::before{content:'▾'}
 #capasPanel .cpvis summary.cpg{margin:6px 0 2px}#capasPanel .cpsub{margin-left:8px}#capasPanel .cpsub>summary{font-size:12px;color:var(--ink)}
 #capasPanel .cpvl .fyi{display:flex;align-items:center}#capasPanel .cpvl .fyb{flex:1;text-align:left;background:none;border:0;padding:2px 6px;border-radius:4px;cursor:pointer;color:var(--ink);font:inherit;font-size:12px;line-height:1.3}#capasPanel .cpvl .fyb:hover{background:var(--soft)}#capasPanel .cpvl .fyx{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12px;padding:0 4px}#capasPanel .cpvl .fyx:hover{color:var(--accent)}#capasPanel .cpvl .fye{color:var(--muted);padding:1px 6px 3px;font-size:11.5px}#capasPanel .cpvl .fyacc{color:var(--accent);width:100%;text-align:left}`;document.head.appendChild(s2);}
-  /* ---------- en Capas: proyección y vistas (Maxi 9/11: «esto debe ir dentro de capas. vistas también, con submenús separando vistas fijas de ambientes») ---------- */
-  {const body=cp.querySelector('.cpbody');
-    const pr=document.createElement('div');pr.innerHTML='<div class="cpg">Proyección</div><div class="cpseg" id="cpProy"><button type="button" data-pj="0" data-tip="Perspectiva|P cambia; P mantenida + rueda cambia el lente">Perspectiva</button><button type="button" data-pj="1" data-tip="Paralela (axonométrica)|P cambia; en paralela, la rueda hace zoom">Paralela</button></div>';body.prepend(pr);
-    const syP=()=>{const on=!!(visor.esParalela&&visor.esParalela());pr.querySelectorAll('[data-pj]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.pj==='1')===on)));};syP();setInterval(()=>{if(!cp.hidden)syP();},500);
-    pr.addEventListener('click',e=>{const b=e.target.closest('[data-pj]');if(!b)return;const want=b.dataset.pj==='1';if(visor.setParalela&&visor.esParalela()!==want)visor.setParalela(want);syP();});
-    if(vistas&&vistas.grupos){const vd=document.createElement('details');vd.className='cpvis';vd.open=LS.get('carhue-cp-vis',true);vd.innerHTML='<summary class="cpg">Vistas</summary><div class="cpvl"></div>';pr.after(vd);
-      vd.addEventListener('toggle',()=>LS.set('carhue-cp-vis',vd.open));
+  /* ---------- Vistas: panel propio al lado de la barra (Maxi 9/11: «separá capas de vistas en el toolbar»): proyección, lente y vistas ---------- */
+  const vp=document.createElement('div');vp.id='vistasPanel';vp.hidden=true;vp.innerHTML='<div class="cph"><b>Vistas</b><button class="cpb" data-vp="x" data-tip="Cerrar">'+icon('x',14)+'</button></div><div class="cpbody"></div>';stage.appendChild(vp);
+  {/* mismas reglas de estilo que Capas */try{const add=[];for(const ss of document.styleSheets){let rs;try{rs=ss.cssRules;}catch(e){continue;}for(const r of rs)if(r.selectorText&&r.selectorText.includes('#capasPanel'))add.push(r.cssText.replace(/#capasPanel/g,'#vistasPanel'));}const s3=document.createElement('style');s3.textContent=add.join('\n')+'#vistasPanel{width:230px}#vistasPanel .cpseg button{padding:3px 2px;font-size:11px}#vistasPanel .cpseg button:disabled{opacity:.4;cursor:default}';document.head.appendChild(s3);}catch(e){}
+    const body=vp.querySelector('.cpbody');
+    const pr=document.createElement('div');pr.innerHTML='<div class="cpg">Proyección</div><div class="cpseg" id="cpProy"><button type="button" data-pj="0" data-tip="Perspectiva|P cambia; P mantenida + rueda cambia el lente">Perspectiva</button><button type="button" data-pj="1" data-tip="Paralela (axonométrica)|P cambia; en paralela, la rueda hace zoom">Paralela</button></div>'
+      +'<div class="cpg">Lente</div><div class="cpseg" id="cpLente">'+[[110,'Ojo de pez','110° · 6 mm'],[75,'Gran angular','75° · 16 mm'],[45,'Normal','45° · 29 mm'],[20,'Tele','20° · 68 mm']].map(([f,n,d])=>`<button type="button" data-fov="${f}" data-tip="${n}|Campo vertical de ${d} (equivalente 35 mm)">${n}</button>`).join('')+'</div>';body.appendChild(pr);
+    const syP=()=>{const on=!!(visor.esParalela&&visor.esParalela());pr.querySelectorAll('[data-pj]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.pj==='1')===on)));const fv=visor.camera.fov;pr.querySelectorAll('[data-fov]').forEach(b=>{b.disabled=on;b.setAttribute('aria-pressed',String(!on&&Math.abs(+b.dataset.fov-fv)<1));});};syP();setInterval(()=>{if(!vp.hidden)syP();},500);
+    pr.addEventListener('click',e=>{const b=e.target.closest('[data-pj]');if(b){const want=b.dataset.pj==='1';if(visor.setParalela&&visor.esParalela()!==want)visor.setParalela(want);syP();return;}
+      const f=e.target.closest('[data-fov]');if(f&&visor.setFov){visor.setFov(+f.dataset.fov);syP();}});
+    if(vistas&&vistas.grupos){const vd=document.createElement('div');vd.innerHTML='<div class="cpg">Vistas</div><div class="cpvl"></div>';body.appendChild(vd);
       const box=vd.querySelector('.cpvl');const abiertos=LS.get('carhue-cp-vgr',{'Vistas fijas':true});
       const pintar=()=>{vistas.renderGrupos(box,()=>setTimeout(pintar,400),abiertos,()=>LS.set('carhue-cp-vgr',abiertos));};pintar();visor.__pintarVistas=pintar;
-      new MutationObserver(()=>{if(!cp.hidden)pintar();}).observe(document.getElementById('vistasSel'),{childList:true,subtree:true});}}
+      new MutationObserver(()=>{if(!vp.hidden)pintar();}).observe(document.getElementById('vistasSel'),{childList:true,subtree:true});}
+    if(visor.tours){const tw=document.createElement('div');tw.innerHTML='<div class="cpg">Tours</div><div class="cpvl cptours"></div>';body.appendChild(tw);try{visor.tours.appendInto(tw.querySelector('.cptours'),()=>{});}catch(e){}}
+    vp.addEventListener('click',e=>{if(e.target.closest('[data-vp="x"]')){vp.hidden=true;sync();}});
+    document.addEventListener('pointerdown',e=>{if(vp.hidden)return;const t=e.target;if(vp.contains(t)||(t.closest&&t.closest('#toolbar3d .tb[data-k="vistas"]')))return;vp.hidden=true;sync();},true);}
+  const posVp=()=>{const b=document.querySelector('#toolbar3d .tb[data-k="vistas"]'),tb=$('toolbar3d');if(!b||!tb)return;const s=stage.getBoundingClientRect(),r=b.getBoundingClientRect(),t=tb.getBoundingClientRect();
+    vp.style.left=(t.right-s.left+8)+'px';vp.style.right='auto';vp.style.position='absolute';vp.style.zIndex=6;const h=vp.offsetHeight||300;vp.style.top=Math.max(8,Math.min(s.height-h-8,r.top-s.top-6))+'px';};
   /* ---------- clics en la barra ---------- */
   let hold=null;
   bar.addEventListener('pointerdown',e=>{const b=e.target.closest('.tbfly');if(!b)return;hold=setTimeout(()=>{hold='open';subMenu(b,group(b.dataset.k));},350);});
@@ -196,7 +204,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     if(hold==='open'){hold=null;return;}hold=null;if(k!=='caminar')CAM.set(false);
     if(b.classList.contains('tbfly')){const r=b.getBoundingClientRect();if(e.clientX>r.right-11&&e.clientY>r.bottom-11){subMenu(b,group(k));return;}}
     if(PANELS[k]){if(flyFor===b){closeFly();return;}
-      if(k==='vistas')openFly(b,el=>{el.className='fymenu fyvistas';vistas&&vistas.renderInto(el,closeFly);visor.tours&&visor.tours.appendInto(el,closeFly);});
+      if(k==='vistas'){closeFly();if(!cp.hidden){cp.hidden=true;LS.set('carhue-capas-on',false);}vp.hidden=!vp.hidden;if(!vp.hidden){visor.__pintarVistas&&visor.__pintarVistas();posVp();}}
       else if(k==='corte'){closeFly();if(window.__side)window.__side.toggle('corte');else openFly(b,el=>{el.className='fypanelw';el.appendChild(corteBox);});}
       else if(k==='variantes')zonasMenu(b);
       else if(k==='equip'){closeFly();visor.equip&&visor.equip.toggle('mue');sync();}
@@ -206,7 +214,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
       else if(k==='personas'){closeFly();if(window.__side)window.__side.toggle('personas');}
       else if(k==='filtros')filtrosMenu(b);
       else if(k==='proy'){closeFly();visor.setParalela&&visor.setParalela(!visor.esParalela());sync();}
-      else if(k==='capas'){closeFly();cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);if(!cp.hidden)posCp();}
+      else if(k==='capas'){closeFly();vp.hidden=true;cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);if(!cp.hidden)posCp();}
       sync();return;}
     closeFly();T[k].run();sync();});
 
@@ -220,7 +228,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     if(on('editarTg')){const p=document.querySelector('#edPanel [data-tool][aria-pressed=true]');const t=p?p.dataset.tool:'';return ({'':'sel',mover:'mover',estirar:'estirar',ab:'ab'})[t]||'sel';}return 'nav';}
   function sync(){const a=active();
     const g=group(a);if(g&&g.length>1&&cur[g[0]]!==a)setSub(g,a);
-    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):k==='proy'?!!(visor.esParalela&&visor.esParalela()):k==='filtros'?filtroActual()!=='obj':'false'):String(k===a));});
+    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='vistas'?!vp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):k==='proy'?!!(visor.esParalela&&visor.esParalela()):k==='filtros'?filtroActual()!=='obj':'false'):String(k===a));});
     st.innerHTML=`<b>${T[a].n}</b> ${HINT[a]||''}`;stage.classList.toggle('conpanel',a!=='nav'&&a!=='caminar');}
   setInterval(sync,400);sync();
 
