@@ -23,6 +23,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 #hub a.casa .v{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:8px}
 #hub .pie{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:26px}
 #hub-volver{position:fixed;right:8px;bottom:34px;z-index:50;font:500 11px/1 var(--f-mono);color:var(--muted);background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;text-decoration:none;opacity:.8}
+#hub-volver.entr{position:static;font:600 12px/1 var(--f-mono);color:var(--ink);opacity:1;padding:6px 9px;border-radius:6px}
 #hub-volver:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
 #hub-err{max-width:640px;margin:40px auto;padding:16px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;font-size:14px}
 </style>
@@ -55,7 +56,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
     const hub=document.getElementById('hub');if(hub)hub.remove();
     const scripts=[];for(const s of doc.querySelectorAll('script')){if(s.type==='importmap')continue;scripts.push({type:s.type||'',src:s.getAttribute('src')||'',text:s.textContent});s.remove();}
     for(const el of [...doc.body.childNodes])document.body.appendChild(document.importNode(el,true));
-    const volver=document.createElement('a');volver.id='hub-volver';volver.href=root;volver.textContent='⌂ housemaker';volver.title='Todas las casas';document.body.appendChild(volver);
+    const volver=document.createElement('a');volver.id='hub-volver';volver.href=root;volver.textContent='⌂ Proyectos';volver.title='Volver a la lista de proyectos';{const tr=document.getElementById('topright');/* Maxi 10/11: «¿cómo voy a la lista de proyectos?»: arriba a la derecha, a la vista */if(tr){volver.classList.add('entr');tr.appendChild(volver);}else document.body.appendChild(volver);}
     for(const s of scripts)if(s.type!=='module'){const e=document.createElement('script');if(s.src){await new Promise((ok,no)=>{e.onload=ok;e.onerror=()=>no(new Error('No cargó '+s.src));e.src=new URL(s.src,base.href).href;document.body.appendChild(e);});}else{e.textContent=s.text;document.body.appendChild(e);}}
     for(const s of scripts)if(s.type==='module'){if(s.src)await import(c.archivos.includes(s.src)?root+casa+'/'+s.src+vc:root+'motor/'+s.src+vm);else{const e=document.createElement('script');e.type='module';e.textContent=s.text;document.body.appendChild(e);}}
   }).catch(e=>{console.error(e);const d=document.createElement('div');d.id='hub-err';d.innerHTML='<b>No pude abrir esta casa.</b><br>'+String(e&&e.message||e)+'<br><br><a href="'+root+'">Volver a housemaker</a>';document.body.appendChild(d);});
