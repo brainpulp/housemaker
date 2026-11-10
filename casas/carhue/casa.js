@@ -48,7 +48,7 @@ const DORM_C=[{id:'DM-C',xl:0,xr:942,local:'dormitorio secundario, baño y dormi
 /* Maxi 28/10: otra versión del corrido que sigue hasta la galería (x 13,42, donde arranca el techo de vidrio). Pasando el retorno de la fachada (x 9,93) el frente retrocede con ella, sobre el borde del entrepiso y M-07 (y 6,25 a 6,37), con el perfil W-1 adentro del muro: por eso las ventanas arrancan arriba del perfil (+3,75); el techo sigue el mismo plano. Reemplaza también LU-4 y la franja VE-4 */
 /* Maxi 6–7/11: el corrido hasta la galería pasa a ser un solo dormer a la vista: techo en una sola línea (el del estudio vuela hasta el borde del otro), sin el murito de la esquina (M-27 y M-06 terminan en el entrepiso) y todo madera y vidrio. Montantes de 12 (como las paredes) que caen sobre los tabiques (3,70 · 5,70 · estudio 10,11) y parten cada ambiente en paños iguales; cada paño, fijo abajo y proyectante arriba con amortiguadores. El frente del estudio sigue el retiro de la fachada, unos cm por delante del perfil W-1 (y 6,41) */
 const VCG=(cs)=>cs.slice(0,-1).map((c,i)=>[c+(i?6:0),cs[i+1]-6]);
-const DORM_CG=[{...DORM_C[0],xr:993,latB0:637,ventanas:VCG([35,188,370,570,780.75,991]),postes:[370,570],madera:true},{id:'DM-C2',xl:993,xr:1340.5,yf:641,yt:690,sinA:true,local:'estudio (sigue hasta la galería: Maxi 28/10)',ventanas:VCG([999,1011,1172.75,1334.5]).slice(1),postes:[],integrada:true,madera:true}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
+const DORM_CG=[{...DORM_C[0],xr:993,latB0:637,alero:75,ventanas:VCG([35,188,370,570,780.75,991]),postes:[370,570],madera:true},{id:'DM-C2',xl:993,xr:1340.5,yf:641,yt:690,sinA:true,alero:75,local:'estudio (sigue hasta la galería: Maxi 28/10)',ventanas:VCG([999,1011,1172.75,1334.5]).slice(1),postes:[],integrada:true,madera:true}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
 const DORM_J_=p=>p.dormers==='cg'?DORM_CG:DORM_CC(p)?DORM_C:DORM_J2;
 /* Maxi 28/10: con el dormer corrido, las paredes que quedan debajo (M-04 y los tabiques del entrepiso) suben hasta los cabios del dormer, no hasta la línea del techo viejo. Devuelve la cara de abajo de los cabios (DU) o null */
 const DORM_CU=(p,x,y)=>DORM_CC(p)&&DORM_J_(p).some(d=>x>=d.xl-1&&x<=d.xr+1&&y>=352&&y<=(d.yf??690)+5)?502-(y-352)*Math.tan(4*Math.PI/180)-15:null;
@@ -676,15 +676,16 @@ function build(p){
       for(const [xw0,xw1] of W2)es.push(box(xw0-10,xw0-5,Z0+5,zw1,YF-7,YF+5),box(xw1+5,xw1+10,Z0+5,zw1,YF-7,YF+5),box(xw0-5,xw1+5,zw0-5,zw0,YF-7,YF+5));
       /* 3 · laterales: solera inclinada sobre el cabio doble, montantes cada 40 hasta los cabios del dormer */
       for(const [x,y0,zf] of [...(pt0||sA?[]:[[xa-7.5,362,y=>rb(y)+12]]),[xb+2.5,Math.max(362,yB0),d.latB0?(()=>362):(y=>rb(y)+12)]]){es.push(wYZ(x,x+5,y0,YF-7,zf,y=>zf(y)+5));for(let y=y0+38;y<YF-10;y+=40){const zb=zf(y)+5,zt=DU(y);if(zt-zb>8)es.push(box(x,x+5,zb,zt,y-2.5,y+2.5));}}
-      /* 4 · cabios del dormer 2″×6″ cada ~50, del cabezal al frente con 25 de alero */
-      const nr=Math.max(2,Math.round((xb-xa)/50));for(let i=0;i<=nr;i++){const x=xa-5+(xb-xa+10)*i/nr;es.push(slabY(x-2.5,x+2.5,[357,DU(357)],[YT+25,DU(YT+25)],15));}
+      /* 4 · cabios del dormer 2″×6″ cada ~50, del cabezal al frente con su alero (25; el corrido hasta la galería 75: Maxi 10/11 «en la realidad tiene unos 50 cm más hacia el jardín») */
+      const AL=d.alero??25;
+      const nr=Math.max(2,Math.round((xb-xa)/50));for(let i=0;i<=nr;i++){const x=xa-5+(xb-xa+10)*i/nr;es.push(slabY(x-2.5,x+2.5,[357,DU(357)],[YT+AL,DU(YT+AL)],15));}
       /* 5 · machimbre, aislación y chapa (4°), babetas y cupertina */
       const punta=xa-7.5<=5,xt0=punta?-43:xa-15;/* Maxi 15/10: si el dormer llega a la pared del fondo, su chapa vuela como el alero del hastial (x −0,43) y no queda una tira de faldón al costado */
-      tc.push(slabY(sA?xl+1.5:xt0,rxb??xb+15,[350,DT(350)+3],[YT+30,DT(YT+30)+3],3));es.push(slabY(punta?-40:sA?xl+1.5:xa-12,rxb??xb+12,[352,DT(352)],[YT+28,DT(YT+28)],2.5));
+      tc.push(slabY(sA?xl+1.5:xt0,rxb??xb+15,[350,DT(350)+3],[YT+AL+5,DT(YT+AL+5)+3],3));es.push(slabY(punta?-40:sA?xl+1.5:xa-12,rxb??xb+12,[352,DT(352)],[YT+AL+3,DT(YT+AL+3)],2.5));
       const latW=[];for(const [x0,x1,y0,zf] of [...(pt0||sA?[]:[[xa-9,xa-7.5,352,RT]]),[xb+7.5,xb+9,yB0,d.latB0?(()=>362):RT]])(d.madera&&d.latB0&&x0>xa?latW:ch).push(wYZ(x0,x1,y0,YF+5,zf,DT));/* Maxi 6/11: el cierre del escalón queda a la vista: de madera */
       const cf=d.madera?[...latW]:ch;cf.push(box(cxa,xb+9,Z0,zw0,YF+5,YF+6.5),box(cxa,xb+9,zw1,DT(YF+6),YF+5,YF+6.5));{let px=cxa;for(const [xw0,xw1] of W2){if(xw0-px>1)cf.push(box(px,xw0,zw0,zw1,YF+5,YF+6.5));px=xw1;}if(xb+9-px>1)cf.push(box(px,xb+9,zw0,zw1,YF+5,YF+6.5));}
       if(d.madera)Pt(d.id+'r',`${d.id} · frente de madera`,'roble',cf,{fn:'Frente del dormer en madera (Maxi 6/11: madera y vidrio nada más): montantes de 12 entre paños, faja baja sobre el entrepiso y faja alta hasta el techo.',sec:'tabla de roble sobre fenólico'},{...TE});
-      for(const [x0,x1] of [...(punta||sA?[]:[[xa-14,xa-9]]),...(d.latB0?[]:[[xb+9,xb+14]])])fl.push(wYZ(x0,x1,352,YF,RT,y=>RT(y)+10));fl.push(box(punta?-43:sA?xl+1.5:xa-12,rxb??xb+12,DT(YT+30)-2,DT(YT+30)+4,YT+29,YT+31));
+      for(const [x0,x1] of [...(punta||sA?[]:[[xa-14,xa-9]]),...(d.latB0?[]:[[xb+9,xb+14]])])fl.push(wYZ(x0,x1,352,YF,RT,y=>RT(y)+10));fl.push(box(punta?-43:sA?xl+1.5:xa-12,rxb??xb+12,DT(YT+AL+5)-2,DT(YT+AL+5)+4,YT+AL+4,YT+AL+6));
       /* 6 · ventana: paño fijo arriba y hoja proyectante abajo, marco de roble */
       for(const [xw0,xw1] of W2){mk.push(box(xw0,xw1,zw0,zw0+5,YF+1,YF+6),box(xw0,xw1,zw1-5,zw1,YF+1,YF+6),box(xw0,xw0+5,zw0,zw1,YF+1,YF+6),box(xw1-5,xw1,zw0,zw1,YF+1,YF+6),box(xw0,xw1,zwt-2.5,zwt+2.5,YF+1,YF+6));
       gl.push(box(xw0+5,xw1-5,zw0+5,zwt-2.5,YF+3,YF+3.6));if(!d.integrada)gl.push(box(xw0+5,xw1-5,zwt+2.5,zw1-5,YF+3,YF+3.6));}
@@ -1091,7 +1092,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
   {id:'p03',nombre:'Puerta al patio P-03',piezas:/^P-03[mhvk]?$/,params:['p03Est'],label:Object.fromEntries((params.find(q=>q.id==='p03Est').options)),vista:{p:[1265,170,420],t:[1265,100,27]}},
   {id:'m43',nombre:'Gran corrediza M-43',piezas:/^(H-[1-4]v?|M-43[rpz]?)$/,params:['m43Est'],label:Object.fromEntries((params.find(q=>q.id==='m43Est').options)),vista:{p:[1300,420,700],t:[1000,360,300]}},
   /* Maxi 14/10: los dormers son opciones del faldón donde van: tocando las lucarnas, sus dormers o el techo mismo; el del altillo, tocando el altillo o su techo */
-  {id:'faldon',nombre:'Faldón al jardín: dormers y lucarnas',piezas:/^(T-01|CAB-3|LU-\d+(z|m|m2|w|w2|v2|d|b|c|k|k2)?|DM-(1|2|C)[a-z0-9]*|VE-\d[a-z]*)$/,params:['dormers','luTipo'],label:{...Object.fromEntries(params.find(q=>q.id==='dormers').options),...Object.fromEntries(params.find(q=>q.id==='luTipo').options)},vista:{p:[560,1050,1450],t:[560,430,560]}},
+  {id:'faldon',nombre:'Faldón al jardín: dormers y lucarnas',piezas:/^(T-01|CAB-3|LU-\d+(z|m|m2|w|w2|v2|d|b|c|k|k2)?|DM-(1|2|C)[a-z0-9]*|VE-\d[a-z]*)$/,params:['dormers','luTipo'],solo:{luTipo:/^LU-/}/* Maxi 10/11: el tipo de hoja es de las lucarnas, no de las ventanas del dormer */,label:{...Object.fromEntries(params.find(q=>q.id==='dormers').options),...Object.fromEntries(params.find(q=>q.id==='luTipo').options)},vista:{p:[560,1050,1450],t:[560,430,560]}},
   {id:'altillo',nombre:'Altillo: dormer a la pileta',piezas:/^(T-06|CAB-6|CU-2|L-24|DM-3[a-z]*)$/,params:['dormAlt'],label:Object.fromEntries(params.find(q=>q.id==='dormAlt').options),vista:{p:[2550,900,-1500],t:[2150,380,-560]}}];
 {let vu=null;try{vu=initVistasUI();}catch(e){console.error('vistas',e);}
 try{initToolbar(document.querySelector('#modo-3d .stage'),visor,{vistas:vu,zonas:ZONAS});}catch(e){console.error('toolbar',e);}}
