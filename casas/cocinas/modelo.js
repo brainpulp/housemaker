@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.48', fecha: '2026-11-09',
+export const META = { nombre: 'Cocinas', version: '0.1.49', fecha: '2026-11-10',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-10', v: '0.1.49', txt: 'Maxi 10/11, Mocoretá: la isla con cajones de frente negro, corrida 0,80 al norte; en la punta sur (hacia la pileta) un agregado de 1 × 1 con tapa de piedra negra que pisa 20 cm la tapa de madera, un módulo de puertas abajo y el anafe de 5 hornallas integrado. Motor: la mesada acepta tapa que sobresale del mueble (tapaMas/tapaLado) y fondo de tapa propio (tapaD). Carhué: la cocina guardada en esta escena se trajo de la página de Carhué.' },
   { fecha: '2026-11-09', v: '0.1.48', txt: 'Carhué: la pared de las ventanas sigue hasta el frente del hogar (M-44); la mesada negra llega hasta ahí y la península (anafe, campana, sillas) arranca en esa punta; el bloque del anafe lleva rincón ciego y, bajo el anafe, frente fijo y dos cajones de ollas.' },
   { fecha: '2026-11-09', v: '0.1.47', txt: 'Carhué: hogar como en la foto, mesada negra a lo largo de toda la pared de las ventanas con el lado corto de la L donde termina la pared, y la escalera al altillo es el caracol S (la variante por defecto).' },
   { fecha: '2026-11-09', v: '0.1.46', txt: 'Carhué con las medidas de Maxi (9/11): la cocina tiene 2,50 de ancho y llega 2 m más al fondo, hasta la pared de la arcada (1,20); la caja de Carhué se ensancha hasta la pared del baño y la heladera va contra la pared de la arcada en los tres escenarios.' },

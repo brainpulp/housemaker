@@ -47,7 +47,7 @@ export function equipCocinas({ it, itA }) {
       A: { nombre: 'Como está hoy (croquis 3/11)', items: [
         I('mesada', 124, 42.5, 0, { L: 248, D: 85, H: 90, fr: 'madClara', top: 'granito' }), I('anafe', 125, 44, 0, { L: 60, D: 52 }), I('heladera', 291.5, 36, 0, { L: 65, D: 70, H: 190, col: 'acero' }),
         I('mesada', 32.5, 300, 90, { L: 300, D: 65, H: 90, fr: 'madClara', top: 'granito' }), I('bacha', 34.5, 192, 90, { L: 80 }),
-        I('isla', 235, 240, 0, { L: 220, D: 90, vol: 0, fr: 'madRust', top: 'madRust' }),
+        /* Maxi 10/11: la isla con cajones de frente negro (como las mesadas que ya tiene), corrida 0,80 al norte; en la punta sur, hacia la pileta, un agregado de 1 × 1 con tapa negra que pisa 20 cm la tapa de madera, un módulo de dos puertas abajo (sólo del lado este) y el anafe de 5 hornallas integrado */ I('isla', 300, 265, 0, { L: 220, D: 90, vol: 0, fr: 'negro', top: 'madRust' }), I('mesada', 150, 265, 0, { L: 80, D: 90, H: 91, fr: 'negro', top: 'granito', puertas: [0], tapaMas: 20, tapaLado: 1, tapaD: 100 }), I('anafe', 158, 265, 0, { L: 90, D: 52, n: 5 }, 91),
         /* Maxi 7/11: la mesa (#7) de 2,80 × 1,20 */ I('mesaComedor', 267, 530, 0, { L: 280, D: 120 }), ...sillas(I, 267, 530, 280, 120, 3),
         /* Maxi 7/11: alacenas altas sobre la mesada 1, contra la pared O (M-03): 2,48 en tres puertas proyectadas */ I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150)] },
       B: { nombre: 'Vacía', items: [] } }; } },

@@ -184,7 +184,9 @@ export function catalogoMuebles(THREE){
       const band=p.band||0,cie=p.ciego||0,resto=p.L-band-cie,n=Math.max(1,Math.round(resto/(p.mod||76)));let mods=Array(n).fill(resto/n),iB=-1,iC=-1;if(band>0){if((p.bandLado||1)<0){mods.unshift(band);iB=0;}else{mods.push(band);iB=n;}}
       /* Maxi 9/11: «ciego» = cm de una punta tapados por la otra mesada de la L (con 4 de suplemento): panel fijo sin cajones; ciegoLado −1 = punta −x */
       if(cie>0){if((p.ciegoLado||1)<0){mods.unshift(cie);iC=0;if(iB>=0)iB++;}else{mods.push(cie);iC=mods.length-1;}}
-      const g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,y0,y1,zb,zf,p.fr,mods),...tapaHuecos(p.L,p.D,p.H,p.huecos,p.top)];
+      /* Maxi 10/11 (Mocoretá): «tapaMas» = cm que la tapa sobresale del mueble por la punta +x («tapaLado:-1», por la −x), para pisar otro mueble; «tapaD» = fondo de la tapa centrado sobre el mueble (si no, D + 1 de voladizo al frente). Con tapaMas, los «huecos» se miden desde el centro de la tapa */
+      const tm=p.tapaMas||0,tl=(p.tapaLado||1)<0?-1:1,tapa=tapaHuecos(p.L+tm,p.tapaD?p.tapaD-1:p.D,p.H,p.huecos,p.top);if(tm||p.tapaD)for(const t of tapa)t[0].translate(tl*tm/2,0,p.tapaD?-.5:0);
+      const g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,y0,y1,zb,zf,p.fr,mods),...tapa];
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
         if(i===iC){g.push([FR(xl,xr,y0,y1,zf),p.fr]);continue;}
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}
