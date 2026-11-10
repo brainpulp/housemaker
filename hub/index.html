@@ -61,7 +61,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
   function indice(){document.addEventListener('DOMContentLoaded',async()=>{
     const el=document.getElementById('hub');
     try{const info=await (await fetch(root+'casas.json')).json();
-      el.querySelector('.grid').innerHTML=info.casas.filter(c=>!c.oculta).map(c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`).join('');
+      /* Maxi 9/11: las casas arriba; Octet y Muebles son herramientas de housemaker, aparte */
+      const HERR=['octet','catalogo'],card=c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`;
+      const vis=info.casas.filter(c=>!c.oculta);
+      el.querySelector('.grid').innerHTML=vis.filter(c=>!HERR.includes(c.id)).map(card).join('');
+      let h=el.querySelector('.herr');if(!h){h=document.createElement('div');h.innerHTML='<h3 style="font-family:var(--f-display);font-weight:600;font-size:20px;margin:26px 0 8px">Herramientas</h3><div class="grid herr"></div>';el.querySelector('.grid').after(h);h=el.querySelector('.herr');}
+      h.innerHTML=vis.filter(c=>HERR.includes(c.id)).map(card).join('');
       el.querySelector('.pie').textContent='motor '+info.motorCommit+' · '+info.motorFecha;
     }catch(e){el.querySelector('.grid').innerHTML='<div id="hub-err">No pude leer la lista de casas: '+esc(String(e))+'</div>';}
   });}
