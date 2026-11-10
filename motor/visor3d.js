@@ -228,6 +228,11 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
     /* rueda: avanza cámara y objetivo juntos por el rayo del cursor, un 18 % de la distancia a lo que está debajo (mínimo 8 cm),
        así no se frena al acercarse al objetivo de la órbita y, ya pegado a una superficie, la atraviesa (Maxi: «la rueda deja de acercar») */
     (el.parentElement||el).addEventListener('wheel',e=>{if(!controls.enabled||e.target!==el)return;e.preventDefault();e.stopPropagation();
+      if(paralela){/* Maxi 9/11: en paralela mover la cámara no agranda nada: la rueda cambia el zoom, fijo el punto bajo el cursor */
+        const r=el.getBoundingClientRect(),nx=(e.clientX-r.left)/r.width*2-1,ny=-(e.clientY-r.top)/r.height*2+1,dz=new THREE.Vector3(nx,ny,0),
+          amt=Math.min(Math.abs(e.deltaY)*(e.deltaMode===1?33:1),240)/100,f=Math.pow(1.12,amt*(e.deltaY<0?1:-1));
+        const a=dz.clone().unproject(camera);camera.zoom=Math.max(.02,Math.min(80,camera.zoom*f));camera.updateProjectionMatrix();const b=dz.clone().unproject(camera);
+        const dv=a.sub(b);camera.position.add(dv);controls.target.add(dv);controls.update();lblDirty=true;window.__despertar&&window.__despertar();return;}
       const h=pick(e),dir=rc.ray.direction.clone(),d=h?h.distance:camera.position.distanceTo(controls.target);
       const amt=Math.min(Math.abs(e.deltaY)*(e.deltaMode===1?33:1),240)/100,zin=e.deltaY<0;
       let step=Math.max(8,d*.18)*amt;if(zin&&d>40)step=Math.min(step,d-25);

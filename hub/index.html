@@ -39,15 +39,17 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
   /* 2. las URL relativas de la casa (fotos, texturas, el GLB) salen de su carpeta */
   const base=document.createElement('base');base.href=root+casa+'/';document.head.appendChild(base);
   /* 3. import map: lo que la casa importa como ./x.js y vive en motor/ va a motor/; lo que el motor importa como ./modelo.js (y otros archivos de casa) va a la carpeta de la casa */
-  fetch(root+'casas.json').then(r=>r.json()).then(async info=>{
+  fetch(root+'casas.json',{cache:'no-store'}).then(r=>r.json()).then(async info=>{
     const c=info.casas.find(x=>x.id===casa);if(!c)throw new Error('No hay una casa «'+casa+'»');
     const scopes={},deCasa={},deMotor={};
-    for(const f of info.motor)if(!c.archivos.includes(f))deCasa[root+casa+'/'+f]=root+'motor/'+f;
-    for(const f of c.archivos)if(f.endsWith('.js'))deMotor[root+'motor/'+f]=root+casa+'/'+f;
+    /* Maxi 9/11 («no veo la escalera nueva»): el navegador guardaba los .js viejos; cada archivo lleva ?v= con la versión de la casa o el commit del motor */
+    const vc='?v='+encodeURIComponent(c.version||info.motorCommit||''),vm='?v='+encodeURIComponent(info.motorCommit||'');
+    for(const f of info.motor)if(!c.archivos.includes(f)){deCasa[root+casa+'/'+f]=root+'motor/'+f+vm;deCasa[root+'motor/'+f]=root+'motor/'+f+vm;}
+    for(const f of c.archivos)if(f.endsWith('.js')){deMotor[root+'motor/'+f]=root+casa+'/'+f+vc;deCasa[root+casa+'/'+f]=root+casa+'/'+f+vc;}
     scopes[root+casa+'/']=deCasa;scopes[root+'motor/']=deMotor;
     const im=document.createElement('script');im.type='importmap';im.textContent=JSON.stringify({imports:Object.assign({},info.imports,deCasa)/* también arriba: los módulos en línea de la página (catálogo, laboratorio) y los que carga esta cáscara tienen por referente a index.html, no a la carpeta de la casa */,scopes});document.head.appendChild(im);
     /* 4. la página de la casa: estilos y cuerpo tal cual; sus scripts se corren en orden (los clásicos primero, como en la página suelta, después los módulos) */
-    const html=await (await fetch(root+casa+'/pagina.html')).text();const doc=new DOMParser().parseFromString(html,'text/html');
+    const html=await (await fetch(root+casa+'/pagina.html',{cache:'no-store'})).text();const doc=new DOMParser().parseFromString(html,'text/html');
     document.title=doc.title||c.nombre;
     for(const el of doc.head.querySelectorAll('style,link[rel=stylesheet]'))document.head.appendChild(document.importNode(el,true));
     const hub=document.getElementById('hub');if(hub)hub.remove();
@@ -55,12 +57,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
     for(const el of [...doc.body.childNodes])document.body.appendChild(document.importNode(el,true));
     const volver=document.createElement('a');volver.id='hub-volver';volver.href=root;volver.textContent='⌂ housemaker';volver.title='Todas las casas';document.body.appendChild(volver);
     for(const s of scripts)if(s.type!=='module'){const e=document.createElement('script');if(s.src){await new Promise((ok,no)=>{e.onload=ok;e.onerror=()=>no(new Error('No cargó '+s.src));e.src=new URL(s.src,base.href).href;document.body.appendChild(e);});}else{e.textContent=s.text;document.body.appendChild(e);}}
-    for(const s of scripts)if(s.type==='module'){if(s.src)await import(c.archivos.includes(s.src)?root+casa+'/'+s.src:root+'motor/'+s.src);else{const e=document.createElement('script');e.type='module';e.textContent=s.text;document.body.appendChild(e);}}
+    for(const s of scripts)if(s.type==='module'){if(s.src)await import(c.archivos.includes(s.src)?root+casa+'/'+s.src+vc:root+'motor/'+s.src+vm);else{const e=document.createElement('script');e.type='module';e.textContent=s.text;document.body.appendChild(e);}}
   }).catch(e=>{console.error(e);const d=document.createElement('div');d.id='hub-err';d.innerHTML='<b>No pude abrir esta casa.</b><br>'+String(e&&e.message||e)+'<br><br><a href="'+root+'">Volver a housemaker</a>';document.body.appendChild(d);});
 
   function indice(){document.addEventListener('DOMContentLoaded',async()=>{
     const el=document.getElementById('hub');
-    try{const info=await (await fetch(root+'casas.json')).json();
+    try{const info=await (await fetch(root+'casas.json',{cache:'no-store'})).json();
       /* Maxi 9/11: las casas arriba; Octet y Muebles son herramientas de housemaker, aparte */
       const HERR=['octet','catalogo'],card=c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`;
       const vis=info.casas.filter(c=>!c.oculta);
