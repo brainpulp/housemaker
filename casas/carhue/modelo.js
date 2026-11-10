@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.32', fecha:'2026-11-09',
+  nombre:'Carhué', version: '1.1.33', fecha:'2026-11-09',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -284,6 +284,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-09', v:'1.1.33', txt:'Maxi 9/11 (motor, todas las casas): el negro mate de los muebles pasa de casi negro puro a gris muy oscuro, y los frentes de cajones y puertas llevan canto redondeado de 6 mm con ranura de 4 mm, para que se lean los bordes.'},
   {fecha:'2026-11-09', v:'1.1.32', txt:'Maxi 9/11 (motor, todas las casas): Objeto / Vértice / Arista / Cara pasan a íconos chicos bajo un ícono de filtro en la barra; Perspectiva/Paralela y Vistas (con submenús Vistas fijas, Ambientes y Guardadas) pasan al panel de Capas; sale el botón Vistas de arriba a la derecha.'},
   {fecha:'2026-11-09', v:'1.1.31', txt:'Maxi 9/11: hogar como en la foto (el macizo llega hasta la pared de las ventanas; abajo nicho y puerta doble de madera, arriba nicho con estantes) y M-02 revocada. Cocina E: la mesada negra recorre toda la pared de las ventanas menos la heladera y el lado corto de la L arranca donde termina la pared (bloque, mesa, anafe y sillas 0,96 al este). Living: el sillón en L espejado, el lado este-oeste al sur, y la ratona al rincón de adentro. Caracol S (ahora la variante por defecto): se sube por el lado norte de la columna y gira al revés, 13 escalones en una vuelta y 45°. M-43 sigue el techo del dormer corrido hasta la galería. Escenario B de cocina: la isla 1,15 al este por el caracol.'},
   {fecha:'2026-11-09', v:'1.1.30', txt:'Con la cocina medida (Maxi 9/11): escenarios B y C rehechos (heladera y columna contra la pared de la arcada, mesada de 3,82 hasta la punta de M-20, alacena entre la columna y la ventana; la mesa redonda de C, 0,80 al norte para no tocar la escalera B3). La boca abierta bajo el hastial va sin marco. En Cocinas, la caja de Carhué y la heladera siguen las medidas nuevas.'},

@@ -8,7 +8,7 @@ import { MODELOS as OCTET } from './octet-modelos.js';
 
 /* materiales que usan las piezas (el visor los crea con MeshStandardMaterial) */
 export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],petiribi:['#b98654',.7],suela:['#9a5a2b',.6],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
-  mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#161718',.35],grafito:['#3b3e40',.55],
+  mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#323335',.55]/* Maxi 9/11: el #161718 era un pozo negro; negro mate real se lee gris muy oscuro */,grafito:['#3b3e40',.55],
   piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
   junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a'],marfil:['#ebe2cf',.32]/* Maxi 8/11: loza color marfil (bacha farm) */,hierroN:['#1f2022',.8,.15]/* parrillas de los quemadores */};
 /* [color, rugosidad, metal, emisivo] */
@@ -65,6 +65,8 @@ export function catalogoMuebles(THREE){
   const R=(x0,x1,y0,y1,z0,z1,r=3)=>{const w=x1-x0,h=y1-y0,d=z1-z0;const g=new RoundedBoxGeometry(w,h,d,3,Math.min(r,w/2-.01,h/2-.01,d/2-.01));g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return g;};
   const C=(r,y0,y1,x=0,z=0,s=20,r2)=>{const g=new THREE.CylinderGeometry(r2??r,r,y1-y0,s);g.translate(x,(y0+y1)/2,z);return g;};
   const VAR=(a,b,r,s=8)=>{/* varilla entre dos puntos */const A=new THREE.Vector3(...a),Bv=new THREE.Vector3(...b),d=Bv.clone().sub(A);const g=new THREE.CylinderGeometry(r,r,d.length(),s);g.translate(0,d.length()/2,0);g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()));g.translate(...a);return g;};
+  /* frente de puerta o cajón (Maxi 9/11: «no se ven los bordes de los cajones»): canto redondeado de 4 mm que toma la luz y ranura de 4 mm entre frentes, así se leen aunque sean negros */
+  const FR=(xl,xr,ya,yb,zf)=>{const g=new RoundedBoxGeometry(xr-xl-.4,yb-ya-.4,2,3,.6);g.translate((xl+xr)/2,(ya+yb)/2,zf+1);return g;};
   /* ranura de 4 mm (puertas y cajones) y tirador fino negro */
   const ran=(x0,x1,y0,y1,z)=>[B(x0,x1,y0,y1,z-.1,z+.05),'junta'];
   const tir=(x,y,z,l=16,vert=false)=>[vert?B(x-.6,x+.6,y-l/2,y+l/2,z,z+1.6):B(x-l/2,x+l/2,y-.6,y+.6,z,z+1.6),'negro'];
@@ -97,7 +99,7 @@ export function catalogoMuebles(THREE){
   const modX=(x0,x1,mods,i)=>{const c=cortes(x0,x1,mods),xl=c[i],xr=c[i+1];return [xl,xr,i===0?xl+1.8:xl+.9,i===c.length-2?xr-1.8:xr-.9];};
   /* bandejero: frente entero de la altura del módulo que sale con tres bandejas de alambre en un bastidor, sobre guías telescópicas abajo (igual que un cajón) */
   function bandejero(id,xl,xr,xa,xb,y0,y1,zb,zf,fr){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Dc*.9}};
-    g.push([B(xl+.15,xr-.15,y0+.15,y1-.15,zf,zf+2),fr,mv]);
+    g.push([FR(xl,xr,y0,y1,zf),fr,mv]);
     const h=y1-y0;for(let k=0;k<3;k++){const y=y0+2+(h-14)*k/2;g.push([B(xa+2.4,xb-2.4,y,y+.6,zf-Dc,zf-.3),'acero',mv],[B(xa+2.4,xa+2.9,y,y+9,zf-Dc,zf-.3),'acero',mv],[B(xb-2.9,xb-2.4,y,y+9,zf-Dc,zf-.3),'acero',mv],[B(xa+2.4,xb-2.4,y,y+9,zf-Dc,zf-Dc+.5),'acero',mv]);}
     for(const [a,b] of [[xa+2.9,xa+3.5],[xb-3.5,xb-2.9]])g.push([B(a,b,y0+2,y1-2,zf-1.6,zf-.3),'acero',mv]);/* parantes que cuelgan las bandejas del frente */
     for(const [a,b] of [[xa,xa+1.3],[xb-1.3,xb]])g.push([B(a,b,y0+2,y0+6,zf-Dc,zf-.3),'acero']);
@@ -105,7 +107,7 @@ export function catalogoMuebles(THREE){
     g.push([...tir((xl+xr)/2,(y0+y1)/2,zf+2,30,true),mv]);return g;}
   /* cajón: frente de 2 con juntas de 3 mm, caja de madera clara (laterales, fondo y piso), guías telescópicas de acero: el perfil del mueble queda, el del cajón sale con él */
   function cajon(id,xl,xr,xa,xb,ya,yb,zb,zf,fr,tirador=true){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Dc*.9}};
-    g.push([B(xl+.15,xr-.15,ya+.15,yb-.15,zf,zf+2),fr,mv]);
+    g.push([FR(xl,xr,ya,yb,zf),fr,mv]);
     const hb=Math.max(6,Math.min(yb-ya-6,24));
     g.push([B(xa+2.2,xa+3.8,ya+1.5,ya+1.5+hb,zf-Dc,zf-.3),CAJ,mv],[B(xb-3.8,xb-2.2,ya+1.5,ya+1.5+hb,zf-Dc,zf-.3),CAJ,mv],[B(xa+3.8,xb-3.8,ya+1.5,ya+1.5+hb,zf-Dc,zf-Dc+1.6),CAJ,mv],[B(xa+2.2,xb-2.2,ya+1.5,ya+2.5,zf-Dc,zf-.3),CAJ,mv]);
     for(const [a,b] of [[xa,xa+1.3],[xb-1.3,xb]])g.push([B(a,b,ya+2,ya+6,zf-Dc,zf-.3),'acero']);
@@ -114,7 +116,7 @@ export function catalogoMuebles(THREE){
   /* puerta batiente con bisagras cazoleta (Ø35 embutida en la puerta, brazo, base atornillada al lateral); lado −1: bisagras a la izquierda (−x) */
   function puerta(id,xl,xr,xa,xb,y0,y1,zf,fr,lado=-1,tirador=true){const g=[],hx=lado<0?xl+.15:xr-.15,xs=lado<0?xa:xb;
     const mv={mov:{id,tipo:'giro',eje:[0,1,0],max:(lado<0?-1:1)*100*Math.PI/180,pivot:[hx,0,zf]}};
-    g.push([B(xl+.15,xr-.15,y0+.15,y1-.15,zf,zf+2),fr,mv]);
+    g.push([FR(xl,xr,y0,y1,zf),fr,mv]);
     const xcz=lado<0?hx+2.2:hx-2.2;/* centro de la cazoleta, a 22 mm del canto */
     for(const y of [y0+9,y1-9]){g.push([CZ(1.75,zf,zf+1.3,xcz,y),'acero',mv]);
       const a=Math.min(xs,xcz),b=Math.max(xs,xcz);g.push([B(a+(lado<0?.3:0),b-(lado<0?0:.3),y-.9,y+.9,zf-3.2,zf-1.4),'acero',mv]);/* brazo */
@@ -122,7 +124,7 @@ export function catalogoMuebles(THREE){
     if(tirador)g.push([...tir(lado<0?xr-6:xl+6,(y0+y1)/2,zf+2,24,true),mv]);return g;}
   /* puerta de alacena proyectada hacia arriba: gira sobre su canto superior y queda horizontal adelante; brazos de elevación a los dos lados (base fija en el lateral, brazo en la puerta) */
   function puertaArriba(id,xl,xr,xa,xb,y0,y1,zf,fr){const g=[],mv={mov:{id,tipo:'giro',eje:[1,0,0],max:-100*Math.PI/180,pivot:[0,y1-.15,zf]}};
-    g.push([B(xl+.15,xr-.15,y0+.15,y1-.15,zf,zf+2),fr,mv]);
+    g.push([FR(xl,xr,y0,y1,zf),fr,mv]);
     for(const [s,x] of [[1,xa],[-1,xb]]){g.push([B(x,x+s*1,y1-13,y1-4,zf-10,zf-2.5),'acero']);g.push([B(x+s*1,x+s*1.6,y0+5,y1-9,zf-1.6,zf-.2),'acero',mv]);}return g;}
   const cojin=(x0,x1,y0,y1,z0,z1,m)=>[R(x0,x1,y0,y1,z0,z1,Math.min(6,(y1-y0)/2.2)),m];
   const CYL=C;
