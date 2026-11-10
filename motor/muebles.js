@@ -181,9 +181,12 @@ export function catalogoMuebles(THREE){
   mesada:{n:'Bajo mesada con zócalo rehundido',cat:'cocina',p:{L:240,D:62,H:90,fr:'madOsc',top:'granito',filas:3,mod:76,band:0},/* Maxi 4/11: tres cajones por columna; «puertas»: módulos con dos puertas batientes (p. ej. bajo la bacha).
     Maxi 6/11: «mod» = ancho de módulo buscado (los módulos salen iguales, redondeando la cantidad); «band» = ancho de un bandejero en la punta +x («bandLado:-1» lo pasa a la punta −x); los índices de «puertas» cuentan al bandejero */
     g:p=>{const zf=p.D/2-2,zb=-p.D/2,filas=p.filas??3,pu=p.puertas||[],y0=10,y1=p.H-3;
-      const band=p.band||0,resto=p.L-band,n=Math.max(1,Math.round(resto/(p.mod||76)));let mods=Array(n).fill(resto/n),iB=-1;if(band>0){if((p.bandLado||1)<0){mods.unshift(band);iB=0;}else{mods.push(band);iB=n;}}
+      const band=p.band||0,cie=p.ciego||0,resto=p.L-band-cie,n=Math.max(1,Math.round(resto/(p.mod||76)));let mods=Array(n).fill(resto/n),iB=-1,iC=-1;if(band>0){if((p.bandLado||1)<0){mods.unshift(band);iB=0;}else{mods.push(band);iB=n;}}
+      /* Maxi 9/11: «ciego» = cm de una punta tapados por la otra mesada de la L (con 4 de suplemento): panel fijo sin cajones; ciegoLado −1 = punta −x */
+      if(cie>0){if((p.ciegoLado||1)<0){mods.unshift(cie);iC=0;if(iB>=0)iB++;}else{mods.push(cie);iC=mods.length-1;}}
       const g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,y0,y1,zb,zf,p.fr,mods),...tapaHuecos(p.L,p.D,p.H,p.huecos,p.top)];
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
+        if(i===iC){g.push([FR(xl,xr,y0,y1,zf),p.fr]);continue;}
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}
         if(pu.includes(i)){const xm=(xl+xr)/2;g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}a`,xl,xm,xa,xb,y0,y1,zf,p.fr,-1),...puerta(`p${i}b`,xm,xr,xa,xb,y0,y1,zf,p.fr,1));continue;}
         for(let j=0;j<filas;j++){const [ya,yb]=filaY(y0,y1,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));}}return g;}},
@@ -350,8 +353,13 @@ export function catalogoMuebles(THREE){
     islaMesa:{n:'Isla de piedra con mesa de madera en L',cat:'cocina',p:{L:380,D:120,Lb:160,Db:70,H:75,Hb:90,fr:'madClara',top:'granito',mad:'madRust',filas:3,tim:45},/* tim: centro del timón desde la punta oeste */
       g:p=>{const xb=p.L/2-p.Lb,zb=p.D/2-p.Db,g=[];
         const zf=p.D/2-2,mods=Math.max(1,Math.round((p.Lb-8)/(p.mod||76)))/* Maxi 7/11: «mod» = ancho de columna buscado; 76 por defecto en todas las cocinas (cajones de 75–80) */,filas=p.filas??3;
-        g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],...carcasa(xb+4,p.L/2-4,10,p.Hb-4,zb+4,zf,p.fr,mods,{extFr:false}),[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
-        for(let i=0;i<mods;i++){const [xl,xr,xa,xq]=modX(xb+4,p.L/2-4,mods,i);for(let j=0;j<filas;j++){const [ya,yb]=filaY(10,p.Hb-4,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xq,ya,yb,zb+4,zf,p.fr));}}
+        const xC=p.L/2-4-(p.ciego||0),modsC=Math.max(1,Math.round((xC-xb-4)/(p.mod||76))),modsA=p.ciego?[...Array(modsC).fill((xC-xb-4)/modsC),p.ciego]:mods;
+        g.push([B(xb+4,p.L/2-4,0,10,zb+4,p.D/2-8),'negro'],...carcasa(xb+4,p.L/2-4,10,p.Hb-4,zb+4,zf,p.fr,modsA,{extFr:false}),[B(xb,p.L/2,p.Hb-4,p.Hb,zb,p.D/2),p.top],[B(xb,xb+4,0,p.Hb-4,zb,p.D/2),p.top],[B(p.L/2-4,p.L/2,0,p.Hb-4,zb,p.D/2),p.top],[B(xb+4,p.L/2-4,0,p.Hb-4,zb,zb+4),p.top]);
+        /* Maxi 9/11: «ciego» = cm de la punta +x tapados por la otra mesada de la L (rincón ciego, con 4 de suplemento para que tiradores y cajones no choquen): ahí va un panel fijo, sin cajones.
+           «falso» = alto de un frente fijo arriba (bajo el anafe va la caja del anafe y el gas): debajo, dos cajones de ollas */
+        const yF=p.Hb-4-(p.falso||0),filC=p.falso?2:filas;
+        if(p.ciego)g.push([FR(xC,p.L/2-4,10,p.Hb-4,zf),p.fr]);if(p.falso)g.push([FR(xb+4,xC,yF,p.Hb-4,zf),p.fr]);
+        for(let i=0;i<modsC;i++){const [xl,xr,xa,xq]=modX(xb+4,xC,modsC,i);for(let j=0;j<filC;j++){const [ya,yb]=filaY(10,yF,filC,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xq,ya,yb,zb+4,zf,p.fr));}}
         /* tapa en L de una pieza, con canto vivo irregular (±2,5 cm) en los dos bordes largos (Maxi 4/11: «borde vivo en ambos lados»); rectos: las puntas y el borde contra el bloque */
         {const e=p.canto==='recto'?()=>0:(x,f)=>1.6*Math.sin(x*.045+f)+.9*Math.sin(x*.13+2.1*f)+.45*Math.sin(x*.41+f)/* Maxi 7/11 (Carhué): canto:'recto' = bordes rectos, sin canto vivo */,n=Math.max(8,Math.round(p.L/4)),sh=new THREE.Shape();
           sh.moveTo(-p.L/2,-p.D/2-e(-p.L/2,.7));for(let i=1;i<=n;i++){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2-e(x,.7));}/* borde −z, largo entero */

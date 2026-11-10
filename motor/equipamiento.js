@@ -119,7 +119,7 @@ export function initEquipamiento(visor,stage,D){
   const NOMBRE=(t,k='mue')=>catOf(t,k)?.n||t;
 
   /* ---------- estado: ST[capa][ambiente] = {activo, esc:{id:{nombre,items}}, borrados}; base del artifact ---------- */
-  const ST={mue:{},luz:{},veg:{},cal:{}};for(const k in ST)for(const a of AMB_ORDEN)ST[k][a]={activo:'A',esc:CAPA[k].esc(a),borrados:[]};
+  const ST={mue:{},luz:{},veg:{},cal:{}};for(const k in ST)for(const a of AMB_ORDEN){const e=CAPA[k].esc(a),d=k==='mue'&&AMB[a]&&AMB[a].activo;ST[k][a]={activo:d&&e[d]?d:'A',esc:e,borrados:[]};}/* Maxi 9/11: AMB[a].activo = escenario elegido, el que se ve sin nada guardado */
   const GV=new THREE.Group();GV.name='vegetacion';scene.add(GV);
   let capa='mue',modo='',amb=DD.inicial||AMB_ORDEN[0],sel=null,db=null,dr=null;const saveT={},dirty={};
   try{const c=localStorage.getItem('carhue-equip-capa');if(c==='luz'||c==='veg'||c==='cal')capa=c;}catch(e){}if(capa==='veg'&&AMB.exterior)amb='exterior';
@@ -223,7 +223,11 @@ export function initEquipamiento(visor,stage,D){
     return out;}
   window.__equipHuellas=huellas;
   /* AMB[a].ver(params) → false esconde el ambiente entero (cocinas: una llave por cocina, Maxi 3/11) */
-  function visOf(g){const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;const A=AMB[g.userData.amb];if(A&&A.ver&&A.ver(visor.params)===false)return false;return (A.nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
+  /* muebles escondidos (Maxi 9/11: «dejame esconder muebles»): por persona, en este navegador; H esconde lo elegido, el ojo de la lista lo vuelve a mostrar */
+  const OC=new Set((()=>{try{return JSON.parse(localStorage.getItem('carhue-mue-ocultos')||'[]');}catch(e){return [];}})());
+  const guardarOC=()=>{try{localStorage.setItem('carhue-mue-ocultos',JSON.stringify([...OC]));}catch(e){}};
+  function esconder(ids,v=true){for(const id of ids){if(v)OC.add(id);else OC.delete(id);}guardarOC();if(v&&ids.includes(sel)){sel=null;multiM.clear();marcarSel();}vis();panel();window.__despertar&&window.__despertar();}
+  function visOf(g){if(OC.has(g.userData.item))return false;const k=g.userData.capa;if(k==='veg')return visor.params.ext!==false&&vegCapas[g.userData.capaV]!==false;const A=AMB[g.userData.amb];if(A&&A.ver&&A.ver(visor.params)===false)return false;return (A.nivel!=='EP'||visor.params.ep!==false)&&(k==='luz'?visor.params.equip!==false||nocheOn:k==='cal'?visor.params.equip!==false||!!(visor.termica&&visor.termica.abierta):visor.params.equip!==false);}
   function vis(){mueCache=null,cajCache=null;for(const g of groups.values())g.visible=visOf(g);luces();window.dispatchEvent(new CustomEvent('equip-cambio'));}
   /* fuentes de luz en coordenadas del mundo → motor de noche */
   const _v=new THREE.Vector3(),_d=new THREE.Vector3();
@@ -397,12 +401,12 @@ export function initEquipamiento(visor,stage,D){
         `<div class="eqr"><span>${capa==='luz'?'Escena':'Escenario'}</span><select data-s="esc">${Object.entries(s.esc).map(([k,v])=>`<option value="${k}"${k===s.activo?' selected':''}>${esc(v.nombre)}</option>`).join('')}</select>${ib('dup','⧉','Duplicar el escenario')}${ib('ren','✎','Renombrar')}${ib('del','🗑','Borrar el escenario')}</div>`}
       <div class="eqr"><span>＋</span><select data-s="add"><option value="">${capa==='luz'?'Agregar artefacto…':'Agregar mueble…'}</option>${Object.entries(CAPA[capa].CAT).map(([k,c])=>`<option value="${k}">${c.n}</option>`).join('')}</select></div>
       <div style="max-height:132px;overflow:auto;border:1px solid var(--rule);border-radius:3px;padding:2px;margin-bottom:4px">${e.items.length?e.items.map(it=>{const on=capa==='luz'&&visor.noche?visor.noche.prendida((it.p&&it.p.prog)||progDef(it.t)):null;
-        return `<div class="eqi${it.id===sel?' on':''}" data-a="pick" data-id="${it.id}">${on==null?'':`<span data-a="tg" data-id="${it.id}" title="${on?'Apagar':'Prender'} (queda fijo; ⏱ vuelve al programa)" style="color:${on?'#d79a00':'var(--muted)'};cursor:pointer;padding:0 3px;font-size:13px">${on?'●':'○'}</span>`}${esc(nombreCorto(it))}</div>`;}).join(''):'<div style="color:var(--muted);padding:2px 4px">Vacío</div>'}</div>
+        return `<div class="eqi${it.id===sel?' on':''}" data-a="pick" data-id="${it.id}"${OC.has(it.id)?' style="opacity:.45"':''}><span data-a="ojo" data-id="${it.id}" title="${OC.has(it.id)?'Mostrar':'Esconder'} (H)" style="cursor:pointer;padding:0 3px;font-size:11px;color:var(--muted)">${OC.has(it.id)?'◌':'◉'}</span>${on==null?'':`<span data-a="tg" data-id="${it.id}" title="${on?'Apagar':'Prender'} (queda fijo; ⏱ vuelve al programa)" style="color:${on?'#d79a00':'var(--muted)'};cursor:pointer;padding:0 3px;font-size:13px">${on?'●':'○'}</span>`}${esc(nombreCorto(it))}</div>`;}).join(''):'<div style="color:var(--muted);padding:2px 4px">Vacío</div>'}</div>
       ${capa==='luz'?`<div class="eqr" style="margin-bottom:3px"><span>Este ambiente</span>${ib('amOn','● todo','Prender todos los artefactos de esta escena')}${ib('amOff','○ todo','Apagar todos')}${ib('amProg','⏱','Volver al programa de cada uno')}</div><div style="color:var(--muted);font-size:10px;margin-bottom:4px">${totales()} · tocá ● / ○ en la lista para prender o apagar uno</div>`:''}
       ${m?`<div style="border-top:1px solid var(--rule);padding-top:5px"><div style="display:flex;align-items:baseline;gap:4px"><b style="flex:1">${esc(nombreCorto(m))}</b></div>
         <div style="color:var(--muted);font-size:10px;margin:1px 0 5px">x ${(m.x/100).toFixed(2)} · y ${(m.y/100).toFixed(2)} · ${m.r||0}°${capa==='luz'&&catOf(m.t,'luz').mount==='techo'?' · al cielorraso':''}</div>
         ${campos(m)}
-        <div style="display:flex;gap:3px;margin-top:6px">${ib('rotL','⟲','Girar 90° a la izquierda')}${ib('rotR','⟳','Girar 90° a la derecha')}${ib('dupM','⧉','Duplicar')}${ib('delM','🗑','Quitar')}${ib('irM','◎','Ir hasta el artefacto')}</div>
+        <div style="display:flex;gap:3px;margin-top:6px">${ib('rotL','⟲','Girar 90° a la izquierda')}${ib('rotR','⟳','Girar 90° a la derecha')}${ib('dupM','⧉','Duplicar')}${ib('delM','🗑','Quitar')}${ib('irM','◎','Ir hasta el artefacto')}${ib('ocM','◌','Esconder (H)')}</div>
         <div style="color:var(--muted);font-size:10px;margin-top:4px">Arrastrá el mueble o sus flechas para moverlo; el aro naranja lo gira de a 15° (Alt: libre). Teclado: flechas 5 cm (Shift 1 cm).</div></div>`
        :`<div style="color:var(--muted);font-size:10px">Tocá un ${capa==='luz'?'ícono o artefacto':'mueble'} o elegilo de la lista. Arrastrá para moverlo (imán 5 cm; Alt libre).</div>`}`;}
   card.addEventListener('input',ev=>{const t=ev.target;if(t.matches('[data-hora]')&&visor.noche){const l=card.querySelector('[data-horal]');if(l)l.textContent=visor.noche.hhmm(+t.value);visor.noche.setMin(+t.value);return;}if(t.dataset.n&&visor.noche&&t.type==='range'){visor.noche.set(t.dataset.n,+t.value);const sm=t.parentElement.querySelector('small');if(sm&&t.dataset.n==='exp')sm.textContent=`${t.value>0?'+':''}${(+t.value).toFixed(1)} EV`;}});
@@ -422,6 +426,7 @@ export function initEquipamiento(visor,stage,D){
     if(a==='capa'){capa=b.dataset.k;if(capa==='veg'&&AMB.exterior)amb='exterior';sel=null;modo='';try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}marcarSel();panel();return;}
     if(a==='sol'){solOpen=!solOpen;panel();return;}
     if(a==='dn'&&visor.noche){visor.noche.diaNoche();return;}
+    if(a==='ojo'){const id=b.dataset.id;esconder([id],!OC.has(id));return;}
     if(a==='pick'){elegir(b.dataset.id,true);return;}
     if(a==='tg'&&visor.noche){const m=cur().items.find(x=>x.id===b.dataset.id);if(!m)return;const on=visor.noche.prendida((m.p&&m.p.prog)||progDef(m.t));const pr={...((m.p&&m.p.prog)||progDef(m.t)),modo:on?'off':'on'};m.p={...(m.p||{}),prog:pr};if(visor.noche.forzar)visor.noche.setForzar(null);armar();luces();panel();guardar();return;}
     if(a.startsWith('fz')&&visor.noche){visor.noche.setForzar(a==='fzon'?'on':a==='fzoff'?'off':null);armar();luces();panel();return;}
@@ -437,6 +442,7 @@ export function initEquipamiento(visor,stage,D){
     if(a==='no'){modo='';panel();return;}
     const m=item(sel);if(!m)return;
     if(a==='irM'){elegir(sel,true);return;}
+    if(a==='ocM'){esconder(todos());return;}
     if(a==='rotL'||a==='rotR'){m.r=(((m.r||0)+(a==='rotL'?90:-90))%360+360)%360;armar();panel();guardar();}
     if(a==='dupM'){const c={...JSON.parse(JSON.stringify(m)),id:(capa==='luz'?'L':'m')+Date.now().toString(36),x:m.x+30,y:m.y+30};cur().items.push(c);sel=c.id;armar();panel();guardar();}
     if(a==='delM'){quitar(todos());}});
@@ -450,12 +456,13 @@ export function initEquipamiento(visor,stage,D){
       const v=e.key==='ArrowUp'?ax:e.key==='ArrowDown'?ax.clone().negate():e.key==='ArrowRight'?rt:rt.clone().negate();const ids=todos();for(const id of ids){const mo=item(id);if(mo)poner(id,Math.round(mo.x+v.x*st),Math.round(mo.y+v.z*st));}
       marcarSel();luces();clearTimeout(nudT);nudT=setTimeout(()=>{panel();guardarTodos(ids);},400);return;}
     if(e.key==='Delete'||e.key==='Backspace'){quitar(todos());e.preventDefault();}
+    if((e.key==='h'||e.key==='H')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){esconder(todos());e.preventDefault();}
     if(e.key==='Escape'){sel=null;multiM.clear();marcarSel();panel();}});
 
   armar();panel();
   setTimeout(()=>{/* las lucarnas corredizas de costado esquivan los reflectores del alero: se rearman cuando ya están */if(visor.params&&visor.params.luTipo==='4'&&visor.rebuild)visor.rebuild();},1500);
   const api={toggle(k){if(k&&k!==capa&&!card.hidden){capa=k;sel=null;try{localStorage.setItem('carhue-equip-capa',capa);}catch(e){}panel();return true;}if(k)capa=k;card.hidden=!card.hidden;try{localStorage.setItem('carhue-equip-panel',card.hidden?'0':'1');}catch(e){}if(card.hidden){sel=null;marcarSel();}else panel();return !card.hidden;},
-    get open(){return !card.hidden;},multiIds:()=>todos(),
+    get open(){return !card.hidden;},esconder,ocultos:()=>OC.size,mostrarOcultos(){esconder([...OC],false);},multiIds:()=>todos(),
     /* Mover del editor con piezas y muebles elegidos a la vez: corre los muebles lo mismo (commit = soltó) */
     moverSel(dx,dy,commit){const ids=todos();if(!ids.length)return;if(!this._b0)this._b0=Object.fromEntries(ids.map(id=>{const m=item(id);return [id,m?[m.x,m.y]:null];}));for(const id of ids){const b=this._b0[id];if(b)poner(id,Math.round(b[0]+dx),Math.round(b[1]+dy));}marcarSel();luces();if(commit){this._b0=null;if(dx||dy)guardarTodos(ids);panel();}},get capa(){return capa;},CAT,CL,ST,setNoche,luces,panel,mallasMue,cajasMue,rearmar:()=>armar(),vis:()=>vis(),
     items(k){const r=[];for(const a of AMB_ORDEN){const s=ST[k]&&ST[k][a];const e=s&&s.esc[s.activo];if(!e)continue;for(const m of e.items){const c=catOf(m.t,k);if(!c)continue;r.push({id:m.id,t:m.t,amb:a,x:m.x,y:m.y,z:(AMB[a].piso??PISO),r:m.r||0,p:{...c.p,...(m.p||{})},n:c.n,sist:c.sist});}}return r;},

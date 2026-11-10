@@ -187,6 +187,7 @@ function build(p){
       for(const o of mid)sh.holes.push(new THREE.Path([[o.x0,o.z0],[o.x0,o.z1],[o.x1,o.z1],[o.x1,o.z0]].map(q=>new THREE.Vector2(q[0],q[1]))));
       g=[geo.mapGeo(new THREE.ExtrudeGeometry(sh,{depth:e,bevelEnabled:false,curveSegments:1}),(u,v,w)=>[u,v,ay-e/2+w])];}
     else if(m.id==='M-20'||m.id==='M-22'){top=wingZ(m.a[0]);g=wallGeos(m,top,(x,y)=>wingZ(x)-4);}
+    else if(m.id==='M-44'){/* sube hasta el techo del living, como el macizo del hogar */const zt=y=>255+(y+2)*(252/354)-6;top=zt(100);g=wallGeos(m,top,(x,y)=>zt(y));}
     else if(m.id==='M-10'){g=[box(2511,2531,241,261,8,937),box(2511,2531,0,3,8,937),prism([[8,261],[937,261],[937,246],[738,344],[352,507],[8,262]],2515,2527,'ZY')];}
     else if(m.id==='M-09'){/* sólo los rieles del retorno (Maxi: no es un muro): abajo a ras del piso y arriba sobre los paños */g=[box(1329,1342,0,1.5,638.5,918.5),box(1329,1342,241,244,638.5,918.5)];}
     else if(m.id==='M-35'){g=[box(0,1323,388,472,-91,-77)];}
@@ -826,12 +827,12 @@ function build(p){
         al norte, nicho bajo arqueado para leña, mesada de madera y caja de estantes de madera embutida; ladrillo arriba hasta el techo. Maxi 19/10: corrido 0,58 al sur, hasta tocar el borde del entrepiso (x 1442) */
       const Y0=46,Y1=100,zt=y=>255+(y+2)*(252/354)-6,top=(xa,xb,z0)=>box8([[xa,z0,Y0],[xb,z0,Y0],[xb,z0,Y1],[xa,z0,Y1],[xa,zt(Y0),Y0],[xb,zt(Y0),Y0],[xb,zt(Y1),Y1],[xa,zt(Y1),Y1]]);
       g=[box(1442,1642,0,20,Y0,Y1+8),box(1442,1497,20,110,Y0,Y1),box(1587,1642,20,110,Y0,Y1),box(1492,1592,110,122,Y0,Y1+2),top(1442,1642,122),
-         /* Maxi 9/11 (foto desde el living): la mitad norte llega hasta la pared de las ventanas (x 18,35), sin pilar aparte. Abajo, nicho abierto y puerta doble de madera;
+         /* Maxi 9/11 (foto desde el living): la mitad norte llega hasta la pared de las ventanas, M-20, que sigue hasta el frente del hogar (Maxi 9/11, 2.ª vuelta con la foto: la pared revocada con los enchufes a la derecha del ladrillo es la punta de M-20; el hogar termina en x 17,995), sin pilar aparte. Abajo, nicho abierto y puerta doble de madera;
             arriba, nicho con estantes en marco de madera oscura; medidas sacadas de la foto (Maxi: «no son significativas») */
-         box(1642,1835,0,10,Y0,Y1+6),box(1642,1651,10,100,Y0,Y1),box(1718,1730,10,100,Y0,Y1),box(1826,1835,10,100,Y0,Y1),box(1730,1826,10,100,Y0,Y1-4),box(1651,1718,10,100,Y0,Y0+10),
-         box(1642,1835,100,125,Y0,Y1),top(1642,1835,245)];
-      const est=[box(1642,1835,125,131,Y0,Y1+4),box(1642,1650,131,245,Y0,Y1),box(1827,1835,131,245,Y0,Y1),box(1642,1835,237,245,Y0,Y1),box(1650,1827,131,237,Y0,Y0+6),box(1650,1827,170,173,Y0+6,Y1-4),box(1650,1827,205,208,Y0+6,Y1-4),
-         box(1651,1718,52,55,Y0+10,Y1-2),box(1731,1778,12,98,Y1-4,Y1),box(1779,1825,12,98,Y1-4,Y1)];
+         box(1642,1799.5,0,10,Y0,Y1+6),box(1642,1649.5,10,100,Y0,Y1),box(1704,1714,10,100,Y0,Y1),box(1792,1799.5,10,100,Y0,Y1),box(1714,1792,10,100,Y0,Y1-4),box(1649.5,1704,10,100,Y0,Y0+10),
+         box(1642,1799.5,100,125,Y0,Y1),top(1642,1799.5,245)];
+      const est=[box(1642,1799.5,125,131,Y0,Y1+4),box(1642,1648.5,131,245,Y0,Y1),box(1793,1799.5,131,245,Y0,Y1),box(1642,1799.5,237,245,Y0,Y1),box(1648.5,1793,131,237,Y0,Y0+6),box(1648.5,1793,170,173,Y0+6,Y1-4),box(1648.5,1793,205,208,Y0+6,Y1-4),
+         box(1649.5,1704,52,55,Y0+10,Y1-2),box(1714.5,1753,12,98,Y1-4,Y1),box(1754,1791.5,12,98,Y1-4,Y1)];
       Pt(c.id+'h',`${c.id} · fondo de la boca`,'acero',[box(1497,1587,20,110,Y0,56)],{fn:'Fondo ennegrecido de la boca del hogar.'},{group:'Objetos',tags:['PB','objetos',c.id]});
       Pt(c.id+'e',`${c.id} · estantes, mesada y puertas de madera`,'madera',est,{fn:'Nicho con dos estantes en marco de madera oscura sobre una mesada que asoma; abajo, un nicho abierto con un estante y una puerta doble de madera (foto del 9/11).'},{group:'Objetos',tags:['PB','objetos',c.id]});}
     else if(c.id==='HEL-1'){/* heladera roja (fotos 12 y 13): cuerpo, puerta de freezer arriba, puerta grande abajo, manijas y patas; frente hacia la cocina (+x) */

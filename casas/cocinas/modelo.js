@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.47', fecha: '2026-11-08',
+export const META = { nombre: 'Cocinas', version: '0.1.48', fecha: '2026-11-09',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -28,7 +28,7 @@ export const CASAS = [
   { pre: 'CH', nombre: 'Carhué', fuente: 'casas/carhue/modelo.js', M: CARHUE, caja: [{ x: [1817, 2097], y: [-645, 360] }, { x: [2036, 2382], y: [-340, 360] }, { x: [1567, 1817], y: [0, 360] }] /* Maxi 7/11: 2 m más de living hacia el este (antes hasta 160), para otra mesa; y 2,50 del living al sur de la cocina, para que se vea que la pared sur (M-20) termina ahí porque la casa dobla: sigue M-02 hacia el sur */, d: [-1817, 1550, 0], niveles: ['PB'], ocultar: ['MES-1', 'HEL-1'],
     /* opciones de diseño de Carhué que tocan la cocina (Maxi 7/11): la puerta del baño piletero P-26 va en M-24, mirando al sur (la variante «m24» de casa.js); la escalera al altillo es la variante por defecto de Carhué (desde el 9/11, el caracol S) con sus valores de siempre (casa.js) */
     ajustes: { 'P-26': { muro: 'M-24', d: 134, w: 78 } },
-    topes: { 'M-20': 292, 'M-22': 302, 'M-26': 335, 'M-02': 255, 'M-03': 255, 'M-24': 262, 'M-28': 262, 'M-25': 262, 'M-23': 262, 'M-29': 262 }, tope: 340, piso: 0, caja_escena: { x: [-250, 565], y: [905, 1910] } },
+    topes: { 'M-20': 292, 'M-22': 302, 'M-26': 335, 'M-02': 255, 'M-03': 255, 'M-24': 262, 'M-28': 262, 'M-25': 262, 'M-23': 262, 'M-29': 262, 'M-44': 330 }, tope: 340, piso: 0, caja_escena: { x: [-250, 565], y: [905, 1910] } },
   { pre: 'AR', nombre: 'Arcos', fuente: 'casas/arcos/modelo.js', M: ARCOS, caja: [{ x: [-20, 540], y: [2340, 3085] }],/* hasta 70 pasado el borde de la fosa (x 470, medido 5/11), para ver el escalón */ d: [0, -330, -21], niveles: ['PB', 'EP'], techoNiveles: ['P2'], tope: 592,
     piso: 51, caja_escena: { x: [-20, 470], y: [2010, 2755] } },
 ];
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-09', v: '0.1.48', txt: 'Carhué: la pared de las ventanas sigue hasta el frente del hogar (M-44); la mesada negra llega hasta ahí y la península (anafe, campana, sillas) arranca en esa punta; el bloque del anafe lleva rincón ciego y, bajo el anafe, frente fijo y dos cajones de ollas.' },
   { fecha: '2026-11-09', v: '0.1.47', txt: 'Carhué: hogar como en la foto, mesada negra a lo largo de toda la pared de las ventanas con el lado corto de la L donde termina la pared, y la escalera al altillo es el caracol S (la variante por defecto).' },
   { fecha: '2026-11-09', v: '0.1.46', txt: 'Carhué con las medidas de Maxi (9/11): la cocina tiene 2,50 de ancho y llega 2 m más al fondo, hasta la pared de la arcada (1,20); la caja de Carhué se ensancha hasta la pared del baño y la heladera va contra la pared de la arcada en los tres escenarios.' },
   { fecha: '2026-11-08', v: '0.1.45', txt: 'Motor (Maxi 8/11): lo que escondés con el ojo ya no vuelve a aparecer con cada publicación; la lista de piezas escondidas se guarda en la base de la página (estado/ocultas), como los candados.' },

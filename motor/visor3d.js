@@ -178,7 +178,9 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
      en paralela se le ponen las banderas y el updateProjectionMatrix de una ortográfica, con la altura visible igual a la que tenía la perspectiva en el objetivo, y OrbitControls hace zoom en vez de acercar.
      Lente (P + rueda): el fov de la perspectiva, de 10° a 110°; se guarda en el navegador. */
   let paralela=false;const persUPM=camera.updateProjectionMatrix.bind(camera);
-  const ortoUPM=function(){const dx=(this.right-this.left)/(2*this.zoom),dy=(this.top-this.bottom)/(2*this.zoom),cx=(this.right+this.left)/2,cy=(this.top+this.bottom)/2;this.projectionMatrix.makeOrthographic(cx-dx,cx+dx,cy+dy,cy-dy,this.near,this.far,this.coordinateSystem);this.projectionMatrixInverse.copy(this.projectionMatrix).invert();};
+  const ortoUPM=function(){const dx=(this.right-this.left)/(2*this.zoom),dy=(this.top-this.bottom)/(2*this.zoom),cx=(this.right+this.left)/2,cy=(this.top+this.bottom)/2;let l=cx-dx,r=cx+dx,t=cy+dy,b=cy-dy;
+    if(this.view&&this.view.enabled){const v=this.view,sw=(r-l)/v.fullWidth,sh=(t-b)/v.fullHeight;l+=sw*v.offsetX;r=l+sw*v.width;t-=sh*v.offsetY;b=t-sh*v.height;}
+    this.projectionMatrix.makeOrthographic(l,r,t,b,this.near,this.far,this.coordinateSystem);this.projectionMatrixInverse.copy(this.projectionMatrix).invert();};
   const tf=()=>Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
   function setParalela(on){on=!!on;if(on===paralela)return;paralela=on;const d=camera.position.distanceTo(controls.target);
     if(on){const h=d*tf();camera.isPerspectiveCamera=false;camera.isOrthographicCamera=true;camera.type='OrthographicCamera';camera.zoom=1;camera.top=h;camera.bottom=-h;camera.right=h*camera.aspect;camera.left=-h*camera.aspect;camera.near=1;camera.updateProjectionMatrix=ortoUPM;}
@@ -196,7 +198,11 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
     addEventListener('keyup',e=>{if(e.key.toLowerCase()!=='p'||!pOn)return;pOn=false;if(!pRueda){setParalela(!paralela);mostrar(paralela?'Proyección paralela':`Perspectiva · ${mm()} mm`);}});
     addEventListener('blur',()=>{pOn=false;});
     view.addEventListener('wheel',e=>{if(!pOn)return;e.preventDefault();e.stopImmediatePropagation();pRueda=true;const d=Math.sign(e.deltaY)*(Math.abs(e.deltaY)>40?3:1);if(paralela){camera.zoom=Math.max(.05,Math.min(40,camera.zoom*(d>0?.94:1.06)));camera.updateProjectionMatrix();lblDirty=true;window.__despertar&&window.__despertar();mostrar(`Paralela · zoom ${camera.zoom.toFixed(2)}`);}else{setFov(camera.fov+d);mostrar(`Lente ${mm()} mm (fov ${Math.round(camera.fov)}°)`);}},{passive:false,capture:true});}
-  function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);lr.setSize(w,h);camera.aspect=w/h;if(paralela){camera.right=camera.top*camera.aspect;camera.left=-camera.right;}camera.updateProjectionMatrix();lblDirty=true;}
+  /* Maxi 9/11: al abrirse el inspector el lienzo se angosta; para que la cámara no «haga pan», se dibuja la parte izquierda de una vista del ancho completo (el inspector tapa la derecha) */
+  function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);lr.setSize(w,h);
+    const M3=view.closest('#modo-3d'),ins=document.getElementById('insp');const extra=(M3&&ins&&M3.classList.contains('inspon')&&getComputedStyle(M3).gridTemplateColumns.split(' ').length>1&&ins.offsetWidth&&M3.clientWidth>620)?ins.offsetWidth:0,full=w+extra;
+    camera.aspect=full/h;if(paralela){camera.right=camera.top*camera.aspect;camera.left=-camera.right;}
+    if(extra)camera.setViewOffset(full,h,0,0,w,h);else if(camera.view&&camera.view.enabled)camera.clearViewOffset();camera.updateProjectionMatrix();lblDirty=true;}
   new ResizeObserver(resize).observe(view);resize();
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* Órbita alrededor de lo que tocás (Maxi): al apretar, el rayo del cursor da el punto de giro; si no toca nada (cielo), queda el último.
