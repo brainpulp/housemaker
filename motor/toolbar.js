@@ -48,8 +48,9 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   };
   const CAM=initCaminar(visor,{activo:()=>!M3.hidden});CAM.alPrender=()=>{ALL.forEach(close);closeFly&&closeFly();};CAM.alCambiar=()=>sync();
   /* la barra: herramientas sueltas y grupos con subcomandos; los paneles (vistas, cortes, capas, variantes) al final */
-  const BAR=[['nav'],['caminar'],['sel','senalar'],['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas','|','proy'];
-  const PANELS={vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
+  const BAR=[['nav'],['caminar'],['sel','senalar'],'filtros',['mover','ab'],['estirar'],['undo'],'|',['medir'],['marcar'],'|','capas','variantes','equip','luces','termica','estructura','personas'];
+  const PANELS={filtros:{ic:'filtro',n:'Filtros de selección',d:'Qué toma el toque: objeto entero, vértice, arista o cara. Después se suman otros filtros.'},
+    vistas:{ic:'video',n:'Vistas',d:'Fijas (Jardín, Patio, Pileta, Fondo…) y guardadas: ir, ⟳ actualizar, × borrar, guardar la actual. Abajo, los tours (caminatas y dron) con su link.'},
     corte:{ic:'corte',n:'Cortes',d:'Corte horizontal por nivel y cortes verticales norte–sur y este–oeste.'},
     capas:{ic:'capas',n:'Capas',d:'Techos, entrepiso, entorno, muebles, foliage, cotas, mostrar lo escondido, luz, explotar.'},
     variantes:{ic:'variantes',n:'Variantes de diseño',d:'Zonas con opciones (escalera al altillo…): ir a una y ver sus variantes.'},
@@ -159,13 +160,33 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     /* mismo estilo que el desplegable de la barra: copio sus reglas de #tbFly a #trPop */try{const add=[];for(const ss of document.styleSheets){let rs;try{rs=ss.cssRules;}catch(e){continue;}for(const r of rs)if(r.selectorText&&r.selectorText.includes('#tbFly')&&!r.selectorText.startsWith('#tbFly{')&&r.selectorText!=='#tbFly')add.push(r.cssText.replace(/#tbFly/g,'#trPop'));}const s2=document.createElement('style');s2.textContent=add.join('\n');document.head.appendChild(s2);}catch(e){}
     const pop=document.createElement('div');pop.id='trPop';pop.hidden=true;stage.appendChild(pop);let popFor=null;
     const mk=(k,txt,ic)=>{const b=document.createElement('button');b.className='btn trb';b.dataset.tr=k;b.innerHTML=icon(ic,15)+' '+txt;tr.prepend(b);return b;};
-    const bT=mk('tours','Tours','camera'),bV=mk('vistas','Vistas','video');tr.prepend(bT);tr.prepend(bV);
+    const bT=mk('tours','Tours','camera'),bV=document.createElement('button');tr.prepend(bT);
     const cerrar=()=>{pop.hidden=true;popFor=null;bV.setAttribute('aria-pressed','false');bT.setAttribute('aria-pressed','false');};
     const abrir=(b,fill)=>{if(popFor===b){cerrar();return;}cerrar();pop.innerHTML='';pop.className='fymenu fyvistas';fill(pop);pop.hidden=false;popFor=b;b.setAttribute('aria-pressed','true');
       const s=stage.getBoundingClientRect(),r=b.getBoundingClientRect();pop.style.top=(r.bottom-s.top+6)+'px';pop.style.right=Math.max(6,s.right-r.right)+'px';};
     bV.addEventListener('click',()=>abrir(bV,el=>{vistas&&vistas.renderInto(el,cerrar);}));
     bT.addEventListener('click',()=>abrir(bT,el=>{visor.tours&&visor.tours.appendInto(el,cerrar);}));
     document.addEventListener('pointerdown',e=>{if(!pop.hidden&&!pop.contains(e.target)&&!tr.contains(e.target))cerrar();});}}
+  /* ---------- filtros de selección (Maxi 9/11): íconos chicos bajo un ícono de filtro; manejan el filtro de senalar.js (#selFiltro, que queda escondido) ---------- */
+  const FIL=[['obj','fobj','Objeto','La pieza entera'],['p','fver','Vértice','Toma el punto más cercano'],['a','fari','Arista','Toma la arista'],['c','fcar','Cara','Toma la cara']];
+  function filtroActual(){const b=document.querySelector('#selFiltro [aria-checked=true]');return b?b.dataset.f:'obj';}
+  function filtrosMenu(b){openFly(b,el=>{el.className='fymenu fyfil';const pinta=()=>{const a=filtroActual();el.innerHTML='<div class="fyg">Seleccionar</div><div class="fyicons">'+FIL.map(([k,ic,n,d])=>`<button class="fyic${k===a?' on':''}" data-fil="${k}" data-tip="${n}|${d}" aria-label="${n}" aria-pressed="${k===a}">${icon(ic,18)}</button>`).join('')+'</div>';};pinta();
+    el.onclick=e=>{const t=e.target.closest('[data-fil]');if(!t)return;const f=document.querySelector(`#selFiltro [data-f="${t.dataset.fil}"]`);if(f)f.click();pinta();sync();};});}
+  {const s2=document.createElement('style');s2.textContent=`#selFiltro{display:none!important}#tbFly.fyfil{min-width:0}#tbFly .fyicons{display:flex;gap:2px;padding:2px 4px 4px}#tbFly .fyic{width:30px;height:30px;display:grid;place-items:center;border:1px solid transparent;border-radius:5px;background:none;color:var(--ink);cursor:pointer;padding:0}#tbFly .fyic:hover{background:var(--soft)}#tbFly .fyic.on{background:var(--accent);color:#fff}
+#capasPanel .cpbody{max-height:calc(100vh - 140px);overflow:auto}#capasPanel .cpseg{display:flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}#capasPanel .cpseg button{flex:1;border:0;background:none;padding:3px 6px;font:inherit;font-size:12px;cursor:pointer;color:var(--muted)}#capasPanel .cpseg button+button{border-left:1px solid var(--rule)}#capasPanel .cpseg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+#capasPanel details>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:4px;padding:2px 0}#capasPanel details>summary::-webkit-details-marker{display:none}#capasPanel details>summary::before{content:'▸';font-size:10px;color:var(--muted);width:10px}#capasPanel details[open]>summary::before{content:'▾'}
+#capasPanel .cpvis summary.cpg{margin:6px 0 2px}#capasPanel .cpsub{margin-left:8px}#capasPanel .cpsub>summary{font-size:12px;color:var(--ink)}
+#capasPanel .cpvl .fyi{display:flex;align-items:center}#capasPanel .cpvl .fyb{flex:1;text-align:left;background:none;border:0;padding:2px 6px;border-radius:4px;cursor:pointer;color:var(--ink);font:inherit;font-size:12px;line-height:1.3}#capasPanel .cpvl .fyb:hover{background:var(--soft)}#capasPanel .cpvl .fyx{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12px;padding:0 4px}#capasPanel .cpvl .fyx:hover{color:var(--accent)}#capasPanel .cpvl .fye{color:var(--muted);padding:1px 6px 3px;font-size:11.5px}#capasPanel .cpvl .fyacc{color:var(--accent);width:100%;text-align:left}`;document.head.appendChild(s2);}
+  /* ---------- en Capas: proyección y vistas (Maxi 9/11: «esto debe ir dentro de capas. vistas también, con submenús separando vistas fijas de ambientes») ---------- */
+  {const body=cp.querySelector('.cpbody');
+    const pr=document.createElement('div');pr.innerHTML='<div class="cpg">Proyección</div><div class="cpseg" id="cpProy"><button type="button" data-pj="0" data-tip="Perspectiva|P cambia; P mantenida + rueda cambia el lente">Perspectiva</button><button type="button" data-pj="1" data-tip="Paralela (axonométrica)|P cambia; en paralela, la rueda hace zoom">Paralela</button></div>';body.prepend(pr);
+    const syP=()=>{const on=!!(visor.esParalela&&visor.esParalela());pr.querySelectorAll('[data-pj]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.pj==='1')===on)));};syP();setInterval(()=>{if(!cp.hidden)syP();},500);
+    pr.addEventListener('click',e=>{const b=e.target.closest('[data-pj]');if(!b)return;const want=b.dataset.pj==='1';if(visor.setParalela&&visor.esParalela()!==want)visor.setParalela(want);syP();});
+    if(vistas&&vistas.grupos){const vd=document.createElement('details');vd.className='cpvis';vd.open=LS.get('carhue-cp-vis',true);vd.innerHTML='<summary class="cpg">Vistas</summary><div class="cpvl"></div>';pr.after(vd);
+      vd.addEventListener('toggle',()=>LS.set('carhue-cp-vis',vd.open));
+      const box=vd.querySelector('.cpvl');const abiertos=LS.get('carhue-cp-vgr',{'Vistas fijas':true});
+      const pintar=()=>{vistas.renderGrupos(box,()=>setTimeout(pintar,400),abiertos,()=>LS.set('carhue-cp-vgr',abiertos));};pintar();visor.__pintarVistas=pintar;
+      new MutationObserver(()=>{if(!cp.hidden)pintar();}).observe(document.getElementById('vistasSel'),{childList:true,subtree:true});}}
   /* ---------- clics en la barra ---------- */
   let hold=null;
   bar.addEventListener('pointerdown',e=>{const b=e.target.closest('.tbfly');if(!b)return;hold=setTimeout(()=>{hold='open';subMenu(b,group(b.dataset.k));},350);});
@@ -183,6 +204,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
       else if(k==='termica'){closeFly();visor.termica&&visor.termica.toggle();sync();}
       else if(k==='estructura'){closeFly();visor.estructura&&visor.estructura.toggle();sync();}
       else if(k==='personas'){closeFly();if(window.__side)window.__side.toggle('personas');}
+      else if(k==='filtros')filtrosMenu(b);
       else if(k==='proy'){closeFly();visor.setParalela&&visor.setParalela(!visor.esParalela());sync();}
       else if(k==='capas'){closeFly();cp.hidden=!cp.hidden;LS.set('carhue-capas-on',!cp.hidden);if(!cp.hidden)posCp();}
       sync();return;}
@@ -198,7 +220,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     if(on('editarTg')){const p=document.querySelector('#edPanel [data-tool][aria-pressed=true]');const t=p?p.dataset.tool:'';return ({'':'sel',mover:'mover',estirar:'estirar',ab:'ab'})[t]||'sel';}return 'nav';}
   function sync(){const a=active();
     const g=group(a);if(g&&g.length>1&&cur[g[0]]!==a)setSub(g,a);
-    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):k==='proy'?!!(visor.esParalela&&visor.esParalela()):'false'):String(k===a));});
+    bar.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;b.setAttribute('aria-pressed',PANELS[k]?(k==='capas'?!cp.hidden:k==='corte'?!!corteActivo():k==='variantes'?!card.hidden:k==='equip'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='mue'):k==='luces'?!!(visor.equip&&visor.equip.open&&visor.equip.capa==='luz'):k==='termica'?!!(visor.termica&&visor.termica.abierta):k==='estructura'?!!(visor.estructura&&visor.estructura.abierta):k==='personas'?!!(window.__side&&window.__side.isOn('personas')):k==='proy'?!!(visor.esParalela&&visor.esParalela()):k==='filtros'?filtroActual()!=='obj':'false'):String(k===a));});
     st.innerHTML=`<b>${T[a].n}</b> ${HINT[a]||''}`;stage.classList.toggle('conpanel',a!=='nav'&&a!=='caminar');}
   setInterval(sync,400);sync();
 

@@ -1,5 +1,10 @@
 /* Íconos de la barra: Lucide (ISC, lucide.dev) y propios en el mismo estilo (ab, estirar, corte). Trazo 2, caps redondos, caja 24. */
 export const ICONS={
+  filtro:'<path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/>',
+  fobj:'<path d="M12 3 4 7.5v9L12 21l8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',
+  fver:'<path d="M12 3 4 7.5v9L12 21l8-4.5v-9z" opacity=".35"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M4 7.5 12 12l8-4.5M12 12v9" opacity=".35"/>',
+  fari:'<path d="M12 3 4 7.5v9L12 21l8-4.5v-9z" opacity=".35"/><path d="M4 7.5 12 12l8-4.5" opacity=".35"/><path d="M12 12v9" stroke-width="3.4"/>',
+  fcar:'<path d="M12 12 20 7.5v9L12 21z" fill="currentColor" fill-opacity=".55"/><path d="M12 3 4 7.5v9L12 21l8-4.5v-9z" opacity=".35"/><path d="M4 7.5 12 12l8-4.5M12 12v9" opacity=".35"/>',
   proy:'<path d="M4 9h10v11H4z"/><path d="M4 9l5-5h10v11l-5 5"/><path d="M14 9l5-5"/>',
   viga:'<path d="M4 5h16M4 19h16M12 5v14"/><path d="M8 5v1.5M16 5v1.5M8 19v-1.5M16 19v-1.5"/>',
   termometro:'<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>',
