@@ -9,6 +9,7 @@ import { initVistasUI } from './vistasui.js';
 import { initVistas } from './vistas.js';
 import { escaleraCompensada } from './escalera.js';
 import { wingZ, escaleraAltilloB } from './escalera-altillo.js';
+import { escaleraObra } from './escalera-obra.js';
 import * as M from './modelo.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as N from './nombres.js';
@@ -128,11 +129,12 @@ const params=[
   {id:'ventV7',label:'Ventana V-07',type:'select',value:'proy',quick:true,group:'Ver',options:[['proy','V-07 proyectante (una hoja)'],['pleg','V-07 plegable tipo garage'],['barn','V-07 corrediza tipo granero']]},
   {id:'p03Est',label:'Puerta al patio',type:'select',value:'tablas',quick:true,group:'Ver',options:[['tablas','Tablas verticales'],['hierro','Hierro y vidrio entero'],['maderaEje','Madera y vidrio, parante en el eje'],['kumiko','Kumiko japonés con washi'],['chapa','Chapa óxido con tajos'],['ojo','Maciza con ojo de buey'],['listonH','Listones horizontales']]},
   {id:'m43Est',label:'Hojas de M-43',type:'select',value:'lisa',quick:true,group:'Ver',options:[['lisa','Lisa (fenólico)'],['shoji','Japonesa (shoji)'],['tubo','Tubo cuadrado y vidrio esmerilado'],['listones','Listones verticales']]},
-  {id:'escTipo',label:'Escalera al entrepiso',type:'select',value:'p',quick:true,group:'Ver',options:[['p','Variable'],['orig','Compensada original (fija)']]},
-  {id:'escN',label:'Alzadas',type:'number',slider:true,value:15,min:13,max:17,step:1,quick:true,showIf:P=>P.escTipo!=='orig',group:'Ver',help:'Cantidad de alzadas hasta el piso del entrepiso (+2,62).'},
-  {id:'escAlto',label:'Pedadas arriba',type:'number',slider:true,value:9,min:1,max:15,step:1,quick:true,showIf:P=>P.escTipo!=='orig',group:'Ver',help:'Pedadas del tramo que llega al entrepiso; las que sobran van abajo del giro. Fija dónde cae el giro.'},
-  {id:'escDy',label:'Corrimiento este–oeste',type:'number',slider:true,value:0,min:-120,max:120,step:1,unit:'cm',quick:true,showIf:P=>P.escTipo!=='orig',group:'Ver',help:'Corre toda la escalera hacia el jardín (+) o hacia el patio (−); el borde del entrepiso la acompaña.'},
-  {id:'escGiro',label:'Giro',type:'select',value:'comp',quick:true,showIf:P=>P.escTipo!=='orig',group:'Ver',options:[['comp','2 compensadas'],['desc','Descanso'],['recto','Sin giro']]},
+  {id:'escTipo',label:'Escalera al entrepiso',type:'select',value:'obra'/* Maxi 11/11: la que está armada en obra */,quick:true,group:'Ver',options:[['obra','Como está en obra'],['p','Variable'],['orig','Compensada original (fija)']]},
+  {id:'escObra',label:'Arranque',type:'select',value:'17',quick:true,showIf:P=>P.escTipo==='obra',group:'Ver',options:[['17','Triángulos a 17 (como está)'],['tarima','Tarima de 13 y todo a 18']],help:'Medido en obra: 34 entre el descanso y la huella de arriba del módulo de abajo. O los triángulos van a 17 + 17 y el primer escalón queda en 15 con el alisado, o el módulo de abajo pierde una huella y se apoya en una tarima de 1 × 1 m y 13 de alto.'},
+  {id:'escN',label:'Alzadas',type:'number',slider:true,value:15,min:13,max:17,step:1,quick:true,showIf:P=>P.escTipo==='p',group:'Ver',help:'Cantidad de alzadas hasta el piso del entrepiso (+2,62).'},
+  {id:'escAlto',label:'Pedadas arriba',type:'number',slider:true,value:9,min:1,max:15,step:1,quick:true,showIf:P=>P.escTipo==='p',group:'Ver',help:'Pedadas del tramo que llega al entrepiso; las que sobran van abajo del giro. Fija dónde cae el giro.'},
+  {id:'escDy',label:'Corrimiento este–oeste',type:'number',slider:true,value:0,min:-120,max:120,step:1,unit:'cm',quick:true,showIf:P=>P.escTipo==='p',group:'Ver',help:'Corre toda la escalera hacia el jardín (+) o hacia el patio (−); el borde del entrepiso la acompaña.'},
+  {id:'escGiro',label:'Giro',type:'select',value:'comp',quick:true,showIf:P=>P.escTipo==='p',group:'Ver',options:[['comp','2 compensadas'],['desc','Descanso'],['recto','Sin giro']]},
   {id:'dormers',label:'Dormers',type:'select',value:'cg'/* Maxi 10/11: la elegida es el corrido hasta la galería */,quick:true,group:'Ver',options:[['0','Sin dormers (lucarnas)'],['j','Dos dormers al jardín'],['c','Dormer corrido (dormitorios + baño)'],['cg','Dormer corrido hasta la galería']],help:'Dormers de un agua (Maxi 14/10): dos al jardín al ras de la fachada (DM-1 en el dormitorio secundario, en lugar de LU-1; DM-2 en el dormitorio principal) y uno en el altillo hacia el norte (la pileta).'},
   {id:'dormAlt',label:'Dormer del altillo',type:'select',value:'0',quick:true,group:'Ver',options:[['0','Sin dormer (techo a dos aguas)'],['1','Dormer de una agua a la pileta (3 m)']],help:'DM-3: en el faldón norte del ala, hacia la pileta (Maxi 14/10).'},
   {id:'luTipo',label:'Lucarnas',type:'select',value:'1',quick:true,group:'Ver',options:[['1','Una hoja'],['2','Dos hojas plegables (tipo garage)'],['3','Corrediza hacia arriba (una hoja)'],['4','Corrediza hacia el costado (una hoja)']],help:'Marco móvil de una pieza que gira sobre el borde de arriba, o partido en dos hojas que se pliegan.'},
@@ -407,7 +409,7 @@ function build(p){
 
   /* locales: piso fino para poder tocarlos */
   /* borde del entrepiso sobre la escalera: se corre con ESC-1 (corrimiento este–oeste) */
-  const DYE=p.escTipo!=='orig'?(+p.escDy||0):0,YEDGE=411.5+DYE;{const l27=M.LOCALES.find(l=>l.id==='L-27');if(l27){if(!l27._p0)l27._p0=l27.poly.map(q=>q.slice());l27.poly=l27._p0.map(([x,y])=>[x,y===411.5?YEDGE:y]);}}
+  const DYE=p.escTipo==='p'?(+p.escDy||0):0,YEDGE=411.5+DYE;{const l27=M.LOCALES.find(l=>l.id==='L-27');if(l27){if(!l27._p0)l27._p0=l27.poly.map(q=>q.slice());l27.poly=l27._p0.map(([x,y])=>[x,y===411.5?YEDGE:y]);}}
   for(const l of M.LOCALES){const isEP=l.nivel==='EP';if(isEP&&!p.ep)continue;const z=isEP?H_EP-2:0;const t=isEP?2:1.5;/* piso del entrepiso: 20 mm (Maxi) */
     const xs=l.poly.map(q=>q[0]),ys=l.poly.map(q=>q[1]);const w=Math.max(...xs)-Math.min(...xs),d=Math.max(...ys)-Math.min(...ys);
     const A=Math.abs(l.poly.reduce((s,[x,y],i)=>{const [x2,y2]=l.poly[(i+1)%l.poly.length];return s+x*y2-x2*y;},0))/2/1e4;
@@ -416,7 +418,10 @@ function build(p){
   /* escalera de acceso al entrepiso (la «Escalera compensada»): el tramo sube hacia el patio y llega al estudio L-27 en y 2,25 */
   /* ESC-1 variable (Maxi, 13/10): llega al borde del entrepiso (y 4,115) entre x 13,42 y 14,42; se eligen las alzadas, cuántas pedadas
      tiene el tramo de arriba (eso fija dónde está el giro), el tipo de giro y hacia dónde baja el tramo de abajo. */
-  if(p.ep&&p.escTipo!=='orig'){const N=Math.max(12,+p.escN||15),R=H_EP/N,G=24,ti=5,f=5,X0=1342,X1=1442,WD=X1-X0,YE=YEDGE,giro=p.escGiro||'comp';
+  if(p.ep&&p.escTipo==='obra'){/* como está en obra (Maxi 11/11): escalera-obra.js */
+    const r=escaleraObra(geo,Pt,p,{X0:1342,X1:1442,YE:YEDGE,H_EP,COL:{x0:1342,x1:1353,y0:627.5,y1:638.5}});
+    window.__escInfo1=r.info;{const el=typeof document!=='undefined'&&document.getElementById('escInfo1');if(el)el.textContent=r.info;}}
+  if(p.ep&&p.escTipo==='p'){const N=Math.max(12,+p.escN||15),R=H_EP/N,G=24,ti=5,f=5,X0=1342,X1=1442,WD=X1-X0,YE=YEDGE,giro=p.escGiro||'comp';
     const w=giro==='comp'?2:giro==='desc'?1:0;let u=Math.max(1,Math.min(N-1-w,+p.escAlto||9));const nL=N-1-u-w;
     const yT=YE+u*G,tr=[],st=[],po=[],rods=[],vg=[],ls=[],hw=[],pe=[];const kT=N-u-1;/* nivel de la primera pedada del giro */
     /* Construcción (Maxi 19/10: «así no es como discutimos la fabricación»): la misma de la «Escalera compensada» original.
@@ -998,7 +1003,7 @@ try{initMarcas(visor,document.querySelector('#modo-3d .stage'));}catch(e){consol
 /* teclado (WASD, flechas) y «caminar hasta acá» (W): motor/caminar.js, lo prende la barra de herramientas */
 /* aberturas (hojas corredizas, proyectantes, lucarnas): quedan en la base del artifact, así se mantienen entre sesiones y dispositivos */
 /* variables de diseño (todas menos las de «Ver») en la base: así los cambios valen en cualquier dispositivo (Maxi 14/10) */
-const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver'||/^esc(Tipo|N|Alto|Dy|Giro)$/.test(q.id)||/^(escAlt|escB3G|escB3n|escB3k|escB2k|p26|dormers|dormAlt|luTipo|ventJ|pv56|ventV7|p03Est|m43Est)$/.test(q.id)/* Maxi 10/11 («otra vez me reseteaste las elecciones de diseño»): dormers, lucarnas, ventanas y hojas también se guardan en la casa; antes vivían sólo en el navegador y en housemaker arrancaban de cero */).map(q=>q.id));/* la escalera al entrepiso se guarda en la casa, no sólo en el navegador (Maxi 18/10); desde el 7/11 también la escalera al altillo y la puerta del baño piletero, que son las opciones que Cocinas copia */const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));
+const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver'||/^esc(Tipo|Obra|N|Alto|Dy|Giro)$/.test(q.id)||/^(escAlt|escB3G|escB3n|escB3k|escB2k|p26|dormers|dormAlt|luTipo|ventJ|pv56|ventV7|p03Est|m43Est)$/.test(q.id)/* Maxi 10/11 («otra vez me reseteaste las elecciones de diseño»): dormers, lucarnas, ventanas y hojas también se guardan en la casa; antes vivían sólo en el navegador y en housemaker arrancaban de cero */).map(q=>q.id));/* la escalera al entrepiso se guarda en la casa, no sólo en el navegador (Maxi 18/10); desde el 7/11 también la escalera al altillo y la puerta del baño piletero, que son las opciones que Cocinas copia */const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));
 visor.onParam=P=>{if(vdb)vdb.doc('estado/params').set({p:pdes(P),ts:new Date().toISOString()}).catch(()=>{});};
 N.getDb().then(db=>{if(!db)return;db.collection('estado').onSnapshot(snap=>{const d=snap.docs.find(x=>x.id==='params'&&x.exists);if(!d)return;const b=(d.data()||{}).p||{};
   const cur=pdes(visor.params);if(JSON.stringify(b)===JSON.stringify(Object.fromEntries(Object.keys(b).map(k=>[k,cur[k]]))))return;visor.setParams(b);},()=>{});});
@@ -1084,7 +1089,7 @@ try{initMedir(visor,document.querySelector('#modo-3d .stage'));}catch(e){console
 /* zonas con variantes de diseño: la tarjeta aparece al elegir una de sus piezas */
 const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B2|B3)[a-z]?|PAS-1|P-34)$/,params:['escAlt','escB3G','escB3n','escB2k'],info:'escInfo',
   label:Object.fromEntries((params.find(q=>q.id==='escAlt').options)),vista:{p:[1850,330,330],t:[2230,170,-230]}},
-  {id:'esc-ep',nombre:'Escalera al entrepiso',piezas:/^(ESC1-[TZPBVLHK]|ESC-(ZE\d|TE|Z\d|E\d|P\d|V\d|C\d|T\d|H\d|B\d|L\d))$/,params:['escTipo','escN','escAlto','escGiro','escDy'],info:'escInfo1',label:Object.fromEntries((params.find(q=>q.id==='escTipo').options)),vista:{p:[1950,520,1000],t:[1400,120,560]}},
+  {id:'esc-ep',nombre:'Escalera al entrepiso',piezas:/^(ESC1-[TZPBVLHKR]|ESC-(ZE\d|TE|Z\d|E\d|P\d|V\d|C\d|T\d|H\d|B\d|L\d))$/,params:['escTipo','escObra','escN','escAlto','escGiro','escDy'],info:'escInfo1',label:Object.fromEntries((params.find(q=>q.id==='escTipo').options)),vista:{p:[1950,520,1000],t:[1400,120,560]}},
   {id:'ventJ',nombre:'Ventanas al jardín (P-05, P-06)',piezas:/^(P-05|P-06)(h|d|h2|v2|k|k2|c|p|m)?$/,params:['ventJ'],label:Object.fromEntries((params.find(q=>q.id==='ventJ').options)),vista:{p:[700,240,1250],t:[650,120,690]}},
   {id:'p26',nombre:'Puerta del baño piletero',piezas:/^(P-26[a-z]*|M-24|M-26|L-11)$/,params:['p26'],label:Object.fromEntries(params.find(q=>q.id==='p26').options),vista:{p:[1700,600,-420],t:[2100,100,-420]}},
   {id:'pv56',nombre:'Paños PV-05 y PV-06',piezas:/^PV-0[56][vm]?$/,params:['pv56'],label:Object.fromEntries((params.find(q=>q.id==='pv56').options)),vista:{p:[2330,260,1500],t:[2330,120,920]}},
