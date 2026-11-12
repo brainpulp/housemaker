@@ -16,27 +16,27 @@ export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;
   const RW=v==='tarima'?R:17,ZD1=ZD2-RW,nUp=8,ZTOP=ZD2+R*(nUp+1);/* triángulo bajo; llegada real arriba */
   const nLo=v==='tarima'?2:3,ZT=13+0,ZBASE=v==='tarima'?ZT:ZC;/* huellas del módulo de abajo; tarima de 13 */
   const yT=YE+nUp*G,W=X1-X0,yE2=yT+W;/* el descanso ocupa x X0..X1, y yT..yT+W; esquina interior (X1,yT), exterior (X0,yT+W) */
-  const PO=[X1,X1+PS,yT+F,yT+F+PS];/* postecito: en la esquina interior, al costado del limón de arriba (cara x = X1) y del de abajo (cara y = yT+F) */
+  const PO=[X1-F-PS,X1-F,yT+F,yT+F+PS];/* postecito (Maxi 11/11, con la foto): al sur del limón de arriba, contra su cara de adentro; el limón de abajo pasa por debajo de la punta del de arriba y se le abulona de costado */
   const T=[],Z=[],P=[],V=[],H=[],K=[],TA=[];
   const rodK=(a,b,r=.6)=>K.push(rod(a,b,r,8));
   /* tramo de arriba: huella j (desde arriba) a ZTOP−18j, entre y YE+(j−1)G e YE+jG (+1 de vuelo de nariz) */
   for(let j=1;j<=nUp;j++){const z=ZTOP-R*j,y0=YE+(j-1)*G-1;T.push(box(X0+F,X1-F,z-TT,z,y0,y0+TD));}
-  const kU=R/G,topU=y=>ZTOP-R*(y-YE)/G+5,dU=D*Math.hypot(1,kU),zMinU=ZD2-TT-22;
+  const kU=R/G,topU=y=>ZTOP-R*(y-YE)/G+5,dU=D*Math.hypot(1,kU),zMinU=ZD1-RW+21;/* la punta del limón de arriba queda 21 sobre la huella de arriba del módulo de abajo (foto) */
   for(const [xa,inner] of [[X0,false],[X1-F,true]]){const yEnd=inner?PO[3]:yT;/* el del giro sigue hasta tapar el postecito, que se le abulona */
     const pr=[[YE,topU(YE)],[yEnd,topU(yEnd)],[yEnd,Math.max(zMinU,topU(yEnd)-dU)],[YE,topU(YE)-dU]];
     const yq=YE+(ZTOP+5-dU-zMinU)*G/R;if(yq<yEnd)pr.splice(3,0,[yq,zMinU]);Z.push(prism(pr,xa,xa+F,'ZY'));}
   /* descanso compensado: triángulo alto (entra del tramo de arriba) y bajo (sale al módulo de abajo); la diagonal va de la esquina interior a la exterior */
-  const huecos=[[X1-F,X1,yT,PO[3]]];if(COL)huecos.push([COL.x0,COL.x1,COL.y0,COL.y1]);
+  const huecos=[[PO[0],X1,yT,PO[3]]];if(COL)huecos.push([COL.x0,COL.x1,COL.y0,COL.y1]);
   const tri2=[[X0,yT],[X1,yT],[X0,yE2]],tri1=[[X1,yT],[X1,yE2],[X0,yE2]];
   const losa=(pl,z,hs,dest)=>{for(const q of minus(pl,hs))dest.push(prism(q,z-TT,z,'XZ'));};
   losa(tri2,ZD2,huecos,T);losa(tri1,ZD1,huecos,T);
   /* armazón del descanso (propuesta): vigas de 2″×8″ en los bordes, la diagonal hace de contrahuella entre los dos triángulos */
   const BD=19;
   for(const [a,b] of COL&&COL.x0<X0+F&&COL.y0>yT?[[yT,COL.y0],[COL.y1,yE2-PS]]:[[yT,yE2-PS]])V.push(box(X0+F,X0+2*F,ZD2-TT-BD,ZD2-TT,a,b));/* V1: borde de afuera del triángulo alto, junto a C-01 */
-  V.push(box(X0+2*F,X1-F,ZD2-TT-BD,ZD2-TT,yT,yT+F));/* V2: cabezal bajo la entrada del triángulo alto, entre los limones de arriba */
+  V.push(box(X0+2*F,PO[0],ZD2-TT-BD,ZD2-TT,yT,yT+F));/* V2: cabezal bajo la entrada del triángulo alto, entre los limones de arriba */
   V.push(box(X0+PS,X1,ZD1-TT-BD,ZD1-TT,yE2-F,yE2));/* V3: borde de afuera del triángulo bajo */
   {/* V4: diagonal de 2″ de la esquina interior al poste de afuera; su cara es la contrahuella entre los triángulos */
-    const a=[X1-F-3,PO[3]+3],b=[X0+PS+3,yE2-PS-3],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=[(b[1]-a[1])/L*F/2,-(b[0]-a[0])/L*F/2];
+    const a=[PO[0]-3,PO[3]+3],b=[X0+PS+3,yE2-PS-3],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=[(b[1]-a[1])/L*F/2,-(b[0]-a[0])/L*F/2];
     V.push(prism([[a[0]-n[0],a[1]-n[1]],[b[0]-n[0],b[1]-n[1]],[b[0]+n[0],b[1]+n[1]],[a[0]+n[0],a[1]+n[1]]],ZD1-TT-BD,ZD2-TT,'XZ'));}
   /* postes: el postecito real (esquina interior) y el de afuera (propuesta), desde el contrapiso */
   P.push(box(PO[0],PO[1],ZC,ZD2-TT,PO[2],PO[3]));
@@ -45,7 +45,7 @@ export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;
   const zLo=k=>ZD1-RW-R*(k-1);for(let k=1;k<=nLo;k++){const x0=X1+(k-1)*G;losa([[x0,yT+F],[x0+TD,yT+F],[x0+TD,yE2-F],[x0,yE2-F]],zLo(k),[[PO[0],PO[1],PO[2],PO[3]]],T);}
   const xN=X1+G,topL=x=>zLo(1)-R*(x-xN)/G+5,dL=D*Math.hypot(1,R/G),zCap=ZD1-TT;
   const xb=xN+(zLo(1)+5-ZBASE)*G/R,xbB=xN+(zLo(1)+5-dL-ZBASE)*G/R;
-  for(const [ya,near] of [[yT,true],[yE2-F,false]]){const xs=X1,sh=[[xs,Math.min(zCap,topL(xs))]];
+  for(const [ya,near] of [[yT,true],[yE2-F,false]]){const xs=near?PO[0]:X1,sh=[[xs,Math.min(zCap,topL(xs))]];
     if(topL(xs)>zCap){const xq=xN+(zLo(1)+5-zCap)*G/R;if(xq>xs)sh.push([xq,zCap]);}
     sh.push([xb,ZBASE]);if(xbB>xs)sh.push([xbB,ZBASE]);else sh.push([xs,ZBASE]);if(xbB>xs)sh.push([xs,Math.max(ZBASE,topL(xs)-dL)]);
     Z.push(prism(sh,ya,ya+F,'XY'));
@@ -57,9 +57,9 @@ export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;
   if(v==='tarima'){TA.push(box(xT0,xT1,ZT-2.5,ZT,yT-5,yE2+5));
     for(const [a,b] of [[yT-5,yT],[yE2,yE2+5],[yT+47.5,yT+52.5]])TA.push(box(xT0,xT1,0,ZT-2.5,a,b));for(const [a,b] of [[xT0,xT0+5],[xT1-5,xT1]])TA.push(box(a,b,0,ZT-2.5,yT,yT+47.5),box(a,b,0,ZT-2.5,yT+52.5,yE2));}
   /* bulones de 3/8″: limón de arriba ↔ postecito (pasantes en x), limón de abajo ↔ postecito (pasantes en y), diagonal ↔ poste de afuera */
-  const cx=(PO[0]+PO[1])/2,cy=(PO[2]+PO[3])/2,zBu=Math.min(ZD1-TT-6,topU(PO[3])-8);
-  for(const z of [zBu,zBu-10])rodK([X1-F-.6,z,cy],[PO[1]+.6,z,cy]);
-  for(const z of [zLo(1)-TT-6,zLo(1)-TT-14])rodK([cx,z,yT-.6],[cx,z,PO[3]+.6]);
+  const cx=(PO[0]+PO[1])/2,cy=(PO[2]+PO[3])/2;
+  for(const z of [zMinU+2.5,ZD2-TT-2.5])rodK([PO[0]-.6,z,cy],[X1+.6,z,cy]);
+  for(const z of [ZD1-TT-3,ZD1-TT-10])rodK([cx,z,yT-.6],[cx,z,PO[3]+.6]);
   for(const z of [ZD1-TT-5,ZD1-TT-14])rodK([X0-.6,z,yE2-PS/2],[X0+PS+.6,z,yE2-PS/2]);
   /* pie del postecito: estribo de chapa en U (2 brocas Ø10) */H.push(box(PO[0]-1,PO[1]+1,ZC,ZC+.5,PO[2]-1,PO[3]+1),box(PO[0],PO[1],ZC+.5,ZC+12,PO[3],PO[3]+.5));
   /* resumen */

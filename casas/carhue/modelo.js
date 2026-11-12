@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.39', fecha:'2026-11-11',
+  nombre:'Carhué', version: '1.1.40', fecha:'2026-11-11',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -285,6 +285,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-11', v:'1.1.40', txt:'Maxi 11/11 («el poste va al sur del limón superior, no al norte»): el postecito de la escalera pasa al lado sur del limón de arriba, contra su cara de adentro, como en la foto. La punta de ese limón queda 21 cm sobre la huella de arriba del módulo de abajo, y el limón de abajo pasa por debajo hasta el postecito, donde se abulona.'},
   {fecha:'2026-11-11', v:'1.1.39', txt:'Maxi 11/11: la escalera al entrepiso «como está en obra» (nueva opción, por defecto): tramo de arriba fijo con 8 huellas a 18, descanso compensado de 2 triángulos, postecito de 3″×3″ en la esquina interior del giro abulonado a los dos limones, y módulo de abajo hacia la pileta. Dos arranques para decidir: triángulos a 17 + 17 (como está: el primer escalón queda en 15 con el alisado) o tarima de 1 × 1 m y 13 de alto con el módulo de abajo recortado a 2 huellas (todo a 18). El armazón del descanso (vigas, poste de afuera, apoyo en C-01) es una propuesta. Armada desde el piso, llega a +2,47: el entrepiso del modelo está a +2,62, diferencia a medir.'},
   {fecha:'2026-11-10', v:'1.1.38', txt:'Maxi 10/11: el alero del dormer corrido (DM-C y DM-C2) sale 50 cm más hacia el jardín (75 en vez de 25), con los cabios a la vista. El tipo de hoja de las lucarnas ya no aparece como opción al elegir el dormer: sólo al elegir una lucarna (motor: una variante de zona puede valer sólo para algunas piezas, z.solo).'},
   {fecha:'2026-11-10', v:'1.1.37', txt:'Maxi 10/11 («otra vez me reseteaste las elecciones de diseño»): dormers, dormer del altillo, lucarnas, ventanas al jardín, PV-05/06, V-07, puerta al patio y hojas de M-43 se guardan en la casa (antes sólo en el navegador, y la página nueva arrancaba de cero). Por defecto, el dormer corrido hasta la galería.'},
