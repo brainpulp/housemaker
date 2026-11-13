@@ -24,7 +24,7 @@ const m2 = (a, b) => Math.round(a * b / 1e3) / 10;                  /* cm × cm 
 function mesada(p) {
   const L = p.L ?? 240, D = p.D ?? 62, H = p.H ?? 90, filas = p.filas ?? 3, band = p.band || 0, cie = p.ciego || 0, pu = p.puertas || [];
   const resto = L - band - cie, n = Math.max(1, Math.round(resto / (p.mod || 76)));
-  const mods = []; for (let i = 0; i < n; i++) mods.push({ w: resto / n, tipo: 'caj' });
+  const mods = []; if (p.mods && p.mods.length) { const t = p.mods.reduce((a, b) => a + b, 0); for (const w of p.mods) mods.push({ w: w * resto / t, tipo: 'caj' }); } /* Maxi 13/11: anchos a mano */ else for (let i = 0; i < n; i++) mods.push({ w: resto / n, tipo: 'caj' });
   if (band > 0) { if ((p.bandLado || 1) < 0) mods.unshift({ w: band, tipo: 'band' }); else mods.push({ w: band, tipo: 'band' }); }
   if (cie > 0) { if ((p.ciegoLado || 1) < 0) mods.unshift({ w: cie, tipo: 'ciego' }); else mods.push({ w: cie, tipo: 'ciego' }); }
   mods.forEach((x, i) => { if (x.tipo === 'caj' && pu.includes(i)) x.tipo = 'pu'; });
@@ -32,7 +32,7 @@ function mesada(p) {
   const tapaL = L + (p.tapaMas || 0), tapaD = p.tapaD || D + 1, zoc = p.zocalo || 0, frenteH = H - 13;
   return {
     t: 'mesada', L, D, H, tapa: { L: tapaL, D: tapaD, zocalo: zoc, m2: m2(tapaL, tapaD + zoc), huecos: (p.huecos || []).map(h => ({ L: h[1], D: h[2] })) },
-    columnasCaj: caj.length, anchoCaj: caj.length ? caj[0].w : 0, filas, cajones: caj.length * filas,
+    columnasCaj: caj.length, anchoCaj: caj.length ? caj[0].w : 0, anchosCaj: caj.map(c => Math.round(c.w * 10) / 10), filas, cajones: caj.length * filas,
     modPuertas: pus.length, anchoPuerta: pus.length ? pus[0].w / 2 : 0, puertas: pus.length * 2, frenteH,
     bandejero: band, ciego: cie, modulos: mods.filter(x => x.tipo !== 'ciego').length, fondoCajon: D - 17,
   };

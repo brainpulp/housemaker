@@ -27,8 +27,8 @@ const CAMPOS = {
     return { medidas: `${m(t.L)} × ${m(t.D)}` + (t.zocalo ? `, con zócalo plegado de ${m(t.zocalo)} contra la pared` : '') + h.map(x => `, hueco para bacha ${m(x.L)}${x.D ? ' × ' + m(x.D) : ''}`).join(''), cant: t.m2 }; },
   tapaBloque: ps => ({ medidas: `${m(ps[0].tapaBloque.L)} × ${m(ps[0].tapaBloque.D)}`, cant: ps[0].tapaBloque.m2 }),
   laterales: ps => { const l = ps[0].laterales; return { medidas: `${l.lados.map(m).join(' + ')} × ${m(l.alto)} de alto`, cant: l.m2 }; },
-  frentesCajones: ps => ({ medidas: `${ps[0].columnasCaj} columnas de ${m(ps[0].anchoCaj)} × ${ps[0].filas} cajones`, cant: ps[0].cajones }),
-  cajasCajones: ps => { const p = ps[0], w = p.t === 'mesada' ? p.anchoCaj : p.anchoCol; return { medidas: `${p.cajones} cajas${p.falso ? ' de ollas' : ''} de ~${m(w - 4)} de ancho, ${m(p.fondoCajon)} de fondo`, cant: p.cajones }; },
+  frentesCajones: ps => ({ medidas: (new Set(ps[0].anchosCaj || [])).size > 1 ? `${ps[0].columnasCaj} columnas (${ps[0].anchosCaj.map(m).join(' · ')}) × ${ps[0].filas} cajones` : `${ps[0].columnasCaj} columnas de ${m(ps[0].anchoCaj)} × ${ps[0].filas} cajones`, cant: ps[0].cajones }),
+  cajasCajones: ps => { const p = ps[0], w = p.t === 'mesada' ? p.anchoCaj : p.anchoCol, va = p.t === 'mesada' && (new Set(p.anchosCaj || [])).size > 1; return { medidas: `${p.cajones} cajas${p.falso ? ' de ollas' : ''} de ${va ? p.anchosCaj.map(x => '~' + m(x - 4)).join(' · ') : '~' + m(w - 4)} de ancho, ${m(p.fondoCajon)} de fondo`, cant: p.cajones }; },
   panelCiego: ps => ({ medidas: `${m(ps[0].ciego)} × ${m(ps[0].frenteH)}`, cant: ps[0].ciego ? 1 : 0 }),
   frentesBloque: ps => { const p = ps[0]; const partes = [`${p.cajones} cajones${p.falso ? ' de ollas' : ''} de ~${m(p.anchoCol)}`];
     if (p.falso) partes.push(`tira fija de ${m(p.falso)} bajo el anafe`); if (p.ciego) partes.push(`panel fijo de ${m(p.ciego)} del lado de la mesada`);
