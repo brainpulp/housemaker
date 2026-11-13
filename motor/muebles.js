@@ -9,7 +9,7 @@ import { MODELOS as OCTET } from './octet-modelos.js';
 /* materiales que usan las piezas (el visor los crea con MeshStandardMaterial) */
 export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],petiribi:['#b98654',.7],suela:['#9a5a2b',.6],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
   mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#323335',.55]/* Maxi 9/11: el #161718 era un pozo negro; negro mate real se lee gris muy oscuro */,grafito:['#3b3e40',.55],
-  piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
+  piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],ladrillo:['#9c5b3f',.92],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
   junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a'],marfil:['#ebe2cf',.32]/* Maxi 8/11: loza color marfil (bacha farm) */,hierroN:['#1f2022',.8,.15]/* parrillas de los quemadores */};
 /* [color, rugosidad, metal, emisivo] */
 
@@ -245,6 +245,13 @@ export function catalogoMuebles(THREE){
       { const t=new THREE.TorusGeometry(Rq-.6,.55,6,36);t.rotateX(Math.PI/2);t.translate(x,3.4,z);g.push([t,'hierroN']);/* aro de la parrilla */
         for(let k=0;k<4;k++){const a=Math.PI/4+k*Math.PI/2;const b=new THREE.BoxGeometry(Rq-r*.45+.6,1.1,1.2);b.translate((Rq+r*.45)/2-.3,0,0);b.rotateY(a);b.translate(x,3.4,z);g.push([b,'hierroN']);} }}
     return g;}},
+  parrilla:{n:'Parrilla de ladrillo con campana y chimenea',cat:'cocina',p:{L:120,D:75},g:(p,ctx)=>{/* Maxi 13/11 (cocina del quincho): base de ladrillo con leñero abajo, losa de hormigón a 0,90, brasero de ladrillo refractario
+      con parrilla de hierro a 1,05, campana de chapa negra desde 1,65 y conducto de 25 × 25 hasta el techo (lo que sigue arriba del techo es de obra). El frente mira a +z */
+    const L=p.L,D=p.D,T=ctx&&ctx.techoMin?ctx.techoMin(Math.max(L,D)/2):300,h=Math.max(190,Math.min(T,700));
+    return [[B(-L/2,-L/2+12,0,85,-D/2,D/2),'ladrillo'],[B(L/2-12,L/2,0,85,-D/2,D/2),'ladrillo'],[B(-L/2+12,L/2-12,0,85,-D/2,-D/2+12),'ladrillo'],
+      [B(-L/2,L/2,85,95,-D/2,D/2),'piedra'],[B(-L/2,-L/2+12,95,165,-D/2,D/2-8),'ladrillo'],[B(L/2-12,L/2,95,165,-D/2,D/2-8),'ladrillo'],[B(-L/2+12,L/2-12,95,165,-D/2,-D/2+12),'ladrillo'],
+      ...Array.from({length:Math.floor((L-30)/4)},(_,i)=>[B(-L/2+15+i*4,-L/2+15.8+i*4,104,105,-D/2+14,D/2-10),'hierroN']),[B(-L/2+14,L/2-14,103,104,D/2-11,D/2-10),'hierroN'],
+      [B(-L/2,L/2,165,172,-D/2,D/2-8),'negro'],[B(-L/2+15,L/2-15,172,190,-D/2+6,D/2-20),'negro'],[B(-12.5,12.5,190,h,-D/2+8,-D/2+33),'negro']];}},
   campana:{n:'Campana de pared negra',cat:'cocina',p:{L:60,D:50,H:100},z:155,g:p=>[[R(-p.L/2,p.L/2,0,5,-p.D/2,p.D/2,1),'negro'],[B(-12,12,5,p.H,-p.D/2,-p.D/2+22),'negro']]},
   campanaIsla:{n:'Campana de isla colgada del techo',cat:'cocina',p:{L:90,D:60},z:165,g:(p,ctx)=>{/* cuerpo negro a 1,65 sobre el piso (z fijo) y chimenea hasta el techo real sobre la isla */
     const T=ctx&&ctx.techoMin?ctx.techoMin(Math.max(p.L,p.D)/2):250,h=Math.max(25,Math.min(T-167,700));/* hasta lo más bajo del techo sobre toda la campana (cabios incluidos) */

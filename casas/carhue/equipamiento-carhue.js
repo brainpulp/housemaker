@@ -49,10 +49,14 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       A:{nombre:'Rincón cálido mirando al jardín',items:[I('alfombraYute',1700,815,0,{L:360,D:200}),I('sofaPlat',1700,758,0,{L:320,D:96,tela:'lino',mad:'roble'}),I('ratonaTab',1700,838,0,{L:150,D:70,H:38,mad:'petiribi',e:5}),
         I('bkf',1450,830,90),I('bkf',1950,830,-90)/* Maxi 7/11: BKF de cuero suela en vez de las butacas */,I('taburete',1525,890,0),I('taburete',1875,890,0)]},
       B:{nombre:'Vacía',items:[]}};}},
-    galeria:{n:'Galería (quincho)',piso:PISO,vista:{p:[3250,500,1350],t:[2746,60,500]},esc:()=>{const I=itA('galeria');const S=[];for(let i=0;i<4;i++){const yy=450-150+300*(i+.5)/4;S.push(I('silla',2746-50-22,yy,90),I('silla',2746+50+22,yy,-90));}return {
+    galeria:{n:'Galería (quincho)',activo:'D',piso:PISO,vista:{p:[3250,500,1350],t:[2746,60,500]},esc:()=>{const I=itA('galeria');const S=[];for(let i=0;i<4;i++){const yy=450-150+300*(i+.5)/4;S.push(I('silla',2746-50-22,yy,90),I('silla',2746+50+22,yy,-90));}return {
       A:{nombre:'Comedor afuera',items:[I('mesa',2746,450,90,{L:300,D:100}),...S,I('silla',2746,450-150-22,0),I('silla',2746,450+150+22,180)]},
       B:{nombre:'Estar afuera',items:[I('sofa',2746,250,0,{L:240,D:95,tela:'petroleo'}),I('butaca',2600,420,90,{tela:'lino'}),I('butaca',2892,420,-90,{tela:'lino'}),I('ratona',2746,410,0,{L:120,D:60}),I('reposera',2650,780,90),I('reposera',2650,870,90)]},
-      C:{nombre:'Mesa + estar',items:[I('mesa',2746,700,90,{L:200,D:95}),I('banco',2746-48-25,700,90,{L:180}),I('banco',2746+48+25,700,-90,{L:180}),I('sofa',2746,200,0,{L:220,D:95,tela:'lino'}),I('ratona',2746,330,0,{L:110,D:55})]}};}},
+      C:{nombre:'Mesa + estar',items:[I('mesa',2746,700,90,{L:200,D:95}),I('banco',2746-48-25,700,90,{L:180}),I('banco',2746+48+25,700,-90,{L:180}),I('sofa',2746,200,0,{L:220,D:95,tela:'lino'}),I('ratona',2746,330,0,{L:110,D:55})]},
+      /* Maxi 13/11: cocina del quincho, opción C (en L contra el oeste y el norte). el tronco del árbol AR-1 y la columna C-08 ocupan la esquina noroeste, así que la parrilla arranca pasando C-08, en el brazo norte;
+         la mesa del comedor de afuera corre 1,50 al este para dejar paso frente al brazo norte */
+      D:{nombre:'Cocina en L (opción C)',items:[I('mesa',2746,600,90,{L:300,D:100}),...S.map(m=>({...m,y:m.y+150})),I('silla',2746,600-150-22,0),I('silla',2746,600+150+22,180),
+        I('mesada',2712.5,69,0,{L:225,D:62,H:90,top:'granito',fr:'madOsc'}),I('bacha',2770,69,0),I('parrilla',2913.5,162,-90,{L:120,D:75}),I('mesada',2920,333,-90,{L:220,D:62,H:90,top:'granito',fr:'madOsc'}),I('anafe',2920,373,-90,{L:60,D:52,n:2})]}};}},
     dorm1:{n:'Dormitorio 1 (PB)',piso:PISO,vista:{p:[210,520,1000],t:[210,40,360]},esc:()=>{const I=itA('dorm1');return {
       A:{nombre:'Cama contra el patio',items:[I('cama',210,143,0,{L:160,D:200}),I('mesaLuz',102,65,0),I('mesaLuz',318,65,0),I('placard',355,520,-90,{L:300,D:60}),I('escritorio',100,640,180,{L:120,D:60}),I('silla',100,585,0)]},
       B:{nombre:'Cama mirando al jardín',items:[I('cama',285,500,-90,{L:160,D:200}),I('mesaLuz',362,388,-90),I('mesaLuz',362,612,-90),I('placard',200,73,0,{L:300,D:60}),I('butaca',100,580,45,{tela:'petroleo'})]}};}},
