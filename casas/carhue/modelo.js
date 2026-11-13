@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.42', fecha:'2026-11-12',
+  nombre:'Carhué', version: '1.1.43', fecha:'2026-11-13',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -285,6 +285,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-13', v:'1.1.43', txt:'Maxi 13/11: escalera variable, el corte de arriba de los limones: la cara de abajo sigue hasta tocar el entrepiso (la cara de abajo de los tirantes), con un talón bajo el tirante.'},
   {fecha:'2026-11-12', v:'1.1.42', txt:'Maxi 12/11: el arranque de la escalera va con los triángulos a 17 + 17. Se saca la variante con tarima.'},
   {fecha:'2026-11-12', v:'1.1.41', txt:'Maxi 12/11: el alero del dormer hacia el patio quedó terminado en obra y sale unos 50 cm, no 75: el modelo pasa a 50.'},
   {fecha:'2026-11-11', v:'1.1.40', txt:'Maxi 11/11 («el poste va al sur del limón superior, no al norte»): el postecito de la escalera pasa al lado sur del limón de arriba, contra su cara de adentro, como en la foto. La punta de ese limón queda 21 cm sobre la huella de arriba del módulo de abajo, y el limón de abajo pasa por debajo hasta el postecito, donde se abulona.'},

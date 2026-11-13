@@ -451,7 +451,8 @@ function build(p){
     const uC2=kT*R-ti,uC1=(kT-1)*R-ti;
     for(const [xa,adentro] of [[X0,true],[X1-f,false]]){/* con giro compensado, las zancas de arriba asientan en la cabeza de P1/P2 (se retiran abajo en los últimos 6 cm) */
       const sobrePoste=giro==='comp'&&!(xa===X0&&colEsq),yc=sobrePoste?yFin-6:yFin;
-      const perfs=[[[YE,botA(YE)],[yc,botA(yc)],[yc,topA(yc)],[YE,topA(YE)]]];if(sobrePoste)perfs.push([[yc,uC2],[yFin,uC2],[yFin,topA(yFin)],[yc,topA(yc)]]);
+      const perfs=[[[YE,botA(YE)],[yc,botA(yc)],[yc,topA(yc)],[YE,topA(YE)]]];
+      {/* Maxi 13/11: la cara de abajo sigue hasta tocar el entrepiso (la cara de abajo de los tirantes, a +2,40): talón bajo el tirante */const zb=H_EP-22,yIn=YE-(zb-botA(YE))/k;if(botA(YE)<zb)perfs.push([[yIn,zb],[YE,botA(YE)],[YE,zb]]);}if(sobrePoste)perfs.push([[yc,uC2],[yFin,uC2],[yFin,topA(yFin)],[yc,topA(yc)]]);
       zanca2(perfs,xa,xa+f,adentro,'x',mA);}
     /* arriba: cada zanca sigue en un tirante del entrepiso (el de borde y el de x 13,46): cubrejuntas de chapa de 6 mm con 4 bulones; del lado de la columna, suplemento de 1,5. No lo hablamos: a confirmar. */
     {const zA=H_EP-17,zB=H_EP-3;hw.push(box(X1-f-.6,X1-f,zA,zB,YE-15,YE+15),box(X1,X1+.6,H_EP-21,H_EP-3,YE-15,YE+15),box(X0+f+1.5,X0+f+2.1,zA,zB,YE-15,YE+15));tr.push(box(X0+f,X0+f+1.5,zA,zB,YE,YE+15));
