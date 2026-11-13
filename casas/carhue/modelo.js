@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.49', fecha:'2026-11-13',
+  nombre:'Carhué', version: '1.1.50', fecha:'2026-11-13',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -285,6 +285,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-13', v:'1.1.50', txt:'Maxi 13/11: alternativa para las aberturas de los dormitorios del dormer corrido (opción «Ventanas de los dormitorios»): puerta corrediza de piso a techo en dos hojas de roble, en dos rieles, con vidrio laminado 3+3 y baranda de hierro por fuera, porque no hay balcón. El baño queda como estaba.'},
   {fecha:'2026-11-13', v:'1.1.49', txt:'Maxi 13/11, obra: dos columnas metálicas en las puntas del frente del dormer corrido: C-12 al sur, caño de 45 × 45; C-13 al norte, caño de 120 × 40 con el canto hacia el este, sobre C-01. Salen los postes intermedios: M-40 y M-41 hacen de estructura.'},
   {fecha:'2026-11-13', v:'1.1.48', txt:'Maxi 13/11: cocina, croquis E. La península con la mesa (m277) corre 30 cm al oeste, hasta la punta de la pared de las ventanas (y 1,00), y con ella el anafe, la campana y las sillas. La mesada de esa pared se acorta a 4,75. Módulos desde la península: rincón ciego de 70,5, columna de 46, columna de 80 centrada bajo la bacha farm (cajones recortados, como estaba) y 4 columnas de cajones de 69,6. El motor ahora acepta anchos de módulo a mano (mods).'},
   {fecha:'2026-11-13', v:'1.1.47', txt:'Maxi 13/11: la cocina como quedó en la lista de compras: mesada larga y mueble del anafe de hierro 1010 negro con el zócalo plegado de la misma chapa (sin salpicadero de pizarra), frentes de madera maciza (roble hasta elegir la madera). Las compras de la cocina en la página Obras toman medidas y cantidades de este modelo y se actualizan solas cuando cambia. Motor: la mesada acepta «zocalo» (alto del zócalo plegado).'},
