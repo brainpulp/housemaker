@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.43', fecha:'2026-11-13',
+  nombre:'Carhué', version: '1.1.45', fecha:'2026-11-13',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -285,6 +285,8 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-13', v:'1.1.45', txt:'Maxi 13/11: las hojas proyectantes del dormer corrido, para fabricar (motor/proyectante.js): perfiles de roble de 55 × 45, vidrio laminado 3+3 con contravidrio, bisagra piano inox en la cara de afuera, tope con burlete, dos fallebas y dos pistones a gas 10/22 de 550/350 por adentro, con la fuerza y los puntos de fijación calculados para cada hoja (abren hasta ~70°). Mesa de arrimo nueva en el catálogo (detrás del sofá).'},
+  {fecha:'2026-11-13', v:'1.1.44', txt:'Maxi 13/11: escalera variable, sin cubrejuntas a la vista entre limón y tirante del entrepiso. La unión es oculta: chapa de 6 mm embutida en una ranura al medio, con pasadores ciegos y tarugos.'},
   {fecha:'2026-11-13', v:'1.1.43', txt:'Maxi 13/11: escalera variable, el corte de arriba de los limones: la cara de abajo sigue hasta tocar el entrepiso (la cara de abajo de los tirantes), con un talón bajo el tirante.'},
   {fecha:'2026-11-12', v:'1.1.42', txt:'Maxi 12/11: el arranque de la escalera va con los triángulos a 17 + 17. Se saca la variante con tarima.'},
   {fecha:'2026-11-12', v:'1.1.41', txt:'Maxi 12/11: el alero del dormer hacia el patio quedó terminado en obra y sale unos 50 cm, no 75: el modelo pasa a 50.'},

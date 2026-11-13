@@ -10,6 +10,7 @@ import { initVistas } from './vistas.js';
 import { escaleraCompensada } from './escalera.js';
 import { wingZ, escaleraAltilloB } from './escalera-altillo.js';
 import { escaleraObra } from './escalera-obra.js';
+import { proyectante } from './proyectante.js';
 import * as M from './modelo.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as N from './nombres.js';
@@ -454,9 +455,9 @@ function build(p){
       const perfs=[[[YE,botA(YE)],[yc,botA(yc)],[yc,topA(yc)],[YE,topA(YE)]]];
       {/* Maxi 13/11: la cara de abajo sigue hasta tocar el entrepiso (la cara de abajo de los tirantes, a +2,40): talón bajo el tirante */const zb=H_EP-22,yIn=YE-(zb-botA(YE))/k;if(botA(YE)<zb)perfs.push([[yIn,zb],[YE,botA(YE)],[YE,zb]]);}if(sobrePoste)perfs.push([[yc,uC2],[yFin,uC2],[yFin,topA(yFin)],[yc,topA(yc)]]);
       zanca2(perfs,xa,xa+f,adentro,'x',mA);}
-    /* arriba: cada zanca sigue en un tirante del entrepiso (el de borde y el de x 13,46): cubrejuntas de chapa de 6 mm con 4 bulones; del lado de la columna, suplemento de 1,5. No lo hablamos: a confirmar. */
-    {const zA=H_EP-17,zB=H_EP-3;hw.push(box(X1-f-.6,X1-f,zA,zB,YE-15,YE+15),box(X1,X1+.6,H_EP-21,H_EP-3,YE-15,YE+15),box(X0+f+1.5,X0+f+2.1,zA,zB,YE-15,YE+15));tr.push(box(X0+f,X0+f+1.5,zA,zB,YE,YE+15));
-      for(const yy of [YE-9,YE+9])for(const zz of [zA+4,zB-4]){cab(X1-f-.6,zz,yy,'x',-1);cab(X1+.6,zz,yy,'x',1);cab(X0+f+2.1,zz,yy,'x',1);}}
+    /* arriba: cada zanca sigue en un tirante del entrepiso, con unión oculta (Maxi 13/11: nada de cubrejuntas a la vista): chapa de 6 mm de 12 × 30 embutida en una ranura al medio del limón y del tirante,
+       con 4 pasadores de acero de Ø12 que no llegan a la cara de afuera (agujeros tapados con tarugos de la misma madera). */
+    for(const xc of [X0+f/2,X1-f/2]){hw.push(box(xc-.3,xc+.3,H_EP-20,H_EP-8,YE-15,YE+15));for(const yy of [YE-9,YE+9])for(const zz of [H_EP-17,H_EP-11])pe.push(rod([xc-2,zz,yy],[xc+2,zz,yy],.6,8));}
     let fp={x0:X0,x1:X1,y0:YE,y1:yFin},nota='';
     /* pie de poste: estribo de chapa de 3/16″ en U (base 12×12, alas de 14), el poste queda 2 cm sobre el piso; alas en las caras libres */
     const piePoste=(r,alasY)=>{const cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2,bx0=Math.max(X0,cx-6);hw.push(box(bx0,bx0+12,0,.6,cy-6,cy+6),box(cx-5,cx+5,.6,B,cy-1.5,cy+1.5));
@@ -532,8 +533,8 @@ function build(p){
     if(vg.length)Pt('ESC1-V','ESC-1 · vigas del giro','cabio',vg,{fn:giro==='comp'?'Vigas de 2″×8″: V1 en el borde del lado fondo y V2 cabezal bajo la primera pedada de arriba (llevan la compensada alta), V3 en el borde del lado jardín y V5 en el frente de la compensada baja; V4 es la diagonal entre P3 y P1: lleva encima la nariz de la compensada alta y su cara es la contrahuella entre las dos.':'Vigas de 2″×8″ en el borde del descanso.'},G1);
     if(ls.length)Pt('ESC1-L','ESC-1 · listón y travesaños','madera',ls,{fn:'Listón de 2″×2″ atornillado a la cara de V4 (lleva el borde de la compensada baja) y travesaños de 1″×3″ bajo cada compensada para mantener unidas sus tablas (no estructurales).'},G1);
     Pt('ESC1-B','ESC-1 · pasamanos','acero',rods,{fn:'Pasamanos de caño de 40 mm del lado del vacío, sobre tres parantes de planchuela de 1/4″ × 1½″ abulonados a la cara de afuera de la zanca (2 bulones de 3/8″ cada uno).'},G1);
-    Pt('ESC1-H','ESC-1 · herrajes','herraje',hw,{fn:'Estribos de chapa de 3/16″ en U al pie de los postes (base 12×12, alas de 14, 2 brocas Ø10 al piso y 2 bulones M10); ángulos de 2″×3/16″ al pie de las zancas de abajo (2 tirafondos de 5/16″ y 2 brocas Ø8). Arriba, cubrejuntas de chapa de 6 mm entre zanca y tirante del entrepiso (no lo hablamos: a confirmar).'},G1);
-    Pt('ESC1-K','ESC-1 · bulones y varillas','perno',pe,{fn:'Bulones M12 en los nudos del giro (postes con vigas, diagonal y zancas), varillas roscadas Ø10 pasantes bajo las pedadas de abajo y bulones de los parantes y cubrejuntas.'},G1);}
+    Pt('ESC1-H','ESC-1 · herrajes','herraje',hw,{fn:'Estribos de chapa de 3/16″ en U al pie de los postes (base 12×12, alas de 14, 2 brocas Ø10 al piso y 2 bulones M10); ángulos de 2″×3/16″ al pie de las zancas de abajo (2 tirafondos de 5/16″ y 2 brocas Ø8). Arriba, unión oculta entre limón y tirante del entrepiso: chapa de 6 mm de 12 × 30 embutida en una ranura al medio de los dos, con 4 pasadores de acero Ø12 ciegos y tarugos de la misma madera; no se ve ningún herraje.'},G1);
+    Pt('ESC1-K','ESC-1 · bulones y varillas','perno',pe,{fn:'Bulones M12 en los nudos del giro (postes con vigas, diagonal y zancas), varillas roscadas Ø10 pasantes bajo las pedadas de abajo y bulones de los parantes y pasadores ocultos de la unión con los tirantes.'},G1);}
   {const es=M.ESCALERAS&&M.ESCALERAS.find(e=>e.id==='ESC-1');if(es&&p.ep&&p.escTipo==='orig'){const [ex,ey]=es.pos,rot=(es.rot??90)*Math.PI/180;let ps=[];try{ps=escaleraCompensada(geo);}catch(e){console.error('escalera',e);}
     const MAT=new THREE.Matrix4().makeTranslation(ex,0,ey).multiply(new THREE.Matrix4().makeRotationY(rot));
     const CAT={herraje:'acero',perno:'acero',pedada:'ep',c1:'ep',c2:'ep',exist:'cabio'};
@@ -692,16 +693,19 @@ function build(p){
       if(d.madera)Pt(d.id+'r',`${d.id} · frente de madera`,'roble',cf,{fn:'Frente del dormer en madera (Maxi 6/11: madera y vidrio nada más): montantes de 12 entre paños, faja baja sobre el entrepiso y faja alta hasta el techo.',sec:'tabla de roble sobre fenólico'},{...TE});
       for(const [x0,x1] of [...(punta||sA?[]:[[xa-14,xa-9]]),...(d.latB0?[]:[[xb+9,xb+14]])])fl.push(wYZ(x0,x1,352,YF,RT,y=>RT(y)+10));fl.push(box(punta?-43:sA?xl+1.5:xa-12,rxb??xb+12,DT(YT+AL+5)-2,DT(YT+AL+5)+4,YT+AL+4,YT+AL+6));
       /* 6 · ventana: paño fijo arriba y hoja proyectante abajo, marco de roble */
-      for(const [xw0,xw1] of W2){mk.push(box(xw0,xw1,zw0,zw0+5,YF+1,YF+6),box(xw0,xw1,zw1-5,zw1,YF+1,YF+6),box(xw0,xw0+5,zw0,zw1,YF+1,YF+6),box(xw1-5,xw1,zw0,zw1,YF+1,YF+6),box(xw0,xw1,zwt-2.5,zwt+2.5,YF+1,YF+6));
+      for(const [xw0,xw1] of W2){const m0=d.integrada?YF-.5:YF+1;mk.push(box(xw0,xw1,zw0,zw0+5,m0,YF+6),box(xw0,xw1,zw1-5,zw1,m0,YF+6),box(xw0,xw0+5,zw0,zw1,m0,YF+6),box(xw1-5,xw1,zw0,zw1,m0,YF+6),box(xw0,xw1,zwt-2.5,zwt+2.5,m0,YF+6));
       gl.push(box(xw0+5,xw1-5,zw0+5,zwt-2.5,YF+3,YF+3.6));if(!d.integrada)gl.push(box(xw0+5,xw1-5,zwt+2.5,zw1-5,YF+3,YF+3.6));}
-      if(d.integrada)W2.forEach(([xw0,xw1],k)=>{/* Maxi 14/10: en el dormer corrido el paño de arriba es una hoja proyectante (cuelga de arriba, abre hacia el jardín) y el de abajo queda fijo */
-        const id=`${d.id}p${k+1}`,hy=YF+6,hz=zw1-5,ang=(LUZ[id]||0)*Math.PI/180,M4=new THREE.Matrix4().makeTranslation(0,hz,hy).multiply(new THREE.Matrix4().makeRotationX(-ang)).multiply(new THREE.Matrix4().makeTranslation(0,-hz,-hy));
-        HINGE[id]={y:hy,z:hz,s:-1,max:100,parts:[id+'h',id],dm:id+'d',ang:LUZ[id]||0};
-        const sa=xw0+5.5,sb=xw1-5.5,za=zwt+3,zb=zw1-5.5,h=5,bq=(xa,xb,ya,yb)=>box(xa,xb,ya,yb,YF+1.5,YF+5.5).applyMatrix4(M4);
-        Pt(id+'h',`${id} · hoja proyectante`,'roble',[bq(sa,sa+h,za,zb),bq(sb-h,sb,za,zb),bq(sa,sb,zb-h,zb),bq(sa,sb,za,za+h)],{fn:'Hoja de roble del paño de arriba: cuelga de bisagras en el travesaño alto y se proyecta hacia el jardín. Arrastrala hacia arriba para abrirla y hacia abajo para cerrarla.',sec:'roble 5 cm',med:`${f1((sb-sa)/100)} × ${f1((zb-za)/100)} m`},{...TE,tags:[...TE.tags,id]});
-        Pt(id,`${id} · vidrio de la hoja proyectante`,'glass',[box(sa+h,sb-h,za+h,zb-h,YF+3,YF+3.6).applyMatrix4(M4)],{fn:'Vidrio de la hoja proyectante de arriba; el paño de abajo es fijo.'},{...TE,tags:[...TE.tags,id],opt:{noEdges:true}});
-        if(ang>.01){const dm=[];for(const xd of [sa+4,sb-4]){const p0=new THREE.Vector3(xd,zwt-8,YF+5.5),p1=new THREE.Vector3(xd,za+(zb-za)*.45,YF+1.5).applyMatrix4(M4);dm.push(rod(p0.toArray(),p1.toArray(),1,8));}
-          Pt(id+'d',`${id} · amortiguadores`,'acero',dm,{fn:'Dos pistones a gas por adentro: abajo en el travesaño del medio, arriba en la hoja.'},{...TE,tags:[...TE.tags,id]});}});
+      if(d.integrada)W2.forEach(([xw0,xw1],k)=>{/* Maxi 14/10: en el dormer corrido el paño de arriba es una hoja proyectante (cuelga de arriba, abre hacia el jardín) y el de abajo queda fijo.
+        Maxi 13/11: para fabricar (motor/proyectante.js): bisagra piano en la cara de afuera, pistones a gas por adentro, tope con burlete y fallebas */
+        const id=`${d.id}p${k+1}`,hy=YF+6,hz=zw1-5;
+        const V=proyectante(geo,THREE,{x0:xw0+5.3,x1:xw1-5.3,zb:zwt+2.8,hz,hy,out:1,ang:LUZ[id]||0,f:5.5,D:4.5,cMarco:6.5,tope:{z0:zwt+2.5}});
+        HINGE[id]={y:hy,z:hz,s:-1,max:V.max,parts:[id+'h',id,id+'k'],dm:id+'d',ang:Math.min(LUZ[id]||0,V.max)};
+        const TT={...TE,tags:[...TE.tags,id]};
+        Pt(id+'h',`${id} · hoja proyectante`,'roble',V.hoja,{fn:'Hoja de arriba, proyectante hacia el jardín. Arrastrala hacia arriba para abrirla y hacia abajo para cerrarla. '+V.spec.hoja,sec:'roble 55 × 45 mm',med:`${f1((xw1-xw0-10.6)/100)} × ${f1((hz-zwt-2.8)/100)} m · ${f1(V.kg)} kg`},TT);
+        Pt(id,`${id} · vidrio de la hoja proyectante`,'glass',V.vidrio,{fn:V.spec.vidrio},{...TT,opt:{noEdges:true}});
+        Pt(id+'k',`${id} · bisagra, cierres y soportes`,'acero',V.herraje,{fn:V.spec.bisagra+' '+V.spec.cierre},TT);
+        Pt(id+'d',`${id} · pistones a gas`,'acero',[...V.piston,...V.herrajeF,...V.tope.length?[]:[]],{fn:V.spec.piston,sec:`2 × 10/22 · 550/350 · ${V.Fn} N`},TT);
+        Pt(id+'t',`${id} · tope del marco`,'roble',V.tope,{fn:V.spec.marco},TT);});
       const W=f1((xb-xa)/100),hf=f1((DU(YF)-262)/100);
       Pt(d.id,`${d.id} · Dormer al jardín`,'chapa',ch,{fn:`Dormer de un agua sobre el ${d.local}, al ras de la fachada. Laterales y frente revestidos en chapa negra. Alto libre adentro: ${f1((DU(400)-262)/100)} junto a la cumbrera, ${hf} en el frente.`,sec:'chapa lisa negra sobre fenólico',med:`${W} m de ancho libre · techo a 4°`},{...TE});
       Pt(d.id+'e',`${d.id} · esqueleto`,'cabio',es,{fn:`Cómo se arma (en este orden): 1) atornillar un cabio nuevo a cada cabio que queda de borde (x ${f1(xl/100)} y ${f1(xr/100)}): cabios dobles; 2) cabezal doble de 2″×6″ contra la cumbrera, entre los dobles; 3) sacar los cabios del medio; 4) solera baja sobre la viga de borde de la fachada (verificar que tome el frente: ~${Math.round((xb-xa)/100*180)} kg), montantes de 2″×4″ cada 40, dintel doble sobre la ventana y solera alta doble; 5) laterales: solera inclinada sobre cada cabio doble y montantes cada 40; 6) cabios del dormer de 2″×6″ cada ~50, colgados del cabezal con estribos y apoyados en la solera alta, 25 de alero; 7) machimbre, barrera de vapor, aislación de 50, fenólico y chapa; babetas a los costados y cupertina al frente.`,sec:'2″×6″ cabios, cabezal y dobles · 2″×4″ montantes y soleras',med:`${nr+1} cabios de dormer · ${sx.length} montantes al frente`},{...TE});
@@ -1046,7 +1050,7 @@ ED.onChange(()=>{visor.rebuild();applyClips();});
   const busy=()=>document.querySelector('#edPanel:not([hidden]),#senPanel:not([hidden]),#medPanel:not([hidden]),#marcasPanel:not([hidden])');
   view.addEventListener('pointerdown',e=>{if(e.button!==0||busy())return;
     const r=visor.renderer.domElement.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,visor.camera);
-    const ms=[];for(const q of visor.parts)if((/^LU-\d+(m|m2|w|w2|v2|k|k2)?$/.test(q.id)||/^(P-05|P-06|V-07|VE-\d|VG-\d)(h|d|h2|v2|k|k2)?$/.test(q.id)||/^P-03[hvk]$/.test(q.id)||/^DM-C2?p\d+(h|d)?$/.test(q.id))&&q.grp.visible!==false)q.grp.traverse(o=>{if(o.isMesh)ms.push(o);});
+    const ms=[];for(const q of visor.parts)if((/^LU-\d+(m|m2|w|w2|v2|k|k2)?$/.test(q.id)||/^(P-05|P-06|V-07|VE-\d|VG-\d)(h|d|h2|v2|k|k2)?$/.test(q.id)||/^P-03[hvk]$/.test(q.id)||/^DM-C2?p\d+(h|d|k)?$/.test(q.id))&&q.grp.visible!==false)q.grp.traverse(o=>{if(o.isMesh)ms.push(o);});
     const h=ray.intersectObjects(ms,false)[0];if(!h)return;const id=h.object.userData.id.replace(/[a-z]\d?$/,'');const H=HINGE[id];if(!H)return;
     if(visor.candado&&visor.candado.bloqueada(id)){visor.candado.mostrar(id,h.point);return;}
     e.stopPropagation();view.setPointerCapture(e.pointerId);visor.controls.enabled=false;

@@ -138,6 +138,7 @@ export function catalogoMuebles(THREE){
     for(const s of [-1,1]){const x=s*(W/2-2.5);g.push([B(x-2.5,x+2.5,0,4,-D/2,D/2),p.mad],[B(x-2.5,x+2.5,4,52,D/2-6,D/2),p.mad],[B(x-2.5,x+2.5,4,70,-D/2,-D/2+6),p.mad],[B(x-2.5,x+2.5,48,52,-D/2,D/2),p.mad]);}
     g.push([B(-W/2+5,W/2-5,18,22,-D/2+6,D/2-6),p.mad],cojin(-W/2+5,W/2-5,22,38,-D/2+12,D/2-4,p.tela),cojin(-W/2+6,W/2-6,30,74,-D/2+4,-D/2+20,p.tela));return g;}},
   ratona:{n:'Mesa ratona maciza',cat:'estar',p:{L:120,D:60,H:38,mad:'madRust'},g:p=>[[R(-p.L/2,p.L/2,p.H-7,p.H,-p.D/2,p.D/2,1.5),p.mad],[B(-p.L/2+12,-p.L/2+24,0,p.H-7,-p.D/2+8,p.D/2-8),p.mad],[B(p.L/2-24,p.L/2-12,0,p.H-7,-p.D/2+8,p.D/2-8),p.mad]]},
+  consola:{n:'Mesa de arrimo larga (detrás del sofá)',cat:'estar',p:{L:240,D:35,H:72,mad:'roble'},g:p=>[/* Maxi 13/11: tapa de 4, dos pies de tabla en las puntas y estante abajo a 15 */[R(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2,.6),p.mad],[B(-p.L/2+6,-p.L/2+10,0,p.H-4,-p.D/2+2,p.D/2-2),p.mad],[B(p.L/2-10,p.L/2-6,0,p.H-4,-p.D/2+2,p.D/2-2),p.mad],[B(-p.L/2+10,p.L/2-10,13,15.5,-p.D/2+3,p.D/2-3),p.mad]]},
   banco:{n:'Banco de madera maciza',cat:'estar',p:{L:180,D:38,H:45,mad:'roble'},g:p=>[[R(-p.L/2,p.L/2,p.H-6,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+14,-p.L/2+20,0,p.H-6,-p.D/2+4,p.D/2-4),p.mad],[B(p.L/2-20,p.L/2-14,0,p.H-6,-p.D/2+4,p.D/2-4),p.mad]]},
   alfombra:{n:'Alfombra de lana tejida',cat:'estar',p:{L:240,D:170},g:p=>[[R(-p.L/2,p.L/2,0,1,-p.D/2,p.D/2,.4),'alfombra']]},
   /* ---------- comedor ---------- */
