@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.47', fecha:'2026-11-13',
+  nombre:'Carhué', version: '1.1.48', fecha:'2026-11-13',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -285,6 +285,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-13', v:'1.1.48', txt:'Maxi 13/11: cocina, croquis E. La península con la mesa (m277) corre 30 cm al oeste, hasta la punta de la pared de las ventanas (y 1,00), y con ella el anafe, la campana y las sillas. La mesada de esa pared se acorta a 4,75. Módulos desde la península: rincón ciego de 70,5, columna de 46, módulo de 80 con puertas centrado bajo la bacha farm y 4 columnas de cajones de 69,6. El motor ahora acepta anchos de módulo a mano (mods).'},
   {fecha:'2026-11-13', v:'1.1.47', txt:'Maxi 13/11: la cocina como quedó en la lista de compras: mesada larga y mueble del anafe de hierro 1010 negro con el zócalo plegado de la misma chapa (sin salpicadero de pizarra), frentes de madera maciza (roble hasta elegir la madera). Las compras de la cocina en la página Obras toman medidas y cantidades de este modelo y se actualizan solas cuando cambia. Motor: la mesada acepta «zocalo» (alto del zócalo plegado).'},
   {fecha:'2026-11-13', v:'1.1.46', txt:'Maxi 13/11: cocina del quincho, opción C, como escenario «Cocina en L (opción C)» de la galería. Mesada de 2,25 con bacha contra el oeste; en el brazo norte, la parrilla de ladrillo (pasando el árbol y C-08) y una mesada de 2,20 con anafe. La mesa corre 1,50 al este. Parrilla nueva en el catálogo.'},
   {fecha:'2026-11-13', v:'1.1.45', txt:'Maxi 13/11: las hojas proyectantes del dormer corrido, para fabricar (motor/proyectante.js): perfiles de roble de 55 × 45, vidrio laminado 3+3 con contravidrio, bisagra piano inox en la cara de afuera, tope con burlete, dos fallebas y dos pistones a gas 10/22 de 550/350 por adentro, con la fuerza y los puntos de fijación calculados para cada hoja (abren hasta ~70°). Mesa de arrimo nueva en el catálogo (detrás del sofá).'},
