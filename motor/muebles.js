@@ -187,6 +187,8 @@ export function catalogoMuebles(THREE){
       if(cie>0){if((p.ciegoLado||1)<0){mods.unshift(cie);iC=0;if(iB>=0)iB++;}else{mods.push(cie);iC=mods.length-1;}}
       /* Maxi 10/11 (Mocoretá): «tapaMas» = cm que la tapa sobresale del mueble por la punta +x («tapaLado:-1», por la −x), para pisar otro mueble; «tapaD» = fondo de la tapa centrado sobre el mueble (si no, D + 1 de voladizo al frente). Con tapaMas, los «huecos» se miden desde el centro de la tapa */
       const tm=p.tapaMas||0,tl=(p.tapaLado||1)<0?-1:1,tapa=tapaHuecos(p.L+tm,p.tapaD?p.tapaD-1:p.D,p.H,p.huecos,p.top);if(tm||p.tapaD)for(const t of tapa)t[0].translate(tl*tm/2,0,p.tapaD?-.5:0);
+      /* Maxi 11/11 (Carhué): «zocalo» = alto del zócalo plegado de la misma chapa, contra la pared (la mesada de hierro no lleva salpicadero aparte) */
+      if(p.zocalo)tapa.push([B(-(p.L+tm)/2+tl*tm/2,(p.L+tm)/2+tl*tm/2,p.H,p.H+p.zocalo,-p.D/2,-p.D/2+.5),p.top]);
       const g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,y0,y1,zb,zf,p.fr,mods),...tapa];
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
         if(i===iC){g.push([FR(xl,xr,y0,y1,zf),p.fr]);continue;}

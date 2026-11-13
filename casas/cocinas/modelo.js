@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.51', fecha: '2026-11-10',
+export const META = { nombre: 'Cocinas', version: '0.1.52', fecha: '2026-11-13',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  { fecha: '2026-11-13', v: '0.1.52', txt: 'Maxi 13/11: la cocina de Carhué como quedó en la lista de compras: mesada larga y mueble del anafe de hierro 1010 negro con el zócalo plegado de la misma chapa (sin salpicadero de pizarra), frentes de madera maciza (roble hasta elegir la madera). Las compras de la cocina en la página Obras toman medidas y cantidades de este modelo y se actualizan solas cuando cambia.' },
   { fecha: '2026-11-10', v: '0.1.51', txt: 'Maxi 10/11: la misma persona de 1,80 en el primer escalón del caracol de Carhué, acá también. Motor: personas con altura propia, guardadas en la base de la página.' },
   { fecha: '2026-11-10', v: '0.1.50', txt: 'Maxi 10/11, Mocoretá: el agregado de la isla del mismo ancho que ella (1,00 × 0,90) y sale el anafe de 4 de la mesada de la pared; queda sólo el de 5 en la isla.' },
   { fecha: '2026-11-10', v: '0.1.49', txt: 'Maxi 10/11, Mocoretá: la isla con cajones de frente negro, corrida 0,80 al norte; en la punta sur (hacia la pileta) un agregado de 1 × 1 con tapa de piedra negra que pisa 20 cm la tapa de madera, un módulo de puertas abajo y el anafe de 5 hornallas integrado. Motor: la mesada acepta tapa que sobresale del mueble (tapaMas/tapaLado) y fondo de tapa propio (tapaD). Carhué: la cocina guardada en esta escena se trajo de la página de Carhué.' },

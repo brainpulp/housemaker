@@ -18,6 +18,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 #hub .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 #hub a.casa{display:block;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px 12px;color:inherit;text-decoration:none;min-height:120px}
 #hub a.casa:hover{border-color:var(--accent);background:var(--accent-soft)}
+#hub .sub a{color:var(--accent)}
 #hub a.casa h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0 0 4px}
 #hub a.casa p{margin:0;font-size:13px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 #hub a.casa .v{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:8px}
@@ -25,13 +26,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 #hub-volver{position:fixed;right:8px;bottom:34px;z-index:50;font:500 11px/1 var(--f-mono);color:var(--muted);background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;text-decoration:none;opacity:.8}
 #hub-volver.entr{position:static;font:600 12px/1 var(--f-mono);color:var(--ink);opacity:1;padding:6px 9px;border-radius:6px}
 #hub-volver:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+#hub-obras{position:fixed;right:8px;bottom:62px;z-index:50;font:500 11px/1 var(--f-mono);color:var(--muted);background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;text-decoration:none;opacity:.8}#hub-obras.entr{position:static;font:600 12px/1 var(--f-mono);color:var(--ink);opacity:1;padding:6px 9px;border-radius:6px}#hub-obras:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
 #hub-err{max-width:640px;margin:40px auto;padding:16px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;font-size:14px}
 </style>
 <script>
 (function(){
   const q=new URLSearchParams(location.search),casa=(q.get('casa')||'').replace(/[^a-z0-9-]/g,'');
   const root=new URL('.',location.href).href;
-  if(!casa){indice();return;}
+  /* Maxi 13/11: un enlace de afuera (la página Obras) abre una casa con #carhue, #arcos, #cocinas…: el artifact sólo deja pasar el «#nombre» */
+  if(!casa){const h=location.hash.replace('#','').replace(/[^a-z0-9-]/g,'');if(h&&h!=='indice'){location.replace(root+'?casa='+h);return;}indice();return;}
   /* 1. la casa elegida: el motor (nombres.js) la usa para separar las colecciones de la base; el almacén local también se separa por casa */
   window.__casa=casa;
   try{const real=window.localStorage,P=casa+':';const S={getItem:k=>real.getItem(P+k),setItem:(k,v)=>real.setItem(P+k,v),removeItem:k=>real.removeItem(P+k),
@@ -57,6 +60,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
     const scripts=[];for(const s of doc.querySelectorAll('script')){if(s.type==='importmap')continue;scripts.push({type:s.type||'',src:s.getAttribute('src')||'',text:s.textContent});s.remove();}
     for(const el of [...doc.body.childNodes])document.body.appendChild(document.importNode(el,true));
     const volver=document.createElement('a');volver.id='hub-volver';volver.href=root;volver.textContent='⌂ Proyectos';volver.title='Volver a la lista de proyectos';{const tr=document.getElementById('topright');/* Maxi 10/11: «¿cómo voy a la lista de proyectos?»: arriba a la derecha, a la vista */if(tr){volver.classList.add('entr');tr.appendChild(volver);}else document.body.appendChild(volver);}
+    /* Maxi 13/11: de la casa a su obra (tareas y compras); las compras de cocina salen de este modelo */
+    {const OB={carhue:'carhue-compras',arcos:'arcos-compras',cocinas:'compras'}[casa];if(OB){const a=document.createElement('a');a.id='hub-obras';a.href='https://claude.ai/artifact/XhQAE7P15ahGjUM7Ntcr9H#'+OB;a.target='_blank';a.rel='noopener';a.textContent='Obras ↗';a.title='Tareas y compras de esta obra';a.className=volver.className;a.style.cssText=volver.parentNode===document.body?'bottom:62px':'margin-left:6px';volver.after(a);}}
     for(const s of scripts)if(s.type!=='module'){const e=document.createElement('script');if(s.src){await new Promise((ok,no)=>{e.onload=ok;e.onerror=()=>no(new Error('No cargó '+s.src));e.src=new URL(s.src,base.href).href;document.body.appendChild(e);});}else{e.textContent=s.text;document.body.appendChild(e);}}
     for(const s of scripts)if(s.type==='module'){if(s.src)await import(c.archivos.includes(s.src)?root+casa+'/'+s.src+vc:root+'motor/'+s.src+vm);else{const e=document.createElement('script');e.type='module';e.textContent=s.text;document.body.appendChild(e);}}
   }).catch(e=>{console.error(e);const d=document.createElement('div');d.id='hub-err';d.innerHTML='<b>No pude abrir esta casa.</b><br>'+String(e&&e.message||e)+'<br><br><a href="'+root+'">Volver a housemaker</a>';document.body.appendChild(d);});
@@ -78,7 +83,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 </script>
 <div id="hub">
   <h1>housemaker</h1>
-  <p class="sub">Las casas de Maxi. Tocá una para abrirla; cada una guarda lo suyo (vistas, muebles, ediciones) en esta misma página.</p>
+  <p class="sub">Las casas de Maxi. Tocá una para abrirla; cada una guarda lo suyo (vistas, muebles, ediciones) en esta misma página. Las tareas, compras y plan de cada obra están en <a href="https://claude.ai/artifact/XhQAE7P15ahGjUM7Ntcr9H" target="_blank" rel="noopener">Obras ↗</a>; las compras de las cocinas salen de estos modelos.</p>
   <div class="grid"></div>
   <div class="pie"></div>
 </div>
