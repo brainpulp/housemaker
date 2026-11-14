@@ -27,6 +27,7 @@ import { initNoche } from './noche.js';
 import { initCalidad } from './calidad.js';
 import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
+import { tablones } from './tablones.js';
 
 const f2 = cm => (cm / 100).toFixed(2).replace('.', ',');
 const f1 = v => (+v).toFixed(1).replace('.', ',');
@@ -34,6 +35,9 @@ const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.n
 const { box, box8 } = geo;
 
 const params = [
+  { id: 'puertaN', label: 'Entrada (norte) abierta', type: 'check', value: false, quick: true, group: 'Puertas', help: 'Corrediza de hierro de la entrada: corre por dentro, hacia el este.' },
+  { id: 'puertaS', label: 'Puerta de atrás (sur) abierta', type: 'check', value: false, quick: true, group: 'Puertas', help: 'Corrediza de hierro del sur: cuelga por fuera de un riel y corre hacia el oeste.' },
+  { id: 'sillon', label: 'Sillón en C del desnivel', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'techos', label: 'Techo (chapa y cenefa)', type: 'check', value: true, quick: true, group: 'Ver', help: 'Apagalo para ver la cámara y el cielorraso desde arriba.' },
   { id: 'cielo', label: 'Cielorraso', type: 'check', value: true, quick: true, group: 'Ver', help: 'Apagalo (con el techo) para ver los tirantes y las vigas transversales desde arriba.' },
   { id: 'tirantes', label: 'Tirantes (tentativos)', type: 'check', value: true, quick: true, group: 'Ver', help: 'Tirantes del piso, del cielorraso y de los decks. Sección y separación supuestas (D-05).' },
@@ -53,17 +57,43 @@ function build(p) {
 
   /* fachadas: ventanales (vidrio + marco), puertas corredizas y paños de madera con vidrio arriba */
   for (const m of MM.MUROS) { const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]), med = `${f2(L)} × ${f2(A.zTope(MM, m, 0) - A.zBase(MM, m))}`;
+    if (m.corrediza) { /* hoja corrediza de hierro: fuera del plano del vidrio (N por dentro, S colgada por fuera) y desplazada si está abierta */
+      const f = m.a[0] > M.ANCHO / 2 ? 'N' : 'S', H = M.HOJA, h = H[f], ab = f === 'N' ? p.puertaN : p.puertaS, d = ab ? h.dy : 0, w = H.perfil;
+      const y0 = (f === 'N' ? m.a[1] - 2.5 : m.a[1] - 5) + d, y1 = (f === 'N' ? m.b[1] + 3 : m.b[1] - .5) + d, z0 = f === 'N' ? M.Z0 + .5 : 1.5, z1 = M.ZV - .5, xa = h.x - H.e / 2, xb = h.x + H.e / 2;
+      const marco = [box(xa, xb, z0, z1, y0, y0 + w), box(xa, xb, z0, z1, y1 - w, y1), box(xa, xb, z0, z0 + w, y0 + w, y1 - w), box(xa, xb, z1 - w, z1, y0 + w, y1 - w)];
+      /* riel: el del sur va atornillado a la cara de afuera de la viga de arriba; el del norte, por dentro, bajo la viga, de falsa columna a falsa columna */
+      const ya = y0 - d + Math.min(0, h.dy), yb = y1 - d + Math.max(0, h.dy);   /* el riel cubre la hoja cerrada y abierta, y no más: del otro lado está la columna (S) o la viga transversal (N) */
+      const riel = f === 'S' ? box(M.XS - 3, M.XS, M.ZV + 1, M.ZV + 6, ya, yb) : box(xa, xb, M.ZV, M.ZV + 3, ya, yb);
+      if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', box(h.x - .5, h.x + .5, z0 + w, z1 - w, y0 + w, y1 - w), { ...base(m), med }, { group: G.fach, opt: {} });
+      Pt(m.id + 'h', `${m.id} · hoja y riel de hierro`, 'hierro', [...marco, riel], { ...base(m), med, sec: `hierro oxidado · ${ab ? 'abierta' : 'cerrada'}` }, { group: G.fach, opt: {} }); continue; }
     if (m.tipo === 'vidrio') { const g = A.vidrioGeos(MM, m);
       if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', g.vidrio, { ...base(m), med }, { group: G.fach, opt: {} });
-      Pt(m.id + 'm', `${m.id} · marco`, m.corrediza ? 'puerta' : 'marco', g.perfiles, { ...base(m), med, sec: m.corrediza ? 'hoja corrediza' : 'marco' }, { group: G.fach, opt: {} }); }
+      Pt(m.id + 'm', `${m.id} · marco`, 'marco', g.perfiles, { ...base(m), med, sec: 'marco' }, { group: G.fach, opt: {} }); }
     else Pt(m.id, `${m.id} · ${m.nombre}`, 'muro', A.muroGeos(MM, m), { ...base(m), med, sec: `madera, ${m.e} cm` }, { group: G.fach, opt: {} }); }
   if (p.carp) for (const a of MM.ABERTURAS) Pt(a.id, `${a.id} · ${a.nombre}`, 'glass', A.hojaGeo(MM, a, 2), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, { group: G.fach, opt: {} });
   /* pisos */
-  if (p.pisos) for (const l of MM.LOSAS) Pt(l.id, `${l.id} · ${l.nombre}`, 'deck', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} });
+  if (p.pisos) for (const l of MM.LOSAS) { if (l.tablon) { /* deck de tablones de 14, transversales a la casa (corren de sur a norte) */
+      const T = tablones(geo, A, { poly: l.poly, huecos: [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, seed: l.id.charCodeAt(4) });
+      T.forEach((g, i) => Pt(`${l.id}${'abc'[i]}`, `${l.id} · ${l.nombre}`, 'tabla' + (i + 1), g, { ...base(l), sec: `tablones de ${l.tablon}, transversales`, med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} })); continue; }
+    Pt(l.id, `${l.id} · ${l.nombre}`, 'deck', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} }); }
   /* estructura */
   for (const s of MM.ESTRUCTURA) {
     if (s.tipo === 'columna') Pt(s.id, `${s.id} · ${s.nombre}`, s.cat === 'falsa' ? 'falsa' : 'poste', A.columnaGeo(s), { ...base(s), sec: s.sec, med: `de ${s.z[0] < 0 ? '−' : '+'}${f2(Math.abs(s.z[0]))} a ${s.z[1] < 0 ? '−' : '+'}${f2(Math.abs(s.z[1]))}` }, { group: G.est, opt: {} });
     else if (s.tipo === 'viga') { const L = Math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]); Pt(s.id, `${s.id} · ${s.nombre}`, 'viga', A.vigaGeo(s), { ...base(s), sec: s.sec, med: `${f2(L)} de largo · cara de arriba a +${f2(s.z)}` }, { group: G.est, opt: {} }); } }
+  /* desnivel del módulo 2 (pozo de dos alzadas) con su sillón en C: interpretación de la descripción de Maxi (D-12) */
+  { const D = M.DES, [x0, x1] = D.x, [y0, y1] = D.y, zf = D.z, t = M.TABLA, xc = M.GN - D.corte, fn = '<b>Interpretación (D-12).</b> ';
+    /* tabicas que cierran el pozo: sur, este, oeste y, al norte, bajo la viga perimetral */
+    if (p.pisos) Pt('DS-01', 'DS-01 · Tabicas del desnivel', 'madera', [box(x0 - t, x0, zf - t, -t, y0, y1), box(x0 - t, x1, zf - t, -t, y0 - t, y0), box(x0 - t, x1, zf - t, -t, y1, y1 + t), box(x1, x1 + t, zf - t, M.RES - M.VP.h, y0, y1)],
+      { fn: fn + 'Tablas que cierran los costados del desnivel.', sec: 'tabla', med: `baja ${f2(-zf)}`, u: 'D-12' }, { group: G.piso, opt: {} });
+    /* escalones: uno intermedio de cada lado, en el tramo de 1,50 que dejan libres los brazos del sillón */
+    Pt('ES-01', 'ES-01 · Escalón este del desnivel', 'madera', box(xc, x1, zf, zf + M.ALZ, y1 - D.pedada, y1), { fn: fn + 'Dos alzadas de 0,17: del piso al escalón y del escalón al piso del desnivel.', sec: `pedada ${D.pedada}`, med: `${f2(x1 - xc)} de ancho`, u: 'D-12' }, { group: G.piso, opt: {} });
+    Pt('ES-02', 'ES-02 · Escalón oeste del desnivel', 'madera', box(xc, x1, zf, zf + M.ALZ, y0, y0 + D.pedada), { fn: fn + 'Espejo del ES-01.', sec: `pedada ${D.pedada}`, med: `${f2(x1 - xc)} de ancho`, u: 'D-12' }, { group: G.piso, opt: {} });
+    if (p.sillon) { const r = D.resp, a = D.asiento, zr = zf + D.hResp, za = zf + D.hAs;
+      /* respaldo-repisa: cajón de madera de 45 de ancho cuya tapa es la repisa. Lomo al sur, brazos al este y al oeste hasta 1,50 del ventanal norte */
+      Pt('SC-01', 'SC-01 · Sillón en C: respaldo con repisa', 'madera', [box(x0, x0 + r, zf, zr, y0, y1), box(x0 + r, xc, zf, zr, y0, y0 + r), box(x0 + r, xc, zf, zr, y1 - r, y1)],
+        { fn: fn + 'Maxi 14/11: sillón en C con respaldo de madera que termina en una repisa de 0,45 de ancho; los dos brazos (este y oeste) se interrumpen a 1,50 del ventanal norte.', sec: `repisa de ${r}`, med: `repisa a ${f2(D.hResp)} del piso del desnivel (+${f2(zr)})`, u: 'D-12' }, { group: G.piso, opt: {} });
+      Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'tela', [box(x0 + r, x0 + r + a, zf, za, y0 + r, y1 - r), box(x0 + r + a, xc, zf, za, y0 + r, y0 + r + a), box(x0 + r + a, xc, zf, za, y1 - r - a, y1 - r)],
+        { fn: fn + 'Asiento de 0,60 de fondo a 0,42 del piso del desnivel: medidas supuestas.', sec: `fondo ${a}`, med: `asiento a +${f2(za)}`, u: 'D-12' }, { group: G.piso, opt: {} }); } }
   /* tirantes: una pieza por conjunto */
   if (p.tirantes) for (const t of M.TIRANTES) { const { b, h } = t.S, geos = [];
     for (const q of t.pos) for (const [a0, a1] of t.tramos) geos.push(t.dir === 'x' ? box(a0, a1, t.zt - h, t.zt, q - b / 2, q + b / 2) : box(q - b / 2, q + b / 2, t.zt - h, t.zt, a0, a1));
@@ -104,7 +134,7 @@ function build(p) {
       dimLine([-40, M.TERR, M.LARGO + 60], [-40, 0, M.LARGO + 60], [-8, 0, 0], f2(-M.TERR)); dimLine([-40, 0, M.LARGO + 60], [-40, M.HC, M.LARGO + 60], [-8, 0, 0], f2(M.HC)); } };
 }
 
-const COL = { muro: '#b98a5a', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#8a5a34', deck: '#b58e62', madera: '#c9a46e', viga: '#8a5a34', poste: '#6e4a2e', falsa: '#8a5a34', techo: '#c9cfd3', cielo: '#d9c3a0' };
+const COL = { muro: '#b98a5a', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#8a5a34', deck: '#b58e62', madera: '#c9a46e', viga: '#8a5a34', poste: '#6e4a2e', falsa: '#8a5a34', techo: '#c9cfd3', tabla1: '#b58e62', tabla2: '#ad8558', tabla3: '#bd976c', hierro: '#6f4630', tela: '#cdbfa6', cielo: '#d9c3a0' };
 /* el terreno es el suelo del visor (pasto), 1,47 abajo del piso interior (TE-01 en modelo.js) */
 window.__terreno = { t: (M.IMPLANTACION[0] || {}).z ?? -147, c: 0 };
 /* encastre declarado: la viga de arriba (7, centrada en el vidrio) entra 2,5 cm en la cara interior de las columnas, que van por fuera (D-02) */
@@ -114,7 +144,7 @@ const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo
 { const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
 
 /* cortes y vistas: del motor (motor/vistas.js), iguales en todas las casas */
-const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1200], y: [-400, 2700], z: [-200, 420] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp'], dirAmb: [.55, .85] });
+const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1200], y: [-400, 2700], z: [-200, 420] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'puertaN', 'puertaS'], dirAmb: [.55, .85] });
 const applyClips = () => VI.applyClips(), renderVistas = () => VI.renderVistas();
 root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); renderVistas(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 
