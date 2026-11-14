@@ -33,10 +33,14 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 (function(){
   const q=new URLSearchParams(location.search),casa=(q.get('casa')||'').replace(/[^a-z0-9-]/g,'');
   const root=new URL('.',location.href).href;
+  /* Maxi 14/11: cada publicación recargaba la página en el índice y había que volver a entrar a la casa. Ahora se recuerda en este navegador la última casa abierta
+     y, si la página se abre sin ?casa= ni #, se vuelve a ella. «⌂ Proyectos» lleva al índice con #indice, que además olvida la última casa. */
+  const LS0=(()=>{try{return window.localStorage;}catch(e){return null;}})(),ULT='hub:ultima';
+  const ult=()=>{try{return (LS0&&LS0.getItem(ULT)||'').replace(/[^a-z0-9-]/g,'');}catch(e){return '';}},olvidar=()=>{try{LS0&&LS0.removeItem(ULT);}catch(e){}};
   /* Maxi 13/11: un enlace de afuera (la página Obras) abre una casa con #carhue, #arcos, #cocinas…: el artifact sólo deja pasar el «#nombre» */
-  if(!casa){const h=location.hash.replace('#','').replace(/[^a-z0-9-]/g,'');if(h&&h!=='indice'){location.replace(root+'?casa='+h);return;}indice();return;}
+  if(!casa){const h=location.hash.replace('#','').replace(/[^a-z0-9-]/g,'');if(h&&h!=='indice'){location.replace(root+'?casa='+h);return;}if(h==='indice')olvidar();else if(ult()){location.replace(root+'?casa='+ult());return;}indice();return;}
   /* 1. la casa elegida: el motor (nombres.js) la usa para separar las colecciones de la base; el almacén local también se separa por casa */
-  window.__casa=casa;
+  window.__casa=casa;try{LS0&&LS0.setItem(ULT,casa);}catch(e){}
   try{const real=window.localStorage,P=casa+':';const S={getItem:k=>real.getItem(P+k),setItem:(k,v)=>real.setItem(P+k,v),removeItem:k=>real.removeItem(P+k),
     clear(){for(let i=real.length-1;i>=0;i--){const k=real.key(i);if(k&&k.startsWith(P))real.removeItem(k);}},key(i){let n=0;for(let j=0;j<real.length;j++){const k=real.key(j);if(k&&k.startsWith(P)){if(n===i)return k.slice(P.length);n++;}}return null;},get length(){let n=0;for(let j=0;j<real.length;j++){const k=real.key(j);if(k&&k.startsWith(P))n++;}return n;}};
     Object.defineProperty(window,'localStorage',{value:S,configurable:true});}catch(e){}
@@ -59,12 +63,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
     const hub=document.getElementById('hub');if(hub)hub.remove();
     const scripts=[];for(const s of doc.querySelectorAll('script')){if(s.type==='importmap')continue;scripts.push({type:s.type||'',src:s.getAttribute('src')||'',text:s.textContent});s.remove();}
     for(const el of [...doc.body.childNodes])document.body.appendChild(document.importNode(el,true));
-    const volver=document.createElement('a');volver.id='hub-volver';volver.href=root;volver.textContent='⌂ Proyectos';volver.title='Volver a la lista de proyectos';{const tr=document.getElementById('topright');/* Maxi 10/11: «¿cómo voy a la lista de proyectos?»: arriba a la derecha, a la vista */if(tr){volver.classList.add('entr');tr.appendChild(volver);}else document.body.appendChild(volver);}
+    const volver=document.createElement('a');volver.id='hub-volver';volver.href=root+'#indice';volver.textContent='⌂ Proyectos';volver.title='Volver a la lista de proyectos';{const tr=document.getElementById('topright');/* Maxi 10/11: «¿cómo voy a la lista de proyectos?»: arriba a la derecha, a la vista */if(tr){volver.classList.add('entr');tr.appendChild(volver);}else document.body.appendChild(volver);}
     /* Maxi 13/11: de la casa a su obra (tareas y compras); las compras de cocina salen de este modelo */
     {const OB={carhue:'carhue-compras',arcos:'arcos-compras',cocinas:'compras'}[casa];if(OB){const a=document.createElement('a');a.id='hub-obras';a.href='https://claude.ai/artifact/XhQAE7P15ahGjUM7Ntcr9H#'+OB;a.target='_blank';a.rel='noopener';a.textContent='Obras ↗';a.title='Tareas y compras de esta obra';a.className=volver.className;a.style.cssText=volver.parentNode===document.body?'bottom:62px':'margin-left:6px';volver.after(a);}}
     for(const s of scripts)if(s.type!=='module'){const e=document.createElement('script');if(s.src){await new Promise((ok,no)=>{e.onload=ok;e.onerror=()=>no(new Error('No cargó '+s.src));e.src=new URL(s.src,base.href).href;document.body.appendChild(e);});}else{e.textContent=s.text;document.body.appendChild(e);}}
     for(const s of scripts)if(s.type==='module'){if(s.src)await import(c.archivos.includes(s.src)?root+casa+'/'+s.src+vc:root+'motor/'+s.src+vm);else{const e=document.createElement('script');e.type='module';e.textContent=s.text;document.body.appendChild(e);}}
-  }).catch(e=>{console.error(e);const d=document.createElement('div');d.id='hub-err';d.innerHTML='<b>No pude abrir esta casa.</b><br>'+String(e&&e.message||e)+'<br><br><a href="'+root+'">Volver a housemaker</a>';document.body.appendChild(d);});
+  }).catch(e=>{console.error(e);olvidar();/* que una casa que no abre no deje la página atrapada en ella */const d=document.createElement('div');d.id='hub-err';d.innerHTML='<b>No pude abrir esta casa.</b><br>'+String(e&&e.message||e)+'<br><br><a href="'+root+'#indice">Volver a housemaker</a>';document.body.appendChild(d);});
 
   function indice(){document.addEventListener('DOMContentLoaded',async()=>{
     const el=document.getElementById('hub');

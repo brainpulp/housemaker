@@ -40,7 +40,7 @@ const { box, box8 } = geo;
 
 const params = [
   { id: 'altura', label: 'Altura de la casa', type: 'select', value: 'hoy', quick: true, group: 'Hipótesis', options: [['hoy', 'Como hoy (piso a 1,47)'], ['alta', 'Elevada (piso a 2,90, planta baja habitable)']], help: 'Hipótesis de proyecto: levantar la casa sobre los zancos para habitar la planta al nivel del terreno. El deck sube con la casa y la plataforma norte queda siempre a media altura (D-15).' },
-  { id: 'piso2', label: 'Segundo piso', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin segundo piso (como hoy)'], ['A', 'Planta A: galería sur']], help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 5 y el 6 y ensanche de 2,00 al sur con la escalera; frente norte inclinado 30° con vidrio repartido, 2,60 de altura (D-14).' },
+  { id: 'piso2', label: 'Segundo piso', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin segundo piso (como hoy)'], ['A', 'Planta A: galería sur']], help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 4 y el 5 y ensanche de 2,00 al sur con la escalera; frente norte inclinado 30° con vidrio repartido, 2,60 de altura (D-14).' },
   { id: 'sillon', label: 'Sillón en C del desnivel', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'techos', label: 'Techo (chapa y cenefa)', type: 'check', value: true, quick: true, group: 'Ver', help: 'Apagalo para ver la cámara y el cielorraso desde arriba.' },
   { id: 'cielo', label: 'Cielorraso', type: 'check', value: true, quick: true, group: 'Ver', help: 'Apagalo (con el techo) para ver los tirantes y las vigas transversales desde arriba.' },
@@ -134,8 +134,7 @@ function build(p) {
     /* entrepiso: oficina (módulo 1), galería al sur del vacío (módulo 2), dormitorio (módulo 3), baño y descanso en el ensanche */
     H('H2-01', 'Entrepiso: oficina, galería, dormitorio, baño', 'deck', [L(xs, xn, 2000, ye), L(xs, gal, 1600, 2000), L(xs, xn, 1200, 1600), L(XE, xs, 1204, 1460), L(XE, xs, 1900, 2000)],
       'Piso alto a +3,10 sobre los módulos 1 y 3; el módulo 2 queda en doble altura, con una galería de 1,10 al sur que une la oficina con el dormitorio.', `piso alto a +${f2(Z2)}`);
-    H('H2-02', 'Terraza sobre los módulos 5 y 6', 'tabla2', L(xs, xn, MM.YO, 800), 'Maxi 14/11: la terraza va sobre los últimos dos módulos, el 5 y el 6 (con el metro del voladizo). El módulo 4 conserva su techo de chapa.', '9,00 × 5,40');
-    H('H2-14', 'Pasarela del dormitorio a la terraza', 'tabla2', L(xs, 105, 800, 1200, Z2 + 10, 5), 'Entre el dormitorio (módulo 3) y la terraza (módulos 5 y 6) queda el techo del módulo 4: lo crucé con una pasarela de 1,00 por el lado sur, donde la chapa está más baja; queda 10 cm sobre el piso alto. Es una solución mía: falta definir qué pasa sobre el módulo 4.', '4,00 × 1,00');
+    H('H2-02', 'Terraza sobre los módulos 4 y 5', 'tabla2', L(xs, xn, 400, 1200), 'Maxi 14/11: la terraza va sobre los módulos 4 y 5, saliendo del dormitorio; el módulo 6 queda con la chapa a la vista.', '8,00 × 5,40');
     H('H2-03', 'Piso del ensanche sur (planta baja)', 'deck', L(XE, 7.5, 1212, 2000, 0, 2.5), 'Ensanche de 2,00 al sur en los módulos 2 y 3: lleva la escalera y le da aire a la planta baja. La viga perimetral del piso queda como un umbral de 3 cm.', '7,90 × 2,00');
     /* escalera recta en el ensanche, contra la pared sur: sube de oeste a este y llega al descanso junto a la galería */
     { const E = A.escaleraGeos({ x: [XE + 6, XE + 106], y: [1468, 1900], z: [0, Z2], n: 17 }); H('H2-04', 'Escalera (17 alzadas de 18,2)', 'madera', [...E.ped, ...E.zan], 'Escalera recta de 1,00 de ancho en el ensanche, contra la pared sur. Una sola escalera para oficina y dormitorio.', 'pedada 27'); }
@@ -158,7 +157,7 @@ function build(p) {
     /* oficina sobre el vacío: balcón con baranda y paneles corredizos tipo japonés (dos de cuatro, a medio abrir) */
     H('H2-08', 'Balcón de la oficina: baranda', 'madera', A.barandaGeos({ pts: [[gal, 2000], [xi(Z2 + 100) - 4, 2000]], z: Z2, h: 100 }), 'La oficina balconea sobre la doble altura.', 'baranda de 1,00', { noEdges: true });
     H('H2-09', 'Paneles corredizos tipo japonés', 'shoji', [my(2006, gal, gal + 107, Z2, ZT - 6), my(2012, gal + 60, gal + 167, Z2, ZT - 6)], 'Cuatro paneles corredizos para cerrar la oficina cuando hace falta privacidad; dibujé dos, a medio abrir.', '4 × 1,07', { op: .7 });
-    H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[105, 800], [xn, 800], [xn, MM.YO], [xs, MM.YO], [xs, 800]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[105, 800], [105, 1200]], z: Z2 + 10, h: 100 }), ...A.barandaGeos({ pts: [[xs, 800], [xs, 1200]], z: Z2 + 10, h: 100 })], 'Baranda de 1,00 hacia el vacío, en la terraza y a los dos lados de la pasarela.', '', { noEdges: true });
+    H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[xs, 1200], [xs, 400], [xn, 400], [xn, 1200]], z: Z2, h: 100 })], 'Baranda de 1,00 hacia el vacío y en los tres lados libres de la terraza.', '', { noEdges: true });
     /* techo nuevo: chapa a un agua con la misma lógica, alta al norte, sobre los módulos 1 a 3 y el ensanche */
     if (p.techos) { const X0 = XE - 50, X1 = xT + 35, zt = x => ZT + 6 + 30 * (x - XE) / (xT - XE);   /* arranca en la cabeza del frente inclinado; 0,30 de caída, baja al sur */
       H('H2-11', 'Techo del piso alto (zincalum)', 'techo', A.techoGeo({ poly: [[X0, 1165], [X1, 1165], [X1, MM.CYE + 35], [MM.CXS - 35, MM.CYE + 35], [MM.CXS - 35, 2035], [X0, 2035]], baja: '-x', z: [zt(X1), zt(X0)], e: 1 }), 'Chapa acanalada a un agua, alta al norte, sobre los módulos 1 a 3 y el ensanche; arranca en la cabeza del frente inclinado, así que el techo es más angosto que la planta. Altura interior de 2,60 (Maxi). Sin cielorraso ni estructura dibujados.', '', { noEdges: true }); } }
@@ -170,11 +169,11 @@ function build(p) {
   /* cielorraso y chapa */
   for (const t of MM.TECHOS) { const esCielo = t.mat === 'cielorraso'; if (esCielo ? !p.cielo : !p.techos) continue;
     const xs = t.poly.map(q => q[0]), ys = t.poly.map(q => q[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys), rc = (y0, y1) => [[X0, y0], [X1, y0], [X1, y1], [X0, y1]];
-    /* con el segundo piso: el cielorraso se abre en el módulo 2 (doble altura) y la chapa de hoy queda sólo sobre el módulo 4 (la terraza va sobre el 5 y el 6) */
-    const polys = !H2 ? [t.poly] : esCielo ? [rc(Y0, 1600 - 3.5), rc(2000 + 3.5, Y1)] : [rc(800, 1200)];
+    /* con el segundo piso: el cielorraso se abre en el módulo 2 (doble altura) y la chapa de hoy queda a la vista sólo sobre el módulo 6 y el voladizo (la terraza va sobre el 4 y el 5) */
+    const polys = !H2 ? [t.poly] : esCielo ? [rc(Y0, 1600 - 3.5), rc(2000 + 3.5, Y1)] : [rc(Y0, 400)];
     Pt(t.id, `${t.id} · ${t.nombre}`, esCielo ? 'cielo' : 'techo', polys.map(q => A.techoGeo({ ...t, poly: q })), { ...base(t), med: esCielo ? `cara de abajo a +${f2(MM.HC)}` : `${t.pend} · de +${f2(t.z[0])} (norte) a +${f2(t.z[1])} (sur)` }, { group: G.techo, opt: { noEdges: !esCielo } }); }
   /* cenefa: cierra la cámara entre el cielorraso y la chapa (frente norte y los dos costados en cuña) */
-  if (p.techos) { const xs = MM.CXS, xn = MM.CXN, yo = H2 ? 800 : MM.CYO, ye = H2 ? 1200 : MM.CYE, z0 = MM.ZA, zs = MM.zR(xs), zn = MM.zR(xn), e = 2.5;
+  if (p.techos) { const xs = MM.CXS, xn = MM.CXN, yo = MM.CYO, ye = H2 ? 400 : MM.CYE, z0 = MM.ZA, zs = MM.zR(xs), zn = MM.zR(xn), e = 2.5;
     const cuna = (ya, yb) => box8([[xs, z0, ya], [xn, z0, ya], [xn, z0, yb], [xs, z0, yb], [xs, zs + .1, ya], [xn, zn, ya], [xn, zn, yb], [xs, zs + .1, yb]]);
     /* frente norte, dos costados en cuña y el fondo de la franja que sobresale de la viga de arriba, al norte y al sur (al sur, en cuña bajo la chapa) */
     const fs = (ya, yb) => box8([[xs, z0, ya], [MM.XS, z0, ya], [MM.XS, z0, yb], [xs, z0, yb], [xs, zs + .1, ya], [MM.XS, MM.zR(MM.XS), ya], [MM.XS, MM.zR(MM.XS), yb], [xs, zs + .1, yb]]);
