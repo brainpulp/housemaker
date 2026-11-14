@@ -40,7 +40,7 @@ const { box, box8 } = geo;
 
 const params = [
   { id: 'altura', label: 'Altura de la casa', type: 'select', value: 'hoy', quick: true, group: 'Hipótesis', options: [['hoy', 'Como hoy (piso a 1,47)'], ['alta', 'Elevada (piso a 2,90, planta baja habitable)']], help: 'Hipótesis de proyecto: levantar la casa sobre los zancos para habitar la planta al nivel del terreno. El deck sube con la casa y la plataforma norte queda siempre a media altura (D-15).' },
-  { id: 'piso2', label: 'Segundo piso (planta A)', type: 'check', value: false, quick: true, group: 'Hipótesis', help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 4 y el 5 y ensanche de 2,00 al sur con la escalera (D-14).' },
+  { id: 'piso2', label: 'Segundo piso (planta A)', type: 'check', value: false, quick: true, group: 'Hipótesis', help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 4 y el 5 y ensanche de 2,00 al sur con la escalera; frente norte inclinado 30° con vidrio repartido, 2,60 de altura (D-14).' },
   { id: 'sillon', label: 'Sillón en C del desnivel', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'techos', label: 'Techo (chapa y cenefa)', type: 'check', value: true, quick: true, group: 'Ver', help: 'Apagalo para ver la cámara y el cielorraso desde arriba.' },
   { id: 'cielo', label: 'Cielorraso', type: 'check', value: true, quick: true, group: 'Ver', help: 'Apagalo (con el techo) para ver los tirantes y las vigas transversales desde arriba.' },
@@ -124,9 +124,13 @@ function build(p) {
   if (p.altura === 'alta') Pt('H1-01', 'H1-01 · Piso de la planta baja (hipótesis)', 'piso', A.losa([[-7.5, MM.CYO], [557.5, MM.CYO], [557.5, MM.CYE], [-7.5, MM.CYE]], null, MM.TERR, MM.TERR + 8),
     { fn: '<b>Hipótesis «casa elevada».</b> Con el piso de la casa a 2,90 quedan 2,60 libres bajo la viga: la planta al nivel del terreno se puede habitar. Dibujé sólo un piso; no hay cerramientos (D-15).', sec: 'piso sobre el terreno', med: `2,60 libres`, u: 'D-15' }, { group: 'Hipótesis', opt: {} });
   /* ---------- hipótesis: segundo piso, planta A ---------- */
-  if (H2) { const Z2 = 310, ZT = 570, e2 = 7, XE = -200, xs = MM.XS, xn = MM.XN, gs = MM.GS, gn = MM.GN, ye = MM.YE, gal = 115, GH = 'Hipótesis', fn = '<b>Hipótesis «segundo piso, planta A» (D-14).</b> ', u = 'D-14';
+  if (H2) { const Z2 = 310, ZT = 570, e2 = 7, XE = -200, xs = MM.XS, xn = MM.XN, gs = MM.GS, gn = MM.GN, ye = MM.YE, gal = 115, INC = 30, dI = (ZT - Z2) * Math.tan(INC * Math.PI / 180), xT = gn - dI, GH = 'Hipótesis', fn = '<b>Hipótesis «segundo piso, planta A» (D-14).</b> ', u = 'D-14';
     const H = (id, nombre, cat, geos, txt, med = '', opt = {}) => Pt(id, `${id} · ${nombre}`, cat, geos, { fn: fn + txt, sec: 'proyecto', med, u }, { group: GH, opt });
     const L = (x0, x1, y0, y1, z = Z2, e = e2) => A.losa([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], null, z - e, z);
+    /* frente norte del piso alto: inclinado 30° hacia el sur (Maxi 14/11). xi(z) = dónde está el plano inclinado a cada altura */
+    const xi = z => gn - (z - Z2) * Math.tan(INC * Math.PI / 180);
+    const inc = (y0, y1, e, za = Z2, zb = ZT) => box8([[xi(za) - e, za, y0], [xi(za) + e, za, y0], [xi(za) + e, za, y1], [xi(za) - e, za, y1], [xi(zb) - e, zb, y0], [xi(zb) + e, zb, y0], [xi(zb) + e, zb, y1], [xi(zb) - e, zb, y1]]);
+    const trap = (y, xa, z0 = Z2, z1 = ZT, e = 3) => box8([[xa, z0, y - e], [xi(z0), z0, y - e], [xi(z0), z0, y + e], [xa, z0, y + e], [xa, z1, y - e], [xi(z1), z1, y - e], [xi(z1), z1, y + e], [xa, z1, y + e]]);
     /* entrepiso: oficina (módulo 1), galería al sur del vacío (módulo 2), dormitorio (módulo 3), baño y descanso en el ensanche */
     H('H2-01', 'Entrepiso: oficina, galería, dormitorio, baño', 'deck', [L(xs, xn, 2000, ye), L(xs, gal, 1600, 2000), L(xs, xn, 1200, 1600), L(XE, xs, 1204, 1460), L(XE, xs, 1900, 2000)],
       'Piso alto a +3,10 sobre los módulos 1 y 3; el módulo 2 queda en doble altura, con una galería de 1,10 al sur que une la oficina con el dormitorio.', `piso alto a +${f2(Z2)}`);
@@ -135,22 +139,28 @@ function build(p) {
     /* escalera recta en el ensanche, contra la pared sur: sube de oeste a este y llega al descanso junto a la galería */
     { const E = A.escaleraGeos({ x: [XE + 6, XE + 106], y: [1468, 1900], z: [0, Z2], n: 17 }); H('H2-04', 'Escalera (17 alzadas de 18,2)', 'madera', [...E.ped, ...E.zan], 'Escalera recta de 1,00 de ancho en el ensanche, contra la pared sur. Una sola escalera para oficina y dormitorio.', 'pedada 27'); }
     /* postes: los del ensanche bajan al terreno; arriba, las columnas siguen hasta el techo nuevo */
-    H('H2-05', 'Columnas del piso alto y del ensanche', 'poste', [...[1200, 1600, 2000].map(y => box(XE - 15, XE, MM.TERR, ZT, y - 7.5, y + 7.5)), ...[1200, 1600, 2000, 2400].map(y => box(542.5, 557.5, MM.ZA, ZT, y - 7.5, y + 7.5)), ...[2000, 2400].map(y => box(-7.5, 7.5, MM.ZA, ZT, y - 7.5, y + 7.5))],
-      'Las columnas de los módulos 1 a 3 siguen hasta el techo nuevo; el ensanche lleva tres columnas propias hasta el terreno.');
+    H('H2-05', 'Columnas del piso alto y del ensanche', 'poste', [...[1200, 1600, 2000].map(y => box(XE - 15, XE, MM.TERR, ZT, y - 7.5, y + 7.5)), ...[1200, 1600, 2000, 2400].map(y => box(542.5, 557.5, MM.ZA, Z2, y - 7.5, y + 7.5)), ...[1200, 1600, 2000, 2400].map(y => inc(y - 7.5, y + 7.5, 7.5)), ...[2000, 2400].map(y => box(-7.5, 7.5, MM.ZA, ZT, y - 7.5, y + 7.5))],
+      'Las columnas del sur siguen hasta el techo nuevo; las del norte, arriba, se inclinan 30° con el frente vidriado. El ensanche lleva tres columnas propias hasta el terreno.');
     /* cerramientos de madera */
     const mx = (x, y0, y1, z0, z1) => box(x - 3, x + 3, z0, z1, y0, y1), my = (y, x0, x1, z0, z1) => box(x0, x1, z0, z1, y - 3, y + 3);
-    H('H2-06', 'Paredes de madera', 'muro', [my(2400, gs, gn, Z2, ZT), mx(gs, 2000, 2400, Z2, ZT), my(2000, XE, gs - 3, MM.Z0, ZT), mx(XE + 3, 1204, 1700, MM.Z0, ZT), mx(XE + 3, 1900, 2000, MM.Z0, ZT), mx(XE + 3, 1700, 1900, MM.Z0, 100),
-        my(1200, XE, gs - 3, Z2, ZT), my(1200, XE, -110, MM.Z0, Z2 - e2), my(1600, gal, gn, Z2, ZT), my(1460, XE + 6, gs - 3, Z2, ZT), mx(gs, 1300, 1460, Z2, ZT), my(1200, -110, gs - 3, 215, Z2 - e2), mx(gs, 1460, 1600, Z2, ZT)],
+    H('H2-06', 'Paredes de madera', 'muro', [trap(2400, gs), mx(gs, 2000, 2400, Z2, ZT), my(2000, XE, gs - 3, MM.Z0, ZT), mx(XE + 3, 1204, 1700, MM.Z0, ZT), mx(XE + 3, 1900, 2000, MM.Z0, ZT), mx(XE + 3, 1700, 1900, MM.Z0, 100),
+        my(1200, XE, gs - 3, Z2, ZT), my(1200, XE, -110, MM.Z0, Z2 - e2), trap(1600, gal), my(1460, XE + 6, gs - 3, Z2, ZT), mx(gs, 1300, 1460, Z2, ZT), my(1200, -110, gs - 3, 215, Z2 - e2), mx(gs, 1460, 1600, Z2, ZT)],
       'Cabecera este, sur de la oficina, ensanche (con un paño de vidrio junto a la escalera) y baño. La pared entre el dormitorio y el vacío es ciega; se entra desde la galería.');
-    if (p.carp) H('H2-07', 'Vidrios', 'glass', [mx(gn, 1200, 2400, Z2, ZT - 3), mx(gn, 1600, 2000, MM.ZA, Z2), my(1200, gs, gn, Z2, ZT - 3), mx(XE + 3, 1700, 1900, 100, ZT - 3), my(1200, -110, gs - 3, MM.Z0, 215)],
-      'Ventanal norte del piso alto (en el módulo 2 es la doble altura completa), frente del dormitorio a la terraza, paño del ensanche junto a la escalera y la puerta de atrás, que pasa al costado oeste del ensanche.', '', { noEdges: false });
+    /* vidrio repartido: paños de ~1,00 de ancho, 4 por semimódulo (2 de ancho × 2 de alto, de 1,00 × 1,50 sobre el plano inclinado) */
+    { const zm = (Z2 + ZT) / 2, ys = [...Array(11)].map((_, i) => 1300 + i * 100).filter(y => y % 400 !== 0);
+      H('H2-12', 'Carpintería del frente norte inclinado', 'marco', [...ys.map(y => inc(y - 2.5, y + 2.5, 3)), ...[Z2 + 3, zm, ZT - 3].map(z => box(xi(z) - 3, xi(z) + 3, z - 3, z + 3, 1200, 2400)), box(gn - 3, gn + 3, MM.ZA, Z2, 1600, 2000)],
+        'Maxi 14/11: las ventanas del segundo piso no van a plomo: se inclinan unos 30° hacia el sur, con vidrio repartido en paños de alrededor de 1,00, cuatro por semimódulo. Los hice de 1,00 × 1,50, dos de ancho por dos de alto.', `inclinado ${INC}° · paños de 1,00 × ${f2(Math.hypot(dI, ZT - Z2) / 2)}`);
+      const xsO = [...Array(5)].map((_, i) => gs + 100 + i * ((gn - gs) / 5.4)).filter(x => x < gn - 20), zTop = x => Math.min(ZT, Z2 + (gn - x) / Math.tan(INC * Math.PI / 180));
+      H('H2-13', 'Carpintería del dormitorio a la terraza', 'marco', [...xsO.map(x => box(x - 2.5, x + 2.5, Z2, zTop(x), 1197, 1203)), box(gs, xi(zm), zm - 2.5, zm + 2.5, 1197, 1203)], 'Mismo vidrio repartido, a plomo, en el frente del dormitorio hacia la terraza.', 'paños de ~1,00');
+      if (p.carp) H('H2-07', 'Vidrios', 'glass', [inc(1200, 2400, 1), trap(1200, gs, Z2, ZT - 3, 1), mx(XE + 3, 1700, 1900, 100, ZT - 3), my(1200, -110, gs - 3, MM.Z0, 215)],
+        'Frente norte inclinado del piso alto (en el módulo 2 cierra la doble altura), frente del dormitorio a la terraza, paño del ensanche junto a la escalera y la puerta de atrás, que pasa al costado oeste del ensanche.', '', { noEdges: false }); }
     /* oficina sobre el vacío: balcón con baranda y paneles corredizos tipo japonés (dos de cuatro, a medio abrir) */
-    H('H2-08', 'Balcón de la oficina: baranda', 'madera', A.barandaGeos({ pts: [[gal, 2000], [gn - 6, 2000]], z: Z2, h: 100 }), 'La oficina balconea sobre la doble altura.', 'baranda de 1,00', { noEdges: true });
-    H('H2-09', 'Paneles corredizos tipo japonés', 'shoji', [my(2006, gal, gal + 107, Z2, ZT - 6), my(2012, gn - 113, gn - 6, Z2, ZT - 6)], 'Cuatro paneles corredizos para cerrar la oficina cuando hace falta privacidad; dibujé dos, a medio abrir.', '4 × 1,07', { op: .7 });
+    H('H2-08', 'Balcón de la oficina: baranda', 'madera', A.barandaGeos({ pts: [[gal, 2000], [xi(Z2 + 100) - 4, 2000]], z: Z2, h: 100 }), 'La oficina balconea sobre la doble altura.', 'baranda de 1,00', { noEdges: true });
+    H('H2-09', 'Paneles corredizos tipo japonés', 'shoji', [my(2006, gal, gal + 107, Z2, ZT - 6), my(2012, gal + 60, gal + 167, Z2, ZT - 6)], 'Cuatro paneles corredizos para cerrar la oficina cuando hace falta privacidad; dibujé dos, a medio abrir.', '4 × 1,07', { op: .7 });
     H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[xs, 1200], [xs, 400], [xn, 400], [xn, 1200]], z: Z2, h: 100 })], 'Baranda de 1,00 hacia el vacío y en los tres lados libres de la terraza.', '', { noEdges: true });
     /* techo nuevo: chapa a un agua con la misma lógica, alta al norte, sobre los módulos 1 a 3 y el ensanche */
-    if (p.techos) { const X0 = XE - 50, X1 = MM.CXN + 35, zt = x => ZT + 8 + MM.CAMARA * (x - XE) / (MM.CXN - XE);
-      H('H2-11', 'Techo del piso alto (zincalum)', 'techo', A.techoGeo({ poly: [[X0, 1165], [X1, 1165], [X1, MM.CYE + 35], [MM.CXS - 35, MM.CYE + 35], [MM.CXS - 35, 2035], [X0, 2035]], baja: '-x', z: [zt(X1), zt(X0)], e: 1 }), 'Chapa acanalada a un agua, alta al norte, sobre los módulos 1 a 3 y el ensanche. Sin cielorraso ni estructura dibujados.', '', { noEdges: true }); } }
+    if (p.techos) { const X0 = XE - 50, X1 = xT + 35, zt = x => ZT + 6 + 30 * (x - XE) / (xT - XE);   /* arranca en la cabeza del frente inclinado; 0,30 de caída, baja al sur */
+      H('H2-11', 'Techo del piso alto (zincalum)', 'techo', A.techoGeo({ poly: [[X0, 1165], [X1, 1165], [X1, MM.CYE + 35], [MM.CXS - 35, MM.CYE + 35], [MM.CXS - 35, 2035], [X0, 2035]], baja: '-x', z: [zt(X1), zt(X0)], e: 1 }), 'Chapa acanalada a un agua, alta al norte, sobre los módulos 1 a 3 y el ensanche; arranca en la cabeza del frente inclinado, así que el techo es más angosto que la planta. Altura interior de 2,60 (Maxi). Sin cielorraso ni estructura dibujados.', '', { noEdges: true }); } }
   /* tirantes: una pieza por conjunto */
   if (p.tirantes) for (const t of MM.TIRANTES) { const { b, h } = t.S, geos = [];
     const tramos = H2 && t.id === 'TC-01' ? t.tramos.filter(([a0, a1]) => a1 < 1600 || a0 > 2000) : t.tramos;   /* doble altura en el módulo 2 */

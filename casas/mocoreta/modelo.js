@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.6.0', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.6.1', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -229,6 +229,7 @@ export const ESCALERAS = [], BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYA
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-14', v: '0.6.1', txt: 'Hipótesis del segundo piso (Maxi 14/11): el frente norte del piso alto se inclina 30° hacia el sur, con vidrio repartido en paños de 1,00 × 1,50 (cuatro por semimódulo); la altura interior queda en 2,60 y el techo arranca en la cabeza del frente inclinado, para que no parezca un edificio.' },
   { fecha: '2026-11-14', v: '0.6.0', txt: 'Dos hipótesis de proyecto, independientes, en «Ver»: «Altura» (la casa de hoy o elevada, con el piso a 2,90 para habitar la planta baja; el deck sube con la casa) y «Segundo piso, planta A» (piso alto sobre los módulos 1 a 3, doble altura en el 2, terraza sobre el 4 y el 5, ensanche de 2,00 al sur con escalera y baño, galería que une oficina y dormitorio). La plataforma norte va siempre a media altura entre la casa y el jardín, con las mismas alzadas para subir que para bajar.' },
   { fecha: '2026-11-14', v: '0.5.0', txt: 'Estructura de los decks, propuesta (Maxi 14/11: la más racional, en eucalipto, columnas sólo afuera, tablones de 2″): vigas dobles de 2″ × 12″ en pinza de sur a norte en cada par de columnas, con el poste retirado del borde (1,00 en el norte, 0,60 en el sur), y tirantes de 2″ × 12″ de este a oeste cada ~1,00 apoyados arriba; los tablones de 2″ van directo encima, sin clavadores. Antes los tirantes corrían paralelos a los tablones, que no puede ser. En la plataforma norte los tirantes también pasan a ir de este a oeste.' },
   { fecha: '2026-11-14', v: '0.4.1', txt: 'El deck de atrás (sur) se corre un módulo al oeste: queda en los módulos 3 y 4, con la puerta de atrás en su punta este.' },
