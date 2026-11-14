@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.4.0', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.4.1', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -34,7 +34,7 @@ export const TERR = RES - VP.h - 120;        /* terreno: 1,20 bajo el fondo de l
 export const ANTE = 100;                     /* «de la cintura para abajo es madera»: 1,00 sobre el piso, supuesto (D-08) */
 export const TIRP = { b: 5, h: 15, sep: 50 }, TIRC = { b: 5, h: 15, sep: 60 };   /* tirantes de piso y de cielorraso: tentativos (D-05) */
 export const TABLA = 2.5, CIELO = 2;
-export const DECKN = 400, DECKS = { fondo: 250, y: [1200, 2000] };   /* deck norte de 4,00 en todo el largo; deck sur 2,50 × 8,00 */
+export const DECKN = 400, DECKS = { fondo: 250, y: [800, 1600] };   /* deck norte de 4,00 en todo el largo; deck sur 2,50 × 8,00 */
 export const ALERO = 35, CAMARA = 50;        /* chapa: vuela 0,35 desde el panel de la cámara (Maxi 14/11, sobre la captura); 0,50 más alta al norte que al sur */
 const CI = COL / 2;                                          /* cara interior de las columnas = cara de afuera de la viga del piso y de las falsas columnas */
 export const GS = CI + 1, GN = ANCHO - CI - 1;               /* planos del vidrio sur y norte */
@@ -160,7 +160,7 @@ const deckPoly = (xc, xf, y0, y1, dx) => { const P = [[xf, y0]]; let abierto = f
 const LOSAS = [
   { id: 'LO-01', nivel: 'PB', nombre: 'Piso interior (entablonado)', z: 0, e: TABLA, poly: rect(PIS, PIN, PYO + VP.b, PYE - VP.b), huecos: [DES.poly], estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: el piso queda unos 3 cm por debajo de la cara de arriba de la viga perimetral. Entablonado sobre los tirantes; espesor supuesto.' },
   { id: 'LO-02', nivel: 'PB', nombre: 'Deck norte', tablon: 19, z: 0, e: TABLA, poly: deckPoly(DN0, xDN - VD.b / 2, -VOL + VD.b / 2, LARGO - VD.b / 2, 1), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: deck en todo el frente norte, al nivel del piso interior (3 cm bajo la viga perimetral), de tablones de 19, ininterrumpidos y transversales, de 4,00 de ancho por todo el largo de la casa. Supuse que incluye el metro del voladizo (D-04).' },
-  { id: 'LO-03', nivel: 'PB', nombre: 'Deck sur', tablon: 19, z: 0, e: TABLA, poly: deckPoly(DS0, xDS + VD.b / 2, dy0 + VD.b / 2, dy1 - VD.b / 2, -1), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: deck chico de 2,50 × 8,00 al sur, entre tres columnas principales, al que da la puerta de atrás. Con la puerta de atrás en el módulo 3, lo puse en los módulos 3 y 2: «donde está la puerta de atrás y otro módulo de 4 metros hacia el este» (D-06).' },
+  { id: 'LO-03', nivel: 'PB', nombre: 'Deck sur', tablon: 19, z: 0, e: TABLA, poly: deckPoly(DS0, xDS + VD.b / 2, dy0 + VD.b / 2, dy1 - VD.b / 2, -1), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: deck chico de 2,50 × 8,00 al sur, entre tres columnas principales, al que da la puerta de atrás. Va en los módulos 3 y 4 (Maxi 14/11: «correlo un módulo para el oeste»); la puerta de atrás queda en su punta este.' },
 ];
 LOSAS.push({ id: 'LO-04', nivel: 'PB', nombre: 'Piso del desnivel (módulo 2)', z: DES.z, e: TABLA, poly: DES.poly, estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: desnivel de dos alzadas que ocupa todo el módulo 2 menos un pasillo sur de 0,80. Lo dibujé hacia abajo, 0,34 (alzadas de 0,17 supuestas) (D-12).' });
 LOSAS.push({ id: 'LO-05', nivel: 'PB', nombre: 'Plataforma norte', tablon: 19, z: PLA.z, e: TABLA, poly: rect(PLA.x[0], PLA.x[1], PLA.y[0], PLA.y[1]), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: plataforma de deck al norte, en los dos módulos centrales, que se proyecta 4,00 al norte y está 3 alzadas por debajo del deck principal (0,51 con alzadas de 0,17). Tablones de 19 como el deck (D-13).' });
@@ -197,7 +197,7 @@ export const DUDAS = [
   { id: 'D-03', ref: ['VT-2'], q: 'Vigas transversales de 25 × 7: las puse arriba, a la altura del cielorraso. ¿Hay también una en el piso en cada par de columnas?' },
   { id: 'D-04', ref: ['LO-02', 'LO-03', 'PD-1', 'PS-1', 'VD-N', 'VS-S'], q: 'Decks: los postes exteriores van de 6 × 6; ¿cuántos son y cada cuánto? Puse uno por cada par de columnas de la casa. ¿Qué vigas tienen? ¿El deck norte incluye el metro del voladizo (25,00) o son 24,00? ¿Tienen baranda?' },
   { id: 'D-05', ref: ['TP-01', 'TC-01'], q: 'Tirantes del piso y del cielorraso: sección, separación y para qué lado corren. Están tentativos (2″ × 6″; los del piso de norte a sur cada 0,50, los del cielorraso son 5, de este a oeste, repartidos parejos).' },
-  { id: 'D-06', ref: ['MN-05', 'MS-05', 'LO-03'], q: 'Puertas y deck sur. Las dos corredizas quedaron enfrentadas en la mitad este del módulo 3. ¿Para qué lado corre cada una? Las puse corriendo hacia el oeste (la del sur no puede ir al este: está la columna). El deck sur lo puse en los módulos 3 y 2 (de la puerta hacia el este): ¿o son el 3 y el 4?' },
+  { id: 'D-06', ref: ['MN-05', 'MS-05'], q: 'Puertas. Las dos corredizas quedaron enfrentadas en la mitad este del módulo 3. ¿Para qué lado corre cada una? Las puse corriendo hacia el oeste (la del sur no puede ir al este: está la columna).' },
   { id: 'D-07', ref: ['MO-01', 'V-O01'], q: 'Lado oeste: la ventana de 1,00 × 1,50, ¿dónde va a lo ancho? La puse centrada.' },
   { id: 'D-08', ref: ['MS-03', 'V-S03'], q: '«De la cintura para abajo es madera»: ¿a qué altura empieza el vidrio? Puse 1,00.' },
   { id: 'D-09', ref: ['ME-01', 'V-E01'], q: 'Ventana del este (1,00, de piso a techo, lado norte): ¿va pegada a la esquina norte, como la puse, o separada? ¿Es fija o se abre?' },
@@ -208,6 +208,7 @@ export const DUDAS = [
 ];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-14', v: '0.4.1', txt: 'El deck de atrás (sur) se corre un módulo al oeste: queda en los módulos 3 y 4, con la puerta de atrás en su punta este.' },
   { fecha: '2026-11-14', v: '0.4.0', txt: 'Las corredizas se abren arrastrándolas (o con el deslizador de su ficha), como en Arcos; antes eran una casilla en «Puertas». La de entrada pasa a la primera mitad (este) del módulo 3, enfrentada a la de atrás. Sillón: la repisa vuela 6 cm sobre el piso alto, así que el sillón gana ese lugar; el escalón del desnivel arranca en la línea del asiento. Escalones de la plataforma norte: resuelta la esquina noreste.' },
   { fecha: '2026-11-14', v: '0.3.2', txt: 'Sillón del desnivel (Maxi 14/11): asiento a 0,35, repisa del respaldo de 0,40 de ancho y respaldo inclinado 20° respecto de la vertical. Los tablones de los decks pasan a 19 de ancho, ininterrumpidos (de punta a punta, 4,00 en el deck norte).' },
   { fecha: '2026-11-14', v: '0.3.1', txt: 'Plataforma norte (Maxi 14/11): deck de 8,00 × 4,00 frente a los dos módulos centrales, 3 alzadas más abajo que el deck principal, con escalones en todo el borde compartido y 3 escalones al terreno al norte y al este. Las vigas de borde de los decks quedan a ras de los tablones.' },
