@@ -55,6 +55,7 @@ Desde el 8/11/2026 todas las casas van en una página: `herramientas/armar-hub.s
 | `visor-planta.js` | planta en SVG navegable |
 | `ediciones.js`, `editor3d.js` | ediciones del usuario guardadas encima del modelo |
 | `octet.js`, `octet-editor.js`, `octet-modelos.js` | octet truss (retícula FCC): `octet.js` es la retícula, qué conexiones valen, la geometría de nodos (dodecaedro rómbico, full y half) y tubos y la lista de materiales; `octet-editor.js` es la edición en el 3D (agregar con direcciones fantasma, quitar, elegir y mover por pasos de la retícula, bloque semilla, deshacer) con el panel en la barra y los modelos guardados en la colección `octet` de la base; `octet-modelos.js` guarda los modelos que se llevan a las casas como mueble `octet` (`muebles.js`). La escena `casas/octet` es el editor; cualquier casa lo dibuja |
+| `corredizas.js` | hojas corredizas que se abren arrastrándolas o con el deslizador de su ficha; la casa declara las hojas (id, eje, recorrido). La usa Mocoretá; Arcos sigue con su `movibles.js` |
 | `nombres.js`, `marcas.js`, `medir.js`, `senalar.js`, `vistasui.js`, `luz.js`, `realismo.js`, `escalera.js`, `icons.js` | utilidades del visor |
 
 ## Persistencia
