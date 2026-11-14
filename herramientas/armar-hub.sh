@@ -8,7 +8,7 @@
 # importa de la casa (./modelo.js, ./video.js, ./calco-glb.js) a la carpeta de la casa. Uso: bash herramientas/armar-hub.sh [casa ...]
 set -euo pipefail
 cd "$(dirname "$0")/.."
-CASAS=${*:-"carhue arcos cocinas octet catalogo laboratorio"}  # Maxi 9/11: Malabrigo fuera del hub (queda en el repo)
+CASAS=${*:-"carhue arcos mocoreta cocinas octet catalogo laboratorio"}  # Maxi 9/11: Malabrigo fuera del hub (queda en el repo)
 OUT=dist/housemaker
 rm -rf "$OUT"; mkdir -p "$OUT/motor"
 cp -r motor/. "$OUT/motor/"; rm -f "$OUT/motor/_clipper.js"
