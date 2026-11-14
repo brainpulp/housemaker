@@ -1,6 +1,6 @@
 /* Piso de tablones (motor; antes casas/arcos/tablones.js, pasado al motor el 4/11 para usarlo también en Cocinas): tablas de ANCHO cm que corren en x (de medianera a medianera, transversales a la casa), con juntas
-   escalonadas y tres tonos, recortadas al polígono de la losa y a sus huecos (rectángulos). Devuelve geometrías por tono. */
-export function tablones(geo, A, { poly, huecos = [], z, ancho = 20, junta = 0.4, esp = 2, seed = 1 }) {
+   escalonadas (o de una pieza, con entero:true) y tres tonos, recortadas al polígono de la losa y a sus huecos (rectángulos). Devuelve geometrías por tono. */
+export function tablones(geo, A, { poly, huecos = [], z, ancho = 20, junta = 0.4, esp = 2, seed = 1, entero = false }) {
   const { box8, clip } = geo;
   let r = seed * 9301 + 49297; const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
   const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]);
@@ -21,8 +21,8 @@ export function tablones(geo, A, { poly, huecos = [], z, ancho = 20, junta = 0.4
     c.Execute(CL.ClipType.ctIntersection, sol, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
     return sol.map(pa => pa.map(pt => [pt.X / S, pt.Y / S])); };
   for (let y = Y0; y < Y1 - 0.5; y += ancho) { const ya = y + junta / 2, yb = Math.min(y + ancho, Y1) - junta / 2; if (yb - ya < 1) continue;
-    let x = X0 - rnd() * 180;
-    while (x < X1) { const L = 120 + rnd() * 180, xa = Math.max(x, X0) + junta / 2, xb = Math.min(x + L, X1) - junta / 2, t = Math.floor(rnd() * 3); x += L;
+    let x = entero ? X0 - junta / 2 : X0 - rnd() * 180;   /* entero: tablones ininterrumpidos, de punta a punta (decks de Mocoretá, Maxi 14/11) */
+    while (x < X1) { const L = entero ? X1 - X0 + junta : 120 + rnd() * 180, xa = Math.max(x, X0) + junta / 2, xb = Math.min(x + L, X1) - junta / 2, t = Math.floor(rnd() * 3); x += L;
       if (xb - xa < 2) continue;
       for (const [x0, x1, y0, y1] of menos([xa, xb, ya, yb], huecos)) { if (x1 - x0 < 1 || y1 - y0 < 1) continue;
         /* recorte de la tabla contra la losa: con Clipper, porque la losa puede ser cóncava (el estar hundido es una muesca)

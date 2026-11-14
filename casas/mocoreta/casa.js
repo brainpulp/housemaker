@@ -72,9 +72,9 @@ function build(p) {
     else Pt(m.id, `${m.id} · ${m.nombre}`, 'muro', A.muroGeos(MM, m), { ...base(m), med, sec: `madera, ${m.e} cm` }, { group: G.fach, opt: {} }); }
   if (p.carp) for (const a of MM.ABERTURAS) Pt(a.id, `${a.id} · ${a.nombre}`, 'glass', A.hojaGeo(MM, a, 2), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, { group: G.fach, opt: {} });
   /* pisos */
-  if (p.pisos) for (const l of MM.LOSAS) { if (l.tablon) { /* deck de tablones de 14, transversales a la casa (corren de sur a norte) */
-      const T = tablones(geo, A, { poly: l.poly, huecos: [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, seed: l.id.charCodeAt(4) });
-      T.forEach((g, i) => Pt(`${l.id}${'abc'[i]}`, `${l.id} · ${l.nombre}`, 'tabla' + (i + 1), g, { ...base(l), sec: `tablones de ${l.tablon}, transversales`, med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} })); continue; }
+  if (p.pisos) for (const l of MM.LOSAS) { if (l.tablon) { /* deck de tablones de 19, ininterrumpidos y transversales a la casa (corren de sur a norte) */
+      const T = tablones(geo, A, { poly: l.poly, huecos: [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, entero: true, seed: l.id.charCodeAt(4) });
+      T.forEach((g, i) => Pt(`${l.id}${'abc'[i]}`, `${l.id} · ${l.nombre}`, 'tabla' + (i + 1), g, { ...base(l), sec: `tablones de ${l.tablon}, enteros y transversales`, med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} })); continue; }
     Pt(l.id, `${l.id} · ${l.nombre}`, 'deck', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} }); }
   /* estructura */
   for (const s of MM.ESTRUCTURA) {
@@ -88,12 +88,18 @@ function build(p) {
     /* escalones: uno intermedio de cada lado, en el tramo de 1,50 que dejan libres los brazos del sillón */
     Pt('ES-01', 'ES-01 · Escalón este del desnivel', 'madera', box(xc, x1, zf, zf + M.ALZ, y1 - D.pedada, y1), { fn: fn + 'Dos alzadas de 0,17: del piso al escalón y del escalón al piso del desnivel.', sec: `pedada ${D.pedada}`, med: `${f2(x1 - xc)} de ancho`, u: 'D-12' }, { group: G.piso, opt: {} });
     Pt('ES-02', 'ES-02 · Escalón oeste del desnivel', 'madera', box(xc, x1, zf, zf + M.ALZ, y0, y0 + D.pedada), { fn: fn + 'Espejo del ES-01.', sec: `pedada ${D.pedada}`, med: `${f2(x1 - xc)} de ancho`, u: 'D-12' }, { group: G.piso, opt: {} });
-    if (p.sillon) { const r = D.resp, a = D.asiento, zr = zf + D.hResp, za = zf + D.hAs;
-      /* respaldo-repisa: cajón de madera de 45 de ancho cuya tapa es la repisa. Lomo al sur, brazos al este y al oeste hasta 1,50 del ventanal norte */
-      Pt('SC-01', 'SC-01 · Sillón en C: respaldo con repisa', 'madera', [box(x0, x0 + r, zf, zr, y0, y1), box(x0 + r, xc, zf, zr, y0, y0 + r), box(x0 + r, xc, zf, zr, y1 - r, y1)],
-        { fn: fn + 'Maxi 14/11: sillón en C con respaldo de madera que termina en una repisa de 0,45 de ancho; los dos brazos (este y oeste) se interrumpen a 1,50 del ventanal norte.', sec: `repisa de ${r}`, med: `repisa a ${f2(D.hResp)} del piso del desnivel (+${f2(zr)})`, u: 'D-12' }, { group: G.piso, opt: {} });
-      Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'tela', [box(x0 + r, x0 + r + a, zf, za, y0 + r, y1 - r), box(x0 + r + a, xc, zf, za, y0 + r, y0 + r + a), box(x0 + r + a, xc, zf, za, y1 - r - a, y1 - r)],
-        { fn: fn + 'Asiento de 0,60 de fondo a 0,42 del piso del desnivel: medidas supuestas.', sec: `fondo ${a}`, med: `asiento a +${f2(za)}`, u: 'D-12' }, { group: G.piso, opt: {} }); } }
+    if (p.sillon) { const r = D.resp, a = D.asiento, zr = zf + D.hResp, za = zf + D.hAs, R = r + (zr - za) * Math.tan(D.ang * Math.PI / 180);
+      /* respaldo-repisa: cajón de madera cuya tapa es la repisa de 40; del asiento para arriba, la cara donde uno se apoya va inclinada 20° de la vertical
+         (abajo, a la altura del asiento, el respaldo llega a R del borde; arriba, a r). Lomo al sur, brazos al este y al oeste hasta 1,50 del ventanal norte */
+      const cu = (q, t) => box8([...q.map(([x, y]) => [x, za, y]), ...t.map(([x, y]) => [x, zr, y])]);
+      const resp = [box(x0, x0 + R, zf, za, y0, y1), box(x0, xc, zf, za, y0, y0 + R), box(x0, xc, zf, za, y1 - R, y1),
+        cu([[x0, y0], [x0 + R, y0], [x0 + R, y1], [x0, y1]], [[x0, y0], [x0 + r, y0], [x0 + r, y1], [x0, y1]]),
+        cu([[x0, y0], [xc, y0], [xc, y0 + R], [x0, y0 + R]], [[x0, y0], [xc, y0], [xc, y0 + r], [x0, y0 + r]]),
+        cu([[x0, y1 - R], [xc, y1 - R], [xc, y1], [x0, y1]], [[x0, y1 - r], [xc, y1 - r], [xc, y1], [x0, y1]])];
+      Pt('SC-01', 'SC-01 · Sillón en C: respaldo con repisa', 'madera', resp,
+        { fn: fn + 'Maxi 14/11: sillón en C con respaldo de madera inclinado unos 20° de la vertical, que termina en una repisa de 0,40 de ancho; los dos brazos (este y oeste) se interrumpen a 1,50 del ventanal norte. Altura de la repisa supuesta.', sec: `repisa de ${r} · respaldo a ${D.ang}°`, med: `repisa a ${f2(D.hResp)} del piso del desnivel (+${f2(zr)})`, u: 'D-12' }, { group: G.piso, opt: {} });
+      Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'tela', [box(x0 + R, x0 + R + a, zf, za, y0 + R, y1 - R), box(x0 + R + a, xc, zf, za, y0 + R, y0 + R + a), box(x0 + R + a, xc, zf, za, y1 - R - a, y1 - R)],
+        { fn: fn + 'Maxi 14/11: asiento a 0,35 del piso del desnivel. Fondo de 0,60 supuesto.', sec: `fondo ${a}`, med: `asiento a ${f2(D.hAs)} del piso del desnivel (+${f2(za)})`, u: 'D-12' }, { group: G.piso, opt: {} }); } }
   /* escalones de la plataforma norte: macizos (cajones), a todo lo largo de cada borde */
   if (p.pisos) { const P = M.PLA, [x0, x1] = P.x, [y0, y1] = P.y, g = P.pedada, A1 = M.ALZ, u = 'D-13';
     /* del deck a la plataforma: 3 alzadas, dos escalones intermedios sobre la plataforma, en todo el borde compartido */
