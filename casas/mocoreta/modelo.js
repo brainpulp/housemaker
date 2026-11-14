@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.2.0', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.2.1', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 1700, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 300, cy: 1150, w: 1500, h: 2900 }, ejesExt: { x0: -330, x1: 1030, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -35,7 +35,7 @@ export const ANTE = 100;                     /* «de la cintura para abajo es ma
 export const TIRP = { b: 5, h: 15, sep: 50 }, TIRC = { b: 5, h: 15, sep: 60 };   /* tirantes de piso y de cielorraso: tentativos (D-05) */
 export const TABLA = 2.5, CIELO = 2;
 export const DECKN = 400, DECKS = { fondo: 250, y: [800, 1600] };   /* deck norte de 4,00 en todo el largo; deck sur 2,50 × 8,00 */
-export const ALERO = 30, CAMARA = 50;        /* chapa: vuela 0,30 a los cuatro lados; 0,50 más alta al norte que al sur */
+export const ALERO = 35, CAMARA = 50;        /* chapa: vuela 0,35 desde el panel de la cámara (Maxi 14/11, sobre la captura); 0,50 más alta al norte que al sur */
 const CI = COL / 2;                                          /* cara interior de las columnas = cara de afuera de la viga del piso y de las falsas columnas */
 export const GS = CI + 1, GN = ANCHO - CI - 1;               /* planos del vidrio sur y norte */
 const PS0 = CI + VP.b / 2, PN0 = ANCHO - PS0;                /* ejes de las vigas del piso sur y norte */
@@ -44,14 +44,16 @@ const PIS = CI + VP.b, PIN = ANCHO - PIS;                    /* caras interiores
 const AIS = GS + VA.b / 2, AIN = ANCHO - AIS;                /* caras interiores de las vigas de arriba */
 export const XS = GS - VA.b / 2, XN = ANCHO - XS, YO = -VOL - VA.b / 2, YE = LARGO + VA.b / 2;   /* caras de afuera de las vigas de arriba: de ahí vuela la chapa */
 const PYO = -VOL - VP.b / 2, PYE = LARGO + VP.b / 2;         /* puntas de las vigas del piso */
-/* cara de abajo de la chapa: apoya sobre la viga de arriba en la cara sur y sube 0,50 hasta la cara norte */
-export const zR = x => ZA + CAMARA * (x - XS) / (XN - XS);
+/* panel (cenefa) de la cámara del techo: sobresale hasta quedar coplanar con la cara de AFUERA de las columnas (Maxi 14/11); de ahí vuela la chapa */
+export const CXS = -CI, CXN = ANCHO + CI, CYO = PYO, CYE = PYE;
+/* cara de abajo de la chapa: arranca sobre la viga de arriba en la cara sur del panel y sube 0,50 hasta la cara norte */
+export const zR = x => ZA + CAMARA * (x - CXS) / (CXN - CXS);
 export const yPar = k => LARGO - (k - 1) * PASO;          /* y del par de columnas k (1 = este … 7 = oeste) */
 export const modulo = k => [yPar(k + 1), yPar(k)];        /* [y oeste, y este] del módulo k */
 
 /* ---------- fachadas ---------- */
 /* Sur, por módulo (Maxi): 1 ventanal · 2 y 3 vidrio de la cintura para arriba · 4 ventanal (con la puerta de atrás) · 5 y 6 de la cintura para arriba. */
-const SUR = { 1: 'vidrio', 2: 'medio', 3: 'medio', 4: 'vidrio', 5: 'medio', 6: 'medio', 7: 'medio' };
+const SUR = { 1: 'vidrio', 2: 'medio', 3: 'medio', 4: 'vidrio', 5: 'medio', 6: 'medio' };
 const PUERTA_N = 6, PUERTA_S = 7;   /* paño 6: mitad oeste del módulo 3, pegado al cuarto par (y 1200–1400). Paño 7: su espejo del otro lado del par 4, en el módulo 4 (D-06) */
 const MUROS = [], ABERTURAS = [];
 /* paños: 12 de 2,00 (dos por módulo, numerados de este a oeste) y el 13, de 1,00, en el voladizo */
@@ -61,7 +63,9 @@ const pano = i => { if (i === 13) return [-VOL + FC / 2, -CI];
 const n2 = i => String(i).padStart(2, '0');
 for (const [f, x] of [['N', GN], ['S', GS]]) for (let i = 1; i <= 13; i++) {
   const [y0, y1] = pano(i), k = Math.min(7, Math.ceil(i / 2)), id = `M${f}-${n2(i)}`, lado = f === 'N' ? 'norte' : 'sur', mod = i === 13 ? 'voladizo' : `módulo ${k}`;
-  const puerta = (f === 'N' && i === PUERTA_N) || (f === 'S' && i === PUERTA_S), tipo = f === 'N' ? 'vidrio' : SUR[k];
+  const puerta = (f === 'N' && i === PUERTA_N) || (f === 'S' && i === PUERTA_S), tipo = i === 13 ? 'ciego' : f === 'N' ? 'vidrio' : SUR[k];
+  /* el metro del voladizo oeste es ciego, de madera, al norte y al sur (Maxi 14/11) */
+  if (tipo === 'ciego') { MUROS.push({ id, nivel: 'PB', a: [x, y0], b: [x, y1], e: 6, tipo: 'madera', z0: Z0, top: ZV, estado: 'existente', conf: 'estimado', nombre: `Paño ciego del voladizo oeste, ${lado}`, nota: 'Maxi 14/11: el paño angosto del voladizo oeste es ciego, de madera, tanto al norte como al sur.' }); continue; }
   if (tipo === 'vidrio') MUROS.push({ id, nivel: 'PB', a: [x, y0], b: [x, y1], e: 6, tipo: 'vidrio', z0: Z0, top: ZV, modulos: 1, corrediza: puerta, estado: 'existente', conf: i === 13 ? 'supuesto' : 'estimado',
     nombre: puerta ? `Puerta corrediza ${f === 'N' ? 'de entrada (al deck norte)' : 'de atrás (al deck sur)'}` : `Ventanal ${lado}, ${mod}`,
     nota: puerta ? (f === 'N' ? 'Maxi 14/11: uno de los vidrios se transforma en corredizo, justo a la izquierda de la cuarta columna mirando de norte a sur, más o menos en el centro de la casa (D-06).' : 'Maxi 14/11: «espejo de la entrada de adelante», da al deck sur. La puse del otro lado del cuarto par, en el módulo 4, que es ventanal completo (D-06).')
@@ -70,20 +74,20 @@ for (const [f, x] of [['N', GN], ['S', GS]]) for (let i = 1; i <= 13; i++) {
       nota: `Maxi 14/11: «de la cintura para arriba es vidrio, de la cintura para abajo es madera». Altura de la madera supuesta en ${ANTE / 100} m (D-08).` });
     ABERTURAS.push({ id: `V-S${n2(i)}`, muro: id, d: 0, w: y1 - y0, h: HV - ANTE + RES, s: ANTE - RES, tipo: 'ventana', estado: 'existente', conf: 'supuesto', nombre: `Vidrio fijo sur, ${mod}`, nota: 'De la cintura al dintel (D-08).' }); }
 }
-/* este (Maxi 14/11, tercera tanda): madera ciega con una ventana de piso a techo de 1,00 de ancho en la punta norte. Oeste: madera ciega con una ventana chica (tentativa, D-07) */
+/* este (Maxi 14/11, tercera tanda): madera ciega con una ventana de piso a techo de 1,00 de ancho en la punta norte. Oeste: madera ciega con una ventana de 1,00 × 1,50, antepecho 0,75 */
 { const L = GN - GS - 6;
   MUROS.push({ id: 'ME-01', nivel: 'PB', a: [GS + 3, LARGO], b: [GN - 3, LARGO], e: 6, tipo: 'madera', z0: Z0, top: ZV, estado: 'existente', conf: 'estimado', nombre: 'Pared este', nota: 'Maxi 14/11: madera ciega, salvo una ventana de piso a techo de 1,00 de ancho en el lado norte de la cara este.' });
   ABERTURAS.push({ id: 'V-E01', muro: 'ME-01', d: L - 100, w: 100, h: HV, s: 0, tipo: 'ventana', estado: 'existente', conf: 'estimado', nombre: 'Ventana este, de piso a techo', nota: 'Maxi 14/11: 1,00 de ancho, de piso a techo, en el lado norte de la cara este. La pegué a la esquina norte (D-09).' });
   const a0 = CI + FC, a1 = ANCHO - CI - FC;
   MUROS.push({ id: 'MO-01', nivel: 'PB', a: [a0, -VOL], b: [a1, -VOL], e: 6, tipo: 'madera', z0: Z0, top: ZV, estado: 'existente', conf: 'estimado', nombre: 'Pared oeste', nota: 'Maxi 14/11: el lado oeste no tiene ventanal, sólo una ventana pequeña; el resto es madera ciega.' });
-  ABERTURAS.push({ id: 'V-O01', muro: 'MO-01', d: (a1 - a0 - 80) / 2, w: 80, h: 60, s: 120 - RES, tipo: 'ventana', estado: 'existente', conf: 'supuesto', nombre: 'Ventana oeste, chica (tentativa)', nota: 'Maxi: «sólo una ventana pequeña». Medidas y posición supuestas: 0,80 × 0,60, centrada, a 1,20 del piso (D-07).' }); }
+  ABERTURAS.push({ id: 'V-O01', muro: 'MO-01', d: (a1 - a0 - 100) / 2, w: 100, h: 150, s: 75 - RES, tipo: 'ventana', estado: 'existente', conf: 'estimado', nombre: 'Ventana oeste', nota: 'Maxi 14/11: 1,00 de ancho por 1,50 de alto, antepecho a 0,75. La centré en la pared: la posición es supuesta (D-07).' }); }
 
 /* ---------- estructura ---------- */
 const ESTRUCTURA = [];
 const col = (id, x, y, sec, z, nombre, nota, conf = 'supuesto', cat = 'columna') => ESTRUCTURA.push({ id, nivel: 'PB', tipo: 'columna', pos: [x, y], sec: `${sec}×${sec}`, z, cat, estado: 'existente', conf, nombre, nota });
 const viga = (id, a, b, S, z, nombre, nota, conf = 'estimado') => ESTRUCTURA.push({ id, nivel: 'PB', tipo: 'viga', a, b, sec: `${S.b}×${S.h}`, z, estado: 'existente', conf, nombre, nota });
 for (let k = 1; k <= NPAR; k++) for (const [f, x] of [['S', 0], ['N', ANCHO]])
-  col(`C-${k}${f}`, x, yPar(k), COL, [TERR, HC], `Columna ${k} ${f === 'S' ? 'sur' : 'norte'}`, 'Maxi 14/11: 14 columnas de 15 × 15, dos filas de 7, cada 4,00 y a 5,50 entre filas. Van por FUERA de las vigas perimetrales: la cara interior queda casi a plomo con el vidrio y sobresalen 15 hacia afuera. La dibujé de una pieza, de la tierra hasta +3,00, justo bajo la chapa (D-02).', 'estimado');
+  col(`C-${k}${f}`, x, yPar(k), COL, [TERR, ZA], `Columna ${k} ${f === 'S' ? 'sur' : 'norte'}`, 'Maxi 14/11: 14 columnas de 15 × 15, dos filas de 7, cada 4,00 y a 5,50 entre filas. Van por FUERA de las vigas perimetrales: la cara interior queda casi a plomo con el vidrio y sobresalen 15 hacia afuera. De una pieza, de la tierra hasta abajo del panel de la cámara del techo, que sobresale hasta su cara de afuera.', 'estimado');
 for (let k = 1; k < NPAR; k++) for (const [f, x] of [['S', FS0], ['N', FN0]])
   col(`FC-${k}${f}`, x, yPar(k) - PASO / 2, FC, [Z0, ZV], `Falsa columna del módulo ${k}, ${f === 'S' ? 'sur' : 'norte'}`, 'Maxi 14/11: parte en dos el módulo de 4,00; coplanar por fuera con la viga perimetral del piso (1 cm por fuera del vidrio). Fondo de 10 supuesto (D-02).', 'estimado', 'falsa');
 for (const [s, x] of [['S', FS0], ['N', FN0]])
@@ -108,9 +112,10 @@ viga('VS-E', [xDS + VD.b / 2, dy1], [-CI, dy1], VD, RES, 'Viga este del deck sur
 const serie = (a, b, sep) => { const n = Math.round((b - a) / sep), d = (b - a) / n; return [...Array(n - 1)].map((_, i) => a + (i + 1) * d); };
 const medio = (a, b, sep) => { const o = []; for (let v = a + sep / 2; v < b; v += sep) o.push(v); return o; };   /* corridos medio paso: no caen sobre las columnas */
 const tramosY = [[YO + VA.b, -VT.b / 2], ...[...Array(NPAR - 2)].map((_, i) => [i * PASO + VT.b / 2, (i + 1) * PASO - VT.b / 2]), [LARGO - PASO + VT.b / 2, YE - VA.b]];
+const NTC = 5;   /* tirantes del cielorraso: 5 (Maxi) */
 export const TIRANTES = [
   { id: 'TP-01', nombre: 'Tirantes del piso', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[PIS, PIN]], pos: serie(-VOL, LARGO, TIRP.sep), conf: 'supuesto', nota: 'Tentativos (Maxi: no recuerda frecuencia ni tamaño). Supuse 2″ × 6″ cada 0,50 de viga perimetral a viga perimetral (5,05 de luz) (D-05).' },
-  { id: 'TC-01', nombre: 'Tirantes del cielorraso', dir: 'y', S: TIRC, zt: HC, tramos: tramosY, pos: serie(AIS, AIN, TIRC.sep), conf: 'supuesto', nota: 'Tentativos. Supuse 2″ × 6″ cada 0,60 de viga transversal a viga transversal (4,00) (D-05).' },
+  { id: 'TC-01', nombre: 'Tirantes del cielorraso', dir: 'y', S: TIRC, zt: HC, tramos: tramosY, pos: [...Array(NTC)].map((_, i) => AIS + (i + 1) * (AIN - AIS) / (NTC + 1)), conf: 'estimado', nota: 'Maxi 14/11: son 5 nada más. Los repartí parejos en el ancho (cada 0,88), de viga transversal a viga transversal (4,00). Sección 2″ × 6″ supuesta (D-05).' },
   { id: 'TD-01', nombre: 'Tirantes del deck norte', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[DN0, xDN - VD.b / 2]], pos: medio(-VOL, LARGO, TIRP.sep), conf: 'supuesto', nota: nd },
   { id: 'TD-02', nombre: 'Tirantes del deck sur', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[xDS + VD.b / 2, DS0]], pos: medio(dy0, dy1, TIRP.sep), conf: 'supuesto', nota: nd },
 ];
@@ -133,8 +138,8 @@ const LOCALES = [
   { id: 'L-03', nivel: 'PB', nombre: 'Deck sur', poly: rect(xDS - VD.b / 2, DS0, dy0 - VD.b / 2, dy1 + VD.b / 2), estado: 'existente', conf: 'estimado', nota: '2,50 × 8,00.' },
 ];
 const TECHOS = [
-  { id: 'T-01', poly: rect(XS - ALERO, XN + ALERO, YO - ALERO, YE + ALERO), baja: '-x', pend: `${(CAMARA / (XN - XS) * 100).toFixed(0)} %`, mat: 'chapa', z: [zR(XN + ALERO) + 1, zR(XS - ALERO) + 1], e: 1, estado: 'existente', conf: 'estimado', nombre: 'Chapa a un agua',
-    nota: 'Maxi 14/11: techo de chapa a un agua, el lado alto al norte, unos 0,50 más alto que el sur; vuela 0,30 a los cuatro lados. No dibujé lo que sostiene la chapa (D-11).' },
+  { id: 'T-01', poly: rect(CXS - ALERO, CXN + ALERO, CYO - ALERO, CYE + ALERO), baja: '-x', pend: `${(CAMARA / (CXN - CXS) * 100).toFixed(0)} %`, mat: 'chapa acanalada de zincalum', z: [zR(CXN + ALERO) + 1, zR(CXS - ALERO) + 1], e: 1, estado: 'existente', conf: 'estimado', nombre: 'Chapa acanalada de zincalum, a un agua',
+    nota: 'Maxi 14/11: techo de chapa acanalada tipo zincalum, a un agua, el lado alto al norte, unos 0,50 más alto que el sur. Vuela 0,35 medidos desde el panel de la cámara, que es coplanar con la cara de afuera de las columnas. No dibujé lo que sostiene la chapa (D-11).' },
   { id: 'T-02', poly: rect(AIS, AIN, YO + VA.b, YE - VA.b), baja: '-x', pend: '0 %', mat: 'cielorraso', z: [HC + CIELO, HC + CIELO], e: CIELO, estado: 'existente', conf: 'estimado', nombre: 'Cielorraso a 3,00', nota: 'Maxi 14/11: unos 3,00 hasta el cielorraso. Entre el cielorraso y la chapa queda una cámara de 0,50 al norte que se cierra hacia el sur.' },
 ];
 const IMPLANTACION = [
@@ -154,19 +159,20 @@ export const VIDEO = [];
 
 export const DUDAS = [
   { id: 'D-01', ref: ['TE-01', 'VP-S', 'VP-N'], q: 'Altura sobre la tierra: tomé 1,20 desde el terreno hasta el fondo de la viga perimetral (el piso queda a 1,47). ¿O el 1,20 es hasta el piso?' },
-  { id: 'D-02', ref: [...ESTRUCTURA.filter(e => /^(C|FC)-/.test(e.id)).map(e => e.id), 'VP-E', 'VP-O', 'VA-S', 'VA-N'], q: 'Encuentros de fachada. (a) La viga de arriba, de 7 y centrada en el vidrio, queda 2,5 cm metida en la cara interior de las columnas: ¿la columna tiene un rebaje, o la viga va un poco más adentro? (b) ¿Hasta dónde suben las columnas? Las corté a +3,00, bajo la chapa. (c) Falsas columnas: les puse 10 de fondo. (d) En el este y en la punta del voladizo, ¿cómo cierran las vigas contra las esquinas?' },
+  { id: 'D-02', ref: [...ESTRUCTURA.filter(e => /^(C|FC)-/.test(e.id)).map(e => e.id), 'VP-E', 'VP-O', 'VA-S', 'VA-N'], q: 'Encuentros de fachada. (a) La viga de arriba, de 7 y centrada en el vidrio, queda 2,5 cm metida en la cara interior de las columnas: ¿la columna tiene un rebaje, o la viga va un poco más adentro? (b) Falsas columnas: les puse 10 de fondo. (c) En el este y en la punta del voladizo, ¿cómo cierran las vigas contra las esquinas?' },
   { id: 'D-03', ref: ['VT-2'], q: 'Vigas transversales de 25 × 7: las puse arriba, a la altura del cielorraso. ¿Hay también una en el piso en cada par de columnas?' },
   { id: 'D-04', ref: ['LO-02', 'LO-03', 'PD-1', 'PS-1', 'VD-N', 'VS-S'], q: 'Decks: los postes exteriores van de 6 × 6; ¿cuántos son y cada cuánto? Puse uno por cada par de columnas de la casa. ¿Qué vigas tienen? ¿El deck norte incluye el metro del voladizo (25,00) o son 24,00? ¿Tienen baranda? Faltan las escaleras.' },
-  { id: 'D-05', ref: ['TP-01', 'TC-01'], q: 'Tirantes del piso y del cielorraso: sección, separación y para qué lado corren. Están tentativos (2″ × 6″; los del piso de norte a sur cada 0,50, los del cielorraso de este a oeste cada 0,60).' },
+  { id: 'D-05', ref: ['TP-01', 'TC-01'], q: 'Tirantes del piso y del cielorraso: sección, separación y para qué lado corren. Están tentativos (2″ × 6″; los del piso de norte a sur cada 0,50, los del cielorraso son 5, de este a oeste, repartidos parejos).' },
   { id: 'D-06', ref: ['MN-06', 'MS-07', 'LO-03', 'MS-05', 'MS-06'], q: 'Puertas y deck sur: puse la entrada en el paño que está al este del cuarto par de columnas (módulo 3) y la de atrás en el paño del otro lado de ese par (módulo 4, que dijiste que es ventanal completo), con el deck sur en los módulos 3 y 4. Antes habías dicho que el ventanal sur eran los 8 metros de la puerta hacia el este; me quedé con tu lista por módulo (1 ventanal, 2 y 3 medio, 4 ventanal, 5 y 6 medio). ¿Está bien?' },
-  { id: 'D-07', ref: ['MO-01', 'V-O01', 'MN-13', 'MS-13', 'FC-OS', 'FC-ON'], q: 'Lado oeste: la ventana chica, ¿qué medidas tiene y dónde va? Puse 0,80 × 0,60 centrada, a 1,20 del piso. Y el metro del voladizo, ¿es vidriado al norte y con madera abajo al sur, como lo dibujé?' },
+  { id: 'D-07', ref: ['MO-01', 'V-O01', 'FC-OS', 'FC-ON'], q: 'Lado oeste: la ventana de 1,00 × 1,50, ¿dónde va a lo ancho? La puse centrada. En las dos esquinas del voladizo dibujé un parante de 10 × 10: ¿existe?' },
   { id: 'D-08', ref: ['MS-03', 'V-S03'], q: '«De la cintura para abajo es madera»: ¿a qué altura empieza el vidrio? Puse 1,00.' },
   { id: 'D-09', ref: ['ME-01', 'V-E01'], q: 'Ventana del este (1,00, de piso a techo, lado norte): ¿va pegada a la esquina norte, como la puse, o separada? ¿Es fija o se abre?' },
   { id: 'D-10', ref: ['L-01'], q: 'Interior: faltan los tabiques y los ambientes (cuarto pequeño en el módulo 5, cuarto grande en el 6, cocina, baño).' },
-  { id: 'D-11', ref: ['T-01', 'CE-01'], q: 'Techo: ¿qué sostiene la chapa sobre la cámara (cabios, clavaderas)? ¿La cámara está cerrada con una cenefa en el frente norte y en los costados, como la dibujé?' },
+  { id: 'D-11', ref: ['T-01', 'CE-01'], q: 'Techo: ¿qué sostiene la chapa sobre la cámara (cabios, clavaderas)? El panel de la cámara lo llevé a plomo con la cara de afuera de las columnas al norte y al sur; en el este y el oeste, donde no hay columnas que sobresalgan, lo dejé a plomo con la punta de la viga del piso, y el volado de 0,35 lo puse igual en los cuatro lados. ¿Es así?' },
 ];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-14', v: '0.2.1', txt: 'Techo (Maxi 14/11, sobre una captura): el panel que cierra la cámara sobresale hasta quedar coplanar con la cara de afuera de las columnas, que llegan justo hasta abajo de él; recién desde ahí la chapa vuela 0,35. Los tirantes del cielorraso pasan a ser 5. La ventana oeste queda de 1,00 × 1,50 con antepecho a 0,75. El paño angosto del voladizo oeste es ciego, de madera, al norte y al sur. La chapa es acanalada de zincalum.' },
   { fecha: '2026-11-14', v: '0.2.0', txt: 'Encuentro de fachada corregido (Maxi 14/11): las columnas reales de 15 × 15 van por fuera de las vigas perimetrales, de una pieza desde la tierra, y sobresalen 15 hacia afuera; la viga del piso pasa a 15 de ancho, coplanar por fuera con las falsas columnas (1 cm por fuera del vidrio); la viga de arriba pasa a 7, centrada en el vidrio; el piso interior y los decks quedan 3 cm por debajo de la viga del piso. Con esto quedan 5,33 entre vidrios (la cocina medía 5,35). Los decks tienen las muescas de las columnas que los atraviesan. Tercera tanda: postes exteriores de los decks de 6 × 6; el oeste pasa a madera ciega con una ventana chica (tentativa); el este, madera ciega con una ventana de piso a techo de 1,00 en la punta norte.' },
   { fecha: '2026-11-14', v: '0.1.0', txt: 'Primera versión de Mocoretá, según la descripción verbal de Maxi del 14/11: 14 columnas en dos filas de 7 (cada 4,00, a 5,50), vigas perimetrales de 30 × 10 abajo y arriba con el voladizo de 1,00 al oeste, falsas columnas, vigas transversales de 25 × 7, ventanales de 2,00 × 2,70, puerta corrediza de entrada al norte y de atrás al sur, paños sur con madera abajo según cada módulo, pared este con ventana tentativa, deck norte de 4,00 y deck sur de 2,50 × 8,00, cielorraso a 3,00 y chapa a un agua con 0,50 de cámara al norte. Tirantes de piso y cielorraso tentativos. Once dudas.' },
 ];

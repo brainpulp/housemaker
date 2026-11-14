@@ -14,6 +14,8 @@ export function initRealismo(visor,datos={}){
     ladrillo:mk(512,512,(x,w,h)=>{x.fillStyle='#8f8a80';x.fillRect(0,0,w,h);const bw=w/4,bh=h/8;for(let r=0;r<8;r++)for(let c=-1;c<5;c++){const off=r%2?bw/2:0;const k=rnd();x.fillStyle=`rgb(${120+k*45|0},${62+k*25|0},${44+k*18|0})`;x.fillRect(c*bw+off+3,r*bh+3,bw-6,bh-6);
       x.globalAlpha=.25;x.fillStyle=k>.5?'#3d2a22':'#c99a7e';x.fillRect(c*bw+off+3+rnd()*bw*.6,r*bh+3,bw*.3,bh-6);x.globalAlpha=1;}noise(x,w,h,900,.12,()=>'#2e2622');}),
     chapa:mk(256,256,(x,w,h)=>{const g=x.createLinearGradient(0,0,w/8,0);g.addColorStop(0,'#2c3034');g.addColorStop(.5,'#4b5056');g.addColorStop(1,'#2c3034');for(let i=0;i<8;i++){x.save();x.translate(i*w/8,0);x.fillStyle=g;x.fillRect(0,0,w/8,h);x.restore();}noise(x,w,h,300,.08,()=>'#6d7277');}),
+    /* chapa acanalada de zincalum (aluminio-zinc, plateada clara): la pide la casa con cats:{techo:['zincalum',76]} */
+    zincalum:mk(256,256,(x,w,h)=>{const g=x.createLinearGradient(0,0,w/8,0);g.addColorStop(0,'#8e969c');g.addColorStop(.5,'#dfe4e7');g.addColorStop(1,'#8e969c');for(let i=0;i<8;i++){x.save();x.translate(i*w/8,0);x.fillStyle=g;x.fillRect(0,0,w/8,h);x.restore();}noise(x,w,h,300,.06,()=>'#f4f6f7');}),
     chapaNegra:mk(256,256,(x,w,h)=>{const g=x.createLinearGradient(0,0,w/8,0);g.addColorStop(0,'#141618');g.addColorStop(.5,'#2e3236');g.addColorStop(1,'#141618');for(let i=0;i<8;i++){x.save();x.translate(i*w/8,0);x.fillStyle=g;x.fillRect(0,0,w/8,h);x.restore();}}),
     madera:mk(512,512,(x,w,h)=>{x.fillStyle='#b98250';x.fillRect(0,0,w,h);for(let i=0;i<70;i++){x.strokeStyle=rnd()>.5?'#9a6638':'#cf9a63';x.globalAlpha=.35*rnd()+.1;x.lineWidth=1+rnd()*3;x.beginPath();const y=rnd()*h;x.moveTo(0,y);for(let t=0;t<=w;t+=32)x.lineTo(t,y+Math.sin(t/60+i)*4*rnd());x.stroke();}x.globalAlpha=1;}),
     pino:mk(512,512,(x,w,h)=>{x.fillStyle='#d9b27a';x.fillRect(0,0,w,h);for(let i=0;i<60;i++){x.strokeStyle=rnd()>.5?'#c0904f':'#e8c792';x.globalAlpha=.4*rnd()+.1;x.lineWidth=1+rnd()*2;x.beginPath();const y=rnd()*h;x.moveTo(0,y);for(let t=0;t<=w;t+=32)x.lineTo(t,y+Math.sin(t/50+i)*3);x.stroke();}x.globalAlpha=1;}),
@@ -61,7 +63,7 @@ export function initRealismo(visor,datos={}){
         const g=o.geometry;const s=o.scale.x/400;const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*s,uv.getY(i)*s);uv.needsUpdate=true;o.receiveShadow=true;}});
     for(const p of visor.parts){const pk=pick(p);const glass=p.cat==='glass';
       p.grp.traverse(o=>{if(!o.isMesh)return;o.castShadow=!glass&&p.mat.opacity>.5;o.receiveShadow=!glass;
-        if(pk&&!o.userData.uv){o.geometry=boxUV(o.geometry,pk[1],pk[0]==='chapa',pk[0]==='deck'||pk[0]==='eucalipto');o.userData.uv=true;
+        if(pk&&!o.userData.uv){o.geometry=boxUV(o.geometry,pk[1],pk[0]==='chapa'||pk[0]==='zincalum',pk[0]==='deck'||pk[0]==='eucalipto');o.userData.uv=true;
           /* revestimiento de piedra en la cara al jardín (propuesta de Maxi) */
           /* techos de chapa: la cara de abajo (la que se ve desde adentro) en madera clara, como el machimbre */
           if(p.cat==='techo'){const P=o.geometry.attributes.position,a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3();o.geometry.clearGroups();let cur=-1,st=0;
@@ -73,7 +75,7 @@ export function initRealismo(visor,datos={}){
             for(let i=0;i<P.count;i+=3){a.fromBufferAttribute(P,i);b.fromBufferAttribute(P,i+1);c.fromBufferAttribute(P,i+2);const n=b.clone().sub(a).cross(c.clone().sub(a)).normalize();
               const m=(n.z>.7||(n.x>.7&&(pb==='M-06'||pb==='M-27'||pb==='M-22')))?1:0;if(m!==cur){if(cur>=0)o.geometry.addGroup(st,i-st,cur);cur=m;st=i;}}
             o.geometry.addGroup(st,P.count-st,cur);o.material=[p.mat,stoneMat];}}});
-      if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set('#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
+      if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set('#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='zincalum'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
       if(glass&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.color.set('#a9c4cc');p.mat.roughness=.05;p.mat.metalness=.2;p.mat.opacity=Math.min(p.mat.opacity,.22);p.mat.needsUpdate=true;}}}
   (function loop(){if(visor.parts!==last){last=visor.parts;try{decorate();}catch(e){console.error('realismo',e);}}requestAnimationFrame(loop);})();
 }

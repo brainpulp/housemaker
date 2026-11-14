@@ -72,10 +72,13 @@ function build(p) {
   for (const t of MM.TECHOS) { const esCielo = t.mat === 'cielorraso'; if (esCielo ? !p.cielo : !p.techos) continue;
     Pt(t.id, `${t.id} · ${t.nombre}`, esCielo ? 'cielo' : 'techo', A.techoGeo(t), { ...base(t), med: esCielo ? `cara de abajo a +${f2(M.HC)}` : `${t.pend} · de +${f2(t.z[0])} (norte) a +${f2(t.z[1])} (sur)` }, { group: G.techo, opt: { noEdges: !esCielo } }); }
   /* cenefa: cierra la cámara entre el cielorraso y la chapa (frente norte y los dos costados en cuña) */
-  if (p.techos) { const xs = M.XS, xn = M.XN, yo = M.YO, ye = M.YE, z0 = M.ZA, zs = M.zR(xs), zn = M.zR(xn), e = 2.5;
+  if (p.techos) { const xs = M.CXS, xn = M.CXN, yo = M.CYO, ye = M.CYE, z0 = M.ZA, zs = M.zR(xs), zn = M.zR(xn), e = 2.5;
     const cuna = (ya, yb) => box8([[xs, z0, ya], [xn, z0, ya], [xn, z0, yb], [xs, z0, yb], [xs, zs + .1, ya], [xn, zn, ya], [xn, zn, yb], [xs, zs + .1, yb]]);
-    Pt('CE-01', 'CE-01 · Cenefa de la cámara del techo', 'madera', [box(xn, xn + e, z0, zn, yo - e, ye + e), cuna(yo - e, yo), cuna(ye, ye + e)],
-      { fn: '<b>Supuesto.</b> Cierra la cámara entre el cielorraso y la chapa: 0,50 en el frente norte y en cuña en los costados, sobre la viga de arriba (D-11).', sec: 'tabla', med: `de +${f2(z0)} a +${f2(zn)} en el norte`, u: 'D-11' }, { group: G.techo, opt: {} }); }
+    /* frente norte, dos costados en cuña y el fondo de la franja que sobresale de la viga de arriba, al norte y al sur (al sur, en cuña bajo la chapa) */
+    const fs = (ya, yb) => box8([[xs, z0, ya], [M.XS, z0, ya], [M.XS, z0, yb], [xs, z0, yb], [xs, zs + .1, ya], [M.XS, M.zR(M.XS), ya], [M.XS, M.zR(M.XS), yb], [xs, zs + .1, yb]]);
+    const geos = [box(xn - e, xn, z0, zn, yo, ye), cuna(yo, yo + e), cuna(ye - e, ye), box(M.XN, xn - e, z0, z0 + e, yo + e, ye - e), fs(yo + e, ye - e)];
+    Pt('CE-01', 'CE-01 · Panel de la cámara del techo', 'madera', geos,
+      { fn: 'Maxi 14/11: el panel que cierra la cámara sobresale hasta quedar coplanar con la cara de afuera de las columnas; desde ahí la chapa vuela 0,35. Mide 0,50 en el frente norte y se cierra en cuña hacia el sur. En el este y el oeste lo puse a plomo con la punta de la viga del piso (D-11).', sec: 'tabla', med: `de +${f2(z0)} a +${f2(zn)} en el norte`, u: 'D-11' }, { group: G.techo, opt: {} }); }
 
   /* ediciones guardadas (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
@@ -101,7 +104,7 @@ function build(p) {
       dimLine([-40, M.TERR, M.LARGO + 60], [-40, 0, M.LARGO + 60], [-8, 0, 0], f2(-M.TERR)); dimLine([-40, 0, M.LARGO + 60], [-40, M.HC, M.LARGO + 60], [-8, 0, 0], f2(M.HC)); } };
 }
 
-const COL = { muro: '#b98a5a', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#8a5a34', deck: '#b58e62', madera: '#c9a46e', viga: '#8a5a34', poste: '#6e4a2e', falsa: '#8a5a34', techo: '#9aa0a4', cielo: '#d9c3a0' };
+const COL = { muro: '#b98a5a', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#8a5a34', deck: '#b58e62', madera: '#c9a46e', viga: '#8a5a34', poste: '#6e4a2e', falsa: '#8a5a34', techo: '#c9cfd3', cielo: '#d9c3a0' };
 /* el terreno es el suelo del visor (pasto), 1,47 abajo del piso interior (TE-01 en modelo.js) */
 window.__terreno = { t: (M.IMPLANTACION[0] || {}).z ?? -147, c: 0 };
 /* encastre declarado: la viga de arriba (7, centrada en el vidrio) entra 2,5 cm en la cara interior de las columnas, que van por fuera (D-02) */
@@ -122,7 +125,7 @@ N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); 
 
 const stage = document.querySelector('#modo-3d .stage');
 try { initMarcas(visor, stage); } catch (e) { console.error('marcas', e); }
-try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { muro: ['madera', 120], deck: ['madera', 120], madera: ['madera', 120], viga: ['madera', 120], poste: ['madera', 120], falsa: ['madera', 120], cielo: ['madera', 120] } }); } catch (e) { console.error('realismo', e); }
+try { initRealismo(visor, { piedra: [], ladrillo: [], blanco: [], cats: { techo: ['zincalum', 76], muro: ['madera', 120], deck: ['madera', 120], madera: ['madera', 120], viga: ['madera', 120], poste: ['madera', 120], falsa: ['madera', 120], cielo: ['madera', 120] } }); } catch (e) { console.error('realismo', e); }
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 try { initPersonas(visor); } catch (e) { console.error('personas', e); }
