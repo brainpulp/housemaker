@@ -39,6 +39,7 @@ const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.n
 const { box, box8 } = geo;
 
 const params = [
+  { id: 'plataforma', label: 'Plataforma baja del deck', type: 'select', value: 'si', quick: true, group: 'Hipótesis', options: [['si', 'Con plataforma a media altura'], ['no', 'Sin plataforma (escalinata directa)']], help: 'La plataforma de 6,00 × 4,00 a media altura entre el deck y el jardín, o una escalinata directa del deck al terreno (D-13).' },
   { id: 'altura', label: 'Altura de la casa', type: 'select', value: 'hoy', quick: true, group: 'Hipótesis', options: [['hoy', 'Como hoy (piso a 1,47)'], ['alta', 'Elevada (piso a 2,90, planta baja habitable)']], help: 'Hipótesis de proyecto: levantar la casa sobre los zancos para habitar la planta al nivel del terreno. El deck sube con la casa y la plataforma norte queda siempre a media altura (D-15).' },
   { id: 'piso2', label: 'Segundo piso', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin segundo piso (como hoy)'], ['A', 'Planta A: galería sur']], help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 4 y el 5 y ensanche de 2,00 al sur con la escalera; frente norte inclinado 30° con vidrio repartido, 2,60 de altura (D-14).' },
   { id: 'sillon', label: 'Sillón en C del desnivel', type: 'check', value: true, quick: true, group: 'Ver' },
@@ -53,7 +54,7 @@ const params = [
 ];
 
 function build(p) {
-  const H2 = p.piso2 === 'A', V = M.modelo({ terr: p.altura === 'alta' ? M.TERR_ALTA : M.TERR, deckS: H2 ? [800, 1200] : null }), MM = { ...M, ...V }, parts = [];
+  const H2 = p.piso2 === 'A', V = M.modelo({ terr: p.altura === 'alta' ? M.TERR_ALTA : M.TERR, deckS: H2 ? [800, 1200] : null, plat: p.plataforma !== 'no' }), MM = { ...M, ...V }, parts = [];
   window.__terreno = { t: MM.TERR, c: 0 };
   const Pt = (id, name, cat, geos, info, ex = {}) => { const al = N.alias(id); geos = [].concat(geos).filter(Boolean); if (!geos.length) return;
     parts.push({ id, name: al ? `${id} · ${al}` : name, alias: al, cat, geos, info: { ...info, fn: (N.nota(id) ? `<b>Tu nota:</b> ${N.nota(id)}<br>` : '') + (info.fn || '') }, ...ex }); };
@@ -112,7 +113,10 @@ function build(p) {
       Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'tela', [box(x0 + R, x0 + R + a, zf, za, y0 + R, y1 - R), box(x0 + R + a, xc, zf, za, y0 + R, y0 + R + a), box(x0 + R + a, xc, zf, za, y1 - R - a, y1 - R)],
         { fn: fn + 'Maxi 14/11: asiento a 0,35 del piso del desnivel. Fondo de 0,60 supuesto.', sec: `fondo ${a}`, med: `asiento a ${f2(D.hAs)} del piso del desnivel (+${f2(za)})`, u: 'D-12' }, { group: G.piso, opt: {} }); } }
   /* escalones de la plataforma norte: macizos (cajones), a todo lo largo de cada borde. La plataforma está a media altura: nAlz alzadas para subir al deck y nAlz para bajar al terreno */
-  if (p.pisos) { const P = MM.PLA, [x0, x1] = P.x, [y0, y1] = P.y, g = P.pedada, r = P.alz, n = P.nAlz - 1, u = 'D-13', K = [...Array(n)].map((_, i) => i);
+  if (p.pisos && p.plataforma === 'no') { const P = MM.PLA, [x0] = P.x, [y0, y1] = P.y, g = P.pedada, r = P.alz, n = 2 * P.nAlz - 1;
+    Pt('EP-00', 'EP-00 · Escalinata directa del deck al terreno', 'madera', [...Array(n)].map((_, i) => box(x0 + i * g, x0 + (i + 1) * g, MM.TERR, -(i + 1) * r, y0, y1)),
+      { fn: `Alternativa sin plataforma: escalinata de 6,00 de ancho, del deck al terreno, ${2 * P.nAlz} alzadas de ${f1(r)} cm.`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(y1 - y0)} de ancho · ${f2(n * g)} de desarrollo`, u: 'D-13' }, { group: G.piso, opt: {} }); }
+  if (p.pisos && p.plataforma !== 'no') { const P = MM.PLA, [x0, x1] = P.x, [y0, y1] = P.y, g = P.pedada, r = P.alz, n = P.nAlz - 1, u = 'D-13', K = [...Array(n)].map((_, i) => i);
     Pt('EP-01', 'EP-01 · Escalones del deck a la plataforma', 'madera', K.map(i => box(x0 + i * g, x0 + (i + 1) * g, P.z, -(i + 1) * r, y0, y1)),
       { fn: `Maxi 14/11: todo el borde compartido entre el deck y la plataforma es escalones. ${P.nAlz} alzadas de ${f1(r)} cm; pedada de 0,28 supuesta.`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(y1 - y0)} de largo`, u }, { group: G.piso, opt: {} });
     const zk = k => P.z - k * r;
@@ -134,7 +138,14 @@ function build(p) {
     /* entrepiso: oficina (módulo 1), galería al sur del vacío (módulo 2), dormitorio (módulo 3), baño y descanso en el ensanche */
     H('H2-01', 'Entrepiso: oficina, galería, dormitorio, baño', 'deck', [L(xs, xn, 2000, ye), L(xs, gal, 1600, 2000), L(xs, xn, 1200, 1600), L(XE, xs, 1204, 1460), L(XE, xs, 1900, 2000)],
       'Piso alto a +3,10 sobre los módulos 1 y 3; el módulo 2 queda en doble altura, con una galería de 1,10 al sur que une la oficina con el dormitorio.', `piso alto a +${f2(Z2)}`);
-    H('H2-02', 'Terraza sobre los módulos 4 y 5', 'tabla2', L(xs, xn, 400, 1200), 'Maxi 14/11: la terraza va sobre los módulos 4 y 5, saliendo del dormitorio; el módulo 6 queda con la chapa a la vista.', '8,00 × 5,40');
+    /* terraza sobre los módulos 4 y 5 (solución 1, Maxi 14/11): el piso va a nivel y el agua escurre por debajo.
+       Cubierta impermeable con 2 % de caída al sur → durmientes de este a oeste, cada uno de la altura que le toca → tablones con junta abierta → canaleta y bajada al sur */
+    const ZTz = Z2 + 11, xg = -22, caida = .02, zc = x => MM.ZA + .5 + 2 + caida * (x - xg);   /* cara de arriba de la cubierta */
+    { const T3 = tablones(geo, A, { poly: [[xs, 400], [xn, 400], [xn, 1200], [xs, 1200]], huecos: [], z: ZTz, ancho: 14, junta: .8, esp: 2.5, entero: true, seed: 7 });
+      T3.forEach((g3, i) => H(`H2-02${'abc'[i]}`, 'Terraza: deck a nivel, junta abierta', 'tabla' + (i + 1), g3, 'Maxi 14/11: terraza sobre los módulos 4 y 5, saliendo del dormitorio. El piso va a nivel, con junta abierta para que pase el agua; queda 11 cm sobre el piso alto: un escalón al salir, que además deja subir la impermeabilización contra la carpintería.', `8,00 × 5,40 · a +${f2(ZTz)}`));
+      H('H2-15', 'Terraza: cubierta impermeable con 2 % de caída', 'techo', A.techoGeo({ poly: [[xg, 400], [xn, 400], [xn, 1200], [xg, 1200]], baja: '-x', z: [zc(xn), zc(xg)], e: 2 }), 'Debajo del deck: cubierta impermeable (membrana o chapa lisa) con 2 % de caída hacia el sur, unos 11 cm en el ancho. Por acá escurre la lluvia.', '2 % al sur', { noEdges: true });
+      H('H2-16', 'Terraza: durmientes de altura variable', 'madera', [...Array(10)].map((_, i) => xs + 12 + i * (xn - xs - 24) / 9).map(x => box(x - 2.5, x + 2.5, zc(x) + .2, ZTz - 2.5, 400, 1200)), 'Durmientes de este a oeste, cada uno de la altura que le toca según la caída de la cubierta: así el deck queda a nivel sin piezas en cuña.', 'cada 0,60');
+      H('H2-17', 'Terraza: canaleta y bajada', 'hierro', [box(xg - 10, xg + 2, zc(xg) - 12, zc(xg) - 2, 400, 1200), geo.rod([xg - 4, zc(xg) - 12, 410], [xg - 4, MM.TERR, 410], 4, 10)], 'Canaleta en el borde sur, por fuera de las columnas, y bajada al terreno.', 'canaleta 12 × 10'); }
     H('H2-03', 'Piso del ensanche sur (planta baja)', 'deck', L(XE, 7.5, 1212, 2000, 0, 2.5), 'Ensanche de 2,00 al sur en los módulos 2 y 3: lleva la escalera y le da aire a la planta baja. La viga perimetral del piso queda como un umbral de 3 cm.', '7,90 × 2,00');
     /* escalera recta en el ensanche, contra la pared sur: sube de oeste a este y llega al descanso junto a la galería */
     { const E = A.escaleraGeos({ x: [XE + 6, XE + 106], y: [1468, 1900], z: [0, Z2], n: 17 }); H('H2-04', 'Escalera (17 alzadas de 18,2)', 'madera', [...E.ped, ...E.zan], 'Escalera recta de 1,00 de ancho en el ensanche, contra la pared sur. Una sola escalera para oficina y dormitorio.', 'pedada 27'); }
@@ -157,7 +168,7 @@ function build(p) {
     /* oficina sobre el vacío: balcón con baranda y paneles corredizos tipo japonés (dos de cuatro, a medio abrir) */
     H('H2-08', 'Balcón de la oficina: baranda', 'madera', A.barandaGeos({ pts: [[gal, 2000], [xi(Z2 + 100) - 4, 2000]], z: Z2, h: 100 }), 'La oficina balconea sobre la doble altura.', 'baranda de 1,00', { noEdges: true });
     H('H2-09', 'Paneles corredizos tipo japonés', 'shoji', [my(2006, gal, gal + 107, Z2, ZT - 6), my(2012, gal + 60, gal + 167, Z2, ZT - 6)], 'Cuatro paneles corredizos para cerrar la oficina cuando hace falta privacidad; dibujé dos, a medio abrir.', '4 × 1,07', { op: .7 });
-    H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[xs, 1200], [xs, 400], [xn, 400], [xn, 1200]], z: Z2, h: 100 })], 'Baranda de 1,00 hacia el vacío y en los tres lados libres de la terraza.', '', { noEdges: true });
+    H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[xs, 1200], [xs, 400], [xn, 400], [xn, 1200]], z: ZTz, h: 100 })], 'Baranda de 1,00 hacia el vacío y en los tres lados libres de la terraza.', '', { noEdges: true });
     /* techo nuevo: chapa a un agua con la misma lógica, alta al norte, sobre los módulos 1 a 3 y el ensanche */
     if (p.techos) { const X0 = XE - 50, X1 = xT + 35, zt = x => ZT + 6 + 30 * (x - XE) / (xT - XE);   /* arranca en la cabeza del frente inclinado; 0,30 de caída, baja al sur */
       H('H2-11', 'Techo del piso alto (zincalum)', 'techo', A.techoGeo({ poly: [[X0, 1165], [X1, 1165], [X1, MM.CYE + 35], [MM.CXS - 35, MM.CYE + 35], [MM.CXS - 35, 2035], [X0, 2035]], baja: '-x', z: [zt(X1), zt(X0)], e: 1 }), 'Chapa acanalada a un agua, alta al norte, sobre los módulos 1 a 3 y el ensanche; arranca en la cabeza del frente inclinado, así que el techo es más angosto que la planta. Altura interior de 2,60 (Maxi). Sin cielorraso ni estructura dibujados.', '', { noEdges: true }); } }
@@ -189,7 +200,7 @@ function build(p) {
   const panes = { video3d: videoHTML(), materiales: dudas, ayuda: `<h3>Qué es esto</h3><p>Mocoretá, la casa de Maxi en Ingeniero Maschwitz, modelada a partir de su descripción verbal del 14/11/2026. Primera etapa: el esqueleto (pilotes, columnas, vigas perimetrales y transversales), la envolvente (ventanales, paños de madera, puertas corredizas), los decks y el techo.</p>
     <p>Lo que Maxi dijo figura como <b>estimado</b>; lo que no dijo está marcado <b>supuesto</b> y preguntado en las dudas (D-01 a D-11).</p>
     <h3>Ejes</h3><p>x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste; el voladizo va de −1,00 a 0). Los módulos se numeran de este a oeste, del 1 al 6. Alturas sobre el piso interior; el terreno está 1,47 abajo.</p>
-    <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es, sus medidas y de dónde salió.</li><li>Las dos puertas corredizas se abren <b>arrastrándolas</b> (o con el deslizador «Abrir» de su ficha).</li><li>Las <b>hipótesis de proyecto</b> (segundo piso, casa elevada) están en el botón <b>Variantes de diseño</b> de la barra de herramientas; también aparecen al tocar el techo o una columna.</li><li>En <b>Ver</b> apagás techo, cielorraso, pisos, vidrios o tirantes para ver la estructura.</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` + dudas };
+    <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es, sus medidas y de dónde salió.</li><li>Las dos puertas corredizas se abren <b>arrastrándolas</b> (o con el deslizador «Abrir» de su ficha).</li><li>Las <b>hipótesis de proyecto</b> (segundo piso, casa elevada) (segundo piso, plataforma baja del deck, casa elevada) se cambian desde el botón <b>Variantes de diseño</b> de la barra de herramientas: bajo cada una están sus opciones.</li><li>En <b>Ver</b> apagás techo, cielorraso, pisos, vidrios o tirantes para ver la estructura.</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` + dudas };
   const spec = `<span>v<b>${MM.META.version}</b> · ${MM.META.fecha}</span><span>${parts.length} piezas</span><span>casa <b>25,00 × 5,50</b></span><span>deck norte <b>4,00</b></span><span>${MM.DUDAS.length} dudas</span><span>cotas en m</span>`;
   const cx = 300, cy = 1150;
   return { parts, panes, spec, joints: [], steps: [],
@@ -215,7 +226,7 @@ const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo
 { const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
 
 /* cortes y vistas: del motor (motor/vistas.js), iguales en todas las casas */
-const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1600], y: [-400, 2700], z: [-320, 700] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'altura', 'piso2'], dirAmb: [.55, .85] });
+const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1600], y: [-400, 2700], z: [-320, 700] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'altura', 'piso2', 'plataforma'], dirAmb: [.55, .85] });
 const applyClips = () => VI.applyClips(), renderVistas = () => VI.renderVistas();
 root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); renderVistas(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 
@@ -229,6 +240,7 @@ const stage = document.querySelector('#modo-3d .stage');
 const optsDe = id => Object.fromEntries(params.find(q => q.id === id).options);
 const ZONAS = [
   { id: 'piso2', nombre: 'Segundo piso', piezas: /^(H2-\d+|T-0[12]|CE-01|VA-[NSEO]|VT-\d)$/, params: ['piso2'], label: optsDe('piso2'), vista: { p: [2300, 800, 3100], t: [350, 280, 1600] } },
+  { id: 'plataforma', nombre: 'Plataforma baja del deck', piezas: /^(LO-05[a-c]?|EP-0\d|VL-[A-Z]|PL-\d)$/, params: ['plataforma'], label: optsDe('plataforma'), vista: { p: [2300, 700, 2300], t: [950, -40, 900] } },
   { id: 'altura', nombre: 'Altura de la casa', piezas: /^(C-\d[SN]|H1-01|VP-[NSEO])$/, params: ['altura'], label: optsDe('altura'), vista: { p: [2500, 900, 3300], t: [400, 0, 1400] } },
 ];
 try { initMarcas(visor, stage); } catch (e) { console.error('marcas', e); }
