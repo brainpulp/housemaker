@@ -64,7 +64,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(35,1,5,far);
   const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=false;/* sin inercia: la inercia de un desplazamiento anterior seguía moviendo la vista durante la órbita */controls.maxPolarAngle=Math.PI-0.01;/* el límite de inclinación lo pone la órbita propia (abajo); si OrbitControls también limitaba, corría la cámara y el pivote parecía moverse */controls.minDistance=1;controls.zoomToCursor=true;
   /* tope de abajo de la cámara: 25 cm sobre el terreno. En una casa sobre pilotes el terreno está bajo el piso (window.__terreno.t < 0) y la cámara tiene que poder bajar hasta ahí (Maxi 14/11, Mocoretá) */
-  const YMIN=Math.min(0,(window.__terreno||{}).t||0)+25;
+  const yMin=()=>Math.min(0,(window.__terreno||{}).t||0)+25;/* se lee cada vez: la altura de la casa puede ser una variante (Mocoretá) */
   scene.add(new THREE.HemisphereLight(0xffffff,0x8a8070,1.1));
   [[-200,500,-300,1.5],[300,200,-200,.55],[100,150,400,.4]].forEach(([x,y,z,i])=>{const l=new THREE.DirectionalLight(0xffffff,i);l.position.set(x,y,z);scene.add(l);});
   const css=()=>getComputedStyle(document.documentElement);
@@ -230,7 +230,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       const el0=Math.asin(Math.max(-1,Math.min(1,dir.y))),el1=Math.max(-1.52,Math.min(.03,el0-dy*k));
       if(right.lengthSq()>.5&&Math.abs(el1-el0)>1e-6){const q=new THREE.Quaternion().setFromAxisAngle(right,el1-el0);rot(q);
         /* si el giro deja la cámara bajo el piso, se deshace: la órbita es rígida alrededor del pivote. Hasta el 4/11 se levantaban cámara y objetivo, y eso era un desplazamiento disimulado */
-        if(camera.position.y<YMIN)rot(q.invert());}});
+        if(camera.position.y<yMin())rot(q.invert());}});
     const up=e=>{if(e.pointerType==='touch')touches=Math.max(0,touches-1);if(orb&&e.pointerId===orb.id){orb=null;dot.visible=false;}};
     el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
     /* rueda: avanza cámara y objetivo juntos por el rayo del cursor, un 18 % de la distancia a lo que está debajo (mínimo 8 cm),
@@ -245,7 +245,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       const amt=Math.min(Math.abs(e.deltaY)*(e.deltaMode===1?33:1),240)/100,zin=e.deltaY<0;
       let step=Math.max(8,d*.18)*amt;if(zin&&d>40)step=Math.min(step,d-25);
       const v=dir.multiplyScalar(zin?step:-step);camera.position.add(v);controls.target.add(v);
-      if(camera.position.y<YMIN){const k=YMIN-camera.position.y;camera.position.y+=k;controls.target.y+=k;}},{capture:true,passive:false});
+      if(camera.position.y<yMin()){const k=yMin()-camera.position.y;camera.position.y+=k;controls.target.y+=k;}},{capture:true,passive:false});
     /* clic derecho sin arrastrar: menú para esconder lo que está bajo el cursor (arrastrando con el derecho sigue siendo desplazar); Y esconde lo elegido, Shift+Y muestra todo (Maxi 14/10) */
     let rdown=null,cm=null;const closeCm=()=>{if(cm){cm.remove();cm=null;}};
     el.addEventListener('contextmenu',e=>e.preventDefault());
@@ -365,7 +365,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   const FPS={n:0,t:performance.now()};
   const LR={t:0,on:true};window.__act=performance.now();window.__despertar=()=>{window.__act=performance.now();};
   for(const ev of ['pointermove','pointerdown','wheel','keydown','resize'])addEventListener(ev,()=>{window.__act=performance.now();},{passive:true,capture:true});
-  (function loop(now){requestAnimationFrame(loop);if(tween){const u=Math.min(1,(now-tween.t0)/tween.d),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;camera.position.lerpVectors(tween.P0,tween.P1,e);controls.target.lerpVectors(tween.T0,tween.T1,e);if(u>=1)tween=null;}controls.update();/* el objetivo puede quedar bajo el piso: es un punto de referencia, no se ve. Subirlo a 0 cada cuadro (hasta el 4/11) metía un desplazamiento en la órbita: el objetivo gira alrededor del pivote, pasaba bajo el piso y el tope lo empujaba */if(camera.position.y<YMIN){camera.position.y=YMIN;}
+  (function loop(now){requestAnimationFrame(loop);if(tween){const u=Math.min(1,(now-tween.t0)/tween.d),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;camera.position.lerpVectors(tween.P0,tween.P1,e);controls.target.lerpVectors(tween.T0,tween.T1,e);if(u>=1)tween=null;}controls.update();/* el objetivo puede quedar bajo el piso: es un punto de referencia, no se ve. Subirlo a 0 cada cuadro (hasta el 4/11) metía un desplazamiento en la órbita: el objetivo gira alrededor del pivote, pasaba bajo el piso y el tope lo empujaba */if(camera.position.y<yMin()){camera.position.y=yMin();}
     /* reposo (Maxi 14/10, el ventilador de la placa): sin actividad por 2,5 s se dibuja 2 veces por segundo; cualquier toque, rueda, tecla o animación lo despierta */
     {const act=tween||now-(window.__act||0)<2500;if(!act&&now-LR.t<500)return;LR.t=now;LR.on=!!act;}
     if(hooks.render)hooks.render();else renderer.render(scene,camera);lr.render(scene,camera);declutter();
