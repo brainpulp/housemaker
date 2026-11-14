@@ -72,10 +72,10 @@ function build(p) {
   for (const t of MM.TECHOS) { const esCielo = t.mat === 'cielorraso'; if (esCielo ? !p.cielo : !p.techos) continue;
     Pt(t.id, `${t.id} · ${t.nombre}`, esCielo ? 'cielo' : 'techo', A.techoGeo(t), { ...base(t), med: esCielo ? `cara de abajo a +${f2(M.HC)}` : `${t.pend} · de +${f2(t.z[0])} (norte) a +${f2(t.z[1])} (sur)` }, { group: G.techo, opt: { noEdges: !esCielo } }); }
   /* cenefa: cierra la cámara entre el cielorraso y la chapa (frente norte y los dos costados en cuña) */
-  if (p.techos) { const b = M.VP.b / 2, xs = -b, xn = M.ANCHO + b, yo = -M.VOL - b, ye = M.LARGO + b, z0 = M.HC, zs = M.zR(xs), zn = M.zR(xn), e = 2.5;
-    const cuna = (ya, yb) => box8([[xs, z0, ya], [xn, z0, ya], [xn, z0, yb], [xs, z0, yb], [xs, zs, ya], [xn, zn, ya], [xn, zn, yb], [xs, zs, yb]]);
+  if (p.techos) { const xs = M.XS, xn = M.XN, yo = M.YO, ye = M.YE, z0 = M.ZA, zs = M.zR(xs), zn = M.zR(xn), e = 2.5;
+    const cuna = (ya, yb) => box8([[xs, z0, ya], [xn, z0, ya], [xn, z0, yb], [xs, z0, yb], [xs, zs + .1, ya], [xn, zn, ya], [xn, zn, yb], [xs, zs + .1, yb]]);
     Pt('CE-01', 'CE-01 · Cenefa de la cámara del techo', 'madera', [box(xn, xn + e, z0, zn, yo - e, ye + e), cuna(yo - e, yo), cuna(ye, ye + e)],
-      { fn: '<b>Supuesto.</b> Cierra la cámara entre el cielorraso y la chapa: 0,50 en el frente norte y en cuña en los costados (D-11).', sec: 'tabla', med: `de +${f2(z0)} a +${f2(zn)} en el norte`, u: 'D-11' }, { group: G.techo, opt: {} }); }
+      { fn: '<b>Supuesto.</b> Cierra la cámara entre el cielorraso y la chapa: 0,50 en el frente norte y en cuña en los costados, sobre la viga de arriba (D-11).', sec: 'tabla', med: `de +${f2(z0)} a +${f2(zn)} en el norte`, u: 'D-11' }, { group: G.techo, opt: {} }); }
 
   /* ediciones guardadas (borrar, mover, estirar) */
   { const bid = id => id.replace(/[a-z]$/, ''); for (let i = parts.length - 1; i >= 0; i--) { const pp = parts[i], b = bid(pp.id); const e = ED.E[b] || ED.E[pp.id]; if (!e) continue; const datos = ED.enDatos(b);
@@ -84,7 +84,7 @@ function build(p) {
   const dudas = `<h3>Dudas (${M.DUDAS.length})</h3><ul>${M.DUDAS.map(d => `<li><b>${d.id}</b> · ${d.q}</li>`).join('')}</ul>`;
   const panes = { video3d: videoHTML(), materiales: dudas, ayuda: `<h3>Qué es esto</h3><p>Mocoretá, la casa de Maxi en Ingeniero Maschwitz, modelada a partir de su descripción verbal del 14/11/2026. Primera etapa: el esqueleto (pilotes, columnas, vigas perimetrales y transversales), la envolvente (ventanales, paños de madera, puertas corredizas), los decks y el techo.</p>
     <p>Lo que Maxi dijo figura como <b>estimado</b>; lo que no dijo está marcado <b>supuesto</b> y preguntado en las dudas (D-01 a D-11).</p>
-    <h3>Ejes</h3><p>x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste; el voladizo va de −1,00 a 0). Los módulos se numeran de este a oeste, del 1 al 6. Alturas sobre el piso interior; el terreno está 1,50 abajo.</p>
+    <h3>Ejes</h3><p>x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste; el voladizo va de −1,00 a 0). Los módulos se numeran de este a oeste, del 1 al 6. Alturas sobre el piso interior; el terreno está 1,47 abajo.</p>
     <h3>Cómo usarlo</h3><ul><li>Tocá una pieza: te muestra qué es, sus medidas y de dónde salió.</li><li>En <b>Ver</b> apagás techo, cielorraso, pisos, vidrios o tirantes para ver la estructura.</li><li><b>Teclado</b>: W/S avanzar y retroceder, A/D de costado, Q/E bajar y subir, flechas para girar.</li></ul>` + dudas };
   const spec = `<span>v<b>${M.META.version}</b> · ${M.META.fecha}</span><span>${parts.length} piezas</span><span>casa <b>25,00 × 5,50</b></span><span>deck norte <b>4,00</b></span><span>${M.DUDAS.length} dudas</span><span>cotas en m</span>`;
   const cx = 300, cy = 1150;
@@ -102,8 +102,10 @@ function build(p) {
 }
 
 const COL = { muro: '#b98a5a', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#8a5a34', deck: '#b58e62', madera: '#c9a46e', viga: '#8a5a34', poste: '#6e4a2e', falsa: '#8a5a34', techo: '#9aa0a4', cielo: '#d9c3a0' };
-/* el terreno es el suelo del visor (pasto), 1,50 abajo del piso interior (TE-01 en modelo.js) */
-window.__terreno = { t: (M.IMPLANTACION[0] || {}).z ?? -150, c: 0 };
+/* el terreno es el suelo del visor (pasto), 1,47 abajo del piso interior (TE-01 en modelo.js) */
+window.__terreno = { t: (M.IMPLANTACION[0] || {}).z ?? -147, c: 0 };
+/* encastre declarado: la viga de arriba (7, centrada en el vidrio) entra 2,5 cm en la cara interior de las columnas, que van por fuera (D-02) */
+window.__encastres = [['C-', 'VA-']];
 const root = document.getElementById('modo-3d');
 const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo: 300 }, root, radial: 0, far: 60000 });
 { const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
