@@ -94,6 +94,17 @@ function build(p) {
         { fn: fn + 'Maxi 14/11: sillón en C con respaldo de madera que termina en una repisa de 0,45 de ancho; los dos brazos (este y oeste) se interrumpen a 1,50 del ventanal norte.', sec: `repisa de ${r}`, med: `repisa a ${f2(D.hResp)} del piso del desnivel (+${f2(zr)})`, u: 'D-12' }, { group: G.piso, opt: {} });
       Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'tela', [box(x0 + r, x0 + r + a, zf, za, y0 + r, y1 - r), box(x0 + r + a, xc, zf, za, y0 + r, y0 + r + a), box(x0 + r + a, xc, zf, za, y1 - r - a, y1 - r)],
         { fn: fn + 'Asiento de 0,60 de fondo a 0,42 del piso del desnivel: medidas supuestas.', sec: `fondo ${a}`, med: `asiento a +${f2(za)}`, u: 'D-12' }, { group: G.piso, opt: {} }); } }
+  /* escalones de la plataforma norte: macizos (cajones), a todo lo largo de cada borde */
+  if (p.pisos) { const P = M.PLA, [x0, x1] = P.x, [y0, y1] = P.y, g = P.pedada, A1 = M.ALZ, u = 'D-13';
+    /* del deck a la plataforma: 3 alzadas, dos escalones intermedios sobre la plataforma, en todo el borde compartido */
+    Pt('EP-01', 'EP-01 · Escalones del deck a la plataforma', 'madera', [box(x0, x0 + g, P.z, P.z + 2 * A1, y0, y1), box(x0 + g, x0 + 2 * g, P.z, P.z + A1, y0, y1)],
+      { fn: 'Maxi 14/11: todo el borde compartido entre el deck y la plataforma es escalones. Tres alzadas de 0,17; pedada de 0,28 supuesta.', sec: `pedada ${g}`, med: `${f2(y1 - y0)} de largo`, u }, { group: G.piso, opt: {} });
+    /* de la plataforma al terreno: 3 escalones (4 alzadas) al norte y al este; los del norte dan vuelta la esquina */
+    const n = P.n, r = (P.z - M.TERR) / (n + 1), zk = k => P.z - k * r;
+    Pt('EP-02', 'EP-02 · Escalones de la plataforma al terreno, norte', 'madera', [...Array(n)].map((_, i) => box(x1 + i * g, x1 + (i + 1) * g, M.TERR, zk(i + 1), y0, y1 + (i + 1) * g)),
+      { fn: `Maxi 14/11: 3 escalones hacia el norte para bajar al terreno. Con el terreno a −${f2(-M.TERR)} salen 4 alzadas de ${f1(r)} cm (D-13).`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(y1 - y0)} de largo`, u }, { group: G.piso, opt: {} });
+    Pt('EP-03', 'EP-03 · Escalones de la plataforma al terreno, este', 'madera', [...Array(n)].map((_, i) => box(x0, x1, M.TERR, zk(i + 1), y1 + i * g, y1 + (i + 1) * g)),
+      { fn: `Maxi 14/11: 3 escalones hacia el este para bajar al terreno. Alzadas de ${f1(r)} cm (D-13).`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(x1 - x0)} de largo`, u }, { group: G.piso, opt: {} }); }
   /* tirantes: una pieza por conjunto */
   if (p.tirantes) for (const t of M.TIRANTES) { const { b, h } = t.S, geos = [];
     for (const q of t.pos) for (const [a0, a1] of t.tramos) geos.push(t.dir === 'x' ? box(a0, a1, t.zt - h, t.zt, q - b / 2, q + b / 2) : box(q - b / 2, q + b / 2, t.zt - h, t.zt, a0, a1));
@@ -125,7 +136,7 @@ function build(p) {
     selExtra: pp => `<div class="renrow"><button class="btn" data-hide="${pp.id}">Ocultar pieza</button><button class="btn" data-showall>Mostrar todo</button></div>` + N.editorHTML(pp.id),
     selIntro: '<div class="k">Selección</div><h2>Tocá una pieza</h2><p style="margin:0;color:var(--muted);font-size:13px">O un código en cualquier texto.</p>',
     defaultView: 'iso',
-    views: { iso: { label: 'Iso (desde el NE)', p: [cx + 1900, 1100, cy + 2300], t: [cx, 60, cy] }, norte: { label: 'Frente norte', p: [3300, 250, cy], t: [550, 100, cy] }, sur: { label: 'Contrafrente sur', p: [-2900, 250, cy], t: [0, 100, cy] },
+    views: { iso: { label: 'Iso (desde el NE)', p: [cx + 2300, 1200, cy + 2300], t: [cx + 200, 60, cy] }, norte: { label: 'Frente norte', p: [3300, 250, cy], t: [550, 100, cy] }, sur: { label: 'Contrafrente sur', p: [-2900, 250, cy], t: [0, 100, cy] },
       este: { label: 'Desde el este', p: [cx, 200, 4300], t: [cx, 100, 2400] }, oeste: { label: 'Desde el oeste', p: [cx, 200, -2000], t: [cx, 100, -100] }, so: { label: 'Iso (desde el SO)', p: [cx - 1900, 1000, cy - 2300], t: [cx, 60, cy] },
       deck: { label: 'En el deck norte', p: [850, 165, 2250], t: [560, 130, 1000] }, adentro: { label: 'Adentro (desde el este)', p: [275, 165, 2330], t: [275, 140, 600] },
       planta: { label: 'Planta', p: [cx, 4200, cy + .1], t: [cx, 0, cy] } },
@@ -144,7 +155,7 @@ const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo
 { const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
 
 /* cortes y vistas: del motor (motor/vistas.js), iguales en todas las casas */
-const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1200], y: [-400, 2700], z: [-200, 420] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'puertaN', 'puertaS'], dirAmb: [.55, .85] });
+const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1600], y: [-400, 2700], z: [-200, 420] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'puertaN', 'puertaS'], dirAmb: [.55, .85] });
 const applyClips = () => VI.applyClips(), renderVistas = () => VI.renderVistas();
 root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); renderVistas(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 
