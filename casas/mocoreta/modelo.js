@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.8.5', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.8.6', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -254,6 +254,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-15', v: '0.8.6', txt: 'Segundo piso: nueva alternativa para las ventanas del frente inclinado, proyectantes (un paño de 4 vidrios, los del centro y arriba, que abre hacia afuera; cerradas o abiertas desde el menú). Los paneles japoneses de la oficina ya no atraviesan el ventanal: son tres de 0,92 y un paño fijo en el triángulo. Dormitorio y oficina de arriba, equipados (cama, mesas de luz, placard, escritorio, biblioteca, butaca).' },
   { fecha: '2026-11-15', v: '0.8.5', txt: 'Escalera interna del segundo piso: la pedada baja de 27 a 24 cm (17 alzadas de 18,2). El desarrollo queda en 3,84 y el arranque se corre 0,48 hacia el este; la llegada arriba no cambia. Segundo piso: se abren arrastrándolas una hoja corrediza del frente inclinado en la oficina y otra en el dormitorio, y los cuatro paneles japoneses. Techo corredizo: se abre y se guarda desde el menú de alternativas, además de arrastrándolo.' },
   { fecha: '2026-11-14', v: '0.8.4', txt: 'Nueva alternativa «techo corredizo»: un segundo techo de chapa guardado sobre el del módulo 6, que corre 3,60 al norte y tapa el deck. Largueros, correas, rieles, carros de rodillos, motor y trabas, cada uno con su ficha; se abre arrastrándolo (D-17). Ya no aparece el selector flotante de alternativas sobre la pieza elegida.' },
   { fecha: '2026-11-14', v: '0.8.3', txt: 'Vigas de piso transversales: una en cada par de columnas, de lado a lado (VF-2 a VF-7; en el par este ese lugar es de la viga perimetral). Sección supuesta. Casa elevada: la platea de la planta baja sigue también bajo el deck norte. El sillón del desnivel es todo de madera, con almohadones sueltos de asiento y de respaldo. Mesa del comedor: tablas de pinotea a lo largo y patas de 20 × 20. Techo del piso alto: alero de 0,50 al norte. Corredizas: la de entrada, de caño estructural de 70 × 30 de canto; la de atrás, de caño de 50 × 50.' },
