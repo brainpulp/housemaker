@@ -86,7 +86,7 @@ for (const e of ESC.filter(e => e.x && e.y && e.z)) { const [x0, x1] = e.x, [y0,
 const caja = s => { if (s.tipo === 'columna' || s.tipo === 'tensor') { const [w, d] = s.tipo === 'tensor' ? [2, 2] : sec(s.sec); return [s.pos[0] - w / 2, s.pos[0] + w / 2, s.pos[1] - d / 2, s.pos[1] + d / 2, s.z[0], s.z[1]]; }
   return [Math.min(...s.x), Math.max(...s.x), Math.min(...s.y), Math.max(...s.y), Math.min(...s.z), Math.max(...s.z)]; };
 const cruza = (a, b) => a[0] < b[1] - .5 && b[0] < a[1] - .5 && a[2] < b[3] - .5 && b[2] < a[3] - .5 && a[4] < b[5] - .5 && b[4] < a[5] - .5;
-const todo = [...COL, ...TEN, ...ESC];
+const todo = [...COL, ...TEN, ...ESC.filter(e => e.x && e.y && e.z)];   /* una escalera sin cotas x/y/z (sólo dibujada en planta, p. ej. una hipótesis) no entra en el cruce */
 for (let i = 0; i < todo.length; i++) for (let j = i + 1; j < todo.length; j++) if (cruza(caja(todo[i]), caja(todo[j]))) mal(todo[i].id, `se cruza con ${todo[j].id}`);
 
 console.log(`apoyos de ${casa}: ${ok.length} bien, ${errores.length} mal, ${pendientes.length} pendientes de una duda`);

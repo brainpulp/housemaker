@@ -7,13 +7,13 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.7.0', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.8.0', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
     nivelesOrden: ['PB', 'TE'], spec: 'casa <b>25,00 × 5,50</b> · deck norte <b>4,00</b> · chapa a un agua' } };
 
-export const NIVELES = { PB: { nombre: 'Planta', z: 0, conf: 'estimado', nota: 'Piso interior terminado. La viga perimetral del piso sobresale 3 cm sobre el piso (Maxi 14/11). El terreno queda 1,47 más abajo: 1,20 hasta el fondo de esa viga, que mide 0,30 (D-01).' }, TE: { nombre: 'Techo', z: 0 } };
+export const NIVELES = { PB: { nombre: 'Planta', z: 0, conf: 'estimado', nota: 'Piso interior terminado. La viga perimetral del piso sobresale 3 cm sobre el piso (Maxi 14/11). El terreno queda 1,47 más abajo: 1,20 hasta el fondo de esa viga, que mide 0,30 (D-01).' }, PA: { nombre: 'Planta alta (hipótesis)', z: 310, conf: 'supuesto', nota: 'Hipótesis «segundo piso, planta A» (D-14): no existe.' }, TE: { nombre: 'Techo', z: 0 } };
 
 /* ---------- medidas ---------- */
 export const PASO = 400, ANCHO = 550, NPAR = 7, LARGO = PASO * (NPAR - 1), VOL = 100;   /* Maxi: 4,00 entre columnas, 5,50 entre filas, 1,00 de voladizo al oeste */
@@ -77,6 +77,9 @@ export const DES = DSB;
 export const HOJA = { e: 3, perfil: 4, N: { x: ANCHO - CI - FC - 2.5, dy: 192 }, S: { x: CI - 2.5, dy: -192 } };
 
 /* Todo lo que depende de la altura sobre el terreno y del deck sur sale de modelo({ terr, deckS }); las exportaciones fijas son la casa de hoy. casa.js arma la variante elegida en «Ver». */
+/* origen de los ejes del croquis de la cocina (3/11) en los de la casa: la cara interior de las falsas columnas del sur (el fondo de la mesada apoya contra ellas, no contra el vidrio:
+   si no, la falsa columna del módulo 4 se metía 6 cm en la mesada y la bacha) y la cara este de la pared O */
+export const COC = { x: CI + FC, y: 2 * PASO + 7.5 };
 export function modelo({ terr = TERR, deckS = null, plat = true } = {}) {
 const TR = terr;   /* nivel del terreno de esta variante */
 /* ---------- fachadas ---------- */
@@ -109,6 +112,10 @@ for (const [f, x] of [['N', GN], ['S', GS]]) for (let i = 1; i <= 13; i++) {
   const a0 = GS + 3, a1 = GN - 3;
   MUROS.push({ id: 'MO-01', nivel: 'PB', a: [a0, -VOL], b: [a1, -VOL], e: 6, tipo: 'madera', z0: Z0, top: ZV, estado: 'existente', conf: 'estimado', nombre: 'Pared oeste', nota: 'Maxi 14/11: el lado oeste no tiene ventanal, sólo una ventana pequeña; el resto es madera ciega.' });
   ABERTURAS.push({ id: 'V-O01', muro: 'MO-01', d: (a1 - a0 - 100) / 2, w: 100, h: 150, s: 75 - RES, tipo: 'ventana', estado: 'existente', conf: 'estimado', nombre: 'Ventana oeste', nota: 'Maxi 14/11: 1,00 de ancho por 1,50 de alto, antepecho a 0,75. La centré en la pared: la posición es supuesta (D-07).' }); }
+/* cocina (croquis de Maxi del 3/11, casas/cocinas/mocoreta.js): la «pared O» va en el quinto par de columnas (y 8,00), porque al oeste Maxi nombró dos cuartos (módulos 5 y 6)
+   y el pasillo de 2,00 sigue hacia ellos contra el ventanal norte. La posición a lo largo de la casa es un supuesto (D-16). COC = origen de los ejes del croquis en los de la casa */
+MUROS.push({ id: 'MC-01', nivel: 'PB', a: [COC.x, 800], b: [COC.x + 335, 800], e: 15, tipo: 'madera', z0: 0, top: ZV, estado: 'existente', conf: 'supuesto', nombre: 'Cocina: pared O', nota: 'Croquis 3/11: del ventanal sur hasta el pasillo (5,35 − 2,00 = 3,35). La puse en el quinto par de columnas; material y espesor supuestos (D-16).' });
+MUROS.push({ id: 'MC-02', nivel: 'PB', a: [COC.x + 330, 807.5], b: [COC.x + 330, 897.5], e: 10, tipo: 'madera', z0: 0, top: ZV, estado: 'existente', conf: 'supuesto', nombre: 'Cocina: tabique de la heladera', nota: 'Maxi 3/11: «falta un tabique que rodea a H», del lado del pasillo. Altura supuesta (D-16).' });
 
 /* ---------- estructura ---------- */
 const ESTRUCTURA = [];
@@ -145,7 +152,7 @@ const TD2 = deck({ pref: 'S', nombre: 'deck sur', xCol: 0, s: -1, xBorde: xDS, r
 /* plataforma norte (Maxi 14/11): ocupa los dos módulos centrales (3 y 4), se proyecta 4,00 al norte del deck principal y está 3 alzadas más abajo.
    Todo el borde compartido con el deck son escalones; al norte y al este tiene 3 escalones para bajar al terreno. Estructura supuesta (D-13). */
 /* siempre a media altura entre el piso de la casa y el jardín (Maxi 14/11): las mismas alzadas para subir al deck que para bajar al terreno */
-const nAlz = Math.max(2, Math.round(-TR / 2 / 18)), PLA = { x: [xDN, xDN + 400], y: [yPar(5) - PASO / 2, yPar(4)],   /* 6,00 × 4,00 (Maxi 14/11): arranca en la columna 4 y termina en la falsa columna que sigue a la 5: el módulo 4 y medio módulo 5 */
+const nAlz = Math.max(2, Math.round(-TR / 2 / 18)), PLA = { x: [xDN, xDN + 400], y: [yPar(5), yPar(4) + PASO / 2],   /* 6,00 × 4,00 (Maxi 14/11, corrido 2,00 al este): de la columna 5 a la falsa columna del módulo 3: el módulo 4 y medio módulo 3, frente a la puerta de entrada */
   z: TR / 2, pedada: 28, nAlz, alz: -TR / 2 / nAlz };
 if (plat) { const [px0, px1] = PLA.x, [py0, py1] = PLA.y, zb = PLA.z - TABLON, VPL = { b: 10, h: 20 }, np = 'Estructura de la plataforma supuesta: Maxi dio el tamaño, el nivel y los escalones (D-13).';
   const xa = px0 + 5, xb = px1 - 5, ya = py0 + 5, yb = py1 - 5;
@@ -179,9 +186,18 @@ const LOSAS = [
   { id: 'LO-03', nivel: 'PB', nombre: 'Deck sur', tablon: 19, z: 0, e: TABLON, poly: deckPoly(DS0, xDS, dy0 - 12, dy1 + 12, -1), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: deck chico de 2,50 × 8,00 al sur, entre tres columnas principales, al que da la puerta de atrás. Va en los módulos 3 y 4 (Maxi 14/11: «correlo un módulo para el oeste»); la puerta de atrás queda en su punta este.' },
 ];
 LOSAS.push({ id: 'LO-04', nivel: 'PB', nombre: 'Piso del desnivel (módulo 2)', z: DES.z, e: TABLA, poly: DES.poly, estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: desnivel de dos alzadas que ocupa todo el módulo 2 menos un pasillo sur de 0,80. Lo dibujé hacia abajo, 0,34 (alzadas de 0,17 supuestas) (D-12).' });
-if (plat) LOSAS.push({ id: 'LO-05', nivel: 'PB', nombre: 'Plataforma norte', tablon: 19, z: PLA.z, e: TABLON, poly: rect(PLA.x[0], PLA.x[1], PLA.y[0], PLA.y[1]), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: plataforma de deck al norte, de 6,00 × 4,00: arranca en la columna 4 y termina en la falsa columna que sigue a la 5; se proyecta 4,00 al norte; va siempre a media altura entre el piso de la casa y el jardín. Tablones de 19 como el deck (D-13).' });
+if (plat) LOSAS.push({ id: 'LO-05', nivel: 'PB', nombre: 'Plataforma norte', tablon: 19, z: PLA.z, e: TABLON, poly: rect(PLA.x[0], PLA.x[1], PLA.y[0], PLA.y[1]), estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: plataforma de deck al norte, de 6,00 × 4,00: va de la columna 5 a la falsa columna del módulo 3 (módulo 4 y medio módulo 3), frente a la puerta de entrada; se proyecta 4,00 al norte; va siempre a media altura entre el piso de la casa y el jardín. Tablones de 19 como el deck (D-13).' });
 const LOCALES = [
   { id: 'L-01', nivel: 'PB', nombre: 'Interior (sin dividir todavía)', poly: rect(GS, GN, -VOL, LARGO), estado: 'existente', conf: 'estimado', nota: 'Falta la distribución: Maxi nombró un cuarto pequeño en el módulo 5 y un cuarto grande en el 6, todavía sin medidas (D-10).' },
+  { id: 'L-06', nivel: 'PB', nombre: 'Cocina y comedor (módulos 4 y 3)', poly: rect(COC.x, COC.x + 335, COC.y, COC.y + 630), estado: 'existente', conf: 'supuesto', nota: 'Del croquis del 3/11: mesada 1 contra la pared O hasta la heladera, mesada 2 de 3,00 con la bacha bajo el ventanal sur, isla de ibirapitá de 2,20 × 0,90 y mesa de 2,80 × 1,20. Su lugar a lo largo de la casa es un supuesto (D-16).' },
+  /* hipótesis «segundo piso, planta A» (D-14): en la planta van como proyecto; en el 3D se prenden con la variante */
+  { id: 'L-20', nivel: 'PB', nombre: 'Ensanche sur (hipótesis)', poly: rect(-200, GS, 1200, 2000), estado: 'proyecto', conf: 'supuesto', nota: 'Hipótesis «segundo piso»: la casa se ensancha 2,00 al sur (de eje de columnas a cara de afuera) en los módulos 2 y 3, 8,00 de largo. Lleva la escalera, de 1,00 de ancho, contra el borde sur.' },
+  { id: 'L-21', nivel: 'PA', nombre: 'Oficina', poly: rect(GS, GN, 2000, 2400), estado: 'proyecto', conf: 'supuesto', nota: 'Sobre el módulo 1, con balcón al vacío.' },
+  { id: 'L-22', nivel: 'PA', nombre: 'Vacío (doble altura)', poly: rect(115, GN, 1600, 2000), estado: 'proyecto', conf: 'supuesto', nota: 'El módulo 2 queda abierto en doble altura.' },
+  { id: 'L-23', nivel: 'PA', nombre: 'Galería sur y llegada de la escalera', poly: [[-200, 1460], [GS, 1460], [GS, 1600], [115, 1600], [115, 2000], [-200, 2000]], estado: 'proyecto', conf: 'supuesto', nota: 'Une la escalera con la oficina y el dormitorio por el borde sur del vacío.' },
+  { id: 'L-24', nivel: 'PA', nombre: 'Dormitorio principal', poly: rect(GS, GN, 1200, 1600), estado: 'proyecto', conf: 'supuesto', nota: 'Sobre el módulo 3; sale a la terraza.' },
+  { id: 'L-25', nivel: 'PA', nombre: 'Baño', poly: rect(-200, GS, 1200, 1460), estado: 'proyecto', conf: 'supuesto', nota: 'En el ensanche, junto al dormitorio.' },
+  { id: 'L-26', nivel: 'PA', nombre: 'Terraza', poly: rect(GS, GN, 400, 1200), estado: 'proyecto', conf: 'supuesto', nota: 'Sobre los módulos 4 y 5; el 6 queda con la chapa a la vista.' },
   { id: 'L-04', nivel: 'PB', nombre: 'Desnivel con sillón en C (módulo 2)', poly: DES.poly, estado: 'existente', conf: 'estimado', nota: 'Dos alzadas más abajo que el resto; sillón en C contra los lados sur, este y oeste (D-12).' },
   ...(plat ? [{ id: 'L-05', nivel: 'PB', nombre: 'Plataforma norte', poly: rect(PLA.x[0], PLA.x[1], PLA.y[0], PLA.y[1]), estado: 'existente', conf: 'estimado', nota: '6,00 × 4,00, a media altura entre la casa y el jardín; escalones al deck en todo el borde compartido y escalones al terreno al norte y al este (D-13).' }] : []),
   { id: 'L-02', nivel: 'PB', nombre: 'Deck norte', poly: rect(DN0, xDN, PYO, PYE), estado: 'existente', conf: 'estimado', nota: '4,00 × el largo de la casa. Faltan las escaleras de entrada (D-04).' },
@@ -217,7 +233,8 @@ const DUDAS = [
   { id: 'D-10', ref: ['L-01'], q: 'Interior: faltan los tabiques y los ambientes (cuarto pequeño en el módulo 5, cuarto grande en el 6, cocina, baño).' },
   { id: 'D-11', ref: ['T-01', 'CE-01'], q: 'Techo: ¿qué sostiene la chapa sobre la cámara (cabios, clavaderas)? El panel de la cámara lo llevé a plomo con la cara de afuera de las columnas al norte y al sur; en el este y el oeste, donde no hay columnas que sobresalgan, lo dejé a plomo con la punta de la viga del piso, y el volado de 0,35 lo puse igual en los cuatro lados. ¿Es así?' },
   { id: 'D-12', ref: ['LO-04', 'L-04', 'SC-01', 'SC-02', 'ES-01', 'ES-02', 'TP-03'], q: 'Desnivel del módulo 2: lo dibujé como un pozo que BAJA dos alzadas (0,34), con el sillón en C adentro: el lomo contra el pasillo sur y los dos brazos al este y al oeste, cortados a 1,50 del ventanal norte, y ahí un escalón intermedio de cada lado. ¿Baja o sube? ¿El sillón va adentro del desnivel? Supuse alzadas de 0,17, asiento de 0,60 de fondo y la repisa a 0,80 del piso del pozo (el asiento a 0,35, la repisa de 0,40 que vuela 6 cm sobre el piso alto y el respaldo a 20° son tuyos). ¿Cómo está resuelto el piso del pozo por debajo?' },
-  { id: 'D-13', ref: ['LO-05', 'L-05', 'EP-01', 'EP-02', 'EP-03', 'VL-S', 'PL-1', 'TD-03'], q: 'Plataforma norte: mide 6,00 × 4,00, de la columna 4 a la falsa columna que sigue a la 5. Va a media altura entre la casa y el jardín, con las mismas alzadas para arriba y para abajo (hoy 4 y 4, de 18,4 cm). ¿Los escalones al terreno dan vuelta la esquina noreste, como los dibujé? ¿Al oeste no hay nada? ¿Sobre qué apoya? También está la alternativa sin plataforma (Variantes de diseño): una escalinata directa del deck al terreno, del mismo ancho.' },
+  { id: 'D-13', ref: ['LO-05', 'L-05', 'EP-01', 'EP-02', 'EP-03', 'VL-S', 'PL-1', 'TD-03'], q: 'Plataforma norte: mide 6,00 × 4,00, de la columna 5 a la falsa columna del módulo 3 (la corrí 2,00 al este). Va a media altura entre la casa y el jardín, con las mismas alzadas para arriba y para abajo (hoy 4 y 4, de 18,4 cm). ¿Los escalones al terreno dan vuelta la esquina noreste, como los dibujé? ¿Al oeste no hay nada? ¿Sobre qué apoya? También está la alternativa sin plataforma (Variantes de diseño): una escalinata directa del deck al terreno, del mismo ancho.' },
+  { id: 'D-16', ref: ['MC-01', 'MC-02', 'L-06'], q: 'Cocina: la ubiqué con la pared O en el quinto par de columnas (cocina en el módulo 4, mesa en el 3), porque dijiste que los cuartos están en los módulos 5 y 6. ¿Es ahí? El croquis da 5,35 entre ventanales y el modelo 5,33 entre vidrios; el fondo de la mesada sur lo apoyé en la cara interior de las falsas columnas, a 9 cm del vidrio. ¿La pared O y el tabique de la heladera son de madera y llegan al techo?' },
   { id: 'D-14', ref: ['H2-01'], q: 'Hipótesis «segundo piso, planta A» (se prende en Ver): piso alto sobre los módulos 1 a 3, vacío de doble altura en el 2, terraza sobre el 4 y el 5 (el 6 queda con la chapa a la vista), y un ensanche de 2,00 al sur en los módulos 2 y 3 con la escalera y el baño. El ensanche pisa donde hoy están la puerta de atrás y medio deck sur: los corrí (puerta en el costado oeste del ensanche, deck sur sólo en el módulo 4). ¿Va así? Terraza: deck a nivel con junta abierta sobre una cubierta impermeable con 2 % de caída al sur y canaleta; queda 11 cm sobre el piso alto (un escalón al salir). Todas las medidas de la hipótesis son mías.' },
   { id: 'D-15', ref: ['TE-01'], q: 'Hipótesis «casa elevada» (Altura, en Ver): puse el piso a 2,90 del terreno, con 2,60 libres bajo la viga. ¿Qué altura libre querés abajo? ¿La planta baja va abierta o cerrada?' },
 ];
@@ -226,10 +243,13 @@ const DUDAS = [
 }
 const T0 = modelo();
 export const { MUROS, ABERTURAS, ESTRUCTURA, LOSAS, LOCALES, TECHOS, IMPLANTACION, EJES, COTAS, PLA, TIRANTES, DUDAS } = T0;
-export const ESCALERAS = [], BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
+export const ESCALERAS = [{ id: 'ESC-H2', nivel: 'PB', pos: [-144, 1468], rot: 0, poly: [[-194, 1468], [-94, 1468], [-94, 1900], [-194, 1900]], sube: '+y', estado: 'proyecto', conf: 'supuesto', nombre: 'Escalera al piso alto (hipótesis)', nota: 'Hipótesis «segundo piso»: un tramo recto de 1,00 de ancho, 17 alzadas de 18,2 cm y 16 pedadas de 27 cm (2 alzadas + pedada = 63,5); 4,32 de desarrollo, sube 3,10.' }];
+export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-14', v: '0.8.0', txt: 'Entra la cocina (croquis del 3/11): pared O en el quinto par de columnas, tabique de la heladera, mesadas, isla de ibirapitá con el anafe, alacenas y mesa de 2,80 × 1,20; se ve con Muebles prendido. Su lugar a lo largo de la casa es un supuesto (D-16). Sin plataforma, la escalera pasa a ser de madera de 2,00 de ancho frente a la puerta de entrada: zancas de 2" × 12", pedadas de tablón de 2", pasamanos a los dos lados y dado de hormigón. La planta muestra la hipótesis del segundo piso como proyecto: el ensanche sur y la escalera en PB, y un nivel nuevo, PA, con la planta alta. Segundo piso: las columnas inclinadas salen del plano exterior de las columnas de abajo, sin escalón. La plataforma norte se corre 2,00 al este: queda de la columna 5 a la falsa columna del módulo 3, frente a la puerta de entrada.' },
+  { fecha: '2026-11-14', v: '0.7.1', txt: 'Segundo piso: cerrada la ranura que quedaba entre la cabeza de los ventanales y paredes y el techo, con un dintel sobre el frente inclinado y tímpanos en los costados. Las alternativas de diseño se manejan sólo desde el menú de la barra de herramientas: ya no aparece la tarjeta «Opciones de diseño» a la derecha.' },
   { fecha: '2026-11-14', v: '0.7.0', txt: 'Las alternativas de diseño se cambian desde el menú «Variantes de diseño», sin tocar nada en el 3D: bajo cada zona están sus opciones. Nueva alternativa: plataforma baja del deck, con o sin (sin ella, una escalinata directa del deck al terreno). Terraza del segundo piso: deck a nivel con junta abierta sobre una cubierta impermeable con 2 % de caída al sur, durmientes de altura variable y canaleta con bajada; queda un escalón de 11 cm sobre el piso alto.' },
   { fecha: '2026-11-14', v: '0.6.4', txt: 'Puerta de entrada (norte): pasa a la segunda mitad del módulo 3, pegada a la cuarta columna; corre hacia el este. La plataforma norte va de la columna 4 a la falsa columna que sigue a la 5 (módulo 4 y medio módulo 5). Segundo piso: la terraza va sobre los módulos 4 y 5, pegada al dormitorio, y el módulo 6 queda con la chapa a la vista; se va la pasarela.' },
   { fecha: '2026-11-14', v: '0.6.3', txt: 'La plataforma norte pasa a 6,00 × 4,00 (un módulo y medio), centrada en el cuarto par de columnas.' },

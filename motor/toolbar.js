@@ -135,7 +135,8 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     zBox[z.id]=box;}
   card.innerHTML=`<div class="vzh">${icon('variantes',14)}<b id="vzName"></b><button class="cpb" id="vzX" data-tip="Cerrar">${icon('x',14)}</button></div>`;Object.values(zBox).forEach(b=>card.appendChild(b));
   $('vzX').addEventListener('click',()=>{zPinned=null;showZone(null,true);});
-  function showZone(z){zShown=z;card.hidden=!z;for(const [id,b] of Object.entries(zBox))b.hidden=!z||id!==z.id;if(z){$('vzName').textContent=z.nombre;visor.syncPred&&visor.syncPred();}}
+  /* la tarjeta de variantes ya no se muestra en el inspector (Maxi 14/11: van en el menú de la barra); sigue en el DOM, oculta, porque guarda los controles q-… */
+  function showZone(z){zShown=z;card.hidden=true;for(const [id,b] of Object.entries(zBox))b.hidden=!z||id!==z.id;if(z){$('vzName').textContent=z.nombre;visor.syncPred&&visor.syncPred();}}
   const zoneOf=id=>id&&zonas.find(z=>z.piezas.test(id));
   /* botón de alternativas junto a la pieza elegida (Maxi 14/10): un desplegable por variante de su zona, ahí nomás */
   {const vb=document.createElement('div');vb.id='varChip';vb.hidden=true;stage.appendChild(vb);
@@ -152,18 +153,24 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
       const r=stage.getBoundingClientRect(),cv=visor.renderer.domElement.getBoundingClientRect();let x=cv.left-r.left+(V3.x+1)/2*cv.width,y=cv.top-r.top+(1-V3.y)/2*cv.height-10;
       x=Math.max(110,Math.min(r.width-110,x));y=Math.max(40,Math.min(r.height-10,y));vb.style.left=x+'px';vb.style.top=y+'px';if(vb.hidden)vb.hidden=false;})();}
   let lastSel;setInterval(()=>{const s=visor.selected;if(s===lastSel)return;lastSel=s;const z=zoneOf(s);if(z){zPinned=null;showZone(z);}else if(!zPinned)showZone(null);},250);
-  /* Maxi 14/11: las alternativas se cambian desde el menú mismo, sin tocar nada en el 3D: bajo cada zona van las opciones de su variante principal
-     (z.params[0], desplegable o casilla); tocar una la aplica y el menú queda abierto. Tocar el nombre de la zona sigue llevando a ella y abre su tarjeta. */
+  /* Maxi 14/11: las alternativas de diseño viven en este menú, junto a la barra, y en ningún otro lado: nada de tarjeta en el inspector de la derecha.
+     Bajo cada zona van TODAS sus variantes (desplegables como lista de opciones, casillas como interruptores); tocar una la aplica y el menú queda abierto.
+     Tocar el nombre de la zona la pliega o despliega y lleva la cámara a ella. Si entre todas pasan de 14 opciones, arrancan plegadas. */
+  const zAb=new Set();let zAbIni=false;
   function zonasMenu(b){openFly(b,el=>{el.className='fymenu';
-    const pintar=()=>{el.innerHTML='<div class="fyg">Variantes de diseño</div>'+zonas.map(z=>{const pid=z.params[0],src=$('q-'+pid);const p=visor.params[pid];const q=(z.label||{})[p]||p;
-        let ops='';if(src&&src.tagName==='SELECT')ops=[...src.options].map(o=>`<button class="fyb fyopt" data-p="${pid}" data-v="${o.value}" aria-pressed="${o.value===src.value}"><span>${o.value===src.value?'●':'○'} ${o.textContent}</span></button>`).join('');
-        else if(src&&src.type==='checkbox')ops=`<button class="fyb fyopt" data-p="${pid}" data-c="1" aria-pressed="${src.checked}"><span>${src.checked?'☑':'☐'} ${(src.closest('label')?.textContent||pid).trim()}</span></button>`;
-        return `<button class="fyb fyrow" data-z="${z.id}">${icon('variantes',16)}<span>${z.nombre}<small>${q}</small></span></button>`+ops;}).join('');};
-    if(!document.getElementById('fyoptCss')){const st=document.createElement('style');st.id='fyoptCss';st.textContent='.fyopt{padding-left:30px!important;font-size:11px!important;min-height:0!important;line-height:1.5!important}.fyopt[aria-pressed=true]{color:var(--accent,#c0461f);font-weight:600}';document.head.appendChild(st);}
+    const rot=src=>{const l=src.closest('label');if(!l)return '';const c=l.cloneNode(true);c.querySelectorAll('select,input,button').forEach(x=>x.remove());return c.textContent.trim();};
+    const fuentes=z=>z.params.map(pid=>[pid,$('q-'+pid)]).filter(([,src])=>src&&(src.tagName==='SELECT'||src.type==='checkbox'));
+    if(!zAbIni){zAbIni=true;const tot=zonas.reduce((n,z)=>n+fuentes(z).reduce((m,[,src])=>m+(src.tagName==='SELECT'?src.options.length:1),0),0);if(tot<=14)zonas.forEach(z=>zAb.add(z.id));}
+    const pintar=()=>{el.innerHTML='<div class="fyg">Variantes de diseño</div>'+zonas.map(z=>{const fs=fuentes(z),p=visor.params[z.params[0]],q=(z.label||{})[p]||p,ab=zAb.has(z.id);
+        const ops=!ab?'':fs.map(([pid,src])=>(fs.length>1&&src.tagName==='SELECT'?`<div class="fysub">${rot(src)}</div>`:'')+(src.tagName==='SELECT'
+          ?[...src.options].map(o=>`<button class="fyb fyopt" data-p="${pid}" data-v="${o.value}" aria-pressed="${o.value===src.value}"><span>${o.value===src.value?'●':'○'} ${o.textContent}</span></button>`).join('')
+          :`<button class="fyb fyopt" data-p="${pid}" data-c="1" aria-pressed="${src.checked}"><span>${src.checked?'☑':'☐'} ${rot(src)||pid}</span></button>`)).join('');
+        return `<button class="fyb fyrow" data-z="${z.id}">${icon('variantes',16)}<span>${z.nombre} ${ab?'▾':'▸'}<small>${q}</small></span></button>`+ops;}).join('');};
+    if(!document.getElementById('fyoptCss')){const st=document.createElement('style');st.id='fyoptCss';st.textContent='.fyopt{padding-left:30px!important;font-size:11px!important;min-height:0!important;line-height:1.5!important}.fyopt[aria-pressed=true]{color:var(--accent,#c0461f);font-weight:600}.fysub{padding:3px 8px 0 30px;font:500 9.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}#tbFly.fymenu{max-height:calc(100vh - 60px);overflow-y:auto}';document.head.appendChild(st);}
     pintar();
     el.onclick=e=>{const o=e.target.closest('[data-p]');
       if(o){const src=$('q-'+o.dataset.p);if(!src)return;if(o.dataset.c)src.checked=!src.checked;else src.value=o.dataset.v;src.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(pintar,60);return;}
-      const t=e.target.closest('[data-z]');if(!t)return;closeFly();const z=zonas.find(x=>x.id===t.dataset.z);zPinned=z;showZone(z);if(M3.classList.contains('noaside'))click('asideTg');if(z.vista)visor.fly(z.vista.p,z.vista.t);};});}
+      const t=e.target.closest('[data-z]');if(!t)return;const z=zonas.find(x=>x.id===t.dataset.z);if(zAb.has(z.id))zAb.delete(z.id);else{zAb.add(z.id);if(z.vista)visor.fly(z.vista.p,z.vista.t);}pintar();};});}
 
   /* ---------- vistas y tours arriba a la derecha, sobre el 3D (Maxi 15/10) ---------- */
   {const tr=document.getElementById('topright');if(tr){const st=document.createElement('style');st.textContent=`#trPop{position:absolute;z-index:20;background:var(--panel);border:1px solid var(--rule);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:4px;max-height:calc(100% - 60px);overflow:auto;min-width:220px;font-size:12px}#topright .trb{display:flex;align-items:center;gap:4px}#topright .trb[aria-pressed=true]{background:var(--accent-soft)}`;document.head.appendChild(st);
