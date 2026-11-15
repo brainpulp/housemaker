@@ -1,5 +1,5 @@
 /* Hojas corredizas que se abren arrastrándolas (motor; generaliza casas/arcos/movibles.js, que sigue siendo de Arcos por sus persianas y su SketchUp).
-   La casa declara sus hojas: { 'MN-05': { nombre, eje: 'y' | 'x', min, max } } (cm, en ejes de planta; 0 = cerrada) y las piezas de cada hoja llevan ese id
+   La casa declara sus hojas: { 'MN-05': { nombre, eje: 'y' | 'x', min, max, pend? } } (cm, en ejes de planta; 0 = cerrada) y las piezas de cada hoja llevan ese id
    más una letra opcional (MN-05, MN-05h). Arrastrar una hoja la corre por su riel; el toque sin arrastre la elige. El estado queda en este navegador.
    Respeta el candado de cada parte (motor/candado.js) y no actúa mientras hay otra herramienta abierta. Devuelve { html(id) } con el deslizador para la ficha. */
 export function initCorredizas(visor, HOJAS, pref = 'casa') {
@@ -7,7 +7,7 @@ export function initCorredizas(visor, HOJAS, pref = 'casa') {
   const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(MOV)); } catch (e) {} };
   const base = id => id.replace(/[a-z]$/, ''), clave = id => HOJAS[base(id)] ? base(id) : null;
   const fmt = v => (Math.abs(v) / 100).toFixed(2).replace('.', ',');
-  const aplicar = () => { for (const p of visor.parts || []) { const k = p.grp && clave(p.id); if (!k) continue; const v = MOV[k] || 0; if (HOJAS[k].eje === 'x') p.grp.position.x = v; else p.grp.position.z = v; }
+  const aplicar = () => { for (const p of visor.parts || []) { const k = p.grp && clave(p.id); if (!k) continue; const v = MOV[k] || 0; if (HOJAS[k].eje === 'x') p.grp.position.x = v; else p.grp.position.z = v; if (HOJAS[k].pend) p.grp.position.y = v * HOJAS[k].pend;   /* pend: lo que sube por cada cm que corre (techo corredizo sobre una pendiente) */ }
     window.__despertar && window.__despertar(); };
   let ult = null; setInterval(() => { if (visor.parts !== ult) { ult = visor.parts; aplicar(); } }, 250);
   document.addEventListener('input', e => { const r = e.target.closest && e.target.closest('[data-corr]'); if (!r) return; MOV[r.dataset.corr] = +r.value; const o = document.querySelector(`[data-corrv="${r.dataset.corr}"]`); if (o) o.textContent = fmt(+r.value); aplicar(); });

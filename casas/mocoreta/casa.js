@@ -31,7 +31,8 @@ import { tablones } from './tablones.js';
 import { initCorredizas } from './corredizas.js';
 let CORR = null;
 /* hojas corredizas: 0 = cerrada; corren en y (a lo largo de la fachada) hasta dy */
-const HOJAS = Object.fromEntries(M.MUROS.filter(m => m.corrediza).map(m => { const h = M.HOJA[m.a[0] > M.ANCHO / 2 ? 'N' : 'S']; return [m.id, { nombre: m.nombre, eje: 'y', min: Math.min(0, h.dy), max: Math.max(0, h.dy) }]; }));
+const TMOV = { carrera: 360, pend: M.CAMARA / (M.CXN - M.CXS) };
+const HOJAS = Object.fromEntries([['TM-01', { nombre: 'Techo corredizo', eje: 'x', min: 0, max: TMOV.carrera, pend: TMOV.pend }], ...M.MUROS.filter(m => m.corrediza).map(m => { const h = M.HOJA[m.a[0] > M.ANCHO / 2 ? 'N' : 'S']; return [m.id, { nombre: m.nombre, eje: 'y', min: Math.min(0, h.dy), max: Math.max(0, h.dy) }]; })]);
 
 const f2 = cm => (cm / 100).toFixed(2).replace('.', ',');
 const f1 = v => (+v).toFixed(1).replace('.', ',');
@@ -39,6 +40,7 @@ const NIV = Object.fromEntries(Object.entries(M.NIVELES).map(([k, v]) => [k, v.n
 const { box, box8 } = geo;
 
 const params = [
+  { id: 'techoMovil', label: 'Techo corredizo sobre el deck', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin techo corredizo (como hoy)'], ['si', 'Con techo corredizo en el módulo 6']], help: 'Hipótesis: un segundo techo de chapa, guardado sobre el del módulo 6, que corre 3,60 al norte y tapa el deck (D-17). Se arrastra para abrirlo.' },
   { id: 'plataforma', label: 'Plataforma baja del deck', type: 'select', value: 'si', quick: true, group: 'Hipótesis', options: [['si', 'Con plataforma a media altura'], ['no', 'Sin plataforma (escalinata directa)']], help: 'La plataforma de 6,00 × 4,00 a media altura entre el deck y el jardín, o una escalinata directa del deck al terreno (D-13).' },
   { id: 'altura', label: 'Altura de la casa', type: 'select', value: 'hoy', quick: true, group: 'Hipótesis', options: [['hoy', 'Como hoy (piso a 1,47)'], ['alta', 'Elevada (piso a 2,90, planta baja habitable)']], help: 'Hipótesis de proyecto: levantar la casa sobre los zancos para habitar la planta al nivel del terreno. El deck sube con la casa y la plataforma norte queda siempre a media altura (D-15).' },
   { id: 'piso2', label: 'Segundo piso', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin segundo piso (como hoy)'], ['A', 'Planta A: galería sur, escalera en el ensanche'], ['B', 'Planta B: escalera adentro, puente en el ensanche']], help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 4 y el 5 y ensanche de 2,00 al sur con la escalera; frente norte inclinado 30° con vidrio repartido, 2,60 de altura (D-14).' },
@@ -195,6 +197,34 @@ function build(p) {
         'Tímpanos y dintel de madera que cierran entre la cabeza de las paredes y de los vidrios y la chapa del piso alto: sobre el frente inclinado (0,35), en cuña en los costados este y oeste, y una faja al sur.', `de +${f2(ZT)} a la chapa`); }
     if (p.techos) { const X0 = XE - 50, X1 = xT + 50;   /* Maxi 14/11: alero de 0,50 al norte. Arranca en la cabeza del frente inclinado; 0,30 de caída, baja al sur */
       H('H2-11', 'Techo del piso alto (zincalum)', 'techo', A.techoGeo({ poly: [[X0, 1165], [X1, 1165], [X1, MM.CYE + 35], [MM.CXS - 35, MM.CYE + 35], [MM.CXS - 35, 2035], [X0, 2035]], baja: '-x', z: [zt(X1), zt(X0)], e: 1 }), 'Chapa acanalada a un agua, alta al norte, sobre los módulos 1 a 3 y el ensanche; arranca en la cabeza del frente inclinado, así que el techo es más angosto que la planta. Altura interior de 2,60 (Maxi). Sin cielorraso ni estructura dibujados.', '', { noEdges: true }); } }
+  /* ---------- hipótesis: techo corredizo sobre el deck, en el módulo 6 (Maxi 14/11, D-17) ----------
+     Un segundo techo de chapa guardado encima del fijo. Dos largueros de caño 200 × 100 × 4 de 6,00 corren sobre dos carros de rodillos por línea
+     (adelante, sobre la viga de arriba norte; atrás, 1,75 más al sur) montados en dos rieles fijos de caño 100 × 100 × 4 que van de viga a viga.
+     Abierto vuela 4,05 desde el carro de adelante; la cola de 1,95 que queda adentro lo equilibra. Todo dibujado guardado: lo corre motor/corredizas.js */
+  if (p.techoMovil === 'si' && p.techos) { const Z = x => MM.zR(x) + 1, GH = 'Hipótesis', u = 'D-17', fn = '<b>Hipótesis «techo corredizo» (D-17).</b> ';
+    const sl = (x0, x1, o0, o1, y0, y1) => box8([[x0, Z(x0) + o0, y0], [x1, Z(x1) + o0, y0], [x1, Z(x1) + o0, y1], [x0, Z(x0) + o0, y1], [x0, Z(x0) + o1, y0], [x1, Z(x1) + o1, y0], [x1, Z(x1) + o1, y1], [x0, Z(x0) + o1, y1]]);
+    const T = (id, nombre, cat, geos, txt, sec, med, opt = {}) => Pt(id, `${id} · ${nombre}`, cat, geos, { fn: fn + txt, sec, med, u }, { group: GH, opt });
+    const LY = [[-5, 5, 1], [383, 393, -1]], XA = -7.5, XB = 592.5, XC = 212.5, xF = 541.5, xR = 366.5, xS = 8.5, YO = MM.CYO - 35, YE = 395;   /* líneas de rodadura: [y0, y1, lado del ala de retención] */
+    T('TM-01', 'Techo corredizo: chapa', 'techo', A.techoGeo({ poly: [[XC, YO], [XB + 5, YO], [XB + 5, YE], [XC, YE]], baja: '-x', z: [Z(XB + 5) + 59, Z(XC) + 59], e: 1 }),
+      'Chapa acanalada de zincalum calibre 25, como la del techo, sobre los 3,80 de adelante. Guardada queda encima del techo fijo; abierta tapa el deck hasta el borde y solapa 0,20 con el alero fijo: desagua sobre el techo de la casa. Tornillos autoperforantes 14 × 2" con arandela de neopreno, en la cresta, a cada correa.', 'zincalum C25', `3,85 × ${f2(YE - YO)} · corre ${f2(TMOV.carrera)}`, { noEdges: true });
+    T('TM-01a', 'Techo corredizo: largueros', 'hierro', [...LY.map(([a, b]) => sl(XA, XB, 27, 47, a, b)), ...LY.map(([a, b, d]) => d > 0 ? sl(XA, XB, 35, 35.6, b, b + 5) : sl(XA, XB, 35, 35.6, a - 5, a)), sl(XA, XA + 8, 39, 47, 5, 383)],
+      'Dos largueros de caño estructural 200 × 100 × 4 de canto, de una barra de 6,00 cada uno (sin empalmes). Cada uno lleva soldado a media altura, del lado de adentro, un ángulo de 50 × 50 × 5 corrido: ahí pisan los rodillos de retención. Atrás los une un travesaño de caño 80 × 80 × 3. Predimensionado con 30 kg/m² de sobrecarga de uso abierto: flecha en la punta ~1,7 cm. Lo tiene que verificar un calculista.', 'caño 200 × 100 × 4', '2 de 6,00');
+    T('TM-01b', 'Techo corredizo: correas', 'hierro', [220, 311, 402, 493, 584].map(x => sl(x - 2.5, x + 2.5, 47, 57, YO, YE)),
+      'Cinco correas de perfil C galvanizado 100 × 50 × 15 × 2 cada 0,91, apoyadas sobre los largueros con dos clips de ángulo 50 × 5 y bulones M10 cada una. Vuelan 1,30 al oeste, sobre el voladizo.', 'C 100 × 50 × 15 × 2', `5 de ${f2(YE - YO)}`);
+    T('TM-01c', 'Techo corredizo: tubo de la cremallera y cruces', 'hierro', [sl(XA, XB, 41, 47, 185, 191), sl(XA + 140, XB - 10, 38.5, 41, 186, 190), geo.rod([XA + 4, Z(XA) + 44, 5], [XC, Z(XC) + 44, 383], 1, 6), geo.rod([XA + 4, Z(XA) + 44, 383], [XC, Z(XC) + 44, 5], 1, 6)],
+      'Tubo central de caño 60 × 40 × 2 colgado de las correas y del travesaño de atrás; abajo lleva la cremallera de portón módulo 4 (acero 30 × 12, en tramos de 1,00 atornillados con M6 cada 0,25). En la cola, una cruz de San Andrés de planchuela 32 × 4,8 para que el techo no se revire: empuja un solo motor, al centro.', 'caño 60 × 40 × 2 · cremallera M4', 'cremallera de 4,50');
+    T('TM-02', 'Rieles fijos', 'hierro', [...LY.map(([a, b]) => sl(xS - 5, xF + 5, 6, 16, a, b)), sl(xF - 5, xF + 5, 6, 14, 5, 383)],
+      'Dos rieles fijos de caño 100 × 100 × 4 a 6 cm sobre la chapa, de la viga de arriba sur a la del norte (5,43), y un travesaño igual adelante que los une y lleva el motor. Reciben los dos carros de cada línea; el de atrás tira para arriba (~230 kg con el techo abierto y sin viento) y el riel lo reparte a las dos vigas.', 'caño 100 × 100 × 4', '2 de 5,43 + 1 de 3,78');
+    T('TM-03', 'Torres de apoyo', 'hierro', LY.flatMap(([a, b]) => [xS, xF].map(x => box(x - 5, x + 5, MM.ZA, Z(x) + 6, a, b))),
+      'Cuatro torres de caño 100 × 100 × 4 que atraviesan la chapa: abajo, una montura en U de chapa de 6 mm que abraza la viga de arriba, con 4 bulones pasantes M12 calidad 8.8 galvanizados y arandelas anchas; arriba, tapa soldada y 2 bulones M12 al riel. Donde cruzan la chapa, babeta de zinc y sellador. La montura va pegada a la columna (D-17: hay que ver la cabeza de la columna para definirla).', 'caño 100 × 100 × 4', '4');
+    { const g = []; for (const [a, b, d] of LY) for (const x of [xF, xR]) { for (const dx of [-11, 11]) g.push(geo.rod([x + dx, Z(x + dx) + 21.5, a - 1], [x + dx, Z(x + dx) + 21.5, b + 1], 5.5, 16));
+        const ya = d > 0 ? b : a - 5; for (const dx of [-11, 11]) g.push(geo.rod([x + dx, Z(x + dx) + 39, ya], [x + dx, Z(x + dx) + 39, ya + 5], 3.4, 12));
+        g.push(sl(x - 19, x + 19, 6, 44, d > 0 ? b + 5 : a - 5.8, d > 0 ? b + 5.8 : a - 5), sl(x - 19, x + 19, 6, 27, d > 0 ? a - .8 : b, d > 0 ? a : b + .8)); }
+      T('TM-04', 'Carros de rodillos', 'puerta', g, 'Cuatro carros, dos por línea: adelante (sobre la viga norte) y atrás (1,75 al sur). Cada uno: dos rodillos de apoyo de acero Ø 110 con dos rulemanes 6205-2RS y eje M20, sobre los que corre el larguero, y dos rodillos de retención Ø 70 con ruleman 6203-2RS y eje M16 que pisan el ángulo: no dejan que la cola se levante ni que el viento lo saque. Costados de chapa de 8 mm soldados al riel. El de adelante carga ~1.000 kg con el techo abierto y la sobrecarga de uso.', 'rodillos Ø 110 y Ø 70', '4 carros · 16 rodillos'); }
+    T('TM-05', 'Motor', 'puerta', [box(xF - 16, xF + 14, Z(xF) + 14, Z(xF) + 37, 174, 202), geo.rod([xF, Z(xF) + 33, 184], [xF, Z(xF) + 33, 192], 4, 14)],
+      'Un motor de portón corredizo de 220 V para 600 kg (reductor irreversible: sostiene el techo en la pendiente; trae desbloqueo manual, fines de carrera y control remoto), abulonado al travesaño de adelante; el piñón engrana en la cremallera del tubo central. Empuje necesario: unos 60 kg. Corre los 3,60 en unos 25 segundos. Con un anemómetro de toldo que lo guarde solo si hay viento.', 'motor de portón 600 kg', 'piñón Z16 módulo 4');
+    T('TM-06', 'Topes y trabas', 'puerta', LY.flatMap(([a, b]) => [sl(xS - 5, xS + 1, 16, 34, a, b), sl(xF + 19, xF + 23, 16, 26, a, b)]),
+      'Topes de fin de carrera con goma en las dos puntas de cada riel y, guardado, dos pasadores de Ø 16 que traban los largueros a los rieles: con tormenta el techo queda guardado y trabado.', 'pasador Ø 16', '4 topes · 2 trabas'); }
   /* tirantes: una pieza por conjunto */
   if (p.tirantes) for (const t of MM.TIRANTES) { const { b, h } = t.S, geos = [];
     const tramos = H2 && t.id === 'TC-01' ? t.tramos.filter(([a0, a1]) => a1 < 1600 || a0 > 2000) : t.tramos;   /* doble altura en el módulo 2 */
@@ -263,6 +293,7 @@ const stage = document.querySelector('#modo-3d .stage');
 const optsDe = id => Object.fromEntries(params.find(q => q.id === id).options);
 const ZONAS = [
   { id: 'piso2', nombre: 'Segundo piso', piezas: /^(H2-\d+|T-0[12]|CE-01|VA-[NSEO]|VT-\d)$/, params: ['piso2'], label: optsDe('piso2'), vista: { p: [2300, 800, 3100], t: [350, 280, 1600] } },
+  { id: 'techoMovil', nombre: 'Techo corredizo', piezas: /^TM-\d+[a-z]?$/, params: ['techoMovil'], label: optsDe('techoMovil'), vista: { p: [1700, 900, -700], t: [600, 300, 200] } },
   { id: 'plataforma', nombre: 'Plataforma baja del deck', piezas: /^(LO-05[a-c]?|EP-0\d|VL-[A-Z]|PL-\d)$/, params: ['plataforma'], label: optsDe('plataforma'), vista: { p: [2300, 700, 2300], t: [950, -40, 900] } },
   { id: 'altura', nombre: 'Altura de la casa', piezas: /^(C-\d[SN]|H1-01|VP-[NSEO])$/, params: ['altura'], label: optsDe('altura'), vista: { p: [2500, 900, 3300], t: [400, 0, 1400] } },
 ];
