@@ -146,7 +146,8 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     function armarChip(z){vb.innerHTML=`<b title="Opciones de diseño de ${z.nombre}">⇄</b>`+z.params.map(pid=>{const src=$('q-'+pid);if(!src||src.tagName!=='SELECT')return '';/* Maxi 10/11: una variante puede valer sólo para algunas piezas de la zona (z.solo={param:/regex de piezas/}) */if(z.solo&&z.solo[pid]&&!z.solo[pid].test(visor.selected||''))return '';const l=src.closest('label');if(l&&l.style.display==='none')return '';return `<select data-p="${pid}" title="${(src.closest('label')?.textContent||pid).trim().slice(0,60)}">${[...src.options].map(o=>`<option value="${o.value}"${o.value===src.value?' selected':''}>${o.textContent}</option>`).join('')}</select>`;}).join('');
       vb.querySelectorAll('select').forEach(s=>s.addEventListener('change',()=>{const src=$('q-'+s.dataset.p);if(!src)return;src.value=s.value;src.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const z2=zoneOf(visor.selected);if(z2)armarChip(z2);},60);}));
       ['pointerdown','wheel','keydown'].forEach(ev=>vb.addEventListener(ev,e=>e.stopPropagation()));}
-    (function loop(){requestAnimationFrame(loop);const id=visor.selected,z=id&&zoneOf(id);if(!z||!(M3&&!M3.hidden)){if(!vb.hidden)vb.hidden=true;zc=null;return;}
+    /* Maxi 14/11: fuera el chip flotante sobre la pieza elegida («estos menúes inline sólo molestan»): las alternativas van sólo en el menú de la barra */
+    if(0)(function loop(){requestAnimationFrame(loop);const id=visor.selected,z=id&&zoneOf(id);if(!z||!(M3&&!M3.hidden)){if(!vb.hidden)vb.hidden=true;zc=null;return;}
       if(z!==zc||id!==idc){zc=z;idc=id;armarChip(z);}if(!vb.querySelector('select')){vb.hidden=true;return;}
       const p=(visor.parts||[]).find(q=>q.id===id);if(!p||!p.bb||p.bb.isEmpty()){vb.hidden=true;return;}
       V3.set((p.bb.min.x+p.bb.max.x)/2,p.bb.max.y,(p.bb.min.z+p.bb.max.z)/2).project(visor.camera);if(V3.z>1){vb.hidden=true;return;}

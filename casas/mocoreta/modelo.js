@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.8.2', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.8.3', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -74,7 +74,8 @@ const DSB = { resp: 40,   /* el respaldo termina en una repisa de 40 de ancho (M
   DSB.poly = [[x0, m2o], [xc, m2o], [xc, m2o + R], [x1, m2o + R], [x1, m2e - R], [xc, m2e - R], [xc, m2e], [x0, m2e]]; }
 export const DES = DSB;
 /* corredizas de hierro (oxidado): la del norte corre por dentro; la del sur cuelga por fuera (Maxi 14/11). x = eje de la hoja; dy = hacia dónde abre (D-06) */
-export const HOJA = { e: 3, perfil: 4, N: { x: ANCHO - CI - FC - 2.5, dy: 192 }, S: { x: CI - 2.5, dy: -192 } };
+/* Maxi 14/11: la de entrada es de caño estructural de 70 × 30 de canto (3 a la vista, 7 de fondo); la de atrás, de caño de 50 × 50 */
+export const HOJA = { e: 3, perfil: 4, N: { x: ANCHO - CI - FC - 1 - 3.5, dy: 192, e: 7, perfil: 3 }, S: { x: CI - 1 - 2.5, dy: -192, e: 5, perfil: 5 } };
 
 /* Todo lo que depende de la altura sobre el terreno y del deck sur sale de modelo({ terr, deckS }); las exportaciones fijas son la casa de hoy. casa.js arma la variante elegida en «Ver». */
 /* origen de los ejes del croquis de la cocina (3/11) en los de la casa: la cara interior de las falsas columnas del sur (el fondo de la mesada apoya contra ellas, no contra el vidrio:
@@ -132,6 +133,10 @@ for (let k = 1; k < NPAR; k++) for (const [f, x] of [['S', FS0], ['N', FN0]])
 { const nota = 'Maxi 14/11: viga perimetral de arriba, sobre los vidrios: 7 de ancho, centrada en el vidrio (el vidrio toca el centro de su cara de abajo). Alto de 30 como la del piso.';
   viga('VA-S', [GS, YO], [GS, YE], VA, ZA, 'Viga perimetral de arriba, sur', nota); viga('VA-N', [GN, YO], [GN, YE], VA, ZA, 'Viga perimetral de arriba, norte', nota);
   viga('VA-E', [AIS - 3.5, LARGO], [AIN + 3.5, LARGO], VA, ZA, 'Viga perimetral de arriba, este', nota); viga('VA-O', [AIS - 3.5, -VOL], [AIN + 3.5, -VOL], VA, ZA, 'Viga perimetral de arriba, oeste', nota); }
+/* vigas de piso transversales (Maxi 14/11): una por par de columnas, entre las vigas perimetrales, bajo las tablas. En el par 1 ese lugar es de la VP-E.
+   En los pares 2 y 3 (bordes del desnivel) las corrí 10 cm hacia afuera del pozo para no meterlas en la tabica: supuesto (D-03). Sección supuesta: como la perimetral, a ras por abajo */
+const VPT = { b: 15, h: 24.5 }, yVF = k => yPar(k) + (k === 2 ? 10 : k === 3 ? -10 : 0);
+for (let k = 2; k <= NPAR; k++) viga(`VF-${k}`, [PIS, yVF(k)], [PIN, yVF(k)], VPT, -TABLA, `Viga de piso transversal del par ${k}`, 'Maxi 14/11: en cada par de columnas, una viga de piso que las une de lado a lado. Sección supuesta (15 × 24,5, a ras por abajo con la perimetral)' + (k < 4 ? '; corrida 10 cm para librar el desnivel (D-03).' : ' (D-03).'), 'supuesto');
 for (let k = 2; k <= NPAR; k++) viga(`VT-${k}`, [AIS, yPar(k)], [AIN, yPar(k)], VT, HC, `Viga transversal del par ${k}`, 'Maxi 14/11: en cada par de columnas, una viga transversal de 25 × 7 del ancho de la casa. La puse arriba, con la cara superior a la altura del cielorraso; en el par 1 (este) ese lugar lo ocupa la viga perimetral (D-03).');
 /* decks: Maxi dio las medidas del piso; la estructura (postes, vigas) es supuesta (D-04) */
 const [dy0, dy1] = deckS || DECKS.y, xDN = ANCHO + DECKN, xDS = -DECKS.fondo;
@@ -165,8 +170,8 @@ const medio = (a, b, sep) => { const o = []; for (let v = a + sep / 2; v < b; v 
 const tramosY = [[YO + VA.b, -VT.b / 2], ...[...Array(NPAR - 2)].map((_, i) => [i * PASO + VT.b / 2, (i + 1) * PASO - VT.b / 2]), [LARGO - PASO + VT.b / 2, YE - VA.b]];
 const NTC = 5;   /* tirantes del cielorraso: 5 (Maxi) */
 const TIRANTES = [
-  { id: 'TP-01', nombre: 'Tirantes del piso', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[PIS, PIN]], pos: serie(-VOL, LARGO, TIRP.sep).filter(y => y < m2o || y > m2e).concat([m2o - 5, m2e + 5]), conf: 'supuesto', nota: 'Tentativos (Maxi: no recuerda frecuencia ni tamaño). Supuse 2″ × 6″ cada 0,50 de viga perimetral a viga perimetral (5,05 de luz); uno a cada lado del desnivel (D-05).' },
-  { id: 'TP-02', nombre: 'Tirantes del piso, pasillo junto al desnivel', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[PIS, DES.x[0] - TABLA]], pos: serie(m2o, m2e, TIRP.sep), conf: 'supuesto', nota: 'Tentativos: el pasillo sur de 0,80 junto al desnivel (D-05, D-12).' },
+  { id: 'TP-01', nombre: 'Tirantes del piso', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[PIS, PIN]], pos: serie(-VOL, LARGO, TIRP.sep).filter(y => (y < m2o || y > m2e) && ![2, 3, 4, 5, 6, 7].some(k => Math.abs(y - yVF(k)) < 10)), conf: 'supuesto', nota: 'Tentativos (Maxi: no recuerda frecuencia ni tamaño). Supuse 2″ × 6″ cada 0,50 de viga perimetral a viga perimetral (5,05 de luz); uno a cada lado del desnivel (D-05).' },
+  { id: 'TP-02', nombre: 'Tirantes del piso, pasillo junto al desnivel', dir: 'x', S: TIRP, zt: -TABLA, tramos: [[PIS, DES.x[0] - TABLA]], pos: serie(m2o, m2e, TIRP.sep).filter(y => y > m2o && y < m2e), conf: 'supuesto', nota: 'Tentativos: el pasillo sur de 0,80 junto al desnivel (D-05, D-12).' },
   { id: 'TP-03', nombre: 'Tirantes del desnivel', dir: 'x', S: TIRP, zt: DES.z - TABLA, tramos: [[DES.x[0], DES.x[1]]], pos: serie(m2o, m2e, TIRP.sep), conf: 'supuesto', nota: 'Tentativos: sostienen el piso del desnivel, 0,34 más abajo; quedan colgando por debajo de la viga perimetral. No sé cómo está resuelto (D-12).' },
   { id: 'TC-01', nombre: 'Tirantes del cielorraso', dir: 'y', S: TIRC, zt: HC, tramos: tramosY, pos: [...Array(NTC)].map((_, i) => AIS + (i + 1) * (AIN - AIS) / (NTC + 1)), conf: 'estimado', nota: 'Maxi 14/11: son 5 nada más. Los repartí parejos en el ancho (cada 0,88), de viga transversal a viga transversal (4,00). Sección 2″ × 6″ supuesta (D-05).' },
   TD1, TD2,
@@ -223,7 +228,7 @@ const COTAS = [
 const DUDAS = [
   { id: 'D-01', ref: ['TE-01', 'VP-S', 'VP-N'], q: 'Altura sobre la tierra: tomé 1,20 desde el terreno hasta el fondo de la viga perimetral (el piso queda a 1,47). ¿O el 1,20 es hasta el piso?' },
   { id: 'D-02', ref: [...ESTRUCTURA.filter(e => /^(C|FC)-/.test(e.id)).map(e => e.id), 'VP-E', 'VP-O', 'VA-S', 'VA-N'], q: 'Encuentros de fachada. (a) La viga de arriba, de 7 y centrada en el vidrio, queda 2,5 cm metida en la cara interior de las columnas: ¿la columna tiene un rebaje, o la viga va un poco más adentro? (b) Falsas columnas: les puse 10 de fondo. (c) En el este y en la punta del voladizo, ¿cómo cierran las vigas contra las esquinas?' },
-  { id: 'D-03', ref: ['VT-2'], q: 'Vigas transversales de 25 × 7: las puse arriba, a la altura del cielorraso. ¿Hay también una en el piso en cada par de columnas?' },
+  { id: 'D-03', ref: ['VT-2', 'VF-2', 'VF-3'], q: 'Vigas transversales de 25 × 7: las puse arriba, a la altura del cielorraso. Maxi 14/11: en el piso también hay una viga transversal en cada par de columnas (VF-2 a VF-7). ¿Qué sección tienen? Supuse 15 × 24,5, a ras por abajo con la perimetral. En los bordes del desnivel (pares 2 y 3) las corrí 10 cm hacia afuera del pozo: ¿van así?' },
   { id: 'D-04', ref: ['LO-02', 'LO-03', 'TD-01', 'TD-02', ...IDS_DECK], q: 'Estructura de los decks (propuesta): vigas dobles de 2″ × 12″ en pinza de sur a norte en cada par de columnas, con el poste (4″ × 6″) retirado 1,00 del borde en el deck norte y 0,60 en el sur; arriba, tirantes de 2″ × 12″ de este a oeste cada ~1,00, y los tablones de 2″ directo encima, sin clavadores. Es un predimensionado con valores supuestos: hay que verificarlo. ¿Te sirve el poste retirado, o lo querés en el borde (la viga pasa a 2 × 3″ × 14″)? ¿El deck norte incluye el metro del voladizo (25,00)? ¿Baranda?' },
   { id: 'D-05', ref: ['TP-01', 'TC-01'], q: 'Tirantes del piso y del cielorraso: sección, separación y para qué lado corren. Están tentativos (2″ × 6″; los del piso de norte a sur cada 0,50, los del cielorraso son 5, de este a oeste, repartidos parejos).' },
   { id: 'D-06', ref: ['MN-06', 'MS-05'], q: 'Puertas corredizas: ¿para qué lado corre cada una? La de entrada (mitad oeste del módulo 3) la puse corriendo hacia el este, por dentro; la de atrás (mitad este del módulo 3), hacia el oeste, por fuera: al este tiene la columna.' },
@@ -248,6 +253,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-14', v: '0.8.3', txt: 'Vigas de piso transversales: una en cada par de columnas, de lado a lado (VF-2 a VF-7; en el par este ese lugar es de la viga perimetral). Sección supuesta. Casa elevada: la platea de la planta baja sigue también bajo el deck norte. El sillón del desnivel es todo de madera, con almohadones sueltos de asiento y de respaldo. Mesa del comedor: tablas de pinotea a lo largo y patas de 20 × 20. Techo del piso alto: alero de 0,50 al norte. Corredizas: la de entrada, de caño estructural de 70 × 30 de canto; la de atrás, de caño de 50 × 50.' },
   { fecha: '2026-11-14', v: '0.8.2', txt: 'Segundo piso: el ensanche sur baja de 2,00 a 1,40 (escalera de 1,00 y, arriba, un baño lineal de 1,40 × 2,56) y se abre a la vista del sur: vidriado de piso a techo junto a la escalera y bajo el baño; el baño queda ciego. Escalera del deck (sin plataforma): pedada de 26, alzada de 18,4 (8 alzadas para 1,47) y baranda de un solo lado.' },
   { fecha: '2026-11-14', v: '0.8.1', txt: 'Segundo piso: nueva planta B, el enroque de puente y escalera. La escalera va adentro, en la franja sur del módulo 2 (queda de 0,88 de ancho entre las columnas y la repisa del sillón), y el puente entre la oficina y el dormitorio pasa al ensanche. Se elige en el menú de alternativas. Las columnas inclinadas del norte tienen ahora el mismo espesor que las de abajo y siguen su cara exterior. La planta en 2D sigue mostrando la planta A.' },
   { fecha: '2026-11-14', v: '0.8.0', txt: 'Entra la cocina (croquis del 3/11): pared O en el quinto par de columnas, tabique de la heladera, mesadas, isla de ibirapitá con el anafe, alacenas y mesa de 2,80 × 1,20; se ve con Muebles prendido. Su lugar a lo largo de la casa es un supuesto (D-16). Sin plataforma, la escalera pasa a ser de madera de 2,00 de ancho frente a la puerta de entrada: zancas de 2" × 12", pedadas de tablón de 2", pasamanos a los dos lados y dado de hormigón. La planta muestra la hipótesis del segundo piso como proyecto: el ensanche sur y la escalera en PB, y un nivel nuevo, PA, con la planta alta. Segundo piso: las columnas inclinadas salen del plano exterior de las columnas de abajo, sin escalón. La plataforma norte se corre 2,00 al este: queda de la columna 5 a la falsa columna del módulo 3, frente a la puerta de entrada.' },

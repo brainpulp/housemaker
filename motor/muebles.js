@@ -7,14 +7,14 @@ import { armar as armarOctet } from './octet.js';
 import { MODELOS as OCTET } from './octet-modelos.js';
 
 /* materiales que usan las piezas (el visor los crea con MeshStandardMaterial) */
-export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],petiribi:['#b98654',.7],suela:['#9a5a2b',.6],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
+export const MATERIALES={roble:['#b98a5a',.7],madOsc:['#6e4a2e',.7],madRust:['#8a6142',.85],petiribi:['#b98654',.7],pinotea:['#b5743e',.7],suela:['#9a5a2b',.6],madClara:['#c79f72',.7],lino:['#c9c1b3',.95],tela:['#8a8f96',.95],
   mostaza:['#b88a3a',.95],petroleo:['#3e5a63',.95],sabana:['#efece6',.95],almohada:['#f6f3ee',.95],yute:['#b39a6c',1],negro:['#323335',.55]/* Maxi 9/11: el #161718 era un pozo negro; negro mate real se lee gris muy oscuro */,grafito:['#3b3e40',.55],
   piedra:['#d9d4cb',.35],granito:['#2f2f30',.3],ladrillo:['#9c5b3f',.92],pizarra:['#2c2f31',.75],loza:['#f4f3f0',.25],blanco:['#ece9e2',.5],verde:['#5f7a5a',.6],rojo:['#b3342b',.4],acero:['#d8dbde',.28,.45]/* Maxi 5/11: menos metálico, para que se lea como inox también sin el cielo de la luz realista */,
   junta:['#2a2622',.9],espejo:['#dfe6ea',.04,1],grifo:['#2a2b2d',.3,.6],alfombra:['#b9ad98',1],vidrioN:['#101214',.08,.2],aluminio:['#d3d6d9',.38,.25],aluFund:['#a9acaf',.6,.2],gomaN:['#1b1c1d',.9],cantoVidrio:['#8fb3a6',.15],ledCalido:['#f3d9a8',.7,0,'#ffb85a'],marfil:['#ebe2cf',.32]/* Maxi 8/11: loza color marfil (bacha farm) */,hierroN:['#1f2022',.8,.15]/* parrillas de los quemadores */};
 /* [color, rugosidad, metal, emisivo] */
 
 /* Paleta para elegir materiales en la ficha de cada mueble (Maxi 5/11): clave del material → etiqueta. Las claves de parámetro que son material: fr (frentes), top/top2 (tapa), mad (madera), mat (material), col (color de electrodoméstico), pint (pintura). */
-export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara',petiribi:'petiribí',suela:'cuero suela',madOsc:'madera oscura',nogal:'nogal oscuro',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
+export const PALETA={acero:'inox',granito:'piedra negra',pizarra:'pizarra',loza:'loza blanca',roble:'roble',madClara:'madera clara',petiribi:'petiribí',pinotea:'pinotea',suela:'cuero suela',madOsc:'madera oscura',nogal:'nogal oscuro',madRust:'ibirapitá',negro:'negro mate',grafito:'grafito',blanco:'blanco',verde:'verde',rojo:'rojo'};
 export const PARAM_MAT={fr:'frentes',top:'tapa',top2:'tapa 2',mad:'madera',mat:'material',col:'color',pint:'pintura'};
 /* pinturas para sillas y piezas pintadas (Maxi 5/11: «las sillas hacelas pintadas»): nombre → color; 'natural' deja el material del modelo */
 export const PINTURAS={natural:null,negro:'#1f1f20',blanco:'#e9e6df',rojo:'#9b3a2a',verde:'#5d6b3f',azul:'#2f4a5c',mostaza:'#c99a3a',terracota:'#b5633f',gris:'#8a8d8f'};
@@ -24,7 +24,7 @@ export const PINTURAS={natural:null,negro:'#1f1f20',blanco:'#e9e6df',rojo:'#9b3a
    cualquiera sea su tamaño o giro. [madera temprana, madera tardía, anillos por paño, contraste] */
 export const MADERAS={roble:['#c9a06c','#8a6137',30,.5],madClara:['#d8b58a','#a8824f',26,.4],madOsc:['#7e5637','#5a3b26',32,.42]/* Maxi 5/11: mismo tono, la veta oscura más clara y menos contraste */,madRust:['#ad7349','#643820',28,.65],
   /* Maxi 7/11: petiribí (fondo dorado grisáceo con vetas negras irregulares; el quinto valor es la fuerza de esas rayas) y nogal oscuro para la tapa de la isla */
-  petiribi:['#ab8459','#6a4628',44,.38,1,.25],nogal:['#5e3a22','#3a2314',26,.5,.35,.6]};
+  petiribi:['#ab8459','#6a4628',44,.38,1,.25],pinotea:['#c2824a','#84491f',36,.5],nogal:['#5e3a22','#3a2314',26,.5,.35,.6]};
 const _texMad={};
 export function texturaMadera(THREE,k){if(_texMad[k])return _texMad[k];const d=MADERAS[k];if(!d)return null;const W=1024,H=512;
   const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const img=x.createImageData(W,H),px=img.data;
@@ -152,6 +152,10 @@ export function catalogoMuebles(THREE){
   /* Maxi 4/11: estructuras octet diseñadas en la página casas/octet (editor), copiadas en octet-modelos.js; con «modelo» se elige cuál. Nodos, tubos, discos, vidrio y regatones salen de octet.js */
   octet:{n:'Estructura octet (tubos y nodos, del editor Octet)',cat:'comedor',p:{modelo:Object.keys(OCTET)[0]||''},ui:[['modelo','modelo',Object.keys(OCTET)]],g:p=>{const m=OCTET[p.modelo];if(!m)return [[B(-20,20,0,2,-20,20),'rojo']];
     const A=armarOctet(THREE,m,{centrar:true});const MAT={vidrio:'vidrio',disco:'aluminio',goma:'gomaN'};return [...A.nodos.map(n=>[n.geo,'aluFund']),...A.struts.map(s=>[s.geo,'aluminio']),...A.extra.map(x=>[x.geo,MAT[x.cat]||'aluminio'])];}},
+  /* Maxi 14/11 (Mocoretá): tapa de tablas a lo largo, con junta a la vista, y cuatro patas macizas de sección P × P en las esquinas, a ras de la tapa */
+  mesaTablas:{n:'Mesa de tablas a lo largo, patas macizas',cat:'comedor',p:{L:280,D:120,H:76,P:20,tabla:15,mad:'pinotea'},g:p=>{const g=[],n=Math.max(1,Math.round(p.D/p.tabla)),w=p.D/n,e=4;
+    for(let i=0;i<n;i++)g.push([B(-p.L/2,p.L/2,p.H-e,p.H,-p.D/2+i*w+.15,-p.D/2+(i+1)*w-.15),p.mad]);
+    for(const sx of[-1,1])for(const sz of[-1,1])g.push([B(sx*p.L/2-(sx>0?p.P:0),sx*p.L/2+(sx<0?p.P:0),0,p.H-e,sz*p.D/2-(sz>0?p.P:0),sz*p.D/2+(sz<0?p.P:0)),p.mad]);return g;}},
   mesaR:{n:'Mesa redonda de pie central',cat:'comedor',p:{L:120,H:76,mad:'madOsc'},g:p=>[[C(p.L/2,p.H-4,p.H,0,0,48),p.mad],[C(9,0,p.H-4,0,0,24,5),p.mad],[C(30,0,3,0,0,40,26),p.mad]]},
   silla:{n:'Silla de respaldo curvo, asiento de yute',cat:'comedor',p:{mad:'madOsc',tela:'yute'},g:p=>{const g=[[R(-22,22,43,47,-20,20,1.2),p.mad],[R(-20,20,47,49,-18,18,1),p.tela]];
     for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(1.4,0,44,sx*18,sz*16,12,1.9),p.mad]);

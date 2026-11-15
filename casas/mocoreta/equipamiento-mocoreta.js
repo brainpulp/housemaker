@@ -13,7 +13,7 @@ export function equipMocoreta({ itA }) {
         I('mesada', 32.5, 300, 90, { L: 300, D: 65, H: 90, fr: 'madClara', top: 'granito' }), I('bacha', 34.5, 192, 90, { L: 80 }),
         /* Maxi 10/11: isla de ibirapitá con cajones de frente negro y, en la punta sur, el agregado de 1,00 × 0,90 con el anafe de 5 */
         I('isla', 300, 265, 0, { L: 220, D: 90, vol: 0, fr: 'negro', top: 'madRust' }), I('mesada', 150, 265, 0, { L: 80, D: 90, H: 91, fr: 'negro', top: 'granito', puertas: [0], tapaMas: 20, tapaLado: 1, tapaD: 90 }), I('anafe', 158, 265, 0, { L: 90, D: 52, n: 5 }, 91),
-        I('mesaComedor', 267, 530, 0, { L: 280, D: 120 }), ...sillas(I, 267, 530, 280, 120, 3),
+        I('mesaTablas', 267, 530, 0, { L: 280, D: 120, P: 20, mad: 'pinotea' }), ...sillas(I, 267, 530, 280, 120, 3),
         I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150)] },
       B: { nombre: 'Vacío', items: [] } }; } },
     deckN: { n: 'Deck norte', piso: 0, vista: { p: [1500, 350, 1800], t: [750, 60, 1200] }, esc: vacio },

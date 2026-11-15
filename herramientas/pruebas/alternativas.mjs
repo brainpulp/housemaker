@@ -1,3 +1,4 @@
+/* OJO (14/11/2026): el chip flotante #varChip se apagó (Maxi: «estos menúes inline sólo molestan»); esta prueba quedó vieja: rehacerla contra el menú de alternativas de la barra (.fyopt[data-p][data-v]). */
 import { chromium } from 'playwright';
 const b=await chromium.launch({...(process.env.CHROMIUM?{executablePath:process.env.CHROMIUM}:{}),args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});
 const p=await b.newPage({viewport:{width:1100,height:700}});p.on('pageerror',e=>console.log('PE '+e.message));

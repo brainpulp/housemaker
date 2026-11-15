@@ -65,14 +65,14 @@ function build(p) {
   const SACA = H2 ? new Set(['MS-03', 'MS-04', 'MS-05', 'MS-06', 'V-S03', 'V-S04', 'V-S06', 'FC-2S', 'FC-3S']) : new Set();   /* el ensanche sur de los módulos 2 y 3 abre esa fachada */
   for (const m of MM.MUROS) { if (SACA.has(m.id)) continue; const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]), med = `${f2(L)} × ${f2(A.zTope(MM, m, 0) - A.zBase(MM, m))}`;
     if (m.corrediza) { /* hoja corrediza de hierro, fuera del plano del vidrio (N por dentro, S colgada por fuera). Se dibuja cerrada: la corre motor/corredizas.js al arrastrarla */
-      const f = m.a[0] > MM.ANCHO / 2 ? 'N' : 'S', H = MM.HOJA, h = H[f], w = H.perfil;
-      const y0 = f === 'N' ? m.a[1] - 2.5 : m.a[1] - 5, y1 = f === 'N' ? m.b[1] + 3 : m.b[1] - .5, z0 = f === 'N' ? MM.Z0 + .5 : 1.5, z1 = MM.ZV - .5, xa = h.x - H.e / 2, xb = h.x + H.e / 2;
+      const f = m.a[0] > MM.ANCHO / 2 ? 'N' : 'S', H = MM.HOJA, h = H[f], w = h.perfil, he = h.e;
+      const y0 = f === 'N' ? m.a[1] - 2.5 : m.a[1] - 5, y1 = f === 'N' ? m.b[1] + 3 : m.b[1] - .5, z0 = f === 'N' ? MM.Z0 + .5 : 1.5, z1 = MM.ZV - .5, xa = h.x - he / 2, xb = h.x + he / 2;
       const marco = [box(xa, xb, z0, z1, y0, y0 + w), box(xa, xb, z0, z1, y1 - w, y1), box(xa, xb, z0, z0 + w, y0 + w, y1 - w), box(xa, xb, z1 - w, z1, y0 + w, y1 - w)];
       /* riel: cubre la hoja cerrada y abierta, y no más. El del sur va atornillado a la cara de afuera de la viga de arriba; el del norte, por dentro, bajo la viga */
       const ya = y0 + Math.min(0, h.dy), yb = y1 + Math.max(0, h.dy);
       const riel = f === 'S' ? box(MM.XS - 3, MM.XS, MM.ZV + 1, MM.ZV + 6, ya, yb) : box(xa, xb, MM.ZV, MM.ZV + 3, ya, yb);
       if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', box(h.x - .5, h.x + .5, z0 + w, z1 - w, y0 + w, y1 - w), { ...base(m), med }, { group: G.fach, opt: {} });
-      Pt(m.id + 'h', `${m.id} · hoja de hierro`, 'hierro', marco, { ...base(m), med, sec: 'hierro oxidado' }, { group: G.fach, opt: {} });
+      Pt(m.id + 'h', `${m.id} · hoja de hierro`, 'hierro', marco, { ...base(m), med, sec: f === 'N' ? 'caño 70 × 30 de canto' : 'caño 50 × 50' }, { group: G.fach, opt: {} });
       Pt(`RL-${f}`, `RL-${f} · Riel de la corrediza ${f === 'N' ? 'de entrada' : 'de atrás'}`, 'hierro', riel, { fn: f === 'S' ? 'Riel de hierro por fuera, sobre la viga de arriba: la hoja cuelga de él.' : 'Riel de hierro por dentro, bajo la viga de arriba.', sec: 'hierro', med: `${f2(yb - ya)} de largo`, u: 'D-06' }, { group: G.fach, opt: {} }); continue; }
     if (m.tipo === 'vidrio') { const g = A.vidrioGeos(MM, m);
       if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', g.vidrio, { ...base(m), med }, { group: G.fach, opt: {} });
@@ -110,8 +110,15 @@ function build(p) {
         { fn: fn + 'Maxi 14/11: respaldo de madera inclinado unos 20° de la vertical; los dos brazos (este y oeste) se interrumpen a 1,50 del ventanal norte.', sec: `respaldo a ${D.ang}°`, med: `de ${f2(D.hAs)} a ${f2(D.hResp)} del piso del desnivel`, u: 'D-12' }, { group: G.piso, opt: {} });
       Pt('SC-03', 'SC-03 · Sillón en C: repisa del respaldo', 'madera', [box(x0 - v, x0 + r, zc, zr, y0 - v, y1 + v), box(x0 + r, xc, zc, zr, y0 - v, y0 + r), box(x0 + r, xc, zc, zr, y1 - r, y1 + v)],
         { fn: fn + 'Maxi 14/11: el respaldo termina en una repisa de 0,40 de ancho que sobresale 6 cm hacia afuera, volando sobre el piso alto de la casa. Altura y espesor supuestos.', sec: `repisa de ${D.resp} · vuela ${v}`, med: `a ${f2(D.hResp)} del piso del desnivel (+${f2(zr)})`, u: 'D-12' }, { group: G.piso, opt: {} });
-      Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'tela', [box(x0 + R, x0 + R + a, zf, za, y0 + R, y1 - R), box(x0 + R + a, xc, zf, za, y0 + R, y0 + R + a), box(x0 + R + a, xc, zf, za, y1 - R - a, y1 - R)],
-        { fn: fn + 'Maxi 14/11: asiento a 0,35 del piso del desnivel. Fondo de 0,60 supuesto.', sec: `fondo ${a}`, med: `asiento a ${f2(D.hAs)} del piso del desnivel (+${f2(za)})`, u: 'D-12' }, { group: G.piso, opt: {} }); } }
+      { const ec = 10, zw = za - ec, tg = Math.tan(D.ang * Math.PI / 180), hb = 38, eb = 12, seg = (a0, a1) => { const n = Math.max(1, Math.round((a1 - a0) / 70)), w = (a1 - a0) / n; return [...Array(n)].map((_, i) => [a0 + i * w + .7, a0 + (i + 1) * w - .7]); };
+        Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'madera', [box(x0 + R, x0 + R + a, zf, zw, y0 + R, y1 - R), box(x0 + R + a, xc, zf, zw, y0 + R, y0 + R + a), box(x0 + R + a, xc, zf, zw, y1 - R - a, y1 - R)],
+          { fn: fn + 'Maxi 14/11: el sillón es todo de madera, con almohadones sueltos. Con el almohadón, el asiento queda a 0,35 del piso del desnivel. Fondo de 0,60 supuesto.', sec: `fondo ${a}`, med: `asiento a ${f2(D.hAs)} del piso del desnivel (+${f2(za)})`, u: 'D-12' }, { group: G.piso, opt: {} });
+        const bs = (u0, u1, f) => { const d0 = R, d1 = R - hb * tg; return f(u0, u1, d0, d1); }, zb = za + hb;
+        const sur = (u0, u1, d0, d1) => box8([[x0 + d0, za, u0], [x0 + d0 + eb, za, u0], [x0 + d0 + eb, za, u1], [x0 + d0, za, u1], [x0 + d1, zb, u0], [x0 + d1 + eb, zb, u0], [x0 + d1 + eb, zb, u1], [x0 + d1, zb, u1]]);
+        const lat = s => (u0, u1, d0, d1) => { const ya = s > 0 ? y0 + d0 : y1 - d0 - eb, yb = s > 0 ? y0 + d1 : y1 - d1 - eb; return box8([[u0, za, ya], [u1, za, ya], [u1, za, ya + eb], [u0, za, ya + eb], [u0, zb, yb], [u1, zb, yb], [u1, zb, yb + eb], [u0, zb, yb + eb]]); };
+        Pt('SC-04', 'SC-04 · Sillón en C: almohadones', 'tela', [...seg(y0 + R, y1 - R).map(([u0, u1]) => box(x0 + R, x0 + R + a, zw, za, u0, u1)), ...seg(x0 + R + a, xc).flatMap(([u0, u1]) => [box(u0, u1, zw, za, y0 + R, y0 + R + a), box(u0, u1, zw, za, y1 - R - a, y1 - R)]),
+            ...seg(y0 + R + eb, y1 - R - eb).map(([u0, u1]) => bs(u0, u1, sur)), ...seg(x0 + R + eb, xc).flatMap(([u0, u1]) => [bs(u0, u1, lat(1)), bs(u0, u1, lat(-1))])],
+          { fn: fn + 'Maxi 14/11: almohadones sueltos de asiento (10 cm) y de respaldo (38 × 12), apoyados contra el respaldo inclinado. Medidas supuestas.', sec: 'almohadones de ~0,70', med: 'asiento 10 · respaldo 38 × 12', u: 'D-12' }, { group: G.piso, opt: {} }); } } }
   /* escalones de la plataforma norte: macizos (cajones), a todo lo largo de cada borde. La plataforma está a media altura: nAlz alzadas para subir al deck y nAlz para bajar al terreno */
   /* sin plataforma (Maxi 14/11): escalera de madera de 2,00 de ancho frente a la puerta de entrada. Dos zancas cerradas de 2" × 12" con los escalones encastrados, pedadas de tablón de 2" sin contrahuella, baranda de un solo lado y dado de hormigón al pie */
   if (p.pisos && p.plataforma === 'no') { const P = MM.PLA, [x0] = P.x, y0 = 1200, y1 = 1400, g = 26 /* Maxi 14/11: pedada de 26 y alzada de 18 */, r = P.alz, n = 2 * P.nAlz, T = MM.TERR, ez = 5, u = 'D-13';
@@ -134,7 +141,7 @@ function build(p) {
     Pt('EP-03', 'EP-03 · Escalones de la plataforma al terreno, este', 'madera', K.map(i => box(x0, x1 + i * g, MM.TERR, zk(i + 1), y1 + i * g, y1 + (i + 1) * g)),   /* cada escalón del este llega hasta el del norte del mismo nivel: la esquina cierra en L */
       { fn: `Maxi 14/11: escalones hacia el este para bajar al terreno. Alzadas de ${f1(r)} cm.`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(x1 - x0)} de largo`, u }, { group: G.piso, opt: {} }); }
   /* ---------- hipótesis: casa elevada ---------- */
-  if (p.altura === 'alta') Pt('H1-01', 'H1-01 · Piso de la planta baja (hipótesis)', 'piso', A.losa([[-7.5, MM.CYO], [557.5, MM.CYO], [557.5, MM.CYE], [-7.5, MM.CYE]], null, MM.TERR, MM.TERR + 8),
+  if (p.altura === 'alta') Pt('H1-01', 'H1-01 · Piso de la planta baja (hipótesis)', 'piso', A.losa([[-7.5, MM.CYO], [MM.PLA.x[0], MM.CYO], [MM.PLA.x[0], MM.CYE], [-7.5, MM.CYE]], null, MM.TERR, MM.TERR + 8),
     { fn: '<b>Hipótesis «casa elevada».</b> Con el piso de la casa a 2,90 quedan 2,60 libres bajo la viga: la planta al nivel del terreno se puede habitar. Dibujé sólo un piso; no hay cerramientos (D-15).', sec: 'piso sobre el terreno', med: `2,60 libres`, u: 'D-15' }, { group: 'Hipótesis', opt: {} });
   /* ---------- hipótesis: segundo piso, planta A ---------- */
   if (H2) { const Z2 = 310, ZT = 570, e2 = 7, XE = -140, xs = MM.XS, xn = MM.XN, gs = MM.GS, gn = MM.GN, ye = MM.YE, gal = PB2 ? 98 : 115, INC = 30, dI = (ZT - Z2) * Math.tan(INC * Math.PI / 180), xT = gn - dI, GH = 'Hipótesis', fn = `<b>Hipótesis «segundo piso, planta ${PB2 ? 'B' : 'A'}» (D-14).</b> `, u = 'D-14';
@@ -186,7 +193,7 @@ function build(p) {
     { const cy = (y, x0, x1) => box8([[x0, ZT, y - 3], [x1, ZT, y - 3], [x1, ZT, y + 3], [x0, ZT, y + 3], [x0, zu(x0), y - 3], [x1, zu(x1), y - 3], [x1, zu(x1), y + 3], [x0, zu(x0), y + 3]]), cx = (x, y0, y1) => box(x - 3, x + 3, ZT, zu(x), y0, y1);
       H('H2-18', 'Cierre entre las paredes y el techo', 'muro', [cx(xT, 1200, 2400), cy(2400, gs, xT), cy(1200, XE, xT), cx(gs, 2000, 2400), cy(2000, XE, gs), cx(XE + 3, 1200, 2000)],
         'Tímpanos y dintel de madera que cierran entre la cabeza de las paredes y de los vidrios y la chapa del piso alto: sobre el frente inclinado (0,35), en cuña en los costados este y oeste, y una faja al sur.', `de +${f2(ZT)} a la chapa`); }
-    if (p.techos) { const X0 = XE - 50, X1 = xT + 35;   /* arranca en la cabeza del frente inclinado; 0,30 de caída, baja al sur */
+    if (p.techos) { const X0 = XE - 50, X1 = xT + 50;   /* Maxi 14/11: alero de 0,50 al norte. Arranca en la cabeza del frente inclinado; 0,30 de caída, baja al sur */
       H('H2-11', 'Techo del piso alto (zincalum)', 'techo', A.techoGeo({ poly: [[X0, 1165], [X1, 1165], [X1, MM.CYE + 35], [MM.CXS - 35, MM.CYE + 35], [MM.CXS - 35, 2035], [X0, 2035]], baja: '-x', z: [zt(X1), zt(X0)], e: 1 }), 'Chapa acanalada a un agua, alta al norte, sobre los módulos 1 a 3 y el ensanche; arranca en la cabeza del frente inclinado, así que el techo es más angosto que la planta. Altura interior de 2,60 (Maxi). Sin cielorraso ni estructura dibujados.', '', { noEdges: true }); } }
   /* tirantes: una pieza por conjunto */
   if (p.tirantes) for (const t of MM.TIRANTES) { const { b, h } = t.S, geos = [];
