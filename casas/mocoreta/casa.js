@@ -75,7 +75,7 @@ function build(p) {
       const marco = [box(xa, xb, z0, z1, y0, y0 + w), box(xa, xb, z0, z1, y1 - w, y1), box(xa, xb, z0, z0 + w, y0 + w, y1 - w), box(xa, xb, z1 - w, z1, y0 + w, y1 - w)];
       /* riel: cubre la hoja cerrada y abierta, y no más. El del sur va atornillado a la cara de afuera de la viga de arriba; el del norte, por dentro, bajo la viga */
       const ya = y0 + Math.min(0, h.dy), yb = y1 + Math.max(0, h.dy);
-      const riel = f === 'S' ? box(MM.XS - 3, MM.XS, MM.ZV + 1, MM.ZV + 6, ya, yb) : box(xa, xb, MM.ZV, MM.ZV + 3, ya, yb);
+      const riel = f === 'S' ? box(MM.XS - 3, MM.XS, MM.ZV + 1, MM.ZV + 6, ya, yb) : box(xa, xb, MM.ZV, MM.ZV + 2, ya, yb)   /* 2 cm: abriendo al oeste pasa justo por debajo de la viga transversal del par 4 */;
       if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', box(h.x - .5, h.x + .5, z0 + w, z1 - w, y0 + w, y1 - w), { ...base(m), med }, { group: G.fach, opt: {} });
       Pt(m.id + 'h', `${m.id} · hoja de hierro`, 'hierro', marco, { ...base(m), med, sec: f === 'N' ? 'caño 70 × 30 de canto' : 'caño 50 × 50' }, { group: G.fach, opt: {} });
       Pt(`RL-${f}`, `RL-${f} · Riel de la corrediza ${f === 'N' ? 'de entrada' : 'de atrás'}`, 'hierro', riel, { fn: f === 'S' ? 'Riel de hierro por fuera, sobre la viga de arriba: la hoja cuelga de él.' : 'Riel de hierro por dentro, bajo la viga de arriba.', sec: 'hierro', med: `${f2(yb - ya)} de largo`, u: 'D-06' }, { group: G.fach, opt: {} }); continue; }
