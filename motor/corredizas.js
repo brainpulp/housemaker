@@ -14,7 +14,7 @@ export function initCorredizas(visor, HOJAS, pref = 'casa') {
   document.addEventListener('change', e => { if (e.target.closest && e.target.closest('[data-corr]')) guardar(); });
   const view = document.getElementById('view'), T = visor.THREE, ray = new T.Raycaster(), mv = new T.Vector2(); let dr = null;
   const setRay = e => { const r = visor.renderer.domElement.getBoundingClientRect(); mv.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(mv, visor.camera); };
-  const ocupado = () => document.querySelector('#editarTg[aria-pressed=true],#edPanel:not([hidden]),#senPanel:not([hidden]),#medPanel:not([hidden]),#marcasPanel:not([hidden])');
+  const ocupado = () => /* 16/11: «editar muebles» prendido ya no bloquea las hojas (Maxi no las podía mover): si la hoja es lo primero que toca el rayo, no hay mueble delante */ document.querySelector('#senPanel:not([hidden]),#medPanel:not([hidden]),#marcasPanel:not([hidden])');
   if (view) {
     view.addEventListener('pointerdown', e => { if (e.button !== 0 || ocupado()) return; setRay(e); const ms = [];
       for (const p of visor.parts || []) if (p.grp && p.grp.visible !== false) p.grp.traverse(o => { if (o.isMesh) ms.push(o); });
