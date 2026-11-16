@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.8.12', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.8.13', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -255,6 +255,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-16', v: '0.8.13', txt: 'Segundo piso: vigas de atado del techo en cada par de columnas, porque las columnas inclinadas empujan. Jardín, con el video del norte: la fila de pinos pasa a trece, se suman árboles al oeste (hacia la pileta), al este y al fondo. Fondo de vegetación de 3 a 4 m que cierra el terreno al sur, al este y al oeste. Se apaga en «Ver»; los árboles y las plantas se apagan aparte, en la capa Plantas.' },
   { fecha: '2026-11-16', v: '0.8.12', txt: 'Jardín: árboles y plantas puestos a ojo desde la foto del norte: el grupo de pinos altos delante de la plataforma, los álamos y el matorral al este, el árbol grande al oeste, las matas al pie del deck y el fondo de árboles al sur. Se prenden, se mueven y se cambian en la capa Plantas.' },
   { fecha: '2026-11-16', v: '0.8.11', txt: 'Dormitorio de arriba: el frente a la terraza vuelve al módulo de paños cuadrados del resto, y la puerta pasa a ser una hoja corrediza de 2,00, como las de abajo. Escalera de la terraza al deck: ahora de pasos alternados, perpendicular a la casa, sin postes y mucho más chica.' },
   { fecha: '2026-11-16', v: '0.8.10', txt: 'Terraza: tapa perimetral que cierra el hueco entre la cenefa y el deck (norte, oeste y sur), con malla en la ranura por donde sale el agua a la canaleta.' },
