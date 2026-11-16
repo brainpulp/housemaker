@@ -101,7 +101,7 @@ export function initEquipamiento(visor,stage,D){
   /* ---------- capas: muebles y luces, cada una con sus escenarios por ambiente ---------- */
   const CL=catalogoLuces(THREE,B,CYL);
   /* plantas (Maxi 14/10): tres capas que se prenden y apagan por separado (bajas, medias, árboles); se mueven como los muebles */
-  const ESP_A=['Oak Large','Oak Medium','Ash Large','Ash Medium','Aspen Medium'],ESP_B=['Bush 1','Bush 2','Bush 3'],SEM=[1,2,3,4];
+  const ESP_A=['Oak Large','Oak Medium','Ash Large','Ash Medium','Aspen Medium','Pino'],ESP_B=['Bush 1','Bush 2','Bush 3'],SEM=[1,2,3,4];
   const CV={bajo:{n:'Planta baja / cubresuelo',capaV:'bajo',p:{esp:'Bush 3',alto:55,seed:1},ui:[['esp','especie',ESP_B],['alto','alto','num'],['seed','variante',SEM]]},
     arbusto:{n:'Arbusto',capaV:'medio',p:{esp:'Bush 1',alto:180,seed:1},ui:[['esp','especie',ESP_B],['alto','alto','num'],['seed','variante',SEM]]},
     arbol:{n:'Árbol',capaV:'arbol',p:{esp:'Oak Medium',alto:1000,seed:1},ui:[['esp','especie',ESP_A],['alto','alto','num'],['seed','variante',SEM]]}};

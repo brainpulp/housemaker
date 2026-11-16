@@ -481,6 +481,103 @@ export const TreePreset={
     "enabled": false
   }
 },
+  /* Pino (Mocoretá, 16/11): tronco alto y pelado, copa arriba y oscura. Sale del álamo del catálogo; corteza y hoja usan las texturas que hay (roble y fresno), teñidas */
+  'Pino':{
+  "seed": 18020,
+  "type": "evergreen",
+  "bark": {
+    "type": "pine",
+    "tint": 11046520,
+    "flatShading": false,
+    "textured": true,
+    "textureScale": {
+      "x": 1,
+      "y": 1
+    }
+  },
+  "branch": {
+    "levels": 2,
+    "angle": {
+      "1": 75,
+      "2": 32,
+      "3": 7
+    },
+    "children": {
+      "0": 9,
+      "1": 3,
+      "2": 3
+    },
+    "force": {
+      "direction": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "strength": 0.0148
+    },
+    "gnarliness": {
+      "0": 0.05,
+      "1": 0.12,
+      "2": 0.12,
+      "3": 0.02
+    },
+    "length": {
+      "0": 50,
+      "1": 10,
+      "2": 6,
+      "3": 1
+    },
+    "radius": {
+      "0": 0.52,
+      "1": 0.41,
+      "2": 0.7,
+      "3": 0.7
+    },
+    "sections": {
+      "0": 12,
+      "1": 10,
+      "2": 8,
+      "3": 6
+    },
+    "segments": {
+      "0": 8,
+      "1": 6,
+      "2": 4,
+      "3": 3
+    },
+    "start": {
+      "1": 0.68,
+      "2": 0.35,
+      "3": 0
+    },
+    "taper": {
+      "0": 0.22,
+      "1": 0.13,
+      "2": 0.7,
+      "3": 0.7
+    },
+    "twist": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0
+    }
+  },
+  "leaves": {
+    "type": "pine",
+    "billboard": "double",
+    "angle": 30,
+    "count": 13,
+    "start": 0.124,
+    "size": 2.5,
+    "sizeVariance": 0.7,
+    "tint": 6717255,
+    "alphaTest": 0.5
+  },
+  "trellis": {
+    "enabled": false
+  }
+},
   'Bush 1':{
   "seed": 45590,
   "type": "deciduous",

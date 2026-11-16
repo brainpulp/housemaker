@@ -16,7 +16,7 @@ export function initArboles(visor){
     /* hojas en orden al azar (de a 6 índices), así la caída de otoño ralea parejo toda la copa */
     const lg=t.leavesMesh.geometry,I=lg.index;if(I){const arr=I.array,n6=Math.floor(arr.length/6);let sd=seed*9301+49297;const rnd=()=>{sd=(sd*1664525+1013904223)%4294967296;return sd/4294967296;};
       for(let i=n6-1;i>0;i--){const j=Math.floor(rnd()*(i+1));for(let k2=0;k2<6;k2++){const a1=i*6+k2,b1=j*6+k2,tmp=arr[a1];arr[a1]=arr[b1];arr[b1]=tmp;}}I.needsUpdate=true;}
-    const caduco=!/^Bush/.test(preset);const uO={value:0},uC={value:new THREE.Color(1,.55,.12)};
+    const caduco=!/^Bush|^Pino/.test(preset);const uO={value:0},uC={value:new THREE.Color(1,.55,.12)};
     if(caduco){const mt=t.leavesMesh.material,orig=mt.onBeforeCompile;mt.onBeforeCompile=(sh,r)=>{if(orig)orig.call(mt,sh,r);sh.uniforms.uOto=uO;sh.uniforms.uOtoC=uC;
       sh.fragmentShader='uniform float uOto;uniform vec3 uOtoC;\n'+sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n{float l=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,uOtoC*(.35+l*1.6),uOto);}');};mt.needsUpdate=true;}
     return VAR[k]={uO,uC,t,h:bb.max.y-bb.min.y,y0:bb.min.y,r:Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)/2,caduco,n:I?I.count:0,tint:t.leavesMesh.material.color.clone()};}
