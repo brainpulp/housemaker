@@ -81,8 +81,11 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       return {
       A:{nombre:'Techo a dos aguas: ducha antes de lo bajo, bañera al fondo',items:[...comun,I('duchaPiso',425,405,0,{L:100,D:110}),I('duchaGrohe',416,400,90,{},4),
         I('mampara',475,405,90,{L:110,perfil:'no'}),I('mampara',425,460,0,{L:100,perfil:'izq'}),I('baneraEmp',470,568,180,{L:190,D:75})]},
-      D:{nombre:'Dormer corrido: ducha grande, bañera bajo la ventana',items:[...comun,I('duchaPiso',425,475,0,{L:100,D:150}),I('duchaGrohe',416,475,90),
-        I('mampara',475,475,90,{L:150,perfil:'no'}),I('mampara',425,550,0,{L:100,perfil:'izq'}),I('baneraEmp',470,643,180,{L:190,D:75})]}};}},
+      /* Maxi 16/11: dos puertas (pasillo y dormitorio), todo hacia la ventana, ducha entre paredes 1,90 × 1,20, bidet, semivestidor del lado del pasillo.
+         Ojo: las x de fábrica llevan +30 donde la mutación «bano190» (más abajo) las corre −30 al mezclar */
+      D:{nombre:'Dormer corrido: semivestidor, sanitarios, ducha entre paredes y bañera bajo la ventana',items:[I('placard',435,225,90,{L:220,D:60,H:210}),I('placard',535,200,-90,{L:170,D:60,H:210}),
+        I('toallero',561,320,-90),I('vanitoryM',539,410,-90),I('espejo',563,410,-90,{L:80,H:85}),I('bidet',435,375,90),I('inodoroKR',435,455,90),
+        I('mampara',455,489.5,0,{L:100,perfil:'izq'}),I('duchaPiso',500,549.5,0,{L:190,D:120}),I('duchaGrohe',446,549.5,90),I('baneraEmp',470,646,180,{L:190,D:73})]}};}},
     estudio:{n:'Estudio (EP)',nivel:'EP',piso:H_EP,vista:{p:[1750,620,760],t:[1200,330,300]},esc:()=>{const I=itA('estudio');return {
       /* L-27, entre la corrediza M-43 (x 10,27) y el balcón al living (x 14,42); el hueco de la escalera ocupa x 13,18–14,42, y 4,11–6,25. Maxi 14/10: es un escritorio. Pasando x 13,22 el techo del living (T-03) baja a menos de 1 m: el escritorio va antes */
       A:{nombre:'Escritorio mirando al living',items:[I('escritorio',1280,190,-90,{L:180,D:70}),I('silla',1215,190,90),I('placard',1062,102,90,{L:150,D:60,H:200,fr:'roble'}),I('butaca',1110,520,45,{tela:'mostaza'}),I('ratona',1190,560,0,{L:50,D:50,H:45}),I('alfombra',1180,300,0,{L:200,D:260})]},
