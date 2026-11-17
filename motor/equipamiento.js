@@ -163,6 +163,10 @@ export function initEquipamiento(visor,stage,D){
       scene.traverse(o=>{if(o.isMesh&&(o.userData.ground||o.geometry&&o.geometry.type==='PlaneGeometry'&&o.rotation.x<-1.5))gMeshes.push(o);});}
     const key=`${x|0},${y|0}`;if(gCache.has(key))return gCache.get(key);rcT.set(new THREE.Vector3(x,600,y),new THREE.Vector3(0,-1,0));rcT.far=1000;
     const h=rcT.intersectObjects(gMeshes,false).find(i=>i.point.y<150);const v=h?h.point.y:-20;gCache.set(key,v);return v;}
+  /* Maxi 16/11 (Mocoretá, casa elevada): las plantas quedaban flotando a la altura del terreno viejo cuando una variante cambia el terreno o la casa.
+     Cada medio segundo se mira si cambiaron las piezas o el nivel del terreno; si cambiaron, se vuelve a apoyar cada planta en el suelo */
+  let vegP=null,vegT=null;setInterval(()=>{const t=(window.__terreno||{}).t;if(visor.parts===vegP&&t===vegT)return;vegP=visor.parts;vegT=t;
+    setTimeout(()=>{gParts=null;let n=0;for(const g of groups.values())if(g.userData.capa==='veg'){const m=item(g.userData.item);if(m){g.position.y=sueloEn(m.x,m.y);n++;}}if(n&&window.__despertar)window.__despertar();},60);},500);
   /* ---------- 3D ---------- */
   const groups=new Map();let selBox=null,mueCache=null,cajCache=null,glbN=0;
   /* cajas de los muebles para que las personas no los atraviesen (Maxi 15/10): una por mueble, sin alfombras; no se cachea vacía */

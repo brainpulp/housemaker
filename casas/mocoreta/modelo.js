@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.9.0', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.9.1', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -257,6 +257,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-16', v: '0.9.1', txt: 'Las plantas se apoyan en el terreno de cada variante: con la casa elevada quedaban flotando a la altura del terreno de hoy.' },
   { fecha: '2026-11-16', v: '0.9.0', txt: 'Segundo piso con estructura completa: el entrepiso apoya sobre la casa en vigas de acero en sándwich (dos UPN 220 por par) con tirantes de 2″ × 8″, y queda a +3,28; el ensanche tiene columnas de caño de acero 100 × 100 hasta el terreno, con fundaciones, vigas de borde y trabas a la casa en los tres niveles; el techo, vigas inclinadas en sándwich, correas y cruces de tensores. Planta baja: biblioteca en la pared este, piso de laja en el desnivel, almohadones como los de la foto y la salamandra con su caño.' },
   { fecha: '2026-11-16', v: '0.8.14', txt: 'Jardín de hoy, del video: pileta de borde natural con playa de piedra, deck de la pileta, plataforma con cascada, tanque con su escalera, pérgola con glicina sobre un deck con mesa, cañas y granado. Todo a ojo, al oeste de la casa; se apaga en «Ver».' },
   { fecha: '2026-11-16', v: '0.8.13', txt: 'Segundo piso: vigas de atado del techo en cada par de columnas, porque las columnas inclinadas empujan. Jardín, con el video del norte: la fila de pinos pasa a trece, se suman árboles al oeste (hacia la pileta), al este y al fondo. Fondo de vegetación de 3 a 4 m que cierra el terreno al sur, al este y al oeste. Se apaga en «Ver»; los árboles y las plantas se apagan aparte, en la capa Plantas.' },
