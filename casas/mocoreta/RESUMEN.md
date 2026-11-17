@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.2)
+# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.3)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
@@ -24,16 +24,14 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
   - Ensanche de 1,40 al sur en los módulos 2 y 3, con la escalera (18 alzadas, pedada 24) y un baño arriba.
   - Estructura completa, predimensionada sin calcular: en cada par, dos UPN 220 en sándwich apoyados sobre la casa; columnas de acero de 100 × 100 en el ensanche; techo de dos UPN 120 inclinados con correas y tensores; pisos de fenólico como diafragma. Ver D-20.
 - **Casa elevada**: piso a 2,90 para habitar abajo.
-- **Sistema para subir y bajar la casa** (Maxi 16/11, D-21; se combina con «Altura de la casa»: hoy, media maniobra a 2,20, elevada a 2,90):
+- **Sistema para subir y bajar la casa** (Maxi 16 y 17/11, D-21; va junto con «Altura de la casa»: hoy, media maniobra a 2,20, elevada a 2,90). El detalle completo, con cálculos, lista de materiales, costos y plan de obra, está en el documento de Claude «Mocoretá: sistema para subir y bajar la casa»:
   - La idea de Maxi: elevar la casa sin arrepentirse, con un sistema que también la pueda bajar. Se va a mover pocas veces; abajo no se construye nada alto.
-  - Un HEB 160 de 3,00 por fuera de cada una de las 14 columnas, girado: un hueco mira a la madera y esconde el tornillo (rosca trapecial, colgado de la cabeza, a tracción), el otro mira hacia afuera. Reductor al pie, tuerca en una ménsula abulonada a la columna vieja, dos abrazaderas de guía por columna con perno de traba, dado de hormigón propio.
+  - Un HEB 160 de 3,00 por fuera de cada una de las 14 columnas, a 3 cm, girado: un hueco mira a la madera y esconde el husillo. Arriba, un gato de husillo de 50 kN de tuerca viajera (Tr 40 × 7, 0,25 mm por vuelta); el husillo cuelga a tracción y la tuerca va en una ménsula abulonada a la columna vieja. Dos abrazaderas de guía por columna con perno de traba; dado de hormigón propio.
+  - Accionamiento: los siete gatos de cada fila unidos con ejes y un motorreductor de 2 HP con variador por fila (par 6). Ejes y motores desmontables. Se descartó un motor por par: el eje transversal no tiene por dónde pasar (la casa arriba, las zapatas viejas y el espacio libre abajo) y, además, dos filas derechas no pueden alabear la casa.
   - Las columnas viejas se cortan a ras del terreno y suben con la casa; al bajar vuelven a apoyar en sus zapatas (cubos de ~1 m³ de hormigón, 1 m de profundidad, según Maxi).
-  - Los decks suben con la casa: postes fijos de acero 100 × 150 retirados del borde (1,20 en el norte, para librar un tirante), con pernos de traba; la pinza de las vigas se abre 1 cm por lado y la primera línea de tirantes se corre afuera del HEB.
-  - Por qué HEB y no UPN/IPN: cuenta de viento con CIRSOC 102 (46 m/s, ~100 m² de fachada larga, 14 columnas, 1,43 de tramo libre): 560 a 810 kg por columna, 400 a 1.150 kg·m. HEB 160 en su eje flojo admite ~1.600 kg·m; UPN 180 o IPN 180 por fuera, ~300. Maxi cree que igual es imposible que falle; se quedó con el HEB porque no le molesta.
-  - Sin decidir: accionamiento (motor por par con eje, o 14 motores con control), cómo sube el borde de afuera de los decks, zapatas, servicios (cloaca, agua, gas, electricidad), plataforma y escalinata con la casa arriba. No convive todavía con el ensanche sur del segundo piso.
-- **Techo corredizo** sobre el deck.
-- **Deck que rodea la casa** por el sur y el oeste.
-- **Sin plataforma baja**.
+  - Decks: postes fijos de acero 100 × 150 en el BORDE (Maxi 17/11: retirados sobresalían en medio del deck), de 3,00, con un gato de 25 kN arriba, eje y motor de 1/2 HP por deck; la pinza de las vigas se abre 1 cm por lado, la primera línea de tirantes se corre afuera del HEB y la última, adentro de los postes.
+  - Por qué HEB y no UPN/IPN: cuenta de viento con CIRSOC 102 (46 m/s, ~100 m² de fachada larga, 14 columnas, 1,43 de tramo libre): 560 a 810 kg por columna, 400 a 1.150 kg·m. HEB 160 en su eje flojo admite ~1.600 kg·m; UPN 180 o IPN 180 por fuera, ~300. Maxi cree que igual es imposible que falle; aceptó el HEB.
+  - Sin decidir: zapatas, servicios (cloaca, agua, gas, electricidad), plataforma y escalinata con la casa arriba, baranda del deck. Peso de la casa estimado en 30 t, sin pesar. No convive todavía con el ensanche sur del segundo piso.
 
 ## Dudas abiertas importantes (ver DUDAS en modelo.js)
 - **D-01:** ¿el 1,20 sobre el terreno se mide al piso o a la viga?
