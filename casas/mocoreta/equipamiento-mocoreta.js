@@ -17,7 +17,7 @@ export function equipMocoreta({ itA }) {
         I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150)] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* piso alto (hipótesis del segundo piso; Maxi 15/11: «equipá el dormitorio de arriba y la oficina»). Sólo se ve con el segundo piso prendido. Medidas y ubicación supuestas */
-    alto: { n: 'Piso alto (hipótesis)', piso: 310, ver: p => p.piso2 === 'A' || p.piso2 === 'B', vista: { p: [1500, 900, 2900], t: [300, 380, 1800] }, esc: () => { const I = itA('alto'); return {
+    alto: { n: 'Piso alto (hipótesis)', piso: 328, ver: p => p.piso2 === 'A' || p.piso2 === 'B', vista: { p: [1500, 900, 2900], t: [300, 380, 1800] }, esc: () => { const I = itA('alto'); return {
       A: { nombre: 'Dormitorio y oficina', items: [
         I('cama', 300, 1492, 180, { L: 160, D: 200 }), I('mesaLuz', 190, 1572, 180), I('mesaLuz', 410, 1572, 180), I('alfombra', 300, 1440, 0, { L: 260, D: 170 }), I('placard', 45, 1380, 90, { L: 150, D: 60, H: 240 }),
         I('escritorio', 300, 2350, 180, { L: 160, D: 70 }), I('silla', 300, 2290, 0), I('biblioteca', 32, 2270, 90, { L: 200, D: 32, H: 200 }), I('butaca', 170, 2090, 90), I('alfombra', 260, 2200, 0, { L: 240, D: 170 })] },
