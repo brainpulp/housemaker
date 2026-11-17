@@ -100,14 +100,16 @@ function build(p) {
     else if (s.tipo === 'viga') { const L = Math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]); Pt(s.id, `${s.id} · ${s.nombre}`, 'viga', A.vigaGeo(s), { ...base(s), sec: s.sec, med: `${f2(L)} de largo · cara de arriba a +${f2(s.z)}` }, { group: G.est, opt: {} }); } }
   /* biblioteca contra la pared este (Maxi 16/11, con foto): de la falsa columna junto al ventanal sur hasta el paño de vidrio del este; termina 0,35 antes del cielorraso.
      Casilleros de ~0,42 desfasados fila a fila, como en la foto; abajo a la derecha (hacia el sur) un mueble de cajoncitos. Medidas a ojo */
-  { const bx0 = MM.GS - 1 + MM.FC + .5, bx1 = MM.GN - 3 - 100 - .5, by1 = MM.LARGO - 3 - .5, by0 = by1 - 35, top = MM.HC - 35, e = 2.5, zs = [0, 48, 90, 132, 174, 216, top - e], G = [], CJ = [];
-    const cx0 = bx0 + e, cx1 = cx0 + 150; for (const z of zs) { if (z === zs[2]) G.push(box(cx1, bx1, z, z + e, by0, by1)); else G.push(box(bx0, bx1, z, z + e, by0, by1)); } G.push(box(cx1, cx1 + e, zs[1] + e, zs[3], by0, by1));
-    G.push(box(bx0, bx0 + e, 0, top, by0, by1), box(bx1 - e, bx1, 0, top, by0, by1));
-    for (let r = 0; r < zs.length - 1; r++) { const off = r % 2 ? 21 : 0; for (let x = bx0 + 42 + off; x < bx1 - 20; x += 42) if (!((r === 1 || r === 2) && x < cx1 + 5)) G.push(box(x - e / 2, x + e / 2, zs[r] + e, zs[r + 1], by0, by1)); }
-    const nc = 9, nr = 7;
-    for (let c = 0; c < nc; c++) for (let rr = 0; rr < nr; rr++) { const w = (cx1 - cx0) / nc, h = (zs[3] - zs[1] - e) / nr; CJ.push(box(cx0 + c * w + .4, cx0 + (c + 1) * w - .4, zs[1] + e + rr * h + .4, zs[1] + e + (rr + 1) * h - .4, by0 - 1.5, by0 + 30)); }
-    Pt('BI-01', 'BI-01 · Biblioteca del lado este', 'madera', G, { fn: 'Maxi 16/11, con foto: biblioteca de madera contra la pared este, desde junto al ventanal sur hasta el paño de vidrio del este, y hasta 0,35 del cielorraso. Casilleros de unos 0,42 desfasados fila a fila. Fondo y alturas a ojo.', sec: 'tabla de 1″', med: `${f2(bx1 - bx0)} × ${f2(top)} · fondo 0,35` }, { group: G.piso, opt: {} });
-    Pt('BI-02', 'BI-02 · Biblioteca: cajoncitos', 'marco', CJ, { fn: 'Mueble de cajoncitos (tipo fichero) en la parte de abajo, del lado sur, como en la foto: unos 9 × 7 cajones.', sec: 'cajones de ~16 × 11', med: '1,50 × 0,81' }, { group: G.piso, opt: {} }); }
+  { const bx0 = MM.GS - 1 + MM.FC + .5, bx1 = MM.GN - 3 - 100 - .5, by1 = MM.LARGO - 3 - .5, by0 = by1 - 35, top = MM.HC - 35, e = 6, G = [], CJ = [];
+    /* Maxi 17/11: cuadrícula alineada (no trabada), tablas de 6 cm */
+    const nc = Math.round((bx1 - bx0 - e) / 46), nr = 6, px = (bx1 - bx0 - e) / nc, pz = (top - e) / nr, xs = [...Array(nc + 1)].map((_, k) => bx0 + k * px), zs = [...Array(nr + 1)].map((_, k) => k * pz);
+    for (const z of zs) G.push(box(bx0, bx1, z, z + e, by0, by1));
+    for (const x of xs) for (let r = 0; r < nr; r++) G.push(box(x, x + e, zs[r] + e, zs[r + 1], by0, by1));
+    /* cajoncitos: ocupan las tres primeras celdas (hacia el sur) de las filas 2 y 3, tres por tres en cada celda */
+    for (let c = 0; c < 3; c++) for (let r = 1; r < 3; r++) { const x0 = xs[c] + e, x1 = xs[c + 1], z0 = zs[r] + e, z1 = zs[r + 1], w = (x1 - x0) / 3, h = (z1 - z0) / 3;
+      for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) CJ.push(box(x0 + a * w + .4, x0 + (a + 1) * w - .4, z0 + b * h + .4, z0 + (b + 1) * h - .4, by0 - 1.5, by1 - 2)); }
+    Pt('BI-01', 'BI-01 · Biblioteca del lado este', 'madera', G, { fn: 'Maxi 16 y 17/11, con foto: biblioteca de madera contra la pared este, desde junto al ventanal sur hasta el paño de vidrio del este, y hasta 0,35 del cielorraso. Cuadrícula alineada de tablas de 6 cm, con casilleros de unos 0,40 × 0,37. Fondo a ojo.', sec: 'tabla de 6 cm', med: `${f2(bx1 - bx0)} × ${f2(top)} · fondo 0,35 · ${nc} × ${nr} casilleros` }, { group: G.piso, opt: {} });
+    Pt('BI-02', 'BI-02 · Biblioteca: cajoncitos', 'marco', CJ, { fn: 'Cajoncitos tipo fichero en seis casilleros de abajo, del lado sur, como en la foto: tres por tres en cada casillero.', sec: 'cajones de ~13 × 12', med: '54 cajones' }, { group: G.piso, opt: {} }); }
   /* desnivel del módulo 2 (pozo de dos alzadas) con su sillón en C: interpretación de la descripción de Maxi (D-12) */
   { const D = MM.DES, [x0, x1] = D.x, [y0, y1] = D.y, zf = D.z, t = MM.TABLA, xc = D.xc, R = D.R, fn = '<b>Interpretación (D-12).</b> ';
     /* tabicas que cierran el pozo, siguiendo su contorno; al norte, bajo la viga perimetral */
