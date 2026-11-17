@@ -11,6 +11,7 @@ import { initViewCube } from './viewcube.js';
 import { initPersonas } from './personas.js';
 import { initEquipamiento } from './equipamiento.js';
 import { initArboles } from './arboles.js';
+import { initParamsDb } from './params-db.js';
 import { equipMocoreta } from './equipamiento-mocoreta.js';
 import { initTours } from './tours.js';
 import { TOURS_MOCORETA, ESCALERAS_MOCORETA } from './tours-mocoreta.js';
@@ -438,6 +439,7 @@ try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 try { initPersonas(visor); } catch (e) { console.error('personas', e); }
 try { initEquipamiento(visor, stage, { datos: equipMocoreta, piso: 0 }); } catch (e) { console.error('equipamiento', e); }
 try { initArboles(visor); } catch (e) { console.error('arboles', e); }
+try { initParamsDb(visor, { params }); } catch (e) { console.error('params-db', e); }
 /* sol: Ingeniero Maschwitz (34°23′ S, 58°44′ O); x apunta al norte tal como lo describió Maxi (sin desvío medido) */
 try { initNoche(visor, { lugar: 'Ingeniero Maschwitz', lat: -34.38, lon: -58.74, tz: -3, norte: 0, inicioDia: true, max: 32 }); } catch (e) { console.error('noche', e); }
 /* cámara: se recuerda en este navegador */

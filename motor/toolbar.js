@@ -171,7 +171,7 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
     pintar();
     el.onclick=e=>{const o=e.target.closest('[data-p]');
       if(o){const src=$('q-'+o.dataset.p);if(!src)return;if(o.dataset.c)src.checked=!src.checked;else src.value=o.dataset.v;src.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(pintar,60);return;}
-      const t=e.target.closest('[data-z]');if(!t)return;const z=zonas.find(x=>x.id===t.dataset.z);if(zAb.has(z.id))zAb.delete(z.id);else{zAb.add(z.id);if(z.vista)visor.fly(z.vista.p,z.vista.t);}pintar();};});}
+      const t=e.target.closest('[data-z]');if(!t)return;const z=zonas.find(x=>x.id===t.dataset.z);/* Maxi 16/11: abrir una zona o elegir una opción ya no mueve la cámara */if(zAb.has(z.id))zAb.delete(z.id);else zAb.add(z.id);pintar();};});}
 
   /* ---------- vistas y tours arriba a la derecha, sobre el 3D (Maxi 15/10) ---------- */
   {const tr=document.getElementById('topright');if(tr){const st=document.createElement('style');st.textContent=`#trPop{position:absolute;z-index:20;background:var(--panel);border:1px solid var(--rule);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:4px;max-height:calc(100% - 60px);overflow:auto;min-width:220px;font-size:12px}#topright .trb{display:flex;align-items:center;gap:4px}#topright .trb[aria-pressed=true]{background:var(--accent-soft)}`;document.head.appendChild(st);
