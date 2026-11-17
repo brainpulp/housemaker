@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.8', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.9', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -263,6 +263,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.10.9', txt: 'Con el sistema de elevación prendido desaparecían los tablones de los decks (un error al recortarlos alrededor de los postes). Vuelven, con el hueco de cada poste.' },
   { fecha: '2026-11-17', v: '0.10.8', txt: 'Sistema para subir y bajar la casa: la columna nueva se acerca a la vieja todo lo que deja la carcasa del gato, de 17 a 16 cm. Para bajar de ahí hay que cambiar el tipo de gato.' },
   { fecha: '2026-11-17', v: '0.10.7', txt: 'Los HEB del sistema de elevación, color óxido.' },
   { fecha: '2026-11-17', v: '0.10.6', txt: 'Sistema para subir y bajar la casa: el mecanismo se invierte para que nada corte el paso. El husillo queda fijo, colgado de la cabeza del HEB, y el gato trepa por él agarrado a la columna vieja. Así los gatos, los ejes de fila y los motores viajan con la casa, pegados por debajo de la línea del deck, y abajo sólo quedan las columnas. El HEB se separa 17 cm de la madera y gira un cuarto de vuelta (queda de canto contra el viento); el husillo y el gato van escondidos entre las dos columnas. Se van los reenvíos angulares y los ejes verticales.' },

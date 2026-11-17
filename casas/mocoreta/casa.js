@@ -102,7 +102,7 @@ function build(p) {
   if (p.carp) for (const a of MM.ABERTURAS) if (!SACA.has(a.id)) Pt(a.id, `${a.id} · ${a.nombre}`, 'glass', A.hojaGeo(MM, a, 2), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, { group: G.fach, opt: {} });
   /* pisos */
   if (p.pisos) for (const l of MM.LOSAS) { if (l.tablon) { /* deck de tablones de 19, ininterrumpidos y transversales a la casa (corren de sur a norte) */
-      const T = tablones(geo, A, { poly: l.poly, huecos: EL ? MM.POSTES.map(([x, y]) => { const s = x > MM.ANCHO / 2 ? 1 : -1; return [Math.min(x - s * 13.5, x + s * 5.5), Math.max(x - s * 13.5, x + s * 5.5), y - 8, y + 8]; }) : [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, entero: true, seed: l.id.charCodeAt(4) });
+      const T = tablones(geo, A, { poly: l.poly, huecos: EL ? MM.POSTES.map(([x, y]) => { const s = x > MM.ANCHO / 2 ? 1 : -1, a = Math.min(x - s * 13.5, x + s * 5.5), b = Math.max(x - s * 13.5, x + s * 5.5); return [[a, y - 8], [b, y - 8], [b, y + 8], [a, y + 8]]; })   /* tablones() pide los huecos como polígonos (Maxi 17/11: con números el deck desaparecía) */ : [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, entero: true, seed: l.id.charCodeAt(4) });
       T.forEach((g, i) => Pt(`${l.id}${'abc'[i]}`, `${l.id} · ${l.nombre}`, 'tabla' + (i + 1), g, { ...base(l), sec: `tablones de ${l.tablon}, enteros y transversales`, med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} })); continue; }
     Pt(l.id, `${l.id} · ${l.nombre}`, l.mat === 'laja' ? 'laja' : 'deck', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} }); }
   /* estructura */
