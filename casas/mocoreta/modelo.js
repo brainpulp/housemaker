@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.9.5', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.10.0', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -35,6 +35,10 @@ export const RES = 3;                        /* el piso (interior y deck) queda 
 export const HV = 270, HC = 300;             /* ventanal de 2,70; cielorraso a 3,00 (Maxi) */
 export const Z0 = RES, ZV = RES + HV, ZA = ZV + VA.h;   /* el vidrio va de la viga del piso (+0,03) a la de arriba (+2,73); tope de la viga de arriba +3,03 */
 export const TERR = RES - VP.h - 120;        /* terreno hoy: 1,20 bajo el fondo de la viga del piso (D-01). La altura es una opción: modelo({ terr }) */
+export const TERR_MEDIA = -220;              /* a media maniobra del sistema de elevación (D-21) */
+/* sistema para subir y bajar la casa (Maxi 16/11, D-21): un HEB 160 por fuera de cada columna, con un hueco hacia la madera (ahí va el tornillo) y el otro hacia afuera.
+   h: alto del perfil sobre el terreno · juego: luz entre el perfil y la columna · calle: lugar que se le deja en los decks · poste: alto de los postes de los decks sobre el terreno */
+export const ELEV = { perfil: 16, ala: 1.3, alma: .8, h: 300, juego: .5, calle: 18, tornillo: 4, poste: 270, retiroN: 120 };
 export const TERR_ALTA = -290;               /* hipótesis «casa elevada»: piso a 2,90 del terreno, 2,60 libres bajo la viga del piso (D-15) */
 export const ANTE = 100;                     /* «de la cintura para abajo es madera»: 1,00 sobre el piso, supuesto (D-08) */
 export const TIRP = { b: 5, h: 15, sep: 50 }, TIRC = { b: 5, h: 15, sep: 60 };   /* tirantes de piso y de cielorraso: tentativos (D-05) */
@@ -81,7 +85,8 @@ export const HOJA = { e: 3, perfil: 4, N: { x: ANCHO - CI - FC - 1 - 3.5, dy: -1
 /* origen de los ejes del croquis de la cocina (3/11) en los de la casa: la cara interior de las falsas columnas del sur (el fondo de la mesada apoya contra ellas, no contra el vidrio:
    si no, la falsa columna del módulo 4 se metía 6 cm en la mesada y la bacha) y la cara este de la pared O */
 export const COC = { x: CI + FC, y: 2 * PASO + 7.5 };
-export function modelo({ terr = TERR, deckS = null, plat = true, rodea = false } = {}) {   /* rodea: el deck sur de 2,00 corre hasta el oeste (Maxi 16/11); el tramo oeste lo dibuja casa.js */
+export function modelo({ terr = TERR, deckS = null, plat = true, rodea = false, elev = false } = {}) {   /* elev: sistema para subir y bajar la casa (Maxi 16/11, D-21): las columnas viejas se cortan a ras del terreno de hoy y suben con la casa */
+const EG = elev ? ELEV.calle : 0;   /* lugar que ocupa el HEB por fuera de cada columna */   /* rodea: el deck sur de 2,00 corre hasta el oeste (Maxi 16/11); el tramo oeste lo dibuja casa.js */
 const TR = terr;   /* nivel del terreno de esta variante */
 /* ---------- fachadas ---------- */
 /* Sur, por módulo (Maxi): 1 ventanal · 2 y 3 vidrio de la cintura para arriba · 4 ventanal (con la puerta de atrás) · 5 y 6 de la cintura para arriba. */
@@ -123,7 +128,7 @@ const ESTRUCTURA = [];
 const col = (id, x, y, sec, z, nombre, nota, conf = 'supuesto', cat = 'columna') => ESTRUCTURA.push({ id, nivel: 'PB', tipo: 'columna', pos: [x, y], sec: `${sec}×${sec}`, z, cat, estado: 'existente', conf, nombre, nota });
 const viga = (id, a, b, S, z, nombre, nota, conf = 'estimado') => ESTRUCTURA.push({ id, nivel: 'PB', tipo: 'viga', a, b, sec: `${S.b}×${S.h}`, z, estado: 'existente', conf, nombre, nota });
 for (let k = 1; k <= NPAR; k++) for (const [f, x] of [['S', 0], ['N', ANCHO]])
-  col(`C-${k}${f}`, x, yPar(k), COL, [TR, ZA], `Columna ${k} ${f === 'S' ? 'sur' : 'norte'}`, 'Maxi 14/11: 14 columnas de 15 × 15, dos filas de 7, cada 4,00 y a 5,50 entre filas. Van por FUERA de las vigas perimetrales: la cara interior queda casi a plomo con el vidrio y sobresalen 15 hacia afuera. De una pieza, de la tierra hasta abajo del panel de la cámara del techo, que sobresale hasta su cara de afuera.', 'estimado');
+  col(`C-${k}${f}`, x, yPar(k), COL, [elev ? TERR : TR, ZA], `Columna ${k} ${f === 'S' ? 'sur' : 'norte'}`, 'Maxi 14/11: 14 columnas de 15 × 15, dos filas de 7, cada 4,00 y a 5,50 entre filas. Van por FUERA de las vigas perimetrales: la cara interior queda casi a plomo con el vidrio y sobresalen 15 hacia afuera. De una pieza, de la tierra hasta abajo del panel de la cámara del techo, que sobresale hasta su cara de afuera.', 'estimado');
 for (let k = 1; k < NPAR; k++) for (const [f, x] of [['S', FS0], ['N', FN0]])
   col(`FC-${k}${f}`, x, yPar(k) - PASO / 2, FC, [Z0, ZV], `Falsa columna del módulo ${k}, ${f === 'S' ? 'sur' : 'norte'}`, 'Maxi 14/11: parte en dos el módulo de 4,00; coplanar por fuera con la viga perimetral del piso (1 cm por fuera del vidrio). Fondo de 10 supuesto (D-02).', 'estimado', 'falsa');
 /* el voladizo oeste no tiene parantes (Maxi 14/11: «si no, no sería voladizo»): los paños de madera se encuentran en la esquina */
@@ -142,17 +147,17 @@ for (let k = 2; k <= NPAR; k++) viga(`VT-${k}`, [AIS, yPar(k)], [AIN, yPar(k)], 
 const [dy0, dy1] = rodea ? [0, (deckS || DECKS.y)[1]] : deckS || DECKS.y, xDN = ANCHO + DECKN, xDS = rodea ? -200 : -DECKS.fondo, yS0 = rodea ? CYO : dy0 - 12;
 const DN0 = ANCHO - CI, DS0 = CI;      /* los decks arrancan en la cara de afuera de la viga del piso; las columnas, que sobresalen 15, los atraviesan */
 const nd = 'Propuesta de estructura (Maxi 14/11 pidió la más racional, en eucalipto y con columnas sólo afuera). Predimensionado orientativo con 2,5 kN/m² y valores de eucalipto supuestos: lo tiene que verificar un calculista (D-04).';
-const zTir = -TABLON, zVig = zTir - VD.h, IDS_DECK = [];
+const zTir = -TABLON, zVig = zTir - VD.h, IDS_DECK = [], POSTES = [];
 /* deck({pref, nombre, xCol: eje de la fila de columnas de la casa, s: +1 norte / −1 sur, xBorde, retiro, ys: y de cada pórtico, yT: [y0, y1] de los tirantes, n: tramos entre líneas de tirantes}) */
 function deck({ pref, nombre, xCol, s, xBorde, retiro, ys, yT, n }) {
-  const xIn = xCol - s * CI, xPoste = xBorde - s * retiro, dy = CI + VD.b / 2;
+  const xIn = xCol - s * CI, xPoste = xBorde - s * retiro, dy = CI + VD.b / 2 + (elev ? 1 : 0);   /* con el sistema de elevación la pinza se abre 1 cm por lado (suplementos) para que pase el HEB */
   ys.forEach((y, i) => { const k = i + 1;
     for (const [l, yy] of [['a', y - dy], ['b', y + dy]]) { viga(`V${pref}-${k}${l}`, [xIn, yy], [xBorde, yy], VD, zVig, `Viga doble ${k} del ${nombre} (tabla ${l === 'a' ? 'oeste' : 'este'})`, nd + ' Dos tablas de 2″ × 12″ en pinza: abulonadas a cada lado de la columna de la casa y del poste, con ' + (retiro / 100).toFixed(2).replace('.', ',') + ' de voladizo.', 'supuesto'); IDS_DECK.push(`V${pref}-${k}${l}`); }
-    ESTRUCTURA.push({ id: `P${pref}-${k}`, nivel: 'PB', tipo: 'columna', pos: [xPoste, y], sec: `${PDD.x}×${PDD.y}`, z: [TR, zVig], cat: 'pilote', estado: 'proyecto', conf: 'supuesto', nombre: `Poste ${k} del ${nombre}`, nota: nd + ' Poste de 4″ × 6″ tomado entre las dos tablas de la viga, retirado del borde.' }); IDS_DECK.push(`P${pref}-${k}`); });
-  const x0 = xCol + s * (CI + VD.b / 2 + .25), x1 = xBorde - s * VD.b / 2;
+    ESTRUCTURA.push({ id: `P${pref}-${k}`, nivel: 'PB', tipo: 'columna', pos: [xPoste, y], sec: `${PDD.x}×${PDD.y}`, z: elev ? [TR, TR + ELEV.poste] : [TR, zVig], cat: 'pilote', estado: 'proyecto', conf: 'supuesto', nombre: `Poste ${k} del ${nombre}`, nota: elev ? 'Sistema de elevación (D-21): poste fijo de caño de acero 100 × 150, de 2,70 sobre el terreno, entre las dos tablas de la viga. El deck sube y baja a lo largo del poste y se traba con un perno en cada posición. Con la casa abajo asoma 1,23 sobre el deck. Supuesto.' : nd + ' Poste de 4″ × 6″ tomado entre las dos tablas de la viga, retirado del borde.' }); POSTES.push([xPoste, y]); IDS_DECK.push(`P${pref}-${k}`); });
+  const x0 = xCol + s * (CI + EG + VD.b / 2 + .25), x1 = xBorde - s * VD.b / 2;   /* con el sistema de elevación la primera línea de tirantes se corre afuera del HEB */
   return { id: `T${pref === 'D' ? 'D-01' : 'D-02'}`, nombre: `Tirantes del ${nombre}`, dir: 'y', S: VD, zt: zTir, tramos: [yT], pos: [...Array(n + 1)].map((_, i) => x0 + (x1 - x0) * i / n), conf: 'supuesto',
     nota: nd + ` ${n + 1} líneas de 2″ × 12″ de este a oeste, cada ${(Math.abs(x1 - x0) / n / 100).toFixed(2).replace('.', ',')}, apoyadas sobre las vigas dobles (4,00 de luz). Los tablones de 2″ van directo encima, transversales: no hacen falta clavadores.` }; }
-const TD1 = deck({ pref: 'D', nombre: 'deck norte', xCol: ANCHO, s: 1, xBorde: xDN, retiro: PDD.retiroN, ys: [...Array(NPAR)].map((_, i) => yPar(NPAR - i)), yT: [PYO, PYE], n: 4 });
+const TD1 = deck({ pref: 'D', nombre: 'deck norte', xCol: ANCHO, s: 1, xBorde: xDN, retiro: elev ? ELEV.retiroN : PDD.retiroN, ys: [...Array(NPAR)].map((_, i) => yPar(NPAR - i)), yT: [PYO, PYE], n: 4 });
 const TD2 = deck({ pref: 'S', nombre: 'deck sur', xCol: 0, s: -1, xBorde: xDS, retiro: PDD.retiroS, ys: [...Array(Math.round((dy1 - dy0) / PASO) + 1)].map((_, i) => dy0 + i * PASO), yT: [yS0, dy1 + 12], n: rodea ? 2 : 3 });
 /* plataforma norte (Maxi 14/11): ocupa los dos módulos centrales (3 y 4), se proyecta 4,00 al norte del deck principal y está 3 alzadas más abajo.
    Todo el borde compartido con el deck son escalones; al norte y al este tiene 3 escalones para bajar al terreno. Estructura supuesta (D-13). */
@@ -182,8 +187,8 @@ const TIRANTES = [
 const rect = (x0, x1, y0, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
 /* piso de un deck: rectángulo con una muesca por cada columna que lo atraviesa. xc = borde contra la casa, xf = borde de afuera, dx = hacia dónde sobresalen las columnas */
 const deckPoly = (xc, xf, y0, y1, dx) => { const P = [[xf, y0]]; let abierto = false;
-  const ys = [...Array(NPAR)].map((_, i) => yPar(NPAR - i)).map(y => [Math.max(y0, y - CI), Math.min(y1, y + CI)]).filter(([a, b]) => b > a);
-  let y = y0; for (const [a, b] of ys) { if (a > y) { P.push([xc, y], [xc, a]); } P.push([xc + dx * COL, a], [xc + dx * COL, b]); y = b; }
+  const ys = [...Array(NPAR)].map((_, i) => yPar(NPAR - i)).map(y => [Math.max(y0, y - CI - (EG ? 2 : 0)), Math.min(y1, y + CI + (EG ? 2 : 0))]).filter(([a, b]) => b > a);
+  let y = y0; for (const [a, b] of ys) { if (a > y) { P.push([xc, y], [xc, a]); } P.push([xc + dx * (COL + EG), a], [xc + dx * (COL + EG), b]); y = b; }
   if (y < y1) P.push([xc, y], [xc, y1]); P.push([xf, y1]); return P; };
 const LOSAS = [
   { id: 'LO-01', nivel: 'PB', nombre: 'Piso interior (entablonado)', z: 0, e: TABLA, poly: rect(PIS, PIN, PYO + VP.b, PYE - VP.b), huecos: [DES.poly], estado: 'existente', conf: 'estimado', nota: 'Maxi 14/11: el piso queda unos 3 cm por debajo de la cara de arriba de la viga perimetral. Entablonado sobre los tirantes; espesor supuesto.' },
@@ -245,10 +250,11 @@ const DUDAS = [
   { id: 'D-19', ref: ['TE-01'], q: 'Jardín de hoy, del video del 16/11: pileta, decks, pérgola con glicina y tanque, puestos a ojo al oeste de la casa. No sé las distancias ni los tamaños: ¿a qué distancia de la punta oeste de la casa empieza la pileta y cuánto mide? Con un croquis con 4 o 5 medidas lo acomodo.' },
   { id: 'D-20', ref: ['H2-30', 'H2-32'], q: 'Estructura del piso alto y del ensanche (16/11): el entrepiso apoya arriba de la casa, sobre dos UPN 220 en sándwich en cada par; el ensanche, en columnas de caño de acero 100 × 100 × 3,2 trabadas a la casa en los tres niveles; el techo, en dos UPN 120 inclinados por par, correas de 2″ × 6″ y cruces de tensores; los pisos con fenólico de 18 como diafragma. Todo predimensionado por mí con números gruesos (3 kN/m² en pisos, 0,5 en el techo, eucalipto 8 MPa): lo tiene que calcular un ingeniero, incluidas las fundaciones de las columnas de la casa, que con el piso alto cargan más. Además: con el piso alto, el caño de la salamandra cruza el frente inclinado.' },
   { id: 'D-14', ref: ['H2-01'], q: 'Hipótesis «segundo piso, planta A» (se prende en Ver): piso alto sobre los módulos 1 a 3, vacío de doble altura en el 2, terraza sobre el 4 y el 5 (el 6 queda con la chapa a la vista), y un ensanche de 1,40 al sur (Maxi 14/11; antes 2,00), vidriado al sur, en los módulos 2 y 3 con la escalera y el baño. El ensanche pisa donde hoy están la puerta de atrás y medio deck sur: los corrí (puerta en el costado oeste del ensanche, deck sur sólo en el módulo 4). ¿Va así? Terraza: deck a nivel con junta abierta sobre una cubierta impermeable con 2 % de caída al sur y canaleta; queda 11 cm sobre el piso alto (un escalón al salir). Todas las medidas de la hipótesis son mías. Planta B (enroque): la escalera adentro, en la franja sur del módulo 2, y el puente en el ensanche; la escalera queda de 0,88 y tapa el pasillo sur de planta baja, que pasa al ensanche. Maxi 14/11: va la A con el ensanche de 1,40.' },
+  { id: 'D-21', ref: ['EL-01', 'EL-02', 'EL-03', 'EL-04', 'EL-05', 'EL-06', 'EL-07', 'EL-08'], q: 'Sistema para subir y bajar la casa (Maxi 16/11; se prende en las alternativas): un HEB 160 de 3,00 por fuera de cada una de las 14 columnas, con el tornillo escondido entre el alma y la madera; las columnas viejas se cortan a ras del terreno y suben con la casa, guiadas por dos abrazaderas. Predimensionado con viento de 46 m/s (CIRSOC 102): el HEB trabaja entre el 25 y el 72 %. Falta que un calculista verifique el perfil, las zapatas (dibujé un dado de 0,50 × 0,50 × 1,00 junto al cubo existente: ¿se ancla a ese cubo o se amplía?) y el caso a media maniobra. Falta decidir el accionamiento (un motor por par con eje transversal, o 14 motores con control), cómo se sube el borde de afuera de los decks (los postes sólo tienen pernos de traba) y qué pasa con cloaca, agua, gas y electricidad. No convive todavía con el ensanche sur del segundo piso.' },
   { id: 'D-15', ref: ['TE-01'], q: 'Hipótesis «casa elevada» (Altura, en Ver): puse el piso a 2,90 del terreno, con 2,60 libres bajo la viga. ¿Qué altura libre querés abajo? ¿La planta baja va abierta o cerrada?' },
 ];
 
-  return { TERR: TR, MUROS, ABERTURAS, ESTRUCTURA, LOSAS, LOCALES, TECHOS, IMPLANTACION, EJES, COTAS, PLA, TIRANTES, DUDAS };
+  return { TERR: TR, POSTES, MUROS, ABERTURAS, ESTRUCTURA, LOSAS, LOCALES, TECHOS, IMPLANTACION, EJES, COTAS, PLA, TIRANTES, DUDAS };
 }
 const T0 = modelo();
 export const { MUROS, ABERTURAS, ESTRUCTURA, LOSAS, LOCALES, TECHOS, IMPLANTACION, EJES, COTAS, PLA, TIRANTES, DUDAS } = T0;
@@ -257,6 +263,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.10.0', txt: 'Nueva alternativa «sistema para subir y bajar la casa»: un HEB 160 por fuera de cada columna, con el tornillo escondido entre el perfil y la madera, reductor al pie, abrazaderas de guía y dado de hormigón. Las columnas viejas se cortan a ras del terreno y suben con la casa. Los decks suben con ella a lo largo de postes fijos de acero, retirados del borde. En «Altura de la casa» hay una posición nueva, a media maniobra (piso a 2,20), para ver el recorrido. Todo predimensionado: lo tiene que ver un calculista (D-21).' },
   { fecha: '2026-11-17', v: '0.9.5', txt: 'Sillón del desnivel: los almohadones de asiento y de respaldo tienen los cantos redondeados.' },
   { fecha: '2026-11-17', v: '0.9.4', txt: 'Biblioteca: la cajonera vuelve a ser un mueble entero de 9 × 7 cajones chicos; la cuadrícula ya no la cruza.' },
   { fecha: '2026-11-17', v: '0.9.3', txt: 'Biblioteca del lado este: cuadrícula alineada (antes trabada) de tablas de 6 cm, con los cajoncitos en seis casilleros de abajo, del lado sur.' },

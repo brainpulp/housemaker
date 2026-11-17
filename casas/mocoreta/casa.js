@@ -50,7 +50,8 @@ const params = [
   { id: 'ventanas2', label: 'Ventanas del piso alto', type: 'select', value: 'corr', quick: true, group: 'Hipótesis', options: [['corr', 'Corredizas (una hoja de 2,00 por ambiente)'], ['proy', 'Proyectantes, cerradas'], ['proyA', 'Proyectantes, abiertas']], help: 'Cómo abren las ventanas del frente inclinado: una hoja corrediza, o un paño de 4 vidrios (los del centro, arriba) que se proyecta hacia afuera.' },
   { id: 'techoMovil', label: 'Techo corredizo sobre el deck', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin techo corredizo (como hoy)'], ['si', 'Techo corredizo guardado'], ['abierto', 'Techo corredizo abierto sobre el deck']], help: 'Hipótesis: un segundo techo de chapa, guardado sobre el del módulo 6, que corre 3,60 al norte y tapa el deck (D-17). Se abre y se guarda desde acá, o arrastrándolo.' },
   { id: 'plataforma', label: 'Plataforma baja del deck', type: 'select', value: 'si', quick: true, group: 'Hipótesis', options: [['si', 'Con plataforma a media altura'], ['no', 'Sin plataforma (escalinata directa)']], help: 'La plataforma de 6,00 × 4,00 a media altura entre el deck y el jardín, o una escalinata directa del deck al terreno (D-13).' },
-  { id: 'altura', label: 'Altura de la casa', type: 'select', value: 'hoy', quick: true, group: 'Hipótesis', options: [['hoy', 'Como hoy (piso a 1,47)'], ['alta', 'Elevada (piso a 2,90, planta baja habitable)']], help: 'Hipótesis de proyecto: levantar la casa sobre los zancos para habitar la planta al nivel del terreno. El deck sube con la casa y la plataforma norte queda siempre a media altura (D-15).' },
+  { id: 'elev', label: 'Sistema para subir y bajar la casa', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin sistema (como hoy)'], ['si', 'HEB 160 y tornillos: la casa sube y baja']], help: 'Hipótesis (D-21): un HEB 160 por fuera de cada columna, con el tornillo escondido contra la madera. Las columnas viejas se cortan a ras del terreno y suben con la casa; los decks suben con ella. La posición se elige en «Altura de la casa».' },
+  { id: 'altura', label: 'Altura de la casa', type: 'select', value: 'hoy', quick: true, group: 'Hipótesis', options: [['hoy', 'Como hoy (piso a 1,47)'], ['media', 'A media maniobra (piso a 2,20)'], ['alta', 'Elevada (piso a 2,90, planta baja habitable)']], help: 'Hipótesis de proyecto: levantar la casa sobre los zancos para habitar la planta al nivel del terreno. El deck sube con la casa y la plataforma norte queda siempre a media altura (D-15).' },
   { id: 'piso2', label: 'Segundo piso', type: 'select', value: 'no', quick: true, group: 'Hipótesis', options: [['no', 'Sin segundo piso (como hoy)'], ['A', 'Planta A: galería sur, escalera en el ensanche'], ['B', 'Planta B: escalera adentro, puente en el ensanche']], help: 'Hipótesis de proyecto: piso alto sobre los módulos 1 a 3 (oficina, doble altura, dormitorio y baño), terraza sobre el 4 y el 5 y ensanche de 2,00 al sur con la escalera; frente norte inclinado 30° con vidrio repartido, 2,60 de altura (D-14).' },
   { id: 'sillon', label: 'Sillón en C del desnivel', type: 'check', value: true, quick: true, group: 'Ver' },
   { id: 'jardin', label: 'Pileta, decks y pérgola (del video)', type: 'check', value: true, quick: true, group: 'Ver', help: 'Lo que hay al oeste de la casa según el video del 16/11, a ojo y sin detalle: pileta, decks, pérgola con glicina, tanque.' },
@@ -66,7 +67,7 @@ const params = [
 ];
 
 function build(p) {
-  const H2 = p.piso2 === 'A' || p.piso2 === 'B', PB2 = p.piso2 === 'B', V = M.modelo({ terr: p.altura === 'alta' ? M.TERR_ALTA : M.TERR, deckS: H2 ? [800, 1200] : null, plat: p.plataforma !== 'no', rodea: p.deckO === 'si' }), MM = { ...M, ...V }, parts = [];
+  const H2 = p.piso2 === 'A' || p.piso2 === 'B', PB2 = p.piso2 === 'B', EL = p.elev === 'si', V = M.modelo({ elev: EL, terr: p.altura === 'alta' ? M.TERR_ALTA : p.altura === 'media' ? M.TERR_MEDIA : M.TERR, deckS: H2 ? [800, 1200] : null, plat: p.plataforma !== 'no', rodea: p.deckO === 'si' }), MM = { ...M, ...V }, parts = [];
   window.__terreno = { t: MM.TERR, c: 0 };
   const Pt = (id, name, cat, geos, info, ex = {}) => { const al = N.alias(id); geos = [].concat(geos).filter(Boolean); if (!geos.length) return;
     parts.push({ id, name: al ? `${id} · ${al}` : name, alias: al, cat, geos, info: { ...info, fn: (N.nota(id) ? `<b>Tu nota:</b> ${N.nota(id)}<br>` : '') + (info.fn || '') }, ...ex }); };
@@ -93,13 +94,13 @@ function build(p) {
   if (p.carp) for (const a of MM.ABERTURAS) if (!SACA.has(a.id)) Pt(a.id, `${a.id} · ${a.nombre}`, 'glass', A.hojaGeo(MM, a, 2), { ...base(a), med: `${f2(a.w)} × ${f2(a.h)} · antepecho ${f2(a.s || 0)}` }, { group: G.fach, opt: {} });
   /* pisos */
   if (p.pisos) for (const l of MM.LOSAS) { if (l.tablon) { /* deck de tablones de 19, ininterrumpidos y transversales a la casa (corren de sur a norte) */
-      const T = tablones(geo, A, { poly: l.poly, huecos: [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, entero: true, seed: l.id.charCodeAt(4) });
+      const T = tablones(geo, A, { poly: l.poly, huecos: EL ? MM.POSTES.map(([x, y]) => [x - 5.5, x + 5.5, y - 8, y + 8]) : [], z: l.z, ancho: l.tablon, junta: .5, esp: l.e, entero: true, seed: l.id.charCodeAt(4) });
       T.forEach((g, i) => Pt(`${l.id}${'abc'[i]}`, `${l.id} · ${l.nombre}`, 'tabla' + (i + 1), g, { ...base(l), sec: `tablones de ${l.tablon}, enteros y transversales`, med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} })); continue; }
     Pt(l.id, `${l.id} · ${l.nombre}`, l.mat === 'laja' ? 'laja' : 'deck', A.losa(l.poly, l.huecos, l.z - l.e, l.z), { ...base(l), med: `a +${f2(l.z)} · ${f1(l.e)} cm de espesor` }, { group: G.piso, opt: {} }); }
   /* estructura */
   for (const s of MM.ESTRUCTURA) {
     if (SACA.has(s.id)) continue;
-    if (s.tipo === 'columna') Pt(s.id, `${s.id} · ${s.nombre}`, s.cat === 'falsa' ? 'falsa' : 'poste', A.columnaGeo(s), { ...base(s), sec: s.sec, med: `de ${s.z[0] < 0 ? '−' : '+'}${f2(Math.abs(s.z[0]))} a ${s.z[1] < 0 ? '−' : '+'}${f2(Math.abs(s.z[1]))}` }, { group: G.est, opt: {} });
+    if (s.tipo === 'columna') Pt(s.id, `${s.id} · ${s.nombre}`, s.cat === 'falsa' ? 'falsa' : EL && /^P[DS]-\d/.test(s.id) ? 'herreria' : 'poste', A.columnaGeo(s), { ...base(s), sec: s.sec, med: `de ${s.z[0] < 0 ? '−' : '+'}${f2(Math.abs(s.z[0]))} a ${s.z[1] < 0 ? '−' : '+'}${f2(Math.abs(s.z[1]))}` }, { group: G.est, opt: {} });
     else if (s.tipo === 'viga') { const L = Math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]); Pt(s.id, `${s.id} · ${s.nombre}`, 'viga', A.vigaGeo(s), { ...base(s), sec: s.sec, med: `${f2(L)} de largo · cara de arriba a +${f2(s.z)}` }, { group: G.est, opt: {} }); } }
   /* biblioteca contra la pared este (Maxi 16/11, con foto): de la falsa columna junto al ventanal sur hasta el paño de vidrio del este; termina 0,35 antes del cielorraso.
      Casilleros de ~0,42 desfasados fila a fila, como en la foto; abajo a la derecha (hacia el sur) un mueble de cajoncitos. Medidas a ojo */
@@ -173,8 +174,28 @@ function build(p) {
       { fn: `Maxi 14/11: escalones hacia el norte para bajar al terreno: ${n} escalones, ${P.nAlz} alzadas de ${f1(r)} cm.`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(y1 - y0)} de largo`, u }, { group: G.piso, opt: {} });
     Pt('EP-03', 'EP-03 · Escalones de la plataforma al terreno, este', 'madera', K.map(i => box(x0, x1 + i * g, MM.TERR, zk(i + 1), y1 + i * g, y1 + (i + 1) * g)),   /* cada escalón del este llega hasta el del norte del mismo nivel: la esquina cierra en L */
       { fn: `Maxi 14/11: escalones hacia el este para bajar al terreno. Alzadas de ${f1(r)} cm.`, sec: `pedada ${g} · alzada ${f1(r)}`, med: `${f2(x1 - x0)} de largo`, u }, { group: G.piso, opt: {} }); }
+  /* ---------- hipótesis: sistema para subir y bajar la casa (Maxi 16/11, D-21) ----------
+     Las piezas fijas se miden desde el terreno; las que van agarradas a la columna vieja, desde el piso de la casa. */
+  if (EL) { const E = MM.ELEV, T = MM.TERR, u = 'D-21', cols = MM.ESTRUCTURA.filter(s => /^C-\d[SN]$/.test(s.id)), GE = 'Sistema de elevación';
+    const cada = f => cols.flatMap(c => { const s = c.pos[0] > MM.ANCHO / 2 ? 1 : -1, xo = c.pos[0] + s * MM.COL / 2, y = c.pos[1]; return f((a, b, z0, z1, y0, y1) => box(Math.min(xo + s * a, xo + s * b), Math.max(xo + s * a, xo + s * b), z0, z1, y + y0, y + y1), xo, s, y); });
+    const L = (id, nombre, cat, geos, txt, sec, med) => Pt(id, `${id} · ${nombre}`, cat, geos, { fn: '<b>Hipótesis «sistema para subir y bajar la casa».</b> ' + txt, sec, med, u }, { group: GE, opt: { dedupeAll: true } });
+    const j = E.juego, b = E.perfil, h = b / 2, xa = j + b / 2 - E.alma / 2, xt = j + xa / 2 - j / 2 + .1, sube = MM.TERR_ALTA - M.TERR, hoy = T - M.TERR;   /* xa: cara del alma que mira a la madera · xt: eje del tornillo, en el medio del hueco */
+    L('EL-01', 'Columnas HEB 160', 'herreria', cada(B => [B(j, j + b, T + 2, T + E.h, -h, -h + E.ala), B(j, j + b, T + 2, T + E.h, h - E.ala, h), B(xa, xa + E.alma, T + 2, T + E.h, -h + E.ala, h - E.ala)]),
+      'Maxi 16/11: una columna nueva por fuera de cada columna vieja, plantada en su propio cimiento. HEB 160 (alas de 160 × 13, alma de 8), girado: un hueco mira a la madera y guarda el tornillo, el otro mira hacia afuera. Predimensionado con viento de 46 m/s: trabaja entre el 25 y el 72 %; lo tiene que verificar un calculista.', 'HEB 160 · 43 kg/m', `14 de ${f2(E.h - 2)} · con la casa ${hoy ? 'en esta posición' : 'abajo'} asoman ${f2(E.h + T)} sobre el piso`);
+    L('EL-02', 'Dados de hormigón', 'piedra', cada(B => [B(j - 17, j + 33, T - 100, T, -25, 25)]),
+      'Cimiento propio de cada columna nueva: un dado de 0,50 × 0,50 × 1,00 a ras del terreno, junto al cubo de hormigón de la columna vieja (que no está dibujado). Supuesto: hay que definir si se ancla a ese cubo o se amplía, y verificar que no gire con el viento.', '0,50 × 0,50 × 1,00', '14');
+    L('EL-03', 'Placas base', 'negro', cada(B => [B(j, j + 24, T, T + 2, -15, 15)]), 'Placa de 240 × 300 × 20 con cuatro brocas, soldada al pie del HEB.', '240 × 300 × 20', '14');
+    L('EL-04', 'Tornillos', 'inox', cada((B, xo, s, y) => [geo.rod([xo + s * xt, T + 26, y], [xo + s * xt, T + E.h - 8, y], E.tornillo / 2, 12)]),
+      'Maxi 16/11: tornillo de rosca trapecial (tipo ACME) colgado de la cabeza de cada columna, escondido entre el alma del HEB y la columna vieja. Trabaja a tracción, así que no pandea, y se frena solo. Gira el tornillo; la tuerca va agarrada a la casa. Diámetro dibujado de 40: sale del cálculo.', 'rosca trapecial Ø 40 (a definir)', `14 de ${f2(E.h - 34)} · carrera ${f2(-sube)}`);
+    L('EL-05', 'Cabezales con rodamiento axial', 'negro', cada((B, xo, s, y) => [B(j, j + b, T + E.h, T + E.h + 2, -h, h), B(xt - 3, xt + 3, T + E.h - 8, T + E.h, -3, 3)]), 'Tapa de la cabeza del HEB con el rodamiento axial del que cuelga el tornillo: toda la carga de la columna pasa por acá mientras la casa se mueve.', 'placa de 20 + rodamiento axial', '14');
+    L('EL-06', 'Reductores al pie', 'negro', cada(B => [B(j + .3, xa - .3, T + 2, T + 26, -6, 6)]),
+      'Reductor de sinfín y corona al pie de cada tornillo, dentro del hueco. Accionamiento sin decidir: un motor por par de columnas con un eje transversal de 5,50, o un motor por columna con control de nivel. Como la casa se mueve pocas veces, puede ser lento y desmontable.', 'sinfín y corona (a definir)', '14');
+    L('EL-07', 'Tuercas y ménsulas', 'negro', cada(B => [B(0, xa - .3, -45, -33, -6.2, -2.4), B(0, xa - .3, -45, -33, 2.4, 6.2)]),
+      'Ménsula de acero abulonada a la columna vieja, justo debajo de la viga perimetral del piso, con la tuerca de bronce del tornillo. Sube y baja con la casa.', 'ménsula + tuerca de bronce', '14');
+    L('EL-08', 'Abrazaderas de guía', 'negro', cada(B => [[-139, -131], [-75, -67]].flatMap(([z0, z1]) => [B(-10, j + b + 1.2, z0, z1, -h - 1.2, -h - .2), B(-10, j + b + 1.2, z0, z1, h + .2, h + 1.2), B(j + b + .2, j + b + 1.2, z0, z1, -h - .2, h + .2)])),
+      'Maxi 16/11: grampas que hermanan la columna vieja con la nueva. Dos por columna, abulonadas a la madera, que abrazan el HEB y deslizan por él: hacen que las dos trabajen juntas en el tramo en que se superponen. En cada posición final llevan un perno de traba, para que la casa no quede colgada del tornillo.', 'planchuela de 80 × 10', `28 · superposición con la casa arriba: ${f2(E.h + sube - 2)}`); }
   /* ---------- hipótesis: casa elevada ---------- */
-  if (p.altura === 'alta') Pt('H1-01', 'H1-01 · Piso de la planta baja (hipótesis)', 'piso', A.losa([[-7.5, MM.CYO], [MM.PLA.x[0], MM.CYO], [MM.PLA.x[0], MM.CYE], [-7.5, MM.CYE]], null, MM.TERR, MM.TERR + 8),
+  if (p.altura === 'alta' && !EL) Pt('H1-01', 'H1-01 · Piso de la planta baja (hipótesis)', 'piso', A.losa([[-7.5, MM.CYO], [MM.PLA.x[0], MM.CYO], [MM.PLA.x[0], MM.CYE], [-7.5, MM.CYE]], null, MM.TERR, MM.TERR + 8),
     { fn: '<b>Hipótesis «casa elevada».</b> Con el piso de la casa a 2,90 quedan 2,60 libres bajo la viga: la planta al nivel del terreno se puede habitar. Dibujé sólo un piso; no hay cerramientos (D-15).', sec: 'piso sobre el terreno', med: `2,60 libres`, u: 'D-15' }, { group: 'Hipótesis', opt: {} });
   /* ---------- hipótesis: segundo piso, planta A ---------- */
   if (H2) { const Z2 = 328, ZT = 588, e2 = 3, XE = -140,   /* Maxi 16/11 («el ensanche no tiene estructura, hacé todo»): el entrepiso apoya ARRIBA de la casa (vigas de 22 sobre la cabeza de las columnas): piso alto a +3,28 */ xs = MM.XS, xn = MM.XN, gs = MM.GS, gn = MM.GN, ye = MM.YE, gal = PB2 ? 98 : 115, INC = 30, dI = (ZT - Z2) * Math.tan(INC * Math.PI / 180), xT = gn - dI, GH = 'Hipótesis', fn = `<b>Hipótesis «segundo piso, planta ${PB2 ? 'B' : 'A'}» (D-14).</b> `, u = 'D-14';
@@ -420,7 +441,7 @@ const visor = createVisor({ model: { params, build }, colors: COL, lift: { techo
 { const l = new THREE.DirectionalLight(0xfff6ec, .45); l.position.set(300, -1000, 500); visor.scene.add(l); }
 
 /* cortes y vistas: del motor (motor/vistas.js), iguales en todas las casas */
-const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1600], y: [-400, 2700], z: [-320, 700] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'altura', 'piso2', 'plataforma'], dirAmb: [.55, .85] });
+const VI = initVistas(visor, { M, root, pref: 'mocoreta', rango: { x: [-500, 1600], y: [-400, 2700], z: [-320, 700] }, params: ['techos', 'cielo', 'tirantes', 'pisos', 'carp', 'sillon', 'altura', 'elev', 'piso2', 'plataforma'], dirAmb: [.55, .85] });
 const applyClips = () => VI.applyClips(), renderVistas = () => VI.renderVistas();
 root.addEventListener('click', e => { const h = e.target.closest('[data-hide]'); if (h) { visor.toggleHidden(h.dataset.hide, true); visor.resetSel(); renderVistas(); return; } if (e.target.closest('[data-showall]')) visor.setHidden([]); });
 
@@ -438,6 +459,7 @@ const ZONAS = [
   { id: 'ventanas2', nombre: 'Ventanas del piso alto', piezas: /^(VC|VP)-\d[a-z]?$/, params: ['ventanas2'], label: optsDe('ventanas2'), vista: { p: [1500, 900, 2900], t: [400, 400, 1700] } },
   { id: 'techoMovil', nombre: 'Techo corredizo', piezas: /^TM-\d+[a-z]?$/, params: ['techoMovil'], label: optsDe('techoMovil'), vista: { p: [1700, 900, -700], t: [600, 300, 200] } },
   { id: 'plataforma', nombre: 'Plataforma baja del deck', piezas: /^(LO-05[a-c]?|EP-0\d|VL-[A-Z]|PL-\d)$/, params: ['plataforma'], label: optsDe('plataforma'), vista: { p: [2300, 700, 2300], t: [950, -40, 900] } },
+  { id: 'elev', nombre: 'Sistema para subir y bajar la casa', piezas: /^(EL-\d+|P[DS]-\d)$/, params: ['elev'], label: optsDe('elev'), vista: { p: [2300, 500, 3000], t: [560, -100, 2000] } },
   { id: 'altura', nombre: 'Altura de la casa', piezas: /^(C-\d[SN]|H1-01|VP-[NSEO])$/, params: ['altura'], label: optsDe('altura'), vista: { p: [2500, 900, 3300], t: [400, 0, 1400] } },
 ];
 try { initMarcas(visor, stage); } catch (e) { console.error('marcas', e); }
