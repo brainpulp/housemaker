@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.4)
+# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.5)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
@@ -11,7 +11,7 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
 - Exterior: deck norte de 4,00 de tablones, con una plataforma baja de 6,00 × 4,00 a media altura y escalones. Deck sur chico.
 - Puerta de entrada corrediza al norte (abre al oeste) y puerta de atrás al sur. Las dos son de hierro.
 - Interior:
-  - Módulo 2: desnivel (pozo de dos alzadas) con piso de laja, sillón en C de madera con almohadones y salamandra.
+  - Módulo 2: desnivel (pozo de dos alzadas) con piso de laja, sillón en C de madera con almohadones y salamandra centrada en la columna del medio del módulo (con el segundo piso, su caño sube paralelo al frente inclinado y sale por el techo).
   - Cocina en el módulo 4, con la mesa de pinotea en el 3.
   - Biblioteca contra la pared este.
 - Jardín: pinos, árboles y cerco tomados de una foto y un video, a ojo. Pileta, pérgola y tanque al oeste, también a ojo.
@@ -40,7 +40,6 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
 - **D-20:** la estructura del segundo piso tiene que verla un ingeniero.
 - **D-21:** el sistema de elevación tiene que verlo un calculista (perfil, zapatas, media maniobra) y falta decidir el accionamiento.
 - **D-17 / D-18 / D-19:** techo corredizo, deck perimetral y jardín, pendientes de medidas.
-- Con el segundo piso, el caño de la salamandra cruza el frente inclinado.
 - Con la casa elevada, la escalinata de la plataforma llega a la fila de pinos.
 
 ## Cómo publicar

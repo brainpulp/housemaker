@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.4', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.5', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -263,6 +263,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.10.5', txt: 'Las variantes de diseño abren siempre con la última elegida: las vistas guardadas ya no cambian la altura de la casa, el sistema de elevación, el segundo piso ni la plataforma (antes, al ir a una vista, volvían a lo que tenían cuando se guardó). La salamandra queda centrada en la columna del medio del módulo 2. Con el segundo piso, su caño ya no atraviesa el frente inclinado: sube derecho hasta quedar a 50 cm del vidrio, sigue paralelo al frente y sale por el techo entre dos correas. En la planta B del segundo piso, el piso alto se cortaba contra las columnas: corregido.' },
   { fecha: '2026-11-17', v: '0.10.4', txt: 'Sistema para subir y bajar la casa: los ejes que unen los gatos de cada fila bajan a 0,60 del suelo y quedan escondidos debajo del deck. De cada gato baja un eje vertical pegado al HEB, con un reenvío angular arriba y otro abajo. Los cuatro motores también van abajo: uno por fila de la casa junto al HEB del par 6, y uno por deck junto al poste del par 6 (norte) y del par 5 (sur).' },
   { fecha: '2026-11-17', v: '0.10.3', txt: 'Sistema para subir y bajar la casa, con el mecanismo completo: arriba de cada HEB va un gato de husillo de 50 kN (el husillo cuelga escondido contra la madera), los siete gatos de cada fila se unen con ejes y los mueve un motorreductor por fila. Los postes de los decks pasan al borde (retirados sobresalían en medio del deck), miden 3,00 y llevan su propio gato, eje y motor. El HEB se separa 3 cm de la columna vieja para que entre la carcasa del gato. La altura de la casa y el sistema quedan juntos en una sola zona del menú «Variantes de diseño».' },
   { fecha: '2026-11-17', v: '0.10.2', txt: 'Menús: «Luz realista» pasó al menú de cámaras (Vistas); la barrera de vegetación del fondo está en Capas, debajo de Foliage, y se apaga con él.' },
