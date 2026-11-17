@@ -37,9 +37,11 @@ export function equipMocoreta({ itA }) {
     P('arbol', 1500, 2620, 'Aspen Medium', 1900, 1); P('arbol', 1250, 2800, 'Aspen Medium', 1700, 3); P('arbol', 1750, 2500, 'Ash Medium', 1300, 2); P('arbol', 700, 2950, 'Oak Medium', 1400, 1); P('arbol', 100, 3050, 'Ash Large', 1600, 2);
     for (const [x, y, h, s] of [[1250, 2450, 300, 1], [1400, 2560, 260, 2], [1100, 2600, 320, 3], [1550, 2760, 240, 1], [1000, 2750, 280, 2], [1320, 2900, 300, 3]]) P('arbusto', x, y, s % 2 ? 'Bush 2' : 'Bush 1', h, s);
     /* la masa de árboles de hoja ancha al oeste, que tapa esa punta de la casa y sigue hacia la pileta */
-    for (const [x, y, e, h, s] of [[1650, 760, 'Oak Large', 1700, 2], [1350, 250, 'Ash Large', 1500, 1], [1900, 200, 'Oak Medium', 1300, 3], [1150, -250, 'Oak Large', 1600, 1], [1700, -400, 'Ash Large', 1500, 2], [800, -600, 'Ash Medium', 1200, 3], [200, -700, 'Oak Medium', 1300, 2]]) P('arbol', x, y, e, h, s);
+    for (const [x, y, e, h, s] of [[1650, 760, 'Oak Large', 1700, 2], [1350, 250, 'Ash Large', 1500, 1], [1900, 200, 'Oak Medium', 1300, 3], [1150, -250, 'Oak Large', 1600, 1], [1700, -400, 'Ash Large', 1500, 2], [800, -600, 'Ash Medium', 1200, 3], [-150, -650, 'Oak Medium', 1300, 2], [-250, -1800, 'Ash Large', 1700, 3]]) P('arbol', x, y, e, h, s);
     /* mata al pie de los pinos, el granado, y plantas bajas contra el borde del deck al oeste */
     P('arbusto', 1480, 1420, 'Bush 1', 260, 2); P('arbusto', 1420, 1700, 'Bush 2', 150, 1); P('arbusto', 1500, -50, 'Bush 1', 380, 3); P('arbusto', 1300, -350, 'Bush 2', 320, 1);
+    /* del video: el granado junto al deck de la pileta y el cañaveral al fondo de la pileta */
+    P('arbusto', 760, -380, 'Bush 1', 330, 2); for (let y = -2600; y <= -900; y += 170) P('arbusto', -60 - (y % 3) * 20, y, 'Bush 2', 450 + (y % 4) * 40, 1 + (y & 3));
     for (let y = 250; y <= 760; y += 85) P('bajo', 990 + (y % 3) * 15, y, 'Bush 3', 70 + (y % 4) * 12, 1 + y % 4);
     /* el fondo: árboles altos detrás de la casa, al sur */
     for (const [x, y, e, h, s] of [[-900, 2900, 'Ash Large', 1700, 2], [-900, 2500, 'Oak Large', 1800, 1], [-1100, 2000, 'Pino', 2100, 2], [-800, 1500, 'Ash Large', 1700, 3], [-1200, 1050, 'Pino', 2200, 4], [-900, 600, 'Oak Large', 1800, 2], [-1150, 100, 'Ash Large', 1600, 1], [-800, -350, 'Pino', 2000, 3], [-1000, -800, 'Oak Large', 1700, 3]]) P('arbol', x, y, e, h, s);
