@@ -31,6 +31,9 @@ import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
 import { tablones } from './tablones.js';
 import { initCorredizas } from './corredizas.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+/* caja con cantos redondeados en coordenadas de la casa (x, z, y); rot = [eje, ángulo] para inclinarla sobre su centro (Maxi 17/11: almohadones redondeados) */
+const rbox = (x0, x1, z0, z1, y0, y1, r = 5, rot = null) => { const g = new RoundedBoxGeometry(x1 - x0, z1 - z0, y1 - y0, 3, Math.min(r, (x1 - x0) / 2 - .01, (z1 - z0) / 2 - .01, (y1 - y0) / 2 - .01)); if (rot) g[rot[0] === 'x' ? 'rotateX' : 'rotateZ'](rot[1]); g.translate((x0 + x1) / 2, (z0 + z1) / 2, (y0 + y1) / 2); return g; };
 let CORR = null;
 /* hojas corredizas: 0 = cerrada; corren en y (a lo largo de la fachada) hasta dy */
 let ULT_TM = null;
@@ -103,13 +106,15 @@ function build(p) {
   { const bx0 = MM.GS - 1 + MM.FC + .5, bx1 = MM.GN - 3 - 100 - .5, by1 = MM.LARGO - 3 - .5, by0 = by1 - 35, top = MM.HC - 35, e = 6, G = [], CJ = [];
     /* Maxi 17/11: cuadrícula alineada (no trabada), tablas de 6 cm */
     const nc = Math.round((bx1 - bx0 - e) / 46), nr = 6, px = (bx1 - bx0 - e) / nc, pz = (top - e) / nr, xs = [...Array(nc + 1)].map((_, k) => bx0 + k * px), zs = [...Array(nr + 1)].map((_, k) => k * pz);
-    for (const z of zs) G.push(box(bx0, bx1, z, z + e, by0, by1));
-    for (const x of xs) for (let r = 0; r < nr; r++) G.push(box(x, x + e, zs[r] + e, zs[r + 1], by0, by1));
-    /* cajoncitos: ocupan las tres primeras celdas (hacia el sur) de las filas 2 y 3, tres por tres en cada celda */
-    for (let c = 0; c < 3; c++) for (let r = 1; r < 3; r++) { const x0 = xs[c] + e, x1 = xs[c + 1], z0 = zs[r] + e, z1 = zs[r + 1], w = (x1 - x0) / 3, h = (z1 - z0) / 3;
-      for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) CJ.push(box(x0 + a * w + .4, x0 + (a + 1) * w - .4, z0 + b * h + .4, z0 + (b + 1) * h - .4, by0 - 1.5, by1 - 2)); }
+    /* la cajonera (tres casilleros de ancho, dos de alto, abajo hacia el sur) es un mueble entero: la cuadrícula no la cruza */
+    const enCaj = (c, r) => c < 3 && (r === 1 || r === 2);
+    for (let k = 0; k <= nr; k++) { if (k === 2) G.push(box(xs[3], bx1, zs[k], zs[k] + e, by0, by1)); else G.push(box(bx0, bx1, zs[k], zs[k] + e, by0, by1)); }
+    for (let c = 0; c <= nc; c++) for (let r = 0; r < nr; r++) if (!(c > 0 && c < 3 && enCaj(c, r))) G.push(box(xs[c], xs[c] + e, zs[r] + e, zs[r + 1], by0, by1));
+    /* cajoncitos: una sola cajonera de 9 × 7 cajones chicos, como en la foto */
+    { const x0 = xs[0] + e, x1 = xs[3], z0 = zs[1] + e, z1 = zs[3], ncj = 9, nrj = 7, w = (x1 - x0) / ncj, h = (z1 - z0) / nrj;
+      for (let a = 0; a < ncj; a++) for (let b = 0; b < nrj; b++) CJ.push(box(x0 + a * w + .4, x0 + (a + 1) * w - .4, z0 + b * h + .4, z0 + (b + 1) * h - .4, by0 - 1.5, by1 - 2)); }
     Pt('BI-01', 'BI-01 · Biblioteca del lado este', 'madera', G, { fn: 'Maxi 16 y 17/11, con foto: biblioteca de madera contra la pared este, desde junto al ventanal sur hasta el paño de vidrio del este, y hasta 0,35 del cielorraso. Cuadrícula alineada de tablas de 6 cm, con casilleros de unos 0,40 × 0,37. Fondo a ojo.', sec: 'tabla de 6 cm', med: `${f2(bx1 - bx0)} × ${f2(top)} · fondo 0,35 · ${nc} × ${nr} casilleros` }, { group: G.piso, opt: {} });
-    Pt('BI-02', 'BI-02 · Biblioteca: cajoncitos', 'marco', CJ, { fn: 'Cajoncitos tipo fichero en seis casilleros de abajo, del lado sur, como en la foto: tres por tres en cada casillero.', sec: 'cajones de ~13 × 12', med: '54 cajones' }, { group: G.piso, opt: {} }); }
+    Pt('BI-02', 'BI-02 · Biblioteca: cajoncitos', 'marco', CJ, { fn: 'Cajonera tipo fichero abajo, del lado sur, de tres casilleros de ancho por dos de alto, sin la cuadrícula adentro: 9 × 7 cajones chicos, como en la foto.', sec: 'cajones de ~15 × 11', med: '63 cajones' }, { group: G.piso, opt: {} }); }
   /* desnivel del módulo 2 (pozo de dos alzadas) con su sillón en C: interpretación de la descripción de Maxi (D-12) */
   { const D = MM.DES, [x0, x1] = D.x, [y0, y1] = D.y, zf = D.z, t = MM.TABLA, xc = D.xc, R = D.R, fn = '<b>Interpretación (D-12).</b> ';
     /* tabicas que cierran el pozo, siguiendo su contorno; al norte, bajo la viga perimetral */
@@ -139,9 +144,10 @@ function build(p) {
         Pt('SC-02', 'SC-02 · Sillón en C: asientos', 'madera', [box(x0 + R, x0 + R + a, zf, zw, y0 + R, y1 - R), box(x0 + R + a, xc, zf, zw, y0 + R, y0 + R + a), box(x0 + R + a, xc, zf, zw, y1 - R - a, y1 - R)],
           { fn: fn + 'Maxi 14/11: el sillón es todo de madera, con almohadones sueltos. Con el almohadón, el asiento queda a 0,35 del piso del desnivel. Fondo de 0,60 supuesto.', sec: `fondo ${a}`, med: `asiento a ${f2(D.hAs)} del piso del desnivel (+${f2(za)})`, u: 'D-12' }, { group: G.piso, opt: {} });
         const bs = (u0, u1, f) => { const d0 = R, d1 = R - hb * tg; return f(u0, u1, d0, d1); }, zb = za + hb;
-        const sur = (u0, u1, d0, d1) => box8([[x0 + d0, za, u0], [x0 + d0 + eb, za, u0], [x0 + d0 + eb, za, u1], [x0 + d0, za, u1], [x0 + d1, zb, u0], [x0 + d1 + eb, zb, u0], [x0 + d1 + eb, zb, u1], [x0 + d1, zb, u1]]);
-        const lat = s => (u0, u1, d0, d1) => { const ya = s > 0 ? y0 + d0 : y1 - d0 - eb, yb = s > 0 ? y0 + d1 : y1 - d1 - eb; return box8([[u0, za, ya], [u1, za, ya], [u1, za, ya + eb], [u0, za, ya + eb], [u0, zb, yb], [u1, zb, yb], [u1, zb, yb + eb], [u0, zb, yb + eb]]); };
-        Pt('SC-04', 'SC-04 · Sillón en C: almohadones de asiento', 'tela', [...seg(y0 + R, y1 - R).map(([u0, u1]) => box(x0 + R, x0 + R + a, zw, za, u0, u1)), ...seg(x0 + R + a, xc).flatMap(([u0, u1]) => [box(u0, u1, zw, za, y0 + R, y0 + R + a), box(u0, u1, zw, za, y1 - R - a, y1 - R)]),
+        const an = D.ang * Math.PI / 180, L2 = hb / Math.cos(an) / 2, zc = (za + zb) / 2;
+        const sur = (u0, u1, d0, d1) => { const xc = x0 + (d0 + d1) / 2 + eb / 2; return rbox(xc - eb / 2, xc + eb / 2, zc - L2, zc + L2, u0, u1, 8, ['z', an]); };
+        const lat = s => (u0, u1, d0, d1) => { const yc = s > 0 ? y0 + (d0 + d1) / 2 + eb / 2 : y1 - (d0 + d1) / 2 - eb / 2; return rbox(u0, u1, zc - L2, zc + L2, yc - eb / 2, yc + eb / 2, 8, ['x', s > 0 ? -an : an]); };
+        Pt('SC-04', 'SC-04 · Sillón en C: almohadones de asiento', 'tela', [...seg(y0 + R, y1 - R).map(([u0, u1]) => rbox(x0 + R, x0 + R + a, zw, za, u0, u1, 6)), ...seg(x0 + R + a, xc).flatMap(([u0, u1]) => [rbox(u0, u1, zw, za, y0 + R, y0 + R + a, 6), rbox(u0, u1, zw, za, y1 - R - a, y1 - R, 6)]),
             ],
           { fn: fn + 'Maxi 16/11, con la foto: colchonetas de asiento de 16 cm, de tela gris oscura, del fondo del asiento.', sec: 'colchonetas de 16', med: 'gris oscuro', u: 'D-12' }, { group: G.piso, opt: {} });
         Pt('SC-05', 'SC-05 · Sillón en C: almohadones de respaldo', 'tela2', [...seg(y0 + R + eb, y1 - R - eb).map(([u0, u1]) => bs(u0, u1, sur)), ...seg(x0 + R + eb, xc).flatMap(([u0, u1]) => [bs(u0, u1, lat(1)), bs(u0, u1, lat(-1))])],

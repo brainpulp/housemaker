@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.9.3', fecha: '2026-11-14',
+export const META = { nombre: 'Mocoretá', version: '0.9.5', fecha: '2026-11-14',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -257,6 +257,8 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.9.5', txt: 'Sillón del desnivel: los almohadones de asiento y de respaldo tienen los cantos redondeados.' },
+  { fecha: '2026-11-17', v: '0.9.4', txt: 'Biblioteca: la cajonera vuelve a ser un mueble entero de 9 × 7 cajones chicos; la cuadrícula ya no la cruza.' },
   { fecha: '2026-11-17', v: '0.9.3', txt: 'Biblioteca del lado este: cuadrícula alineada (antes trabada) de tablas de 6 cm, con los cajoncitos en seis casilleros de abajo, del lado sur.' },
   { fecha: '2026-11-16', v: '0.9.2', txt: 'Las variantes de diseño se guardan en la casa: al abrir, en cualquier dispositivo, arranca con las últimas elegidas. Abrir una zona del menú de variantes ya no mueve la cámara.' },
   { fecha: '2026-11-16', v: '0.9.1', txt: 'Las plantas se apoyan en el terreno de cada variante: con la casa elevada quedaban flotando a la altura del terreno de hoy.' },
