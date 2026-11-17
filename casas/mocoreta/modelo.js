@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.1', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.2', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -263,6 +263,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.10.2', txt: 'Menús: «Luz realista» pasó al menú de cámaras (Vistas); la barrera de vegetación del fondo está en Capas, debajo de Foliage, y se apaga con él.' },
   { fecha: '2026-11-17', v: '0.10.1', txt: 'Ventanas proyectantes del piso alto, rediseñadas: hoja de caño 50 × 30 con cruz y laminado 4 + 4, bisagra de piano inoxidable por fuera bajo una babeta, cortagotas, dos manijas con traba y dos amortiguadores a gas de 1.300 N y 0,50 de carrera (resortes con freno hidráulico), acostados por dentro a lo largo de los parantes, que la sostienen y hacen de tope a 95°: cerrada queda apretada por su peso, desde ~15° sube sola. Correa de cierre colgada de la cruz, que abierta queda al alcance de la mano. Se abren arrastrándolas, como las corredizas; los amortiguadores acompañan el movimiento.' },
   { fecha: '2026-11-17', v: '0.10.0', txt: 'Nueva alternativa «sistema para subir y bajar la casa»: un HEB 160 por fuera de cada columna, con el tornillo escondido entre el perfil y la madera, reductor al pie, abrazaderas de guía y dado de hormigón. Las columnas viejas se cortan a ras del terreno y suben con la casa. Los decks suben con ella a lo largo de postes fijos de acero, retirados del borde. En «Altura de la casa» hay una posición nueva, a media maniobra (piso a 2,20), para ver el recorrido. Todo predimensionado: lo tiene que ver un calculista (D-21).' },
   { fecha: '2026-11-17', v: '0.9.5', txt: 'Sillón del desnivel: los almohadones de asiento y de respaldo tienen los cantos redondeados.' },
