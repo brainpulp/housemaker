@@ -505,7 +505,8 @@ function build(p) {
       dimLine([-40, MM.TERR, MM.LARGO + 60], [-40, 0, MM.LARGO + 60], [-8, 0, 0], f2(-MM.TERR)); dimLine([-40, 0, MM.LARGO + 60], [-40, MM.HC, MM.LARGO + 60], [-8, 0, 0], f2(MM.HC)); } };
 }
 
-const COL = { laja: '#a59d8c', tela2: '#5b4636', salam: '#1c1c1c', inox: '#c9ccce', herreria: '#2a2a2a', oxido: '#7b3f22', agua: '#6fc3d6', piedra: '#9a9a92', hoja1: '#3d6b2f', hoja2: '#4f7f38', hoja3: '#2f5527', negro: '#1b1b1b', muro: '#b98a5a', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#8a5a34', deck: '#b58e62', madera: '#c9a46e', viga: '#8a5a34', poste: '#6e4a2e', falsa: '#8a5a34', techo: '#c9cfd3', tabla1: '#b58e62', tabla2: '#ad8558', tabla3: '#bd976c', hierro: '#6f4630', piso: '#b9b4a8', shoji: '#f3ecdc', tela: '#3d3b39', cielo: '#d9c3a0' };
+/* Maxi 17/11: la madera de la casa es bastante más oscura que el roble que tenía: paredes, estructura, marcos y cielorraso, un tono nogal */
+const COL = { laja: '#a59d8c', tela2: '#5b4636', salam: '#1c1c1c', inox: '#c9ccce', herreria: '#2a2a2a', oxido: '#7b3f22', agua: '#6fc3d6', piedra: '#9a9a92', hoja1: '#3d6b2f', hoja2: '#4f7f38', hoja3: '#2f5527', negro: '#1b1b1b', muro: '#7a5232', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#5c3920', deck: '#b58e62', madera: '#86603c', viga: '#5c3920', poste: '#4f321e', falsa: '#5c3920', techo: '#c9cfd3', tabla1: '#b58e62', tabla2: '#ad8558', tabla3: '#bd976c', hierro: '#6f4630', piso: '#b9b4a8', shoji: '#f3ecdc', tela: '#3d3b39', cielo: '#93704b' };
 /* el terreno es el suelo del visor (pasto), 1,47 abajo del piso interior (TE-01 en modelo.js) */
 window.__terreno = { t: M.TERR, c: 0 };   /* build() lo actualiza según la altura elegida */
 /* encastre declarado: la viga de arriba (7, centrada en el vidrio) entra 2,5 cm en la cara interior de las columnas, que van por fuera (D-02) */

@@ -28,6 +28,19 @@ export function equipMocoreta({ itA }) {
     deckS: { n: 'Deck sur', piso: 0, vista: { p: [-900, 300, 1500], t: [-120, 60, 1200] }, esc: vacio },
   };
   const sin = n => () => ({ A: { nombre: n, items: [] } });
+  /* luces (Maxi 17/11: «un artefacto de tres spots en cada módulo, en el techo, y algunas luces más»). Supuesto de ubicación y potencia */
+  function escLuces(a, I) {
+    const ym = k => 2400 - (k - 1) * 400 - 200, cols = [0, 400, 800, 1200, 1600, 2000, 2400];
+    switch (a) {
+      case 'interior': return { A: { nombre: 'Un riel de tres spots por módulo y colgante sobre la mesa', items: [
+        ...[1, 2, 3, 4, 5, 6].map(k => I('riel', 275, ym(k), 0, { n: 3, L: 160, lm: 600, beam: 36, tilt: 0, K: 2700, acab: 'negro' })),
+        I('linea', COC.x + 267, COC.y + 530, 0, { L: 180, drop: 85, lm: 2600, K: 2700, acab: 'negro' })] }, B: { nombre: 'Sin luces', items: [] } };
+      case 'deckN': return { A: { nombre: 'Apliques en las columnas del frente', items: cols.slice(1, -1).map(y => I('aplique', 559, y, 90, { z: 230, lm: 350, beam: 40, K: 2700, acab: 'negro' })) }, B: { nombre: 'Sin luces', items: [] } };
+      case 'deckS': return { A: { nombre: 'Apliques en las columnas del contrafrente', items: cols.slice(1, -1).map(y => I('aplique', -9, y, 270, { z: 230, lm: 350, beam: 40, K: 2700, acab: 'negro' })) }, B: { nombre: 'Sin luces', items: [] } };
+      case 'exterior': return { A: { nombre: 'Proyectores al pie de los pinos', items: [[1440, 2330], [1440, 1760], [1440, 1200], [1440, 900]].map(([x, y]) => I('proyector', x, y, 90, { lm: 1500, beam: 24, tilt: 15, K: 3000 })) }, B: { nombre: 'Sin luces', items: [] } };
+      default: return { A: { nombre: 'Sin luces', items: [] } };
+    }
+  }
   /* plantas (Maxi 16/11: «así se ve la casa ahora desde el norte, agregá el foliage para que se parezca lo más posible»). Puestas a ojo desde una foto y un video tomados desde el norte (16/11):
      especies, alturas y lugares son aproximados; se mueven y se cambian desde la capa Plantas. x = norte, y = este; van al nivel del terreno de hoy */
   function escVeg() { const I = itA('V'), it = [], P = (t, x, y, esp, alto, seed) => { const f = t !== 'arbol' ? null : esp === 'Pino' ? { hojas: .6 } : { alto: Math.round(alto * 1.4), copa: .55, hojas: .4 };   /* Maxi 17/11: «demasiado frondosa; en la realidad la casa se ve a través de los árboles, y las copas arrancan demasiado abajo»: los de hoja ancha, 40 % más altos, con la copa desde la mitad del tronco y la mitad de hojas; los pinos, más ralos */
@@ -47,5 +60,5 @@ export function equipMocoreta({ itA }) {
     /* el fondo: árboles altos detrás de la casa, al sur */
     for (const [x, y, e, h, s] of [[-900, 2900, 'Ash Large', 1700, 2], [-900, 2500, 'Oak Large', 1800, 1], [-1100, 2000, 'Pino', 2100, 2], [-800, 1500, 'Ash Large', 1700, 3], [-1200, 1050, 'Pino', 2200, 4], [-900, 600, 'Oak Large', 1800, 2], [-1150, 100, 'Ash Large', 1600, 1], [-800, -350, 'Pino', 2000, 3], [-1000, -800, 'Oak Large', 1700, 3]]) P('arbol', x, y, e, h, s);
     return { A: { nombre: 'Jardín de hoy (desde la foto y el video del norte)', items: it }, B: { nombre: 'Sin plantas', items: [] } }; }
-  return { inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: sin('Sin luces'), cal: sin('Sin calefacción') };
+  return { inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: escLuces, cal: sin('Sin calefacción') };
 }

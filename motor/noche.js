@@ -67,16 +67,16 @@ export function initNoche(visor,datos=null){
 
   /* ---------- reparto: las fuentes prendidas que más importan para la cámara ---------- */
   const fr=new THREE.Frustum(),pm=new THREE.Matrix4(),sph=new THREE.Sphere(),lastCam=new THREE.Vector3(1e9,0,0),tmp=new THREE.Vector3();
-  function repartir(){if(!pool)return;camera.updateMatrixWorld();pm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);fr.setFromProjectionMatrix(pm);const cp=camera.position;
+  function repartir(){if(!pool)return;const EXP=EXPO*Math.max(0,S.pot??100)/100;/* Maxi 17/11: potencia global de todas las luces artificiales */camera.updateMatrixWorld();pm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);fr.setFromProjectionMatrix(pm);const cp=camera.position;
     const imp=f=>{const d2=f.p.distanceToSquared(cp);sph.set(f.p,Math.sqrt(f.lm)*12);return f.lm/(d2+4e4)*(fr.intersectsSphere(sph)?1:.2);};
     const by={spot:[],point:[],rect:[]};for(const f of fuentes){if(f.lm<=0||!f.on)continue;f._i=imp(f);(by[f.t]||by.point).push(f);}
     usadas=0;
     for(const k of ['spot','point','rect']){const L=by[k].sort((a,b)=>b._i-a._i);const P=pool[k];
       for(let i=0;i<P.length;i++){const l=P[i],f=L[i];if(!f){l.intensity=0;continue;}usadas++;l.color.copy(f.col);
         if(k==='spot'){const half=Math.min(Math.PI/2.05,(f.beam||40)/2*R*1.25);const cd=f.lm/(2*Math.PI*(1-Math.cos((f.beam||40)/2*R)));
-          l.intensity=cd*1e4*EXPO;l.angle=half;l.penumbra=.5;l.position.copy(f.p);l.target.position.copy(f.p).addScaledVector(f.d,100);l.target.updateMatrixWorld();}
-        else if(k==='point'){l.intensity=f.lm/(4*Math.PI)*1e4*EXPO;l.distance=f.dist||0;l.position.copy(f.p);}
-        else{const A=Math.max(1,f.w)*Math.max(.5,f.h)/1e4;l.width=Math.max(1,f.w);l.height=Math.max(.5,f.h);l.intensity=f.lm/(Math.PI*A)*EXPO;l.position.copy(f.p);l.lookAt(tmp.copy(f.p).add(f.d));}}}
+          l.intensity=cd*1e4*EXP;l.angle=half;l.penumbra=.5;l.position.copy(f.p);l.target.position.copy(f.p).addScaledVector(f.d,100);l.target.updateMatrixWorld();}
+        else if(k==='point'){l.intensity=f.lm/(4*Math.PI)*1e4*EXP;l.distance=f.dist||0;l.position.copy(f.p);}
+        else{const A=Math.max(1,f.w)*Math.max(.5,f.h)/1e4;l.width=Math.max(1,f.w);l.height=Math.max(.5,f.h);l.intensity=f.lm/(Math.PI*A)*EXP;l.position.copy(f.p);l.lookAt(tmp.copy(f.p).add(f.d));}}}
     dirty=false;lastCam.copy(cp);}
 
   /* ---------- luces de la escena (realismo / luz realista) ---------- */
@@ -123,16 +123,17 @@ export function initNoche(visor,datos=null){
 
   /* ---------- barra: fecha, hora, ▶, lugar ---------- */
   const bar=document.querySelector('#modo-3d .bottombar');const box=document.createElement('span');box.style.cssText='display:inline-flex;align-items:center;gap:5px;white-space:nowrap';
-  box.innerHTML=`<button class="btn mini" data-k="dn" title="Día / noche" style="min-width:26px">☾</button><input type="date" data-k="fecha" style="font-size:11px;padding:0 2px;width:112px"><input type="range" data-k="min" min="0" max="1439" step="5" style="width:110px"><b data-k="hora" style="min-width:36px"></b><button class="btn mini" data-k="play" title="Pasar el día">▶</button><button class="btn mini" data-k="lugar" title="Lugar, huso y norte">⚙</button><small data-k="info" style="color:var(--muted)"></small>`;
+  box.innerHTML=`<button class="btn mini" data-k="dn" title="Día / noche" style="min-width:26px">☾</button><input type="date" data-k="fecha" style="font-size:11px;padding:0 2px;width:112px"><input type="range" data-k="min" min="0" max="1439" step="5" style="width:110px"><b data-k="hora" style="min-width:36px"></b><button class="btn mini" data-k="play" title="Pasar el día">▶</button><button class="btn mini" data-k="lugar" title="Lugar, huso y norte">⚙</button><label title="Potencia de todas las luces artificiales (multiplica los lúmenes de cada artefacto)" style="display:inline-flex;align-items:center;gap:3px;font-size:11px">luces<input type="range" data-k="pot" min="0" max="300" step="5" style="width:70px"><b data-k="potv" style="min-width:34px;font-weight:500"></b></label><small data-k="info" style="color:var(--muted)"></small>`;
   if(bar){const lr=document.getElementById('luzReal');if(lr&&lr.parentElement&&lr.parentElement.parentElement===bar)lr.parentElement.after(box);else bar.prepend(box);}
   const q=k=>box.querySelector(`[data-k="${k}"]`);
-  function pintarBarra(){q('fecha').value=S.fecha;q('min').value=S.min;q('hora').textContent=hhmm(S.min);const est=visor.arboles&&visor.arboles.calcEstacion&&visor.arboles.calcEstacion();q('info').textContent=`sol ${sol.alt.toFixed(0)}° · ↑${hhmm(horas.sr)} ↓${hhmm(horas.ss)}${est?` · ${est.nombre}`:''}${encendidas?` · ${encendidas} luces`:''}`;q('play').textContent=play?'❚❚':'▶';q('dn').textContent=noche?'☀':'☾';q('dn').title=noche?'Pasar a de día ('+hhmm(S.diaMin)+')':'Pasar a de noche ('+hhmm(S.nocheMin)+')';}
+  function pintarBarra(){q('pot').value=S.pot??100;q('potv').textContent=(S.pot??100)+' %';q('fecha').value=S.fecha;q('min').value=S.min;q('hora').textContent=hhmm(S.min);const est=visor.arboles&&visor.arboles.calcEstacion&&visor.arboles.calcEstacion();q('info').textContent=`sol ${sol.alt.toFixed(0)}° · ↑${hhmm(horas.sr)} ↓${hhmm(horas.ss)}${est?` · ${est.nombre}`:''}${encendidas?` · ${encendidas} luces`:''}`;q('play').textContent=play?'❚❚':'▶';q('dn').textContent=noche?'☀':'☾';q('dn').title=noche?'Pasar a de día ('+hhmm(S.diaMin)+')':'Pasar a de noche ('+hhmm(S.nocheMin)+')';}
   let play=false,uT=0;
   const recordar=()=>{if(sol.alt<-4)S.nocheMin=S.min;else if(sol.alt>5)S.diaMin=S.min;};
   function diaNoche(){recordar();S.min=noche?S.diaMin:S.nocheMin;cambio();}
   const cambio=()=>{guardarS();actualizar();if(visor.equip&&visor.equip.open&&visor.equip.capa==='luz')visor.equip.panel();};
   q('fecha').addEventListener('change',e=>{if(e.target.value){S.fecha=e.target.value;cambio();}});
   q('min').addEventListener('input',e=>{S.min=+e.target.value;cancelAnimationFrame(uT);uT=requestAnimationFrame(()=>{actualizar();});});q('min').addEventListener('change',()=>{cambio();recordar();guardarS();});q('dn').addEventListener('click',()=>diaNoche());
+  q('pot').addEventListener('input',e=>{S.pot=+e.target.value;q('potv').textContent=S.pot+' %';repartir();window.__despertar&&window.__despertar();});q('pot').addEventListener('change',()=>{guardarS();});
   q('play').addEventListener('click',()=>{play=!play;pintarBarra();if(play)(function step(){if(!play)return;S.min=(S.min+.5)%1440;actualizar();requestAnimationFrame(step);})();else cambio();});
   /* lugar */
   const LUG={...(datos&&datos.lugar?{[datos.lugar]:[datos.lat,datos.lon,datos.tz??-3]}:{}),'Ing. Maschwitz':[-34.381,-58.741,-3],'Buenos Aires':[-34.603,-58.382,-3],'Bariloche':[-41.133,-71.31,-3],'Montevideo':[-34.901,-56.164,-3],'Madrid':[40.417,-3.704,2]};
