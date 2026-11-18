@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.12', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.13', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -264,6 +264,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.10.13', txt: 'Subir y bajar la casa con un deslizador: con el sistema puesto, en la zona «Altura de la casa» se arrastra cuánto subió (de 0, como hoy, a 143 cm, arriba del todo) y al soltar el modelo se rearma en esa posición, con las columnas, los gatos y los decks.' },
   { fecha: '2026-11-17', v: '0.10.12', txt: 'Techo corredizo: ya no vuela. Los largueros son de 4,20 (sin la cola que hacía de contrapeso y tiraba de la casa) y en el deck hay dos vigas con postes a 3,08 de la casa, con dos carros cada una: en cualquier punto de la carrera el techo apoya en dos carros con su peso entre ellos. Escalera de la terraza: en vez de la de pasos alternados, un descanso a nivel de la terraza y un solo tramo semi empinado (alzadas de 19, huellas de 24) que baja hacia el oeste pegado a la fachada; sobre el deck ocupa 0,80 de fondo. Vegetación: los árboles de hoja ancha, 40 % más altos, con la copa desde la mitad del tronco y la mitad de hojas; los pinos, más ralos. Al sur, un bosque de unos 10 m en vez de la barrera de 3 a 4 m.' },
   { fecha: '2026-11-17', v: '0.10.11', txt: 'Sistema para subir y bajar la casa: refuerzo contra el empuje lateral. Al cortar las columnas viejas, el tramo que cuelga bajo el piso ya no está empotrado en el suelo. Se agregan una tercera abrazadera a la altura de la viga del piso, un jabalcón de acero por columna hasta la viga de piso transversal y un herraje nuevo con bulones pasantes en cada nudo de columna y viga.' },
   { fecha: '2026-11-17', v: '0.10.10', txt: 'Sistema para subir y bajar la casa: la columna nueva queda a 7 cm de la vieja (antes 16). Para lograrlo el perfil vuelve a mirar a la madera con su hueco y pasa de HEB 160 a HEB 180: el husillo va dentro del hueco, la caja del gato entra a medias en él y el eje de fila pasa por los 7 cm. La tapa del HEB ya no vuela: el husillo cuelga dentro del perfil. Los 7 cm hay que confirmarlos con el plano del gato.' },
