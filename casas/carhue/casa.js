@@ -32,6 +32,7 @@ import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
 import { initEstructura } from './estructura.js';
 import { initViewCube } from './viewcube.js';
+import { initExplicaciones } from './explica.js';
 import { initTermica } from './termica.js';
 import { GLB64 } from './casa-carhue-glb.js';
 const {THREE,prism,box,rod,box8,f1}=geo;
@@ -1109,10 +1110,35 @@ try{initTermica(visor,M,{zonas:(l,P)=>l.id!=='L-23'&&(l.nivel==='PB'||l.nivel===
 try{initEditor(visor,document.querySelector('#modo-3d .stage'),WALL_TOP,H_EP);}catch(e){console.error('editor',e);}
 try{initSenalar(visor,document.querySelector('#modo-3d .stage'));}catch(e){console.error('senalar',e);}
 try{initMedir(visor,document.querySelector('#modo-3d .stage'));}catch(e){console.error('medir',e);}
+/* explicación animada del armado de la escalera al entrepiso (Maxi 18/11: «una animación explicativa para el armado de la escalera, punto por punto»).
+   La corre motor/explica.js; cámara y mira en [x (norte), alto, y (este)]. Las piezas ESC1-* las arma casas/carhue/escalera-obra.js */
+const ESC_CTX=/^(ESC1-\w+|C-01|M-07|L-27|TIR-1|L-07)$/,ESC_FALTA=/^ESC1-(T2|T1|Td|Zd|V\w|H\w|Kb|Kc)$/;
+const EXPLICA={escEP:{titulo:'Armado de la escalera al entrepiso',params:{escTipo:'obra'},
+  pasos:[
+    {titulo:'Cómo va a quedar',solo:ESC_CTX,cam:[1760,230,900],mira:[1420,100,600],dur:8,
+      texto:'Dos módulos de limones de 2″ con huellas de 2″×10″: el de arriba baja hacia el este hasta un descanso compensado de dos triángulos, y el de abajo gira 90° y baja hacia la pileta. Subiendo desde el piso terminado: 15 · 33 · 51 · 68 · 85, y de ahí 9 alzadas de 18 hasta el entrepiso.'},
+    {titulo:'Lo que ya está',solo:ESC_CTX,ocultar:ESC_FALTA,resaltar:/^ESC1-(Zu|Tu|P|Ka)$/,cam:[1700,190,820],mira:[1400,130,560],dur:8,
+      texto:'El tramo de arriba está fijo: 8 huellas a 18. En la esquina de adentro del giro, el postecito de 3″×3″ ya está abulonado al limón de arriba (2 bulones de 3/8″).'},
+    {titulo:'1 · Pie del postecito',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|V\w|Ha|Kb|Kc)$/,armar:[/^ESC1-Hb$/],cam:[1650,140,800],mira:[1430,40,620],dur:6,
+      texto:'Se aploma el postecito y se fija al contrapiso con un estribo de chapa en U y 2 brocas Ø10. El postecito llega hasta el triángulo alto.'},
+    {titulo:'2 · Poste de afuera',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Va|Vd|Vb|H\w|Kb|Kc)$/,armar:[/^ESC1-Vp$/],cam:[1600,150,900],mira:[1360,40,690],dur:6,
+      texto:'En la esquina de afuera del descanso (junto a la columna C-01) va un poste de 3″×3″, del contrapiso al triángulo alto. Es propuesta: hoy no está.'},
+    {titulo:'3 · Vigas del triángulo alto',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Vd|Vb|Ha|Kb|Kc)$/,armar:[/^ESC1-Va$/],resaltar:/^C-01$/,cam:[1620,200,840],mira:[1390,70,640],dur:8,
+      texto:'Dos vigas de 2″×8″ llevan el triángulo alto: el cabezal bajo la última huella de arriba, entre los dos limones, y la viga del borde de afuera, que se corta en la columna C-01 y se abulona a ella. Sus cantos quedan a +85 menos el espesor de la tabla.'},
+    {titulo:'4 · Diagonal y viga del triángulo bajo',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Ha|Kb)$/,armar:[/^ESC1-Vd$/,/^ESC1-Vb$/,/^ESC1-Kc$/],cam:[1650,210,900],mira:[1400,50,660],dur:9,
+      texto:'Una diagonal de 2″ va del postecito al poste de afuera: su cara es la contrahuella de 17 entre los dos triángulos y lleva el borde de los dos. Después, la viga de 2″×8″ del borde del triángulo bajo, del lado de la pileta. La diagonal se abulona al poste de afuera.'},
+    {titulo:'5 · Módulo de abajo',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1)$/,armar:[/^ESC1-Zd$/,/^ESC1-Td$/,/^ESC1-Kb$/,/^ESC1-Ha$/],cam:[1760,150,820],mira:[1470,30,650],dur:9,
+      texto:'El módulo de abajo (3 huellas a 18) se presenta apoyado en el contrapiso. Su limón del lado del postecito pasa por debajo de la punta del limón de arriba y se abulona al postecito (2 bulones de 3/8″). Al pie, un ángulo de 2″×3/16″ por limón, con tirafondos al limón y brocas al piso.'},
+    {titulo:'6 · Triángulo bajo, a +68',solo:ESC_CTX,ocultar:/^ESC1-T2$/,armar:[/^ESC1-T1$/],cam:[1700,260,800],mira:[1400,60,660],dur:7,
+      texto:'Tablas de 2″ apoyadas en la diagonal y en la viga del borde, a 17 sobre la huella de arriba del módulo de abajo. Se recortan alrededor del postecito y de la columna.'},
+    {titulo:'7 · Triángulo alto, a +85',solo:ESC_CTX,armar:[/^ESC1-T2$/],cam:[1650,300,760],mira:[1390,80,640],dur:7,
+      texto:'Tablas de 2″ sobre el cabezal, la viga de afuera y la diagonal, a 17 sobre el triángulo bajo y al nivel del rebaje del limón de arriba.'},
+    {titulo:'Terminada',solo:ESC_CTX,cam:[1700,170,860],mira:[1420,90,600],dur:9,
+      texto:'Primer escalón a 15 del piso terminado (el alisado sube 3), y desde ahí 18 · 18 · 17 · 17 y 9 alzadas de 18. Con 8 huellas arriba llega a +2,47, pero el entrepiso del modelo está a +2,62: falta medir la altura real antes de cerrar las cuentas.'}]}};
 /* zonas con variantes de diseño: la tarjeta aparece al elegir una de sus piezas */
 const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B2|B3)[a-z]?|PAS-1|P-34)$/,params:['escAlt','escB3G','escB3n','escB2k'],info:'escInfo',
   label:Object.fromEntries((params.find(q=>q.id==='escAlt').options)),vista:{p:[1850,330,330],t:[2230,170,-230]}},
-  {id:'esc-ep',nombre:'Escalera al entrepiso',piezas:/^(ESC1-[TZPBVLHK]|ESC-(ZE\d|TE|Z\d|E\d|P\d|V\d|C\d|T\d|H\d|B\d|L\d))$/,params:['escTipo','escN','escAlto','escGiro','escDy'],info:'escInfo1',label:Object.fromEntries((params.find(q=>q.id==='escTipo').options)),vista:{p:[1950,520,1000],t:[1400,120,560]}},
+  {id:'esc-ep',nombre:'Escalera al entrepiso',piezas:/^(ESC1-[TZPBVLHK]\w*|ESC-(ZE\d|TE|Z\d|E\d|P\d|V\d|C\d|T\d|H\d|B\d|L\d))$/,params:['escTipo','escN','escAlto','escGiro','escDy'],info:'escInfo1',explica:'escEP',explicaTxt:'Ver cómo se arma',label:Object.fromEntries((params.find(q=>q.id==='escTipo').options)),vista:{p:[1950,520,1000],t:[1400,120,560]}},
   {id:'ventJ',nombre:'Ventanas al jardín (P-05, P-06)',piezas:/^(P-05|P-06)(h|d|h2|v2|k|k2|c|p|m)?$/,params:['ventJ'],label:Object.fromEntries((params.find(q=>q.id==='ventJ').options)),vista:{p:[700,240,1250],t:[650,120,690]}},
   {id:'p26',nombre:'Puerta del baño piletero',piezas:/^(P-26[a-z]*|M-24|M-26|L-11)$/,params:['p26'],label:Object.fromEntries(params.find(q=>q.id==='p26').options),vista:{p:[1700,600,-420],t:[2100,100,-420]}},
   {id:'pv56',nombre:'Paños PV-05 y PV-06',piezas:/^PV-0[56][vm]?$/,params:['pv56'],label:Object.fromEntries((params.find(q=>q.id==='pv56').options)),vista:{p:[2330,260,1500],t:[2330,120,920]}},
@@ -1123,6 +1149,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
   {id:'faldon',nombre:'Faldón al jardín: dormers y lucarnas',piezas:/^(T-01|CAB-3|LU-\d+(z|m|m2|w|w2|v2|d|b|c|k|k2)?|DM-(1|2|C)[a-z0-9]*|VE-\d[a-z]*)$/,params:['dormers','luTipo'],solo:{luTipo:/^LU-/}/* Maxi 10/11: el tipo de hoja es de las lucarnas, no de las ventanas del dormer */,label:{...Object.fromEntries(params.find(q=>q.id==='dormers').options),...Object.fromEntries(params.find(q=>q.id==='luTipo').options)},vista:{p:[560,1050,1450],t:[560,430,560]}},
   {id:'altillo',nombre:'Altillo: dormer a la pileta',piezas:/^(T-06|CAB-6|CU-2|L-24|DM-3[a-z]*)$/,params:['dormAlt'],label:Object.fromEntries(params.find(q=>q.id==='dormAlt').options),vista:{p:[2550,900,-1500],t:[2150,380,-560]}}];
 {let vu=null;try{vu=initVistasUI();}catch(e){console.error('vistas',e);}
+try{initExplicaciones(visor,{explicaciones:EXPLICA,stage:document.querySelector('#modo-3d .stage')});}catch(e){console.error('explica',e);}
 try{initToolbar(document.querySelector('#modo-3d .stage'),visor,{vistas:vu,zonas:ZONAS});}catch(e){console.error('toolbar',e);}}
 try{initInspector(visor);}catch(e){console.error('inspector',e);}
 try{initViewCube(visor);}catch(e){console.error('viewcube',e);}

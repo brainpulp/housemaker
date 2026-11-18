@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.51', fecha:'2026-11-16',
+  nombre:'Carhué', version: '1.1.52', fecha:'2026-11-18',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-18', v:'1.1.52', txt:'Maxi 18/11: animación del armado de la escalera al entrepiso, paso por paso (en la zona «Escalera al entrepiso», botón «Ver cómo se arma»): lo que ya está, pie del postecito, poste de afuera, vigas del triángulo alto, diagonal y viga del triángulo bajo, módulo de abajo, triángulo bajo y triángulo alto. Las piezas de la escalera quedan separadas por etapa.'},
   {fecha:'2026-11-16', v:'1.1.51', txt:'Maxi 16/11, baño del entrepiso: lleva dos puertas, una al pasillo (pared nueva M-45) y otra al dormitorio principal (M-41 llega hasta el pasillo). Todo se corre hacia la ventana: bañera bajo la ventana, ducha entre paredes de 1,90 × 1,20 pegada a ella, después inodoro y bidet frente al vanitory, y del lado del pasillo un semivestidor con placards en las dos paredes.'},
   {fecha:'2026-11-13', v:'1.1.50', txt:'Maxi 13/11: alternativa para las aberturas de los dormitorios del dormer corrido (opción «Ventanas de los dormitorios»): puerta corrediza de piso a techo en dos hojas de roble, en dos rieles, con vidrio laminado 3+3 y baranda de hierro por fuera, porque no hay balcón. El baño queda como estaba.'},
   {fecha:'2026-11-13', v:'1.1.49', txt:'Maxi 13/11, obra: dos columnas metálicas en las puntas del frente del dormer corrido: C-12 al sur, caño de 45 × 45; C-13 al norte, caño de 120 × 40 con el canto hacia el este, sobre C-01. Salen los postes intermedios: M-40 y M-41 hacen de estructura.'},

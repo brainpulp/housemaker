@@ -20,5 +20,5 @@ export const TOURS_CARHUE = (() => {
   ];
 })();
 export const ESCALERAS_CARHUE = (() => {
-  return {ep:p=>/^(ESC1-T|ESC-(ZE\d|TE|E\d|P\d|T\d|H\d|L\d))$/.test(p.id)&&(p.cat==='ep'||p.cat==='madera'),alt:p=>(/^ESC-(A|D|E|S|B2|B3)$/.test(p.id)||p.id==='PAS-1')&&(p.cat==='ep'||p.cat==='madera'),pil2:p=>p.id==='PIL-2s'};
+  return {ep:p=>/^(ESC1-T\w*|ESC-(ZE\d|TE|E\d|P\d|T\d|H\d|L\d))$/.test(p.id)&&(p.cat==='ep'||p.cat==='madera'),alt:p=>(/^ESC-(A|D|E|S|B2|B3)$/.test(p.id)||p.id==='PAS-1')&&(p.cat==='ep'||p.cat==='madera'),pil2:p=>p.id==='PIL-2s'};
 })();
