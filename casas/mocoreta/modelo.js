@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.15', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.16', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -264,6 +264,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-17', v: '0.10.16', txt: 'Luces del piso alto: un riel de tres spots por módulo, veladores en las mesas de luz y una lámpara de pie junto a la butaca de la oficina. De noche ahora hay luz de rebote: además de la luz directa, cada artefacto prendido ilumina el ambiente de forma difusa (lo que rebota en pisos, paredes y techo), y también sube y baja con «luces». El menú de variantes ya no se sale de la pantalla: tiene scroll y se reacomoda al desplegar una zona.' },
   { fecha: '2026-11-17', v: '0.10.15', txt: 'El deslizador para subir y bajar la casa ahora está en el menú de variantes de la barra (antes quedaba escondido). Con el sistema puesto, ese menú ya no muestra las alturas fijas, que no hacían nada.' },
   { fecha: '2026-11-17', v: '0.10.14', txt: 'Luces: un riel de tres spots en el techo de cada módulo, un colgante lineal sobre la mesa, apliques en las columnas de los dos frentes y proyectores al pie de cuatro pinos. En la barra de abajo, «luces»: la potencia de todas las luces juntas, de 0 a 300 %. La madera de la casa (paredes, estructura, marcos, cielorraso) pasa a un tono nogal, más oscuro.' },
   { fecha: '2026-11-17', v: '0.10.13', txt: 'Subir y bajar la casa con un deslizador: con el sistema puesto, en la zona «Altura de la casa» se arrastra cuánto subió (de 0, como hoy, a 143 cm, arriba del todo) y al soltar el modelo se rearma en esa posición, con las columnas, los gatos y los decks.' },

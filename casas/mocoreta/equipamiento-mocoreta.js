@@ -35,6 +35,9 @@ export function equipMocoreta({ itA }) {
       case 'interior': return { A: { nombre: 'Un riel de tres spots por módulo y colgante sobre la mesa', items: [
         ...[1, 2, 3, 4, 5, 6].map(k => I('riel', 275, ym(k), 0, { n: 3, L: 160, lm: 600, beam: 36, tilt: 0, K: 2700, acab: 'negro' })),
         I('linea', COC.x + 267, COC.y + 530, 0, { L: 180, drop: 85, lm: 2600, K: 2700, acab: 'negro' })] }, B: { nombre: 'Sin luces', items: [] } };
+      case 'alto': return { A: { nombre: 'Un riel de tres spots por módulo, veladores y lámpara de pie', items: [
+        ...[1, 3, 4, 5, 6].map(k => I('riel', 240, ym(k), 0, { n: 3, L: 160, lm: 600, beam: 36, tilt: 0, K: 2700, acab: 'negro' })),
+        I('velador', 190, 1572, 0, { lm: 300, K: 2700 }), I('velador', 410, 1572, 0, { lm: 300, K: 2700 }), I('pie', 140, 2050, 0, { lm: 1200, K: 2700 })] }, B: { nombre: 'Sin luces', items: [] } };
       case 'deckN': return { A: { nombre: 'Apliques en las columnas del frente', items: cols.slice(1, -1).map(y => I('aplique', 559, y, 90, { z: 230, lm: 350, beam: 40, K: 2700, acab: 'negro' })) }, B: { nombre: 'Sin luces', items: [] } };
       case 'deckS': return { A: { nombre: 'Apliques en las columnas del contrafrente', items: cols.slice(1, -1).map(y => I('aplique', -9, y, 270, { z: 230, lm: 350, beam: 40, K: 2700, acab: 'negro' })) }, B: { nombre: 'Sin luces', items: [] } };
       case 'exterior': return { A: { nombre: 'Proyectores al pie de los pinos', items: [[1440, 2330], [1440, 1760], [1440, 1200], [1440, 900]].map(([x, y]) => I('proyector', x, y, 90, { lm: 1500, beam: 24, tilt: 15, K: 3000 })) }, B: { nombre: 'Sin luces', items: [] } };

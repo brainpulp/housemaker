@@ -71,7 +71,9 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   /* ---------- desplegable junto a la barra ---------- */
   const fly=document.createElement('div');fly.id='tbFly';fly.hidden=true;document.body.appendChild(fly);let flyFor=null;
   function openFly(b,fill){if(typeof corteBox!=='undefined'&&fly.contains(corteBox))corteHold.appendChild(corteBox);fly.innerHTML='';fly.className='';fly.style.cssText='';fill(fly);fly.hidden=false;flyFor=b;const r=b.getBoundingClientRect();
-    fly.style.left=(r.right+6)+'px';fly.style.top=Math.max(6,Math.min(innerHeight-fly.offsetHeight-8,r.top-4))+'px';bar.querySelectorAll('.tb').forEach(x=>x.classList.toggle('flyon',x===b));}
+    /* Maxi 17/11: el menú nunca se sale de la pantalla: alto máximo con scroll, y se reacomoda cuando crece (al desplegar una zona) */
+    fly.style.maxHeight=(innerHeight-12)+'px';fly.style.overflowY='auto';fly.style.left=(r.right+6)+'px';const ubicar=()=>{fly.style.top=Math.max(6,Math.min(innerHeight-fly.offsetHeight-6,r.top-4))+'px';};ubicar();
+    if(window.ResizeObserver){if(fly._ro)fly._ro.disconnect();fly._ro=new ResizeObserver(()=>{if(!fly.hidden)ubicar();});fly._ro.observe(fly);}bar.querySelectorAll('.tb').forEach(x=>x.classList.toggle('flyon',x===b));}
   const closeFly=()=>{if(typeof corteBox!=='undefined'&&fly.contains(corteBox))corteHold.appendChild(corteBox);fly.hidden=true;flyFor=null;bar.querySelectorAll('.flyon').forEach(x=>x.classList.remove('flyon'));};
   document.addEventListener('pointerdown',e=>{if(!fly.hidden&&!fly.contains(e.target)&&!bar.contains(e.target))closeFly();});
   addEventListener('keydown',e=>{if(e.key==='Escape'&&!fly.hidden)closeFly();});

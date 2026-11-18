@@ -63,7 +63,10 @@ export function initNoche(visor,datos=null){
     for(let i=0;i<nP;i++){const l=new THREE.PointLight(0xffffff,0,0,2);l.userData.noPick=true;scene.add(l);pool.point.push(l);}
     for(let i=0;i<nR;i++){const l=new THREE.RectAreaLight(0xffffff,0,10,10);l.userData.noPick=true;scene.add(l);pool.rect.push(l);}
     dirty=true;}
-  function quitarPool(){if(!pool)return;for(const l of [...pool.spot,...pool.point,...pool.rect]){scene.remove(l);if(l.target)scene.remove(l.target);if(l.shadow&&l.shadow.map){l.shadow.map.dispose();l.shadow.map=null;}l.dispose&&l.dispose();}pool=null;}
+  /* Maxi 17/11: «los spots también iluminan de manera difusa»: la luz que rebota en pisos, paredes y techo. Una luz ambiente cuyo valor sale de los lúmenes prendidos cerca de la cámara:
+     iluminación indirecta ≈ Φ·ρ/(S·(1−ρ)), con ρ 0,3 (madera oscura) y S ~ 130 m² de superficies por ambiente → 0,0033 lux por lumen, que se apaga con la distancia (6 m). */
+  let rebote=null;const REB=.0033,REBR2=600*600;
+  function quitarPool(){if(rebote){scene.remove(rebote);rebote=null;}if(!pool)return;for(const l of [...pool.spot,...pool.point,...pool.rect]){scene.remove(l);if(l.target)scene.remove(l.target);if(l.shadow&&l.shadow.map){l.shadow.map.dispose();l.shadow.map=null;}l.dispose&&l.dispose();}pool=null;}
 
   /* ---------- reparto: las fuentes prendidas que más importan para la cámara ---------- */
   const fr=new THREE.Frustum(),pm=new THREE.Matrix4(),sph=new THREE.Sphere(),lastCam=new THREE.Vector3(1e9,0,0),tmp=new THREE.Vector3();
@@ -77,6 +80,8 @@ export function initNoche(visor,datos=null){
           l.intensity=cd*1e4*EXP;l.angle=half;l.penumbra=.5;l.position.copy(f.p);l.target.position.copy(f.p).addScaledVector(f.d,100);l.target.updateMatrixWorld();}
         else if(k==='point'){l.intensity=f.lm/(4*Math.PI)*1e4*EXP;l.distance=f.dist||0;l.position.copy(f.p);}
         else{const A=Math.max(1,f.w)*Math.max(.5,f.h)/1e4;l.width=Math.max(1,f.w);l.height=Math.max(.5,f.h);l.intensity=f.lm/(Math.PI*A)*EXP;l.position.copy(f.p);l.lookAt(tmp.copy(f.p).add(f.d));}}}
+    {let E=0;for(const f of fuentes){if(f.lm<=0||!f.on)continue;E+=f.lm*REB/(1+f.p.distanceToSquared(cp)/REBR2);}
+      if(!rebote){rebote=new THREE.AmbientLight(0xffd9a8,0);rebote.name='rebote';scene.add(rebote);}rebote.intensity=E*EXP;}
     dirty=false;lastCam.copy(cp);}
 
   /* ---------- luces de la escena (realismo / luz realista) ---------- */
