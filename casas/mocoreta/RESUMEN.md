@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.16)
+# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.17)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
@@ -40,7 +40,7 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
 - **D-04:** la estructura del deck no está decidida.
 - **D-20:** la estructura del segundo piso tiene que verla un ingeniero.
 - **D-21:** el sistema de elevación tiene que verlo un calculista (perfil, zapatas, media maniobra) y falta decidir el accionamiento.
-- **D-17 / D-18 / D-19:** techo corredizo (apoya en la casa y en dos postes del deck a 3,08: nunca vuela), deck perimetral y jardín, pendientes de medidas. Escalera de la terraza al deck: descanso a nivel de la terraza y un tramo pegado a la fachada hacia el oeste.
+- **D-17 / D-18 / D-19:** techo corredizo (sin parantes: vuela 3,60 agarrado sólo de la casa; el tirón del carro de atrás va por UPN a las columnas), deck perimetral y jardín, pendientes de medidas. Escalera de la terraza al deck: descanso a nivel de la terraza y un tramo pegado a la fachada hacia el oeste.
 - Con la casa elevada, la escalinata de la plataforma llega a la fila de pinos.
 
 ## Cómo publicar
