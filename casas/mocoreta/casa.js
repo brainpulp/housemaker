@@ -575,7 +575,7 @@ function build(p) {
 }
 
 /* Maxi 17/11: la madera de la casa es bastante más oscura que el roble que tenía: paredes, estructura, marcos y cielorraso, un tono nogal */
-const COL = { laja: '#a59d8c', tela2: '#5b4636', salam: '#1c1c1c', inox: '#c9ccce', herreria: '#2a2a2a', oxido: '#7b3f22', agua: '#6fc3d6', piedra: '#9a9a92', hoja1: '#3d6b2f', hoja2: '#4f7f38', hoja3: '#2f5527', negro: '#1b1b1b', muro: '#7a5232', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#5c3920', deck: '#b58e62', madera: '#86603c', viga: '#5c3920', poste: '#4f321e', falsa: '#5c3920', techo: '#c9cfd3', tabla1: '#b58e62', tabla2: '#ad8558', tabla3: '#bd976c', hierro: '#6f4630', piso: '#b9b4a8', shoji: '#f3ecdc', tela: '#3d3b39', cielo: '#93704b' };
+const COL = { laja: '#a59d8c', tela2: '#5b4636', salam: '#1c1c1c', inox: '#c9ccce', herreria: '#2a2a2a', oxido: '#7b3f22', agua: '#6fc3d6', piedra: '#9a9a92', hoja1: '#3d6b2f', hoja2: '#4f7f38', hoja3: '#2f5527', negro: '#1b1b1b', muro: '#956846', glass: '#9fc4cf', puerta: '#3a3a3a', marco: '#6f4729', deck: '#b58e62', madera: '#a17852', viga: '#6f4729', poste: '#5f3d25', falsa: '#6f4729', techo: '#c9cfd3', tabla1: '#b58e62', tabla2: '#ad8558', tabla3: '#bd976c', hierro: '#6f4630', piso: '#b9b4a8', shoji: '#f3ecdc', tela: '#3d3b39', cielo: '#a8855e' };
 /* el terreno es el suelo del visor (pasto), 1,47 abajo del piso interior (TE-01 en modelo.js) */
 window.__terreno = { t: M.TERR, c: 0 };   /* build() lo actualiza según la altura elegida */
 /* encastre declarado: la viga de arriba (7, centrada en el vidrio) entra 2,5 cm en la cara interior de las columnas, que van por fuera (D-02) */
@@ -607,7 +607,7 @@ const ZONAS = [
   { id: 'altura', nombre: 'Altura de la casa: subir y bajar', piezas: /^(C-\d[SN]|H1-01|VP-[NSEO]|EL-\d+|P[DS]-\d)$/, params: ['elev', 'subida', 'altura'], label: optsDe('elev'), vista: { p: [2500, 900, 3300], t: [400, 0, 1400] } },
 ];
 try { initMarcas(visor, stage); } catch (e) { console.error('marcas', e); }
-try { initRealismo(visor, { tintes: { madera: '#8a7a6c' } /* Maxi 18/11: la madera, más oscura (nogal); se ajusta en vivo con «tonos» */, piedra: [], ladrillo: [], blanco: [], cats: { techo: ['zincalum', 76], muro: ['madera', 120], deck: ['madera', 120], madera: ['madera', 120], viga: ['madera', 120], poste: ['madera', 120], falsa: ['madera', 120], cielo: ['madera', 120] } }); } catch (e) { console.error('realismo', e); }
+try { initRealismo(visor, { tintes: { madera: '#ad9c8c' } /* Maxi 18/11: la madera, más oscura (nogal); se ajusta en vivo con «tonos». Maxi 18/11, más tarde: «¿por qué es todo tan oscuro?»: el #8a7a6c se sumaba al oscurecimiento de los colores y quedaba casi negro; a mitad de camino */, piedra: [], ladrillo: [], blanco: [], cats: { techo: ['zincalum', 76], muro: ['madera', 120], deck: ['madera', 120], madera: ['madera', 120], viga: ['madera', 120], poste: ['madera', 120], falsa: ['madera', 120], cielo: ['madera', 120] } }); } catch (e) { console.error('realismo', e); }
 try { initLuz(visor); } catch (e) { console.error('luz', e); }
 try { initCalidad(visor); } catch (e) { console.error('calidad', e); }
 try { initPersonas(visor); } catch (e) { console.error('personas', e); }
