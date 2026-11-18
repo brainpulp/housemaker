@@ -36,6 +36,23 @@ export function initRealismo(visor,datos={}){
   const stoneBump=PIEDRA.size?new THREE.TextureLoader().load('vid/piedra.jpg'):new THREE.Texture();stoneBump.wrapS=stoneBump.wrapT=THREE.RepeatWrapping;stoneBump.repeat.set(200/330,1);
   const stoneMat=new THREE.MeshStandardMaterial({map:stoneTex,bumpMap:stoneBump,bumpScale:2.5,roughness:.95,color:0xffffff});
   const woodMat=new THREE.MeshStandardMaterial({map:T.pino,roughness:.85,color:0xffffff});
+  /* tonos (Maxi 18/11: «la madera más oscura; dame una manera de editarla en tiempo real»): cada textura se multiplica por un tinte.
+     La casa da los suyos (datos.tintes = {madera:'#…'}); el botón «tonos» de la barra de abajo los cambia en vivo y los guarda en este navegador */
+  const TKEY='hm-tintes:'+location.pathname.replace(/[^/]*$/,'');let TIN0={...(datos.tintes||{})},TIN={...TIN0};try{Object.assign(TIN,JSON.parse(localStorage.getItem(TKEY)||'{}'));}catch(e){}
+  const NOMT={madera:'Madera',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
+  const texDe=m=>m&&m.map?Object.keys(T).find(k=>T[k]===m.map):null;
+  function materiales(){const out=[woodMat,stoneMat];scene.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material))if(m&&m.map&&!out.includes(m))out.push(m);});return out;}
+  function aplicarTintes(){for(const m of materiales()){const k=texDe(m);if(k&&k!=='pasto'&&m.userData.real!==false)m.color.set(TIN[k]||'#ffffff');}window.__despertar&&window.__despertar();}
+  woodMat.color.set(TIN.pino||'#ffffff');
+  {const bar=document.querySelector('#modo-3d .bottombar');if(bar){const b=document.createElement('button');b.className='btn mini';b.textContent='tonos';b.title='Tono de las texturas (madera, deck…), en vivo';bar.appendChild(b);
+    const pop=document.createElement('div');pop.hidden=true;pop.style.cssText='position:absolute;bottom:34px;right:8px;z-index:9;background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.2);min-width:230px';
+    (document.querySelector('#modo-3d .stage')||document.body).appendChild(pop);
+    const enUso=()=>[...new Set(materiales().map(texDe).filter(k=>k&&k!=='pasto'))].sort((a,c)=>(a==='madera'?-1:c==='madera'?1:0));
+    const pintar=()=>{pop.innerHTML=`<div style="display:flex;margin-bottom:6px"><b style="flex:1">Tonos (multiplican la textura)</b><button class="btn mini" data-t="x">×</button></div>`+enUso().map(k=>`<label style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="flex:1">${NOMT[k]||k}</span><input type="color" data-k="${k}" value="${TIN[k]||'#ffffff'}" style="width:38px;height:20px;padding:0;border:0"><code data-h="${k}" style="font-size:11px;min-width:56px">${TIN[k]||'#ffffff'}</code></label>`).join('')+`<div style="display:flex;gap:6px;margin-top:6px"><button class="btn mini" data-t="r">volver a los de la casa</button></div><small style="color:var(--muted)">Blanco = la textura tal cual. Se guarda en este navegador.</small>`;};
+    b.addEventListener('click',()=>{pop.hidden=!pop.hidden;if(!pop.hidden)pintar();});
+    pop.addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;TIN[k]=e.target.value;const h=pop.querySelector(`[data-h="${k}"]`);if(h)h.textContent=e.target.value;aplicarTintes();});
+    pop.addEventListener('change',e=>{if(e.target.dataset.k){try{localStorage.setItem(TKEY,JSON.stringify(TIN));}catch(e2){}}});
+    pop.addEventListener('click',e=>{const t=e.target.dataset.t;if(t==='x')pop.hidden=true;if(t==='r'){TIN={...TIN0};try{localStorage.removeItem(TKEY);}catch(e2){}aplicarTintes();pintar();}});}}
   const BRICK=new Set(datos.ladrillo??['M-01','M-02','M-21','HOG-1','CH-1','CH-2']);
   const BLANCO=new Set(datos.blanco??['M-03','M-22','M-20']);/* Maxi: M-03 y M-22 van blancos (M-22 por dentro; por fuera, piedra como M-05) */
   const pick=p=>{const b=p.id.replace(/[a-z]$/,'');if(BLANCO.has(b)&&(p.cat==='muro'||p.cat==='ladrillo'))return ['blanco',200];if(BRICK.has(b)&&(p.cat==='muro'||p.cat==='ladrillo'))return ['ladrillo',100];
@@ -75,7 +92,7 @@ export function initRealismo(visor,datos={}){
             for(let i=0;i<P.count;i+=3){a.fromBufferAttribute(P,i);b.fromBufferAttribute(P,i+1);c.fromBufferAttribute(P,i+2);const n=b.clone().sub(a).cross(c.clone().sub(a)).normalize();
               const m=(n.z>.7||(n.x>.7&&(pb==='M-06'||pb==='M-27'||pb==='M-22')))?1:0;if(m!==cur){if(cur>=0)o.geometry.addGroup(st,i-st,cur);cur=m;st=i;}}
             o.geometry.addGroup(st,P.count-st,cur);o.material=[p.mat,stoneMat];}}});
-      if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set('#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='zincalum'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
+      if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set(TIN[pk[0]]||'#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='zincalum'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
       if(glass&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.color.set('#a9c4cc');p.mat.roughness=.05;p.mat.metalness=.2;p.mat.opacity=Math.min(p.mat.opacity,.22);p.mat.needsUpdate=true;}}}
   (function loop(){if(visor.parts!==last){last=visor.parts;try{decorate();}catch(e){console.error('realismo',e);}}requestAnimationFrame(loop);})();
 }

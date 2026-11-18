@@ -89,7 +89,7 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   function paramInput(q,prefix){const id=prefix+q.id;
     if(q.type==='select')return `<select id="${id}">${q.options.map(([v,l])=>`<option value="${v}"${String(v)===String(P[q.id])?' selected':''}>${l}</option>`).join('')}</select>`;
     if(q.type==='check')return `<input type="checkbox" id="${id}"${P[q.id]?' checked':''}>`;
-    if(q.slider)return `<input type="range" id="${id}" min="${q.min}" max="${q.max}" step="${q.step||1}" value="${P[q.id]}"><output id="${id}-o" class="rv">${P[q.id]}${q.unit||''}</output>`;
+    if(q.slider)return `<input type="range" id="${id}" min="${q.min}" max="${q.max}" step="${q.step||1}" value="${P[q.id]}"${q.anim?` data-anim="${encodeURIComponent(JSON.stringify(q.anim))}"`:''}><output id="${id}-o" class="rv">${P[q.id]}${q.unit||''}</output>`;
     return `<input type="number" id="${id}" min="${q.min}" max="${q.max}" step="${q.step||1}" value="${P[q.id]}">`;}
   function bindParam(q,prefix){const el=$(prefix+q.id);if(!el)return;if(q.slider)el.addEventListener('input',()=>{for(const pre of ['q-','v-']){const o=$(pre+q.id+'-o');if(o)o.textContent=el.value+(q.unit||'');}});el.addEventListener('change',()=>{let v=q.type==='check'?el.checked:q.type==='number'?+el.value:el.value;
     if(q.type==='number'){if(isNaN(v))v=q.value;v=Math.max(q.min,Math.min(q.max,v));el.value=v;}if(q.type==='select'&&typeof q.value==='number')v=+v;P[q.id]=v;syncParams(q.id);showIfs();syncPred();saveParams();rebuild(q.recam);});}
@@ -378,7 +378,28 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
   function setHidden(ids){hidden.clear();(ids||[]).forEach(i=>hidden.add(i));applyVis();saveHidden();}
   function toggleTransp(id,on){if(on==null)on=!transp.has(id);if(on)transp.add(id);else transp.delete(id);applyFocus();window.__despertar&&window.__despertar();}
   function toggleHidden(id,on){if(on==null)on=!hidden.has(id);if(on)hidden.add(id);else hidden.delete(id);applyVis();saveHidden();}
-  const api={setParalela,esParalela:()=>paralela,alProyectar:f=>alProyectar.push(f),setFov,getFov:()=>camera.fov,setParams,get onParam(){return hooksP.onParam;},set onParam(f){hooksP.onParam=f;},rebuild,setStep,exitSteps,highlight,showPart,resetSel,setClip,setClips,get clips(){return curClips;},fly,getView,setHidden,toggleHidden,toggleTransp,isTransp:id=>transp.has(id),get transp(){return [...transp];},get hidden(){return [...hidden];},isHidden:id=>hidden.has(id),scene,renderer,camera,controls,THREE,params:P,get parts(){return parts;},get selected(){return selId;},get multi(){return multi.length?[...multi]:selId?[selId]:[];},showMulti,get renderHook(){return hooks.render;},togglePred(id,on){if(on)PRED[id]=P[id];else delete PRED[id];try{localStorage.setItem('carhue-pred',JSON.stringify(PRED));}catch(e){}syncPred();},syncPred(){syncPred();},set renderHook(f){hooks.render=f;},
+  /* ----- animar un parámetro numérico (Maxi 18/11, Mocoretá: «que se vea en movimiento»). Se arma una sola vez el estado de llegada;
+     cada pieza que sólo se corre o se estira en altura se mueve en vivo (escala y posición de su grupo), el suelo y la cámara acompañan al terreno
+     (el suelo queda quieto en pantalla y se ve subir lo demás). Al llegar o al parar se rearma de verdad en el valor alcanzado. */
+  let anim=null;
+  function animarParam(id,dest,vel,alCambiar){if(anim){pararAnim();return;}const q=model.params.find(x=>x.id===id);if(!q)return;const s0=+P[id];dest=Math.max(q.min,Math.min(q.max,+dest));if(dest===s0||!(vel>0))return;
+    const TER0={...(window.__terreno||{t:0,c:0})};let o1;try{o1=model.build({...P,[id]:dest},geo);}finally{}const TER1={...(window.__terreno||TER0)};window.__terreno={...TER0};
+    const by1={};for(const p of o1.parts){const bb=new THREE.Box3();for(const g of p.geos){g.computeBoundingBox();bb.union(g.boundingBox);}by1[p.id]=bb;}
+    for(const p of o1.parts)for(const g of p.geos)g.dispose&&g.dispose();
+    const mov=[];for(const p of parts){const b1=by1[p.id];if(!b1||!p.bb||p.bb.isEmpty())continue;const b0=p.bb,dmin=b1.min.y-b0.min.y,dmax=b1.max.y-b0.max.y;if(Math.abs(dmin)<.05&&Math.abs(dmax)<.05)continue;
+      if(Math.abs(b1.min.x-b0.min.x)>.5||Math.abs(b1.max.x-b0.max.x)>.5||Math.abs(b1.min.z-b0.min.z)>.5||Math.abs(b1.max.z-b0.max.z)>.5)continue;/* cambia en planta: se ve al rearmar */
+      mov.push({grp:p.grp,y0:p.grp.position.y,min0:b0.min.y,h0:Math.max(.01,b0.max.y-b0.min.y),dmin,dmax});}
+    const g=TER1.t-TER0.t,dur=Math.abs(dest-s0)/vel*1000;let t0=performance.now(),k=0,fy=floorM.position.y,prevG=0;
+    anim={id,s0,dest,k:0,cb:alCambiar};
+    const paso=()=>{if(!anim)return;k=Math.min(1,(performance.now()-t0)/dur);anim.k=k;
+      for(const m of mov){const a=(m.h0+(m.dmax-m.dmin)*k)/m.h0;m.grp.scale.y=a;m.grp.position.y=m.y0+m.min0+m.dmin*k-a*m.min0;}
+      const gk=g*k,dg=gk-prevG;prevG=gk;floorM.position.y=fy+gk;window.__terreno={...TER0,t:TER0.t+gk};camera.position.y+=dg;controls.target.y+=dg;controls.update();
+      anim.valor=s0+(dest-s0)*k;if(anim.cb)try{anim.cb(anim.valor,false);}catch(e){}window.__despertar&&window.__despertar();
+      if(k>=1)pararAnim();else anim.raf=requestAnimationFrame(paso);};
+    anim.raf=requestAnimationFrame(paso);}
+  function pararAnim(){if(!anim)return;const a=anim;anim=null;cancelAnimationFrame(a.raf);const q=model.params.find(x=>x.id===a.id);let v=a.valor??a.s0;v=Math.round(v/(q.step||1))*(q.step||1);v=Math.max(q.min,Math.min(q.max,v));
+    P[a.id]=v;syncParams(a.id);showIfs();syncPred();saveParams();rebuild();if(a.cb)try{a.cb(v,true);}catch(e){}window.__despertar&&window.__despertar();}
+  const api={setParalela,animarParam,pararAnim,get animando(){return anim?anim.id:null;},esParalela:()=>paralela,alProyectar:f=>alProyectar.push(f),setFov,getFov:()=>camera.fov,setParams,get onParam(){return hooksP.onParam;},set onParam(f){hooksP.onParam=f;},rebuild,setStep,exitSteps,highlight,showPart,resetSel,setClip,setClips,get clips(){return curClips;},fly,getView,setHidden,toggleHidden,toggleTransp,isTransp:id=>transp.has(id),get transp(){return [...transp];},get hidden(){return [...hidden];},isHidden:id=>hidden.has(id),scene,renderer,camera,controls,THREE,params:P,get parts(){return parts;},get selected(){return selId;},get multi(){return multi.length?[...multi]:selId?[selId]:[];},showMulti,get renderHook(){return hooks.render;},togglePred(id,on){if(on)PRED[id]=P[id];else delete PRED[id];try{localStorage.setItem('carhue-pred',JSON.stringify(PRED));}catch(e){}syncPred();},syncPred(){syncPred();},set renderHook(f){hooks.render=f;},
     /* etiquetas para otros módulos (equipamiento: cotas del mueble elegido). Las etiquetas quedan en el grupo que se pasa y se sacan con quitarEtiquetas, que también borra sus elementos del DOM */
     etiqueta(text,pos,cls,parent,noOcc){const t=tag(text,pos,cls||'edge',parent,0);if(noOcc)t.userData.lbl.noOcc=true;return t;},quitarEtiquetas(g){lblDirty=true;g.traverse(ob=>{if(ob.isCSS2DObject&&ob.element)ob.element.remove();});for(const c of [...g.children])g.remove(c);},f1};/* versión del motor junto a los fps: el commit del último cambio en motor/ con el que se armó la casa (lo escribe herramientas/armar.sh) */import('./motor-version.js').then(m=>{const f=document.getElementById('fps');if(!f||document.getElementById('motorVer'))return;const s=document.createElement('span');s.id='motorVer';s.textContent='motor '+m.MOTOR.commit;s.title=`Motor ${m.MOTOR.commit} del ${m.MOTOR.fecha}`;s.style.cssText='font-family:var(--f-mono,monospace);font-size:10px;color:var(--muted,#888);margin-left:8px;white-space:nowrap';f.after(s);}).catch(()=>{});window.__visor=api;return api;
 }
