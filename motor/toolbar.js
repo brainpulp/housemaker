@@ -161,16 +161,20 @@ export function initToolbar(stage,visor,{vistas,zonas=[]}={}){
   const zAb=new Set();let zAbIni=false;
   function zonasMenu(b){openFly(b,el=>{el.className='fymenu';
     const rot=src=>{const l=src.closest('label');if(!l)return '';const c=l.cloneNode(true);c.querySelectorAll('select,input,button').forEach(x=>x.remove());return c.textContent.trim();};
-    const fuentes=z=>z.params.map(pid=>[pid,$('q-'+pid)]).filter(([,src])=>src&&(src.tagName==='SELECT'||src.type==='checkbox'));
+    /* Maxi 17/11: también deslizadores (type=range), y no las variantes escondidas por showIf (no harían nada) */const fuentes=z=>z.params.map(pid=>[pid,$('q-'+pid)]).filter(([,src])=>{if(!src||!(src.tagName==='SELECT'||src.type==='checkbox'||src.type==='range'))return false;const l=src.closest('label');return !(l&&l.style.display==='none');});
     if(!zAbIni){zAbIni=true;const tot=zonas.reduce((n,z)=>n+fuentes(z).reduce((m,[,src])=>m+(src.tagName==='SELECT'?src.options.length:1),0),0);if(tot<=14)zonas.forEach(z=>zAb.add(z.id));}
     const pintar=()=>{el.innerHTML='<div class="fyg">Variantes de diseño</div>'+zonas.map(z=>{const fs=fuentes(z),p=visor.params[z.params[0]],q=(z.label||{})[p]||p,ab=zAb.has(z.id);
         const ops=!ab?'':fs.map(([pid,src])=>(fs.length>1&&src.tagName==='SELECT'?`<div class="fysub">${rot(src)}</div>`:'')+(src.tagName==='SELECT'
           ?[...src.options].map(o=>`<button class="fyb fyopt" data-p="${pid}" data-v="${o.value}" aria-pressed="${o.value===src.value}"><span>${o.value===src.value?'●':'○'} ${o.textContent}</span></button>`).join('')
+          :src.type==='range'?`<div class="fyopt fyrng"><span>${rot(src)||pid}</span><input type="range" data-p="${pid}" data-r="1" min="${src.min}" max="${src.max}" step="${src.step||1}" value="${src.value}"><b data-ro="${pid}">${($(src.id+'-o')||{}).textContent||src.value}</b></div>`
           :`<button class="fyb fyopt" data-p="${pid}" data-c="1" aria-pressed="${src.checked}"><span>${src.checked?'☑':'☐'} ${rot(src)||pid}</span></button>`)).join('');
         return `<button class="fyb fyrow" data-z="${z.id}">${icon('variantes',16)}<span>${z.nombre} ${ab?'▾':'▸'}<small>${q}</small></span></button>`+ops;}).join('');};
-    if(!document.getElementById('fyoptCss')){const st=document.createElement('style');st.id='fyoptCss';st.textContent='.fyopt{padding-left:30px!important;font-size:11px!important;min-height:0!important;line-height:1.5!important}.fyopt[aria-pressed=true]{color:var(--accent,#c0461f);font-weight:600}.fysub{padding:3px 8px 0 30px;font:500 9.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}#tbFly.fymenu{max-height:calc(100vh - 60px);overflow-y:auto}';document.head.appendChild(st);}
+    if(!document.getElementById('fyoptCss')){const st=document.createElement('style');st.id='fyoptCss';st.textContent='.fyopt{padding-left:30px!important;font-size:11px!important;min-height:0!important;line-height:1.5!important}.fyrng{display:flex;align-items:center;gap:6px;padding:3px 8px 3px 30px;font-size:11px}.fyrng input{flex:1;min-width:90px}.fyrng b{font:500 10.5px var(--f-mono);min-width:44px;text-align:right}.fyopt[aria-pressed=true]{color:var(--accent,#c0461f);font-weight:600}.fysub{padding:3px 8px 0 30px;font:500 9.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}#tbFly.fymenu{max-height:calc(100vh - 60px);overflow-y:auto}';document.head.appendChild(st);}
     pintar();
-    el.onclick=e=>{const o=e.target.closest('[data-p]');
+    const unid=pid=>{const o=$('q-'+pid+'-o'),q=$('q-'+pid);return o&&q?o.textContent.replace(String(q.value),''):'';};
+    el.oninput=e=>{const r=e.target;if(!r.dataset||!r.dataset.r)return;const b=el.querySelector(`[data-ro="${r.dataset.p}"]`);if(b)b.textContent=r.value+unid(r.dataset.p);};
+    el.onchange=e=>{const r=e.target;if(!r.dataset||!r.dataset.r)return;const src=$('q-'+r.dataset.p);if(!src)return;src.value=r.value;src.dispatchEvent(new Event('input',{bubbles:true}));src.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(pintar,60);};
+    el.onclick=e=>{const o=e.target.closest('[data-p]');if(o&&o.dataset.r)return;
       if(o){const src=$('q-'+o.dataset.p);if(!src)return;if(o.dataset.c)src.checked=!src.checked;else src.value=o.dataset.v;src.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(pintar,60);return;}
       const t=e.target.closest('[data-z]');if(!t)return;const z=zonas.find(x=>x.id===t.dataset.z);/* Maxi 16/11: abrir una zona o elegir una opción ya no mueve la cámara */if(zAb.has(z.id))zAb.delete(z.id);else zAb.add(z.id);pintar();};});}
 
