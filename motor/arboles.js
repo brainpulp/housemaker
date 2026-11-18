@@ -9,7 +9,9 @@ export function initArboles(visor){
   const {THREE}=visor;
   const VAR={};const usados=new Set();
   const modo=()=>(visor.calidad&&visor.calidad.modo)||'alto';
-  function variante(preset,seed,lod){const k=preset+'|'+seed+'|'+lod;if(VAR[k])return VAR[k];const t=new Tree();t.loadPreset(preset);t.options.seed=seed;
+  function variante(preset,seed,lod,mod={}){const k=preset+'|'+seed+'|'+lod+'|'+(mod.copa??'')+'|'+(mod.hojas??'');if(VAR[k])return VAR[k];const t=new Tree();t.loadPreset(preset);t.options.seed=seed;
+    /* mod (Maxi 17/11, Mocoretá): copa = dónde arrancan las ramas sobre el tronco (0 a 1; más alto = copa más arriba y tronco pelado); hojas = factor de la cantidad de hojas (menos = más ralo, se ve a través) */
+    try{if(mod.copa!=null)t.options.branch.start[1]=mod.copa;if(mod.hojas!=null)t.options.leaves.count=Math.max(1,Math.round(t.options.leaves.count*mod.hojas));}catch(e){}
     if(lod==='baja'){const o=t.options;try{for(const s in o.branch.sections)o.branch.sections[s]=Math.max(3,Math.round(o.branch.sections[s]*.55));for(const s in o.branch.segments)o.branch.segments[s]=Math.max(3,Math.round(o.branch.segments[s]*.5));
       o.leaves.count=Math.max(2,Math.round(o.leaves.count*.45));o.leaves.size*=1.35;}catch(e){}}
     t.generate();const bb=new THREE.Box3().setFromObject(t);
@@ -34,11 +36,11 @@ export function initArboles(visor){
   const IM={copa:new THREE.MeshLambertMaterial({color:0x5d7a45,flatShading:true}),copa2:new THREE.MeshLambertMaterial({color:0x4f6b3c,flatShading:true}),tronco:new THREE.MeshLambertMaterial({color:0x5a4634})};
   IM.copa.userData.c0=IM.copa.color.clone();IM.copa2.userData.c0=IM.copa2.color.clone();IM.copa0=new THREE.Color(0x5d7a45);IM.copaC=new THREE.Color();IM.dens=1;
   const GEO={ico:new THREE.IcosahedronGeometry(1,1),cil:new THREE.CylinderGeometry(.6,1,1,6)};
-  function planta(preset,seed,alto){const q=modo(),g=new THREE.Group();const arbol=!/^Bush/.test(preset);
+  function planta(preset,seed,alto,mod={}){const q=modo(),g=new THREE.Group();const arbol=!/^Bush/.test(preset);
     if(q==='minimo'){const m=(geo,mat,s,y)=>{const o=new THREE.Mesh(geo,mat);o.scale.set(...s);o.position.y=y;o.castShadow=false;o.receiveShadow=false;g.add(o);};
-      if(arbol){m(GEO.cil,IM.tronco,[alto*.018,alto*.5,alto*.018],alto*.25);const cp=new THREE.Mesh(GEO.ico,seed%2?IM.copa:IM.copa2);cp.scale.set(alto*.3,alto*.26,alto*.3);cp.position.y=alto*.66;cp.userData.copa=1;cp.visible=IM.dens>.05;g.add(cp);g.userData.copa=cp;copas.add(cp);}
+      if(arbol){m(GEO.cil,IM.tronco,[alto*.018,alto*.5,alto*.018],alto*.25);const cp=new THREE.Mesh(GEO.ico,seed%2?IM.copa:IM.copa2);cp.scale.set(alto*.3,alto*.26,alto*.3);cp.position.y=alto*(mod.copa!=null?.4+mod.copa*.45:.66);cp.userData.copa=1;cp.visible=IM.dens>.05;g.add(cp);g.userData.copa=cp;copas.add(cp);}
       else m(GEO.ico,seed%2?IM.copa:IM.copa2,[alto*.55,alto*.5,alto*.55],alto*.45);return g;}
-    const v=variante(preset,seed,q==='liviano'?'baja':'alta');usados.add(v);const k=alto/v.h;
+    const v=variante(preset,seed,q==='liviano'?'baja':'alta',mod);usados.add(v);const k=alto/v.h;
     for(const [m,hoja] of [[v.t.branchesMesh,false],[v.t.leavesMesh,true]]){const c=new THREE.Mesh(m.geometry,m.material);c.castShadow=q==='alto'||(q==='medio'&&!hoja);c.receiveShadow=q!=='liviano';c.scale.setScalar(k);c.position.y=-v.y0*k;g.add(c);}
     return g;}
   const copas=new Set();let n=0;const t0=performance.now();let tEst=0;

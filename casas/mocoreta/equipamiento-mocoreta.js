@@ -30,7 +30,8 @@ export function equipMocoreta({ itA }) {
   const sin = n => () => ({ A: { nombre: n, items: [] } });
   /* plantas (Maxi 16/11: «así se ve la casa ahora desde el norte, agregá el foliage para que se parezca lo más posible»). Puestas a ojo desde una foto y un video tomados desde el norte (16/11):
      especies, alturas y lugares son aproximados; se mueven y se cambian desde la capa Plantas. x = norte, y = este; van al nivel del terreno de hoy */
-  function escVeg() { const I = itA('V'), it = [], P = (t, x, y, esp, alto, seed) => it.push(I(t, x, y, (x * 7 + y * 3) % 360, { esp, alto, seed }, TERR));
+  function escVeg() { const I = itA('V'), it = [], P = (t, x, y, esp, alto, seed) => { const f = t !== 'arbol' ? null : esp === 'Pino' ? { hojas: .6 } : { alto: Math.round(alto * 1.4), copa: .55, hojas: .4 };   /* Maxi 17/11: «demasiado frondosa; en la realidad la casa se ve a través de los árboles, y las copas arrancan demasiado abajo»: los de hoja ancha, 40 % más altos, con la copa desde la mitad del tronco y la mitad de hojas; los pinos, más ralos */
+      it.push(I(t, x, y, (x * 7 + y * 3) % 360, { esp, alto, seed, ...(f || {}) }, TERR)); };
     /* la fila de pinos altos delante del deck, paralela a la casa (en el video del 16/11 se cuentan diez u once troncos en línea), y dos más adelantados */
     [[1500, 2330, 2000], [1470, 2190, 2200], [1520, 2050, 1900], [1480, 1900, 2100], [1500, 1760, 2000], [1470, 1620, 2200], [1540, 1490, 1900], [1490, 1350, 2100], [1500, 1200, 2000], [1470, 1050, 2200], [1520, 900, 1900], [1850, 1700, 2200], [1800, 2150, 2000]].forEach(([x, y, h], i) => P('arbol', x, y, 'Pino', h, 1 + i % 4));
     /* álamos y árbol llorón al este, con el matorral de ese lado */
