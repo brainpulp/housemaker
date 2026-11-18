@@ -31,6 +31,7 @@ import { initInspector } from './inspector.js';
 import { initSidebar } from './sidebar.js';
 import { tablones } from './tablones.js';
 import { initCorredizas } from './corredizas.js';
+import { initExplicaciones } from './explica.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 /* caja con cantos redondeados en coordenadas de la casa (x, z, y); rot = [eje, ángulo] para inclinarla sobre su centro (Maxi 17/11: almohadones redondeados) */
 const rbox = (x0, x1, z0, z1, y0, y1, r = 5, rot = null) => { const g = new RoundedBoxGeometry(x1 - x0, z1 - z0, y1 - y0, 3, Math.min(r, (x1 - x0) / 2 - .01, (z1 - z0) / 2 - .01, (y1 - y0) / 2 - .01)); if (rot) g[rot[0] === 'x' ? 'rotateX' : 'rotateZ'](rot[1]); g.translate((x0 + x1) / 2, (z0 + z1) / 2, (y0 + y1) / 2); return g; };
@@ -38,6 +39,34 @@ let CORR = null;
 /* hojas corredizas: 0 = cerrada; corren en y (a lo largo de la fachada) hasta dy */
 let ULT_TM = null;
 const TMOV = { carrera: 360, pend: M.CAMARA / (M.CXN - M.CXS) };
+/* explicación animada del techo retráctil (Maxi 18/11): «cómo es el armado y el funcionamiento, con movimientos de cámara como slides en 3D, gatillado desde el menú de variantes».
+   La corre motor/explica.js; coordenadas [x (norte), alto, y (este)] */
+const CORTE = /^(TR-0\d|H2-32|H2-34|H2-35|VA-N|C-[56]N|FC-5N)/, CORTE2 = /^(TR-0\d|H2-32|VA-N|C-[56]N|FC-5N)/;   /* el segundo, para el armado: sólo vigas y columnas */
+const EXPLICA = { techoTerr: { titulo: 'Techo retráctil bajo la terraza',
+  params: P => ({ piso2: P.piso2 === 'no' ? 'A' : P.piso2, techoTerr: 'si', techos: true, cielo: true, tirantes: true }),
+  pasos: [
+    { titulo: 'Un techo que sale de la casa', pos: ['TR-01', 0], cam: [1400, 520, 1350], mira: [560, 280, 600], dur: 7,
+      texto: 'Un techo plano guardado adentro de la casa, en el entrepiso del módulo 5, que sale 3,90 al norte y tapa el deck de columna a columna. Sin parantes y sin contrapeso: cuelga de las vigas de acero del piso alto.' },
+    { titulo: 'Dónde entra: los niveles', pos: ['TR-01', 0], solo: CORTE, cam: [250, 305, 120], mira: [330, 292, 600], dur: 10,
+      texto: 'Corte por el módulo 5, de abajo arriba: ventanal hasta 2,73 · cielorraso nuevo de 2,75 (norte) a 2,83 (sur) · el techo guardado, 10 cm, bajando 1,5 % hacia afuera · tirantes del entrepiso desde 3,05 · vigas UPN 220 de 3,03 a 3,25. Entra justo entre el cielorraso y el piso alto.' },
+    { titulo: 'Lo que lo sostiene', pos: ['TR-01', 0], solo: CORTE, resaltar: /^H2-32/, cam: [120, 360, 260], mira: [360, 300, 600], dur: 8,
+      texto: 'Las vigas UPN 220 del entrepiso corren de sur a norte a los dos costados del módulo y apoyan en las columnas. Tienen encima todo el piso alto (unos 3.400 kg cada una): ese peso es el que equilibra el techo cuando sale. No hace falta contrapeso.' },
+    { titulo: 'Armado 1 · la ranura en la fachada', pos: ['TR-01', 0], solo: CORTE2, ocultar: /^TR-0(1|2|5|6|7)/, armar: [/^TR-04/, /^TR-03/], cam: [1050, 250, 280], mira: [541, 290, 600], dur: 7,
+      texto: 'La viga de arriba norte de madera se corta entre las columnas 5 y 6 (con el segundo piso ya no carga). En su lugar, dos caños de columna a columna: abajo, un 70 × 120 que hace de dintel del ventanal; arriba, un 70 × 70 que cierra hasta la terraza. Entre los dos queda la ranura, con burletes de cepillo.' },
+    { titulo: 'Armado 2 · los carros', pos: ['TR-01', 0], solo: CORTE2, ocultar: /^TR-0(1|5|6|7)/, armar: [/^TR-02/], cam: [330, 215, 720], mira: [500, 296, 440], dur: 8,
+      texto: 'Seis carros colgados del ala de abajo de los UPN, tres por lado: dos juntos contra la fachada y uno 1,04 más adentro. Cada uno tiene cuatro ruedas de acero Ø 45 con ruleman: las de abajo cargan y las de arriba no dejan que el techo se levante.' },
+    { titulo: 'Armado 3 · el techo entra como un cajón', solo: CORTE2, ocultar: /^TR-0(5|6|7)/, mover: ['TR-01', 390, 0], durMover: 6, cam: [950, 360, 1150], mira: [560, 290, 600], dur: 4,
+      texto: 'El techo (dos perfiles C 100 × 50, seis travesaños y una chapa de una sola pieza, unos 250 kg) se arma afuera, sobre el deck, y se mete por la ranura: los perfiles C calzan en las ruedas de los carros.' },
+    { titulo: 'Armado 4 · motor y cremallera', solo: CORTE2, ocultar: /^TR-0(6|7)/, pos: ['TR-01', 0], armar: [/^TR-05/], resaltar: /^TR-01c/, cam: [400, 400, 540], mira: [486, 298, 425], dur: 8,
+      texto: 'Un motor tubular de cortina (Ø 45, 10 N·m, con freno y fines de carrera) colgado debajo del UPN oeste mueve, con una caja de ángulo, un piñón que muerde una cremallera de portón atornillada arriba del perfil oeste.' },
+    { titulo: 'Armado 5 · el cielorraso nuevo', pos: ['TR-01', 0], armar: [/^TR-07/, /^TR-06/], cam: [300, 165, 260], mira: [380, 285, 620], dur: 7,
+      texto: 'Abajo, perfiles C 80 × 40 cada 0,60 de viga a viga y machimbre: el cielorraso del módulo 5 queda a 2,75–2,83, paralelo al techo guardado, con una tapa de inspección junto al motor.' },
+    { titulo: 'Funcionamiento · se abre', mover: ['TR-01', 0, 390], durMover: 9, cam: [1250, 250, 1300], mira: [700, 280, 600], dur: 4,
+      texto: 'Con el botón, el techo sale por la ranura y baja 1,5 % hacia afuera: el agua corre a la canaleta del frente y a una cadena de lluvia. Sale entero en unos 2 minutos (acá, acelerado).' },
+    { titulo: 'Cómo trabaja abierto', solo: CORTE2, pos: ['TR-01', 390], resaltar: /^TR-02/, cam: [760, 250, 130], mira: [600, 290, 600], dur: 11,
+      texto: 'Abierto vuela 3,90 y le quedan 1,30 adentro. Los carros de adelante cargan (unos 300 kg por lado con su peso; 950 con 30 kg/m² encima) y el de atrás tira para arriba (175 y 610 kg por lado). Ese tirón va al UPN, que tiene encima el piso alto: no toca ninguna chapa ni madera. Predimensionado: lo tiene que verificar un calculista.' },
+    { titulo: 'Con viento, se guarda solo', mover: ['TR-01', 390, 0], durMover: 6, cam: [1350, 420, 1150], mira: [600, 280, 600], dur: 5,
+      texto: 'Un anemómetro lo guarda solo con viento de más de 40 km/h. Al entrar, los cepillos de la ranura le sacan el agua y la tierra, y el frente del techo tapa la ranura.' }] } };
 /* techo retráctil bajo la terraza (Maxi 18/11): corre 3,90 al norte, bajando 1,5 % (agua hacia afuera) */
 let ULT_TR = null;
 const TRV = { carrera: 390, pend: -.015 };
@@ -573,7 +602,7 @@ const ZONAS = [
   { id: 'deckO', nombre: 'Deck que rodea la casa', piezas: /^DO-\d+[a-z]?$/, params: ['deckO'], label: optsDe('deckO'), vista: { p: [-900, 700, -900], t: [200, 0, 300] } },
   { id: 'ventanas2', nombre: 'Ventanas del piso alto', piezas: /^(VC|VP|HV)-\d[a-z]?$|^AM\d\d[cv]$/, params: ['ventanas2'], label: optsDe('ventanas2'), vista: { p: [1500, 900, 2900], t: [400, 400, 1700] } },
   { id: 'techoMovil', nombre: 'Techo corredizo', piezas: /^TM-\d+[a-z]?$/, params: ['techoMovil'], label: optsDe('techoMovil'), vista: { p: [1700, 900, -700], t: [600, 300, 200] } },
-  { id: 'techoTerr', nombre: 'Techo retráctil bajo la terraza', piezas: /^TR-\d+[a-z]?$/, params: ['techoTerr'], label: optsDe('techoTerr'), vista: { p: [1450, 520, -250], t: [650, 270, 600] } },
+  { id: 'techoTerr', nombre: 'Techo retráctil bajo la terraza', piezas: /^TR-\d+[a-z]?$/, params: ['techoTerr'], explica: 'techoTerr', label: optsDe('techoTerr'), vista: { p: [1450, 520, -250], t: [650, 270, 600] } },
   { id: 'plataforma', nombre: 'Plataforma baja del deck', piezas: /^(LO-05[a-c]?|EP-0\d|VL-[A-Z]|PL-\d)$/, params: ['plataforma'], label: optsDe('plataforma'), vista: { p: [2300, 700, 2300], t: [950, -40, 900] } },
   { id: 'altura', nombre: 'Altura de la casa: subir y bajar', piezas: /^(C-\d[SN]|H1-01|VP-[NSEO]|EL-\d+|P[DS]-\d)$/, params: ['elev', 'subida', 'altura'], label: optsDe('elev'), vista: { p: [2500, 900, 3300], t: [400, 0, 1400] } },
 ];
@@ -597,6 +626,7 @@ try { initEditor(visor, stage, {}, 0); } catch (e) { console.error('editor', e);
 try { initSenalar(visor, stage); } catch (e) { console.error('senalar', e); }
 try { initMedir(visor, stage); } catch (e) { console.error('medir', e); }
 { let vu = null; try { vu = initVistasUI(); } catch (e) { console.error('vistas', e); }
+  try { initExplicaciones(visor, { explicaciones: EXPLICA, stage }); } catch (e) { console.error('explica', e); }
   try { initToolbar(stage, visor, { vistas: vu, zonas: ZONAS }); } catch (e) { console.error('toolbar', e); } }
 try { CORR = initCorredizas(visor, HOJAS, 'mocoreta'); visor.controlPieza = id => CORR.html(id); window.__corredizas = CORR; } catch (e) { console.error('corredizas', e); }
 try { initViewCube(visor); } catch (e) { console.error('viewcube', e); }

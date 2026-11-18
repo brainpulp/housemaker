@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.19', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.20', fecha: '2026-11-17',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -264,6 +264,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-18', v: '0.10.20', txt: 'Explicación animada del techo retráctil bajo la terraza: en el menú de variantes, al abrir «Techo retráctil bajo la terraza», «▶ Ver cómo se arma y funciona». Once pasos con la cámara volando de uno a otro: dónde entra (niveles), qué lo sostiene, el armado pieza por pieza (ranura, carros, el techo que entra, motor, cielorraso), cómo se abre, cómo trabaja abierto y cómo se guarda. Se pausa, se avanza y se retrocede (también con las flechas y la barra espaciadora); al salir, todo vuelve como estaba.' },
   { fecha: '2026-11-18', v: '0.10.19', txt: 'Nueva hipótesis, con segundo piso: techo retráctil bajo la terraza («Techo retráctil bajo la terraza» en Hipótesis; se abre arrastrándolo). Un techo plano de 10 cm guardado como un cajón entre el cielorraso y el entrepiso del módulo 5, que sale 3,90 al norte por una ranura sobre el ventanal y tapa el deck de columna a columna. Cuelga de los UPN 220 del entrepiso con seis carros: el tirón del carro de atrás lo equilibra el peso del piso alto, sin contrapeso ni parantes. Para que entre: la viga de arriba norte de madera se corta en ese módulo (con el segundo piso ya no carga) y se reemplaza por dos caños de columna a columna, y el cielorraso del módulo 5 baja a 2,75–2,83.' },
   { fecha: '2026-11-18', v: '0.10.18', txt: 'La casa sube y baja en movimiento: en el menú de variantes, zona «Altura de la casa», con el sistema puesto hay dos botones (Bajar y Subir, que también paran) y un deslizador de velocidad (de 1 a 40 cm/s; la real es 2,5 cm por minuto). Madera más oscura, tono nogal, y en la barra de abajo «tonos» para cambiar en vivo el tono de cada textura.' },
   { fecha: '2026-11-17', v: '0.10.17', txt: 'Techo corredizo: sin parantes en el deck. Vuelve a agarrarse sólo de la casa (largueros de 6,00 que vuelan 3,60), pero el tirón para arriba del carro de atrás ya no queda librado a la viga de madera: los pedestales se abulonan pasantes a la viga transversal y a un UPN 160 que la refuerza de columna a columna, así que la fuerza termina en las columnas. La chapa sólo tiene los cuatro agujeros con babeta.' },
