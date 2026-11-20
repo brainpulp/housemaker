@@ -337,9 +337,10 @@ export function catalogoMuebles(THREE){
           return new THREE.TubeGeometry(cp,260,r,8,true);};
         g.push([lazo(1),'negro'],[lazo(-1),'negro']);
         /* cuero: cuelga de las cuatro puntas (los bolsillos las envuelven); el borde de los costados queda libre y el asiento baja a ~32 */
-        const nu=14,nt=18,pos=[],idx=[],F=PF(1),Bk=PB(1);
+        const nu=20,nt=24,pos=[],idx=[],F=PF(1),Bk=PB(1);
         for(let j=0;j<=nt;j++){const t=j/nt,sn=Math.sin(Math.PI*t);for(let i=0;i<=nu;i++){const u=-1+2*i/nu;
-          const w=F[0]+(Bk[0]-F[0])*t,y=F[1]+(Bk[1]-F[1])*t-27*sn-11*(1-u*u)*Math.sqrt(sn),z=F[2]+(Bk[2]-F[2])*t-4*sn;
+          const e=1-u*u,eT=e*t*t*t,eF=e*(1-t)*(1-t)*(1-t);/* Maxi 19/11: los bordes de arriba y de adelante, entre las puntas, son curvas cóncavas (el cuero cuelga), no rectas: arriba baja ~13, adelante ~7 */
+          const w=F[0]+(Bk[0]-F[0])*t,y=F[1]+(Bk[1]-F[1])*t-27*sn-11*e*Math.sqrt(sn)-13*eT-7*eF,z=F[2]+(Bk[2]-F[2])*t-4*sn+4*eT-2*eF;
           pos.push(u*w*(1-.2*sn),y,z);}}
         for(let j=0;j<nt;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,b=a+1,c=a+nu+1,d=c+1;idx.push(a,c,b,b,c,d,a,b,c,b,d,c);}
         const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setIndex(idx);sg.computeVertexNormals();g.push([sg,p.cuero]);
