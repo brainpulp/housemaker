@@ -1,0 +1,218 @@
+<title>Cocina de Carhué: muebles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Hoja técnica de taller: papel frío, tinta azul grafito, roble como único color cálido (los frentes). Dos hojas con pestañas: para el carpintero y despiece. */
+:root{
+  --paper:#f4f5f2; --sheet:#ffffff; --ink:#1f2a33; --muted:#5d6872; --rule:#cfd4d6; --soft:#e8ebea;
+  --oak:#c8955a; --oak-soft:#ecd6b9; --steel:#8d969c; --steel-soft:#c9ced1; --zoc:#2b3238; --dim:#3b6ea5; --warn:#a4521d; --warn-soft:#f6e3d6;
+  --f-head:"IBM Plex Sans Condensed","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15191c;--sheet:#1c2226;--ink:#e3e8eb;--muted:#9aa5ad;--rule:#36414a;--soft:#262e34;--oak:#c99a62;--oak-soft:#4a3925;--steel:#7d878e;--steel-soft:#3c454c;--zoc:#0c0f11;--dim:#7fb0e6;--warn:#e8915a;--warn-soft:#3b2619;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#15191c;--sheet:#1c2226;--ink:#e3e8eb;--muted:#9aa5ad;--rule:#36414a;--soft:#262e34;--oak:#c99a62;--oak-soft:#4a3925;--steel:#7d878e;--steel-soft:#3c454c;--zoc:#0c0f11;--dim:#7fb0e6;--warn:#e8915a;--warn-soft:#3b2619;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.55 var(--f-body);margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.eyebrow{font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font:600 34px/1.05 var(--f-head);margin:0;text-wrap:balance}
+.meta{font:400 12.5px/1.5 var(--f-mono);color:var(--muted);text-align:right}
+nav.tabs{display:flex;gap:4px;margin:18px 0 22px;border-bottom:1px solid var(--rule)}
+nav.tabs a{font:600 15px/1 var(--f-head);letter-spacing:.02em;color:var(--muted);text-decoration:none;padding:10px 14px;border:1px solid transparent;border-bottom:none;border-radius:4px 4px 0 0;margin-bottom:-1px}
+nav.tabs a[aria-current="page"]{color:var(--ink);background:var(--sheet);border-color:var(--rule)}
+nav.tabs a:focus-visible,button:focus-visible{outline:2px solid var(--dim);outline-offset:2px}
+h2{font:600 22px/1.2 var(--f-head);margin:0 0 10px}
+h3{font:600 18px/1.2 var(--f-head);margin:0 0 4px}
+p{margin:0 0 10px;max-width:68ch}
+.mut{color:var(--muted);font-size:14px}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:20px;margin-bottom:18px}
+.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.scope .item{border-left:3px solid var(--oak);padding:2px 0 2px 14px;min-width:0}
+.scope .item b{font-family:var(--f-head);font-size:17px;font-weight:600}
+.big{font:500 26px/1.1 var(--f-mono);font-variant-numeric:tabular-nums;margin:4px 0 6px}
+ul{margin:4px 0 0;padding-left:18px}
+li{margin:2px 0}
+.excl{margin-top:16px;padding-top:12px;border-top:1px dashed var(--rule);font-size:14px;color:var(--muted)}
+.note{background:var(--warn-soft);border-left:3px solid var(--warn);padding:10px 14px;border-radius:0 4px 4px 0;font-size:14px;margin:0 0 18px;max-width:none}
+figure{margin:0}
+figcaption{font:500 12px/1.3 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.dw{overflow-x:auto}
+.dw svg{display:block;width:100%;min-width:560px;height:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.dw.sm svg{min-width:300px}
+/* dibujo */
+svg text{font-family:var(--f-mono);fill:var(--ink)}
+svg .dt{fill:var(--dim)} svg .lbg{fill:var(--muted)} svg .lbw{fill:var(--muted);letter-spacing:.1em} svg .num{font-family:var(--f-head);font-weight:600;fill:var(--oak)}
+svg .d{stroke:var(--dim);stroke-width:.8px;vector-effect:non-scaling-stroke}
+svg .wall{fill:var(--steel-soft);stroke:none}
+svg .steel{fill:var(--steel);stroke:var(--ink);stroke-width:.6px;vector-effect:non-scaling-stroke}
+svg .steelL{fill:var(--steel-soft);stroke:var(--ink);stroke-width:.6px;vector-effect:non-scaling-stroke}
+svg .paper{fill:var(--sheet);stroke:none}
+svg .dead{fill:var(--soft);stroke:var(--muted);stroke-width:.6px;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
+svg .box{fill:var(--sheet);stroke:var(--ink);stroke-width:1.2px;vector-effect:non-scaling-stroke}
+svg .front{fill:var(--oak);stroke:var(--ink);stroke-width:.6px;vector-effect:non-scaling-stroke}
+svg .frontF{fill:var(--oak-soft);stroke:var(--ink);stroke-width:1px;vector-effect:non-scaling-stroke}
+svg .unero{stroke:var(--ink);stroke-width:1.4px;vector-effect:non-scaling-stroke}
+svg .sink,svg .sinkF{fill:none;stroke:var(--muted);stroke-width:1px;stroke-dasharray:4 3;vector-effect:non-scaling-stroke}
+svg .ghost{fill:none;stroke:var(--muted);stroke-width:.9px;stroke-dasharray:5 3;vector-effect:non-scaling-stroke}
+svg .zoc{fill:var(--zoc);stroke:none}
+svg .leg{fill:var(--muted)}
+svg .drawer{fill:none;stroke:var(--muted);stroke-width:1px;vector-effect:non-scaling-stroke}
+svg .arrow{fill:none;stroke:var(--oak);stroke-width:1.6px;vector-effect:non-scaling-stroke}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 12.5px/1.4 var(--f-mono);color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:14px;height:10px;vertical-align:-1px;margin-right:6px;border:1px solid var(--ink)}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 24px;font-size:14px}
+.spec div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dotted var(--rule);padding:5px 0}
+.spec dt{color:var(--muted)} .spec dd{margin:0;text-align:right}
+/* despiece */
+.grp{margin-bottom:26px}
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:760px}
+th,td{padding:6px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--soft)}
+thead th{font:600 12px/1.2 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--paper);position:sticky;top:0}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.nota{color:var(--muted);font-size:12.5px}
+tfoot td{font-weight:600;border-bottom:none;background:var(--paper)}
+tbody tr:hover{background:var(--soft)}
+button{font:600 13px/1 var(--f-head);letter-spacing:.03em;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:8px 12px;cursor:pointer}
+button:hover{border-color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}
+.ok{font:400 12.5px var(--f-mono);color:var(--dim)}
+@media (prefers-reduced-motion:no-preference){nav.tabs a{transition:color .15s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Carhué · Ingeniero Maschwitz</p>
+      <h1>Cocina: muebles bajo mesada</h1>
+    </div>
+    <div class="meta">Medidas del modelo 3D, 20/11/2026<br>Verificar en obra antes de cortar</div>
+  </header>
+
+  <nav class="tabs" aria-label="Hojas">
+    <a href="#carpintero" data-tab="carpintero">Para el carpintero</a>
+    <a href="#despiece" data-tab="despiece">Despiece</a>
+  </nav>
+
+  <main>
+    <section id="v-carpintero" data-view="carpintero">
+      <div class="sheet">
+        <h2>Qué hay que hacer</h2>
+        <div class="scope">
+          <div class="item">
+            <b>Mesada contra la pared</b>
+            <div class="big">4,09 m</div>
+            <ul>
+              <li>5 columnas de cajones: 0,46 · 0,80 · 0,93 · 0,93 · 0,93, más un suplemento de 4 cm en el rincón</li>
+              <li>Caja de 0,77 de alto sobre zócalo de 0,10 (0,87 sin la tapa); 0,62 de fondo con el frente</li>
+              <li>{{NCAJM}} cajones: 3 por columna; la de 0,80 va bajo una bacha farm y lleva 2, con recorte para el desagüe</li>
+            </ul>
+          </div>
+          <div class="item">
+            <b>Península (bajo el anafe)</b>
+            <div class="big">0,90 m</div>
+            <ul>
+              <li>1 cajonera de 0,90 de ancho, 0,76 de alto y 0,64 de fondo</li>
+              <li>2 cajones (el de abajo, de ollas) y un frente fijo de 0,14 arriba</li>
+              <li>Va adentro de un bloque de chapa que hace el herrero</li>
+            </ul>
+          </div>
+          <div class="item">
+            <b>En total</b>
+            <div class="big">{{NCAJ}} cajones</div>
+            <ul>
+              <li>Frentes de roble macizo de 20 mm con uñero fresado, sin tiradores</li>
+              <li>Cajoneras de melamina blanca, cajones con guías telescópicas de cierre suave</li>
+              <li>Zócalo negro rehundido, sobre patas regulables</li>
+            </ul>
+          </div>
+        </div>
+        <p class="excl">No incluye: mesadas y laterales de acero, bacha, anafe, campana ni la mesa de madera de la isla.</p>
+      </div>
+
+      <div class="sheet">
+        <figure>
+          <figcaption><span>Planta · mirando hacia la pared de las ventanas</span><span>cm</span></figcaption>
+          <div class="dw">{{PLANTA}}</div>
+          <div class="legend"><span><i style="background:var(--sheet)"></i>cajonera</span><span><i style="background:var(--oak)"></i>frentes</span><span><i style="background:var(--steel)"></i>chapa (herrero)</span><span><i style="background:var(--soft);border-style:dashed"></i>rincón sin uso</span><span>→ lado de los cajones</span></div>
+        </figure>
+      </div>
+
+      <div class="sheet">
+        <figure>
+          <figcaption><span>Mesada · vista de frente</span><span>cm</span></figcaption>
+          <div class="dw">{{ALZ_M}}</div>
+        </figure>
+        <p class="mut" style="margin-top:10px">Los números 1 a 5 son las columnas del despiece. Las alturas son las de cada fila de cajones; el frente es 4 mm más chico por las juntas.</p>
+      </div>
+
+      <div class="two">
+        <div class="sheet">
+          <figure>
+            <figcaption><span>Península · vista de frente</span><span>cm</span></figcaption>
+            <div class="dw sm">{{ALZ_P}}</div>
+          </figure>
+        </div>
+        <div class="sheet">
+          <figure>
+            <figcaption><span>Corte por la mesada</span><span>cm</span></figcaption>
+            <div class="dw sm">{{CORTE}}</div>
+          </figure>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <h2>Materiales</h2>
+        <dl class="spec">
+          <div><dt>Frentes</dt><dd>roble macizo 20 mm</dd></div>
+          <div><dt>Juntas entre frentes</dt><dd>2 mm</dd></div>
+          <div><dt>Tiradores</dt><dd>uñero fresado arriba</dd></div>
+          <div><dt>Cajoneras</dt><dd>melamina blanca 18 mm</dd></div>
+          <div><dt>Fondos</dt><dd>fibroplus blanco 3 mm</dd></div>
+          <div><dt>Cajas de cajón</dt><dd>melamina blanca 15 mm</dd></div>
+          <div><dt>Guías mesada</dt><dd>telescópicas 45 cm, cierre suave</dd></div>
+          <div><dt>Guías península</dt><dd>telescópicas 50 cm, cierre suave</dd></div>
+          <div><dt>Zócalo</dt><dd>melamina negra 18 mm, 10 cm</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section id="v-despiece" data-view="despiece" hidden>
+      <div class="sheet">
+        <h2>Despiece</h2>
+        <p>Medidas de corte en milímetros: largo × ancho × espesor. En los frentes de roble, el largo va en el sentido de la veta (horizontal). Tapacanto de 0,45 mm en los cantos que se indican.</p>
+        <div class="row"><button type="button" id="copyAll">Copiar todo el despiece (para planilla)</button><span class="ok" id="copyMsg" aria-live="polite"></span></div>
+        {{DESP}}
+        <section class="grp">
+          <h3>Herrajes</h3>
+          <div class="tw"><table style="min-width:560px"><thead><tr><th>Herraje</th><th class="n">Cant.</th><th>Unidad</th><th>Nota</th></tr></thead><tbody>{{HERR}}</tbody></table></div>
+        </section>
+        <section class="grp">
+          <h3>Total por material</h3>
+          <div class="tw"><table style="min-width:560px"><thead><tr><th>Material</th><th class="n">Esp. mm</th><th class="n">m² netos</th><th>Para pedir</th></tr></thead><tbody>{{TOTS}}</tbody></table></div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  const CSV={{CSV}};
+  const views=[...document.querySelectorAll('[data-view]')],tabs=[...document.querySelectorAll('[data-tab]')];
+  function show(){const h=(location.hash||'').replace('#','');const v=(h==='despiece')?'despiece':'carpintero';
+    views.forEach(s=>{s.hidden=s.dataset.view!==v;});tabs.forEach(a=>{if(a.dataset.tab===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});}
+  window.addEventListener('hashchange',show);show();
+  const tsv=rows=>rows.map(r=>r.map(x=>String(x).replace(/\t|\n/g,' ')).join('\t')).join('\n');
+  const msg=document.getElementById('copyMsg');
+  function copy(text,ok){const done=()=>{msg.textContent=ok;setTimeout(()=>{msg.textContent='';},2500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,()=>fallback(text,done));}else fallback(text,done);}
+  function fallback(text,done){const t=document.createElement('textarea');t.value=text;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();
+    try{document.execCommand('copy');done();}catch(e){msg.textContent='No se pudo copiar: seleccioná la tabla y copiala a mano.';}t.remove();}
+  document.getElementById('copyAll').addEventListener('click',()=>copy(tsv(CSV),'Copiado: pegalo en una planilla.'));
+  document.querySelectorAll('button[data-copy]').forEach(b=>b.addEventListener('click',()=>{const g=b.dataset.copy;copy(tsv([CSV[0],...CSV.slice(1).filter(r=>r[0]===g)]),'Copiada la tabla «'+g+'».');}));
+})();
+</script>
