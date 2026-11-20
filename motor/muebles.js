@@ -197,6 +197,8 @@ export function catalogoMuebles(THREE){
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
         if(i===iC){g.push([FR(xl,xr,y0,y1,zf),p.fr]);continue;}
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}
+        /* Maxi 20/11 (Carhué): una entrada de «puertas» puede ser {i, n:1, lado} = una sola puerta (lado −1: bisagras a −x), con estante al medio */
+        {const q=pu.find(e=>e&&typeof e==='object'&&e.i===i);if(q&&q.n===1){g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}`,xl,xr,xa,xb,y0,y1,zf,p.fr,q.lado<0?-1:1));continue;}}
         if(pu.includes(i)){const xm=(xl+xr)/2;g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}a`,xl,xm,xa,xb,y0,y1,zf,p.fr,-1),...puerta(`p${i}b`,xm,xr,xa,xb,y0,y1,zf,p.fr,1));continue;}
         for(let j=0;j<filas;j++){const [ya,yb]=filaY(y0,y1,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));}}return g;}},
   isla:{n:'Isla con barra y laterales de piedra',cat:'cocina',p:{L:200,D:90,H:90,vol:30,fr:'madOsc',top:'granito',top2:'',corte:0,filas:3},g:p=>{const z0=-p.D/2+p.vol;

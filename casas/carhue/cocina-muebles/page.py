@@ -78,6 +78,13 @@ def alzado_mesada():
     s.append(rect(70, Y(87), 4, 77, 'frontF'))
     x = 74.0
     for i, W in enumerate(MODS):
+        if i == 0:
+            s.append(rect(x + .2, Y(87) + .2, W - .4, 77 - .4, 'frontF'))
+            s.append(f'<line class="unero" x1="{x+W-1.6}" y1="{Y(60)}" x2="{x+W-1.6}" y2="{Y(76)}"/>')
+            for hh in (19, 78): s.append(f'<circle class="ghost" cx="{x+2.5}" cy="{Y(hh)}" r="1.75"/>')
+            s.append(f'<line class="ghost" x1="{x+.6}" y1="{Y(48.5)}" x2="{x+W-.6}" y2="{Y(48.5)}"/>')
+            s.append(label(x + W/2, Y(28), '1', 9, 'num')); s.append(label(x + W/2, Y(62), 'puerta', 5, 'lbg')); s.append(label(x + W/2, Y(51), 'estante', 4.5, 'lbg'))
+            x += W; continue
         if i == 1:
             rows = [(10, 46.19), (46.19, 65.6)]
             s.append('<rect class="sinkF" x="{}" y="{}" width="80" height="24"/>'.format(x, Y(90)))
@@ -96,7 +103,7 @@ def alzado_mesada():
     s.append(dim_v(490, Y(10), Y(0), '10', False)); s.append(dim_v(490, Y(46.19), Y(10), '36,2', False))
     s.append(dim_v(490, Y(71.6), Y(46.19), '25,4', False)); s.append(dim_v(490, Y(87), Y(71.6), '15,4', False))
     s.append(dim_v(520, Y(87), Y(0), '87', False)); s.append(dim_v(540, Y(90), Y(0), '90', False))
-    s.append(dim_v(116, Y(65.6), Y(46.19), '19,4', True, 6))
+    s.append(dim_v(124, Y(65.6), Y(46.19), '19,4', False, 6))
     return f'<svg viewBox="35 -6 535 130" role="img" aria-label="Vista de frente de la mesada">{"".join(s)}</svg>'
 
 def alzado_peninsula():
@@ -150,7 +157,7 @@ def tabla(grupo):
     return (f'<div class="tw"><table data-g="{E(grupo)}"><thead><tr><th>Pieza</th><th class="n">Cant.</th><th class="n">Largo</th><th class="n">Ancho</th><th class="n">Esp.</th><th>Material</th><th>Tapacanto</th><th>Nota</th></tr></thead>'
             f'<tbody>{tr}</tbody><tfoot><tr><td>Total</td><td class="n">{tot}</td><td colspan="6"></td></tr></tfoot></table></div>')
 
-grupos = [('Frentes', 'Frentes de roble macizo, 20 mm. Juntas de 2 mm entre frentes. Uñero fresado en el canto de arriba, sin tiradores.'),
+grupos = [('Frentes', 'Madera maciza de 20 mm que pone Maxi: tablas cepilladas y encoladas de canto hasta el ancho de cada frente. Juntas de 2 mm entre frentes. Uñero fresado en el canto de arriba, sin tiradores.'),
           ('Cajoneras', 'Cajas del mueble en melamina blanca de 18 mm, una por columna, sobre patas regulables. Fondo de fibroplus de 3 mm.'),
           ('Cajas de cajón', 'Laterales, frente y contrafrente de melamina blanca de 15 mm; piso de fibroplus de 3 mm. El ancho ya descuenta 13 mm por lado para las guías.'),
           ('Zócalo', 'Melamina negra de 18 mm, 10 cm de alto, rehundido 8 cm del frente.')]

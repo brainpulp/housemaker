@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.53', fecha:'2026-11-19',
+  nombre:'Carhué', version: '1.1.54', fecha:'2026-11-20',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-20', v:'1.1.54', txt:'Maxi 20/11: cocina, mesada de la pared de las ventanas: 3 columnas de cajones de 92,8 en lugar de 4 de 69,6, y la columna de 46 junto al rincón pasa a ser una puerta con estante (bisagras del lado del rincón). El motor acepta en «puertas» una sola puerta por módulo ({i, n:1, lado}).'},
   {fecha:'2026-11-19', v:'1.1.53', txt:'Motor (Maxi 19/11): el cuero del sillón BKF cuelga entre las puntas: el borde de arriba y el de adelante son curvas cóncavas, no rectas.'},
   {fecha:'2026-11-18', v:'1.1.52', txt:'Maxi 18/11: animación del armado de la escalera al entrepiso, paso por paso (en la zona «Escalera al entrepiso», botón «Ver cómo se arma»): lo que ya está, pie del postecito, poste de afuera, vigas del triángulo alto, diagonal y viga del triángulo bajo, módulo de abajo, triángulo bajo y triángulo alto. Las piezas de la escalera quedan separadas por etapa.'},
   {fecha:'2026-11-16', v:'1.1.51', txt:'Maxi 16/11, baño del entrepiso: lleva dos puertas, una al pasillo (pared nueva M-45) y otra al dormitorio principal (M-41 llega hasta el pasillo). Todo se corre hacia la ventana: bañera bajo la ventana, ducha entre paredes de 1,90 × 1,20 pegada a ella, después inodoro y bidet frente al vanitory, y del lado del pasillo un semivestidor con placards en las dos paredes.'},

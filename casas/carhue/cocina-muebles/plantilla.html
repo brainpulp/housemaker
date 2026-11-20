@@ -106,7 +106,7 @@ button:hover{border-color:var(--ink)}
             <b>Mesada contra la pared</b>
             <div class="big">4,09 m</div>
             <ul>
-              <li>5 columnas de cajones: 0,46 · 0,80 · 0,93 · 0,93 · 0,93, más un suplemento de 4 cm en el rincón</li>
+              <li>5 columnas: una puerta de 0,46 con estante junto al rincón y 4 columnas de cajones de 0,80 · 0,93 · 0,93 · 0,93, más un suplemento de 4 cm en el rincón</li>
               <li>Caja de 0,77 de alto sobre zócalo de 0,10 (0,87 sin la tapa); 0,62 de fondo con el frente</li>
               <li>{{NCAJM}} cajones: 3 por columna; la de 0,80 va bajo una bacha farm y lleva 2, con recorte para el desagüe</li>
             </ul>
@@ -122,10 +122,10 @@ button:hover{border-color:var(--ink)}
           </div>
           <div class="item">
             <b>En total</b>
-            <div class="big">{{NCAJ}} cajones</div>
+            <div class="big">{{NCAJ}} cajones + 1 puerta</div>
             <ul>
-              <li>Frentes de roble macizo de 20 mm con uñero fresado, sin tiradores</li>
-              <li>Cajoneras de melamina blanca, cajones con guías telescópicas de cierre suave</li>
+              <li>Frentes de madera maciza de 20 mm, con uñero fresado y sin tiradores. <b>La madera la pone Maxi</b>: el trabajo es cepillar y empalmar tablas (encoladas de canto, de 20–25 cm de ancho como mucho) para armar cada frente</li>
+              <li>Cajoneras de melamina blanca, cajones con guías Häfele telescópicas de cierre suave</li>
               <li>Zócalo negro rehundido, sobre patas regulables</li>
             </ul>
           </div>
@@ -146,7 +146,7 @@ button:hover{border-color:var(--ink)}
           <figcaption><span>Mesada · vista de frente</span><span>cm</span></figcaption>
           <div class="dw">{{ALZ_M}}</div>
         </figure>
-        <p class="mut" style="margin-top:10px">Los números 1 a 5 son las columnas del despiece. Las alturas son las de cada fila de cajones; el frente es 4 mm más chico por las juntas.</p>
+        <p class="mut" style="margin-top:10px">Los números 1 a 5 son las columnas del despiece; la 1 es una puerta con estante, con las bisagras del lado del rincón. Las alturas son las de cada fila de cajones; el frente es 4 mm más chico por las juntas.</p>
       </div>
 
       <div class="two">
@@ -167,14 +167,15 @@ button:hover{border-color:var(--ink)}
       <div class="sheet">
         <h2>Materiales</h2>
         <dl class="spec">
-          <div><dt>Frentes</dt><dd>roble macizo 20 mm</dd></div>
+          <div><dt>Frentes</dt><dd>madera maciza 20 mm, la pone Maxi</dd></div>
           <div><dt>Juntas entre frentes</dt><dd>2 mm</dd></div>
           <div><dt>Tiradores</dt><dd>uñero fresado arriba</dd></div>
           <div><dt>Cajoneras</dt><dd>melamina blanca 18 mm</dd></div>
           <div><dt>Fondos</dt><dd>fibroplus blanco 3 mm</dd></div>
           <div><dt>Cajas de cajón</dt><dd>melamina blanca 15 mm</dd></div>
-          <div><dt>Guías mesada</dt><dd>telescópicas 45 cm, cierre suave</dd></div>
-          <div><dt>Guías península</dt><dd>telescópicas 50 cm, cierre suave</dd></div>
+          <div><dt>Guías mesada</dt><dd>Häfele telescópicas 450 mm, 45 kg, cierre suave</dd></div>
+          <div><dt>Guías península</dt><dd>Häfele telescópicas 500 mm, 45 kg, cierre suave</dd></div>
+          <div><dt>Bisagras</dt><dd>cazoleta 35 mm, cierre suave</dd></div>
           <div><dt>Zócalo</dt><dd>melamina negra 18 mm, 10 cm</dd></div>
         </dl>
       </div>
@@ -183,12 +184,17 @@ button:hover{border-color:var(--ink)}
     <section id="v-despiece" data-view="despiece" hidden>
       <div class="sheet">
         <h2>Despiece</h2>
-        <p>Medidas de corte en milímetros: largo × ancho × espesor. En los frentes de roble, el largo va en el sentido de la veta (horizontal). Tapacanto de 0,45 mm en los cantos que se indican.</p>
+        <p>Medidas de corte en milímetros: largo × ancho × espesor. En los frentes, el largo va en el sentido de la veta: horizontal en los cajones y vertical en la puerta. La nota de cada frente dice cuántas tablas hay que empalmar, contando tablas de unos 21 cm de ancho ya cepilladas. Tapacanto de 0,45 mm en los cantos que se indican.</p>
         <div class="row"><button type="button" id="copyAll">Copiar todo el despiece (para planilla)</button><span class="ok" id="copyMsg" aria-live="polite"></span></div>
         {{DESP}}
         <section class="grp">
           <h3>Herrajes</h3>
           <div class="tw"><table style="min-width:560px"><thead><tr><th>Herraje</th><th class="n">Cant.</th><th>Unidad</th><th>Nota</th></tr></thead><tbody>{{HERR}}</tbody></table></div>
+        </section>
+        <section class="grp">
+          <h3>Guías: qué marca</h3>
+          <p>Elegí Häfele telescópicas (laterales, 12,7 mm por lado) con cierre suave y 45 kg. Aguantan los cajones de 0,93 cargados de ollas, se consiguen en Mercado Libre a unos $29.600 el par (11/2026) y el despiece de las cajas está hecho para ellas.</p>
+          <p class="mut">Si se quiere la guía oculta, debajo del cajón, la opción es Blum Tandem 450 (unos $118.000 el par): se ve más prolija y es más silenciosa, pero las cajas cambian (laterales de 16 mm, ancho = luz − 42 mm, piso rehundido), así que habría que rehacer esa tabla. Las genéricas de cierre suave (unos $12.750 el par) sirven para los cajones angostos, pero no para los de 0,93 con peso.</p>
         </section>
         <section class="grp">
           <h3>Total por material</h3>

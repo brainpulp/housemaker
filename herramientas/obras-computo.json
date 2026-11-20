@@ -23,6 +23,8 @@
   "carhue-18": { "piezas": ["t:sillaCover"], "campo": "cuenta", "medidas": "Cover" },
   "carhue-19": { "piezas": ["m274"], "campo": "bachaFarm" },
   "carhue-21": { "piezas": ["m278"], "campo": "anafe" },
+  "carhue-22": { "piezas": ["m273"], "campo": "puertas", "extra": "columna 1 de la mesada (junto al rincón), con estante" },
+  "carhue-23": { "piezas": ["m273"], "campo": "bisagras" },
   "mocoreta-01": { "piezas": ["mocoreta_14"], "campo": "tapa", "extra": "calado para el anafe, canto 3 cm" },
   "mocoreta-02": { "piezas": ["mocoreta_14"], "campo": "modulo" },
   "mocoreta-03": { "piezas": ["mocoreta_14"], "campo": "puertas" },
