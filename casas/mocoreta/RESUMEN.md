@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (17/11/2026, v0.10.22)
+# Mocoretá: resumen para arrancar una conversación nueva (19/11/2026, v0.10.23)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
@@ -40,7 +40,7 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
 - **D-04:** la estructura del deck no está decidida.
 - **D-20:** la estructura del segundo piso tiene que verla un ingeniero.
 - **D-21:** el sistema de elevación tiene que verlo un calculista (perfil, zapatas, media maniobra) y falta decidir el accionamiento.
-- **D-17 / D-18 / D-19:** techo retráctil bajo la terraza (con segundo piso: cajón en el entrepiso del módulo 5, cuelga de los UPN 220, cielorraso de ese módulo bajado a 2,75–2,83); techo corredizo (sin parantes: vuela 3,60 agarrado sólo de la casa; el tirón del carro de atrás va por UPN a las columnas), deck perimetral y jardín, pendientes de medidas. Escalera de la terraza al deck: descanso a nivel de la terraza y un tramo pegado a la fachada hacia el oeste.
+- **D-17 / D-18 / D-19:** techo retráctil de la terraza (con segundo piso: corre por encima de la chapa, cubierta a 1 % al sur, se guarda bajo el deck elevado a +3,60, 32 cm sobre el cuarto con escalón de 16; sale al norte por una ranura en la tapa); techo corredizo (sin parantes: vuela 3,60 agarrado sólo de la casa; el tirón del carro de atrás va por UPN a las columnas), deck perimetral y jardín, pendientes de medidas. Escalera de la terraza al deck: descanso a nivel de la terraza y un tramo pegado a la fachada hacia el oeste.
 - Con la casa elevada, la escalinata de la plataforma llega a la fila de pinos.
 
 ## Cómo publicar

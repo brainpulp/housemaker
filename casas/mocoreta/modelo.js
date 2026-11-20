@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.22', fecha: '2026-11-17',
+export const META = { nombre: 'Mocoretá', version: '0.10.23', fecha: '2026-11-19',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -264,6 +264,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-19', v: '0.10.23', txt: 'Techo retráctil de la terraza rehecho: ahora corre POR ENCIMA de la chapa, con caída hacia el sur. La cubierta de la terraza pasa a 1 % hacia el sur y encima va un entramado de perfiles de acero; el techo (chapa sobre bastidor de C 100×50) se guarda entre la cubierta y el deck y sale hacia el norte por una ranura en la tapa, con cremallera y motor tubular. Para que entre, el deck sube a +3,60: queda 32 cm sobre el piso del cuarto (no alcanzaban 18), con un escalón intermedio de 16 cm adentro. Explicación animada rehecha (10 pasos). Arreglado: después de subir y bajar la casa, el menú de variantes quedaba vacío.' },
   { fecha: '2026-11-19', v: '0.10.22', txt: 'Sacados los rieles de luz que quedaban flotando sobre la terraza: en el piso alto hay rieles sólo en la oficina y en el dormitorio.' },
   { fecha: '2026-11-18', v: '0.10.21', txt: 'La madera quedaba casi negra: se habían sumado dos oscurecimientos (los colores de la madera, en la 0.10.14, y el tono de las texturas, en la 0.10.18). Quedan los dos a mitad de camino: nogal medio. Se sigue ajustando en vivo con «tonos», en la barra de abajo.' },
   { fecha: '2026-11-18', v: '0.10.20', txt: 'Explicación animada del techo retráctil bajo la terraza: en el menú de variantes, al abrir «Techo retráctil bajo la terraza», «▶ Ver cómo se arma y funciona». Once pasos con la cámara volando de uno a otro: dónde entra (niveles), qué lo sostiene, el armado pieza por pieza (ranura, carros, el techo que entra, motor, cielorraso), cómo se abre, cómo trabaja abierto y cómo se guarda. Se pausa, se avanza y se retrocede (también con las flechas y la barra espaciadora); al salir, todo vuelve como estaba.' },
