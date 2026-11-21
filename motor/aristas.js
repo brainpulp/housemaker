@@ -7,10 +7,11 @@
    Se rehacen cada vez que el visor rearma las piezas. El modo se guarda en este navegador. */
 import * as THREE from 'three';
 
-export function initAristas(visor) {
+export function initAristas(visor, opts = {}) {
   const { scene, renderer } = visor;
   const KEY = 'hm-aristas';
-  let modo = 'normal'; try { modo = localStorage.getItem(KEY) || 'normal'; } catch (e) {}
+  /* la casa puede elegir con qué modo arranca (opts.modo), mientras no se haya elegido otro en este navegador */
+  let modo = opts.modo || 'normal'; try { modo = localStorage.getItem(KEY) || modo; } catch (e) {}
   const LM = new THREE.LineBasicMaterial({ color: 0x1b1b1b, transparent: true, opacity: .85 }), LC = new THREE.LineBasicMaterial({ color: 0xb8b8b8, transparent: true, opacity: .9 });
   /* sobre una pieza muy oscura (acero negro), en «aristas» el trazo va claro para que se vea */
   const lum = c => .2126 * c.r + .7152 * c.g + .0722 * c.b;
@@ -64,7 +65,13 @@ export function initAristas(visor) {
 
   /* el control: en el panel Vistas, debajo de Lente */
   let seg = null;
-  function pintarUI() { if (seg) seg.querySelectorAll('[data-ar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ar === modo))); }
+  function pintarUI() { if (seg) seg.querySelectorAll('[data-ar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ar === modo))); if (selB) selB.value = modo; }
+  /* Maxi 21/11 («el rendering sigue igual»): el panel Vistas queda escondido; el modo va también a la vista, en la barra de abajo, junto a «Gráficos» */
+  let selB = null;
+  { const bar = document.querySelector('#modo-3d .bottombar'); if (bar) { const l = document.createElement('label'); l.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:12px';
+      l.innerHTML = 'Dibujo <select id="dibujoSel"><option value="normal">Normal</option><option value="aristas">Aristas</option><option value="tecnico">Técnico</option></select>';
+      const g = [...bar.children].find(e => /Gr[aá]ficos/.test(e.textContent || '')); if (g) g.after(l); else bar.prepend(l);
+      selB = l.querySelector('select'); selB.value = modo; selB.addEventListener('change', () => set(selB.value)); } }
   const t = setInterval(() => {
     const body = document.querySelector('#vistasPanel .cpbody'); if (!body) return; clearInterval(t);
     const d = document.createElement('div');
