@@ -7,6 +7,7 @@ import { createVisor, geo } from './visor3d.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initAristas } from './aristas.js';
+import { initArrastre } from './arrastre.js';
 import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
 import { initVistas } from './vistas.js';
@@ -181,6 +182,7 @@ try { initMedir(visor, stage); } catch (e) { console.error('medir', e); }
 { let vu = null; try { vu = initVistasUI(); } catch (e) { console.error('vistas', e); }
   try { initToolbar(stage, visor, { vistas: vu, zonas: [{ id: 'maniobra', nombre: 'Maniobra: subir y bajar', piezas: /^C-(08|09|17)$/, params: ['subida'], label: {}, vista: { p: [150, 260, 170], t: [10, 120, 0] } }, { id: 'ver', nombre: 'Qué se ve', piezas: /^M-0\d$/, params: ['madera', 'deck', 'cotas'], label: {} }] }); } catch (e) { console.error('toolbar', e); } }
 try { initAristas(visor, { modo: 'tecnico' }); /* Maxi 21/11: el detalle para el ingeniero arranca en dibujo técnico */ } catch (e) { console.error('aristas', e); }
+try { initArrastre(visor, [{ param: 'subida', piezas: /^(C-(0[89]|1\d|20)|M-0\d)$/ }]); /* Maxi 21/11: agarrar el mecanismo y arrastrarlo hacia arriba o abajo sube y baja la casa */ } catch (e) { console.error('arrastre', e); }
 try { initViewCube(visor); } catch (e) { console.error('viewcube', e); }
 try { initInspector(visor); } catch (e) { console.error('inspector', e); }
 try { initSidebar(visor); } catch (e) { console.error('sidebar', e); }

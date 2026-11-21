@@ -5,6 +5,7 @@ import { createVisor, geo } from './visor3d.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
 import { initAristas } from './aristas.js';
+import { initArrastre } from './arrastre.js';
 import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
 import { initVistas } from './vistas.js';
@@ -630,6 +631,7 @@ try { initMedir(visor, stage); } catch (e) { console.error('medir', e); }
   try { initExplicaciones(visor, { explicaciones: EXPLICA, stage }); } catch (e) { console.error('explica', e); }
   try { initToolbar(stage, visor, { vistas: vu, zonas: ZONAS }); } catch (e) { console.error('toolbar', e); } }
 try { initAristas(visor); } catch (e) { console.error('aristas', e); }
+try { initArrastre(visor, [{ param: 'subida', piezas: /^(EL-\d+|VP-[NSEO]|C-\d[SN])$/, activo: P => P.elev === 'si' }]); /* Maxi 21/11: agarrar el mecanismo y arrastrarlo hacia arriba o abajo sube y baja la casa */ } catch (e) { console.error('arrastre', e); }
 try { CORR = initCorredizas(visor, HOJAS, 'mocoreta'); visor.controlPieza = id => CORR.html(id); window.__corredizas = CORR; } catch (e) { console.error('corredizas', e); }
 try { initViewCube(visor); } catch (e) { console.error('viewcube', e); }
 try { initInspector(visor); } catch (e) { console.error('inspector', e); }

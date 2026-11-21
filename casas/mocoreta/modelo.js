@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.24', fecha: '2026-11-21',
+export const META = { nombre: 'Mocoretá', version: '0.10.25', fecha: '2026-11-21',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -264,6 +264,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-21', v: '0.10.25', txt: 'Con el sistema para subir y bajar prendido, la casa se sube y se baja arrastrando el mecanismo (columnas, HEB, gatos, motores o vigas perimetrales) hacia arriba o hacia abajo. Nuevo selector «Dibujo» en la barra de abajo: Normal, Aristas o Técnico.' },
   { fecha: '2026-11-21', v: '0.10.24', txt: 'Con el sistema para subir y bajar la casa ahora se ve la platea de la planta baja, al nivel del terreno (antes sólo aparecía con la hipótesis «casa elevada»).' },
   { fecha: '2026-11-19', v: '0.10.23', txt: 'Techo retráctil de la terraza rehecho: ahora corre POR ENCIMA de la chapa, con caída hacia el sur. La cubierta de la terraza pasa a 1 % hacia el sur y encima va un entramado de perfiles de acero; el techo (chapa sobre bastidor de C 100×50) se guarda entre la cubierta y el deck y sale hacia el norte por una ranura en la tapa, con cremallera y motor tubular. Para que entre, el deck sube a +3,60: queda 32 cm sobre el piso del cuarto (no alcanzaban 18), con un escalón intermedio de 16 cm adentro. Explicación animada rehecha (10 pasos). Arreglado: después de subir y bajar la casa, el menú de variantes quedaba vacío.' },
   { fecha: '2026-11-19', v: '0.10.22', txt: 'Sacados los rieles de luz que quedaban flotando sobre la terraza: en el piso alto hay rieles sólo en la oficina y en el dormitorio.' },
