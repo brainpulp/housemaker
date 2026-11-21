@@ -42,7 +42,10 @@ const AR_C08=37+Math.sqrt(36*36-22*22)+30;/* Maxi 7/11: columna C-08 a 30 cm del
 const ROOF={ridge:[352,507],front:[738,344],backRaised:[-81,478],backLiving:[-2,255],glass:[[581,407],[941,246]]};
 const lin=(p,q,y)=>p[1]+(q[1]-p[1])*(y-p[0])/(q[0]-p[0]);
 /* alero oeste T-08 (Maxi 8/11): de VQ-1 (y 0,38) hacia el oeste, al 7 %, hasta pasar la puerta del baño piletero. AO.u = cara de arriba de las vigas VT */
-const AO={xS:2443,xN:2866,yE:37.5,yW:-490,yP:-474,vigas:{'VT-1':2550,'VT-2':2708,'VT-3':2858},postes:{'C-09':2550,'C-10':2708,'C-11':2858},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>270+.07*(y-38)};
+/* Maxi 21/11: «C-09 y C-10 no van, se usa una viga desde C-11 hasta la pared, y T-08 siempre va por debajo de T-06»: viga de borde VA-1 de C-11 a M-22 (x 24,00)
+   con las puntas de VT-1…3 apoyadas; el alero baja 20 (VT a +2,50 → +2,30 en VQ-1) para que su chapa pase 3 cm por debajo del alero de T-06 (+2,59 en x 24,42),
+   y arranca en x 24,25, debajo de ese alero */
+const AO={xS:2425,xN:2866,yE:37.5,yW:-490,yP:-474,vigas:{'VT-1':2550,'VT-2':2708,'VT-3':2858},postes:{'C-11':2858},borde:{id:'VA-1',x0:2400,x1:2863,y0:-480,y1:-472.5},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>250+.07*(y-38)};
 /* dormers (Maxi 14/10): DM-1 y DM-2 al jardín entre cabios dobles de CAB-3 (cada 65 desde x 0,32); DM-3 en el faldón norte del ala */
 const DORM_CC=p=>['c','ca','cg'].includes(p.dormers),DORM_ON=p=>['j','ja','c','ca','cg'].includes(p.dormers),DORM_ALT=p=>p.dormAlt==='1'||['ja','ca'].includes(p.dormers),DORM_Y0=358,DORM_SKIP=p=>p.dormers==='cg'?['LU-1','LU-2','LU-4']:DORM_CC(p)?['LU-1','LU-2']:DORM_ON(p)?['LU-1']:[];
 const DORM_J2=[{id:'DM-1',xl:97,xr:357,local:'dormitorio secundario (L-25), en lugar de LU-1'},{id:'DM-2',xl:747,xr:942,local:'dormitorio principal (L-21); 1,8 m para no tocar LU-2'}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
@@ -569,9 +572,10 @@ function build(p){
       Pt('ESC-'+p.escAlt+'r',`ESC-${p.escAlt} · pasamanos`,'acero',rods,{fn:'Pasamanos de caño a ambos lados.'},{group:'Escalera',tags:['PB','escalera']});}}
   /* estructura */
   for(const s of M.ESTRUCTURA){if(s.id==='V-03')continue;
-    if(s.id in AO.vigas||s.id in AO.postes||s.id==='CO-8'){if(!p.techos)continue;const u=AO.u;
-      if(s.id in AO.vigas){const x=AO.vigas[s.id];Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[slabY(x-3.75,x+3.75,[-480,u(-480)-20],[38,u(38)-20],20)],{...base(s),sec:s.sec,med:`5,18 m, de +2,50 a ${f1((u(-480)-20)/100)}`},{group:'Techos',tags:['TE','estructura','techos']});}
-      else if(s.id in AO.postes){const x=AO.postes[s.id],zt=u(AO.yP-5)-20;Pt(s.id,`${s.id} · ${s.nombre}`,'col',box(x-5,x+5,0,zt,AO.yP-5,AO.yP+5),{...base(s),sec:s.sec,med:`alto ${f1(zt/100)} m`},{group:'Estructura',tags:['estructura']});}
+    if(s.id in AO.vigas||s.id in AO.postes||s.id==='CO-8'||s.id===AO.borde.id){if(!p.techos)continue;const u=AO.u,B=AO.borde;
+      if(s.id===B.id){const zt=u(B.y0);Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[box(B.x0,B.x1,zt-20,zt,B.y0,B.y1)],{...base(s),sec:s.sec,med:`${f1((B.x1-B.x0)/100)} m, cara de arriba a +${f1(zt/100)}, libre debajo ${f1((zt-20)/100)} m`},{group:'Techos',tags:['TE','estructura','techos']});}
+      else if(s.id in AO.vigas){const x=AO.vigas[s.id];Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[slabY(x-3.75,x+3.75,[B.y1,u(B.y1)-20],[33,u(33)-20],20)]/* de la cara de VQ-1 (y 0,33, colgada con estribo al ras de su canto de arriba) a la de VA-1 */,{...base(s),sec:s.sec,med:`5,1 m, de +${f1(u(38)/100)} a +${f1(u(B.y1)/100)} (cara de arriba)`},{group:'Techos',tags:['TE','estructura','techos']});}
+      else if(s.id in AO.postes){const x=AO.postes[s.id],zt=u(AO.borde.y0)-20;Pt(s.id,`${s.id} · ${s.nombre}`,'col',box(x-5,x+5,0,zt,AO.yP-5,AO.yP+5),{...base(s),sec:s.sec,med:`alto ${f1(zt/100)} m`},{group:'Estructura',tags:['estructura']});}
       else{const g=[box(2523,AO.xN,u(32.5),u(32.5)+7.5,27.5,32.5)];for(const y of AO.correas)g.push(box(AO.xS,AO.xN,u(y+2.5),u(y+2.5)+7.5,y-2.5,y+2.5));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${g.length} correas`},{group:'Techos',tags:['TE','estructura','techos']});}
       continue;}
         if(s.id==='CR-1'||s.id==='CR-2'||s.id==='CR-3')continue;

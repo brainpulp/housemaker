@@ -30,6 +30,23 @@ function mergeAll(gs){const L=gs.map(g=>g.index?g.toNonIndexed():g);const col=L.
   const P=new Float32Array(n*3),N=new Float32Array(n*3),C=col?new Float32Array(n*3).fill(1):null,hasUV=L.every(g=>g.attributes.uv),U=hasUV?new Float32Array(n*2):null;let o=0;
   for(const g of L){if(!g.attributes.normal)g.computeVertexNormals();P.set(g.attributes.position.array,o*3);N.set(g.attributes.normal.array,o*3);if(C&&g.attributes.color&&g.attributes.color.itemSize===3)C.set(g.attributes.color.array,o*3);if(U)U.set(g.attributes.uv.array,o*2);o+=g.attributes.position.count;}
   const m=new THREE.BufferGeometry();m.setAttribute('position',new THREE.BufferAttribute(P,3));m.setAttribute('normal',new THREE.BufferAttribute(N,3));if(C)m.setAttribute('color',new THREE.BufferAttribute(C,3));if(U)m.setAttribute('uv',new THREE.BufferAttribute(U,2));return m;}
+/* chapa acanalada con relieve (Maxi 21/11: «que no tenga sólo textura sino también zigzag, con pocos triángulos»): las caras de arriba de un techo
+   se cortan en franjas de medio paso a lo largo del eje de las ondas (horizontal, perpendicular a la pendiente) y cada franja se levanta en zigzag
+   entre 0 y la profundidad de la onda. Paso 7,6 y onda de 1,8 cm (chapa sinusoidal común). Sólo caras con pendiente de 2° o más: las terrazas quedan lisas. */
+function acanalar(g,paso=7.6,prof=1.8){const G=g.index?g.toNonIndexed():g,P=G.attributes.position,out=[],h=paso/2;
+  const A=new THREE.Vector3(),B=new THREE.Vector3(),C=new THREE.Vector3(),n=new THREE.Vector3(),c=new THREE.Vector3();let cambio=false;
+  const f=s=>{const t=s/paso-Math.floor(s/paso);return prof*Math.abs(2*t-1);};
+  for(let i=0;i<P.count;i+=3){A.fromBufferAttribute(P,i);B.fromBufferAttribute(P,i+1);C.fromBufferAttribute(P,i+2);
+    n.subVectors(B,A).cross(new THREE.Vector3().subVectors(C,A));const L=n.length();if(L<1e-9){continue;}n.divideScalar(L);
+    const hz=Math.hypot(n.x,n.z);if(n.y<.3||hz<.035){out.push(A.x,A.y,A.z,B.x,B.y,B.z,C.x,C.y,C.z);continue;}
+    cambio=true;c.set(-n.z/hz,0,n.x/hz);/* eje de las ondas: horizontal y perpendicular a la pendiente */
+    const tri=[A.clone(),B.clone(),C.clone()],sv=tri.map(v=>v.dot(c)),s0=Math.min(...sv),s1=Math.max(...sv);
+    for(let k=Math.floor(s0/h);k*h<s1;k++){const lo=k*h,hi=(k+1)*h;
+      let poly=tri;for(const [lim,sg] of [[lo,1],[hi,-1]]){const r=[];for(let j=0;j<poly.length;j++){const p1=poly[j],p2=poly[(j+1)%poly.length],d1=sg*(p1.dot(c)-lim),d2=sg*(p2.dot(c)-lim);
+          if(d1>=0)r.push(p1);if((d1>=0)!==(d2>=0)){const t=d1/(d1-d2);r.push(p1.clone().lerp(p2,t));}}poly=r;if(poly.length<3)break;}
+      if(poly.length<3)continue;const q=poly.map(v=>v.clone().addScaledVector(n,f(v.dot(c))));
+      for(let j=1;j<q.length-1;j++)out.push(q[0].x,q[0].y,q[0].z,q[j].x,q[j].y,q[j].z,q[j+1].x,q[j+1].y,q[j+1].z);}}
+  if(!cambio)return g;const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(out,3));r.computeVertexNormals();return r;}
 function mapGeo(g,fn){const p=g.attributes.position;for(let i=0;i<p.count;i++){const r=fn(p.getX(i),p.getY(i),p.getZ(i));p.setXYZ(i,r[0],r[1],r[2]);}g.computeVertexNormals();return g;}
 function dedupe(pts){const out=[];for(const p of pts){const q=out[out.length-1];if(!q||Math.hypot(p[0]-q[0],p[1]-q[1])>1e-6)out.push(p);}if(out.length>2){const a=out[0],b=out[out.length-1];if(Math.hypot(a[0]-b[0],a[1]-b[1])<1e-6)out.pop();}return out;}
 function flipW(g){/* invierte el sentido de las caras (para mapeos en espejo) */const g2=g.index?g.toNonIndexed():g;for(const k of Object.keys(g2.attributes)){const A=g2.attributes[k],n=A.itemSize;for(let i=0;i<A.count;i+=3)for(let c=0;c<n;c++){const t=A.array[(i+1)*n+c];A.array[(i+1)*n+c]=A.array[(i+2)*n+c];A.array[(i+2)*n+c]=t;}A.needsUpdate=true;}g2.computeVertexNormals();return g2;}
@@ -145,9 +162,10 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
       p.base=op;p.tr0=p.mat.transparent;p.dw0=p.mat.depthWrite;p.emat=edgeMat.clone();if(isEx)p.emat.opacity=.22;
       const grp=new THREE.Group();const bb=new THREE.Box3();
       /* fps: cada pieza se dibuja como una sola malla (y un solo juego de aristas); se guarda qué tramo es cada parte para «borrar partes» */
+      let bordes=null;if(p.cat==='techo'&&!p.opt.lisa&&window.__chapaLisa!==true){bordes=p.geos.length>1?mergeAll(p.geos):p.geos[0];p.geos=p.geos.map(g=>acanalar(g));}
       let ranges=null;if(p.geos.length>1&&!(p.opt&&p.opt.noMerge)){ranges=[];let o=0;for(const g of p.geos){const n=(g.index?g.index.count:g.attributes.position.count);ranges.push([o,n]);o+=n;}p.geos=[mergeAll(p.geos)];}
       for(const g of p.geos){const m=new THREE.Mesh(g,p.mat);m.userData.id=p.id;if(ranges)m.userData.ranges=ranges;grp.add(m);
-        if(!p.opt.noEdges&&!['perno','glass','mesh'].includes(p.cat))grp.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,25),p.emat));
+        if(!p.opt.noEdges&&!['perno','glass','mesh'].includes(p.cat))grp.add(new THREE.LineSegments(new THREE.EdgesGeometry(bordes&&p.geos.length===1?bordes:g,25),p.emat));/* chapa acanalada: las aristas, de la forma lisa */
         g.computeBoundingBox();bb.union(g.boundingBox);}
       p.bb=bb;if(!isEx)all.union(bb);p.grp=grp;G0.add(grp);}
     const c=all.getCenter(new THREE.Vector3()),sz=all.getSize(new THREE.Vector3());
