@@ -24,8 +24,8 @@ render = lambda f, alt: (f'<div class="sheet render"><figure><figcaption><span>R
                          f'<img src="{f}" alt="{alt}" loading="lazy" width="1600" height="1000"></figure></div>')
 # render de Carhué después de «Qué hay que hacer»
 i = s.index('<section id="v-carpintero"'); j = s.index('</div>', s.index('</p>', s.index('class="excl"', i))) + len('</div>')
-s = s[:j] + '\n\n      ' + render('render-carhue.jpg', 'Render 3D de la cocina de Carhué') + s[j:]
-ar = A['html'].replace('{RENDER_AR}', render('render-arcos.jpg', 'Render 3D de la cocina de Arcos'))
+s = s[:j] + '\n\n      ' + render('render-carhue-2.jpg', 'Render 3D de la cocina de Carhué') + s[j:]
+ar = A['html'].replace('{RENDER_AR}', render('render-arcos-2.jpg', 'Render 3D de la cocina de Arcos'))
 k = s.index('</main>'); s = s[:k] + ar + '\n  ' + s[k:]
 # script: cuatro hojas y copiar de las dos cocinas
 sc = re.search(r'<script>\n\(function\(\)\{\n  const CSV=.*?\n\}\)\(\);\n</script>', s, re.S).group(0)
