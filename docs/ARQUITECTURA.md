@@ -58,6 +58,7 @@ Desde el 8/11/2026 todas las casas van en una página: `herramientas/armar-hub.s
 | `corredizas.js` | hojas corredizas que se abren arrastrándolas o con el deslizador de su ficha; la casa declara las hojas (id, eje, recorrido). La usa Mocoretá; Arcos sigue con su `movibles.js` |
 | `params-db.js` | guarda las variantes de diseño (las variables que no son del grupo «Ver») en la base del artifact y las aplica al abrir. La usa Mocoretá; Carhué tiene su propia versión en `casa.js` (pasarla a ésta). |
 | `explica.js` | explicaciones animadas tipo «slides en 3D»: pasos con cámara, texto, cortes (`solo`, `fantasma`, `ocultar`), piezas que se arman bajando (`armar`) y corredizas que se mueven (`mover`, `pos`). Las da cada casa (`initExplicaciones(visor, { explicaciones, stage })`); una zona de variantes con `explica: id` muestra el botón «▶ Ver cómo se arma y funciona». Al salir vuelve todo (variantes, cámara, piezas). |
+| `aristas.js` | modos de dibujo en Vistas → Dibujo: normal, aristas (el render con las aristas de cada pieza, EdgesGeometry a 20°) y técnico (caras claras sin texturas ni sombras, aristas negras). Se rehace en cada rearme; el modo se guarda en el navegador. Prendido en todas las casas. |
 | `nombres.js`, `marcas.js`, `medir.js`, `senalar.js`, `vistasui.js`, `luz.js`, `realismo.js`, `escalera.js`, `icons.js` | utilidades del visor |
 
 ## Persistencia

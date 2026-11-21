@@ -13,6 +13,7 @@ let MOVS = null;
 let LUCES = null;   /* se arman en el primer build, mirando la geometría (cada luz va al techo que tiene arriba) */
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
+import { initAristas } from './aristas.js';
 import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
 import { initVistas } from './vistas.js';
@@ -302,6 +303,7 @@ try { initSenalar(visor, document.querySelector('#modo-3d .stage')); } catch (e)
 try { initMedir(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('medir', e); }
 { let vu = null; try { vu = initVistasUI(); } catch (e) { console.error('vistas', e); }
   try { initToolbar(document.querySelector('#modo-3d .stage'), visor, { vistas: vu, zonas: [] }); } catch (e) { console.error('toolbar', e); } }
+try { initAristas(visor); } catch (e) { console.error('aristas', e); }
 try { initViewCube(visor); } catch (e) { console.error('viewcube', e); }
 try { initInspector(visor); } catch (e) { console.error('inspector', e); }
 try { initSidebar(visor); } catch (e) { console.error('sidebar', e); }

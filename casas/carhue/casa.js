@@ -3,6 +3,7 @@
 import { createVisor, geo } from './visor3d.js';
 import { initSenalar } from './senalar.js';
 import { initToolbar } from './toolbar.js';
+import { initAristas } from './aristas.js';
 import { initCandado } from './candado.js';
 import { initMedir } from './medir.js';
 import { initVistasUI } from './vistasui.js';
@@ -1155,6 +1156,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
 {let vu=null;try{vu=initVistasUI();}catch(e){console.error('vistas',e);}
 try{initExplicaciones(visor,{explicaciones:EXPLICA,stage:document.querySelector('#modo-3d .stage')});}catch(e){console.error('explica',e);}
 try{initToolbar(document.querySelector('#modo-3d .stage'),visor,{vistas:vu,zonas:ZONAS});}catch(e){console.error('toolbar',e);}}
+try { initAristas(visor); } catch (e) { console.error('aristas', e); }
 try{initInspector(visor);}catch(e){console.error('inspector',e);}
 try{initViewCube(visor);}catch(e){console.error('viewcube',e);}
 try{initSidebar(visor);}catch(e){console.error('sidebar',e);}
