@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (21/11/2026, v0.10.29)
+# Mocoretá: resumen para arrancar una conversación nueva (21/11/2026, v0.10.30)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
