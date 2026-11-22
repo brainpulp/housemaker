@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.62', fecha:'2026-11-22',
+  nombre:'Carhué', version: '1.1.63', fecha:'2026-11-22',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-22', v:'1.1.63', txt:'Maxi 22/11: la «ratona» que Maxi diseñó en la página Octet (L = 45, 0,90 × 1,35, una capa, vidrio con 20 de vuelo) va en el living, en el centro de la alfombra y con el lado largo de frente al hogar.'},
   {fecha:'2026-11-22', v:'1.1.62', txt:'Maxi 22/11: el escritorio del estudio es el «desk» que Maxi diseñó en la página Octet (L = 45, 0,90 × 1,35, vidrio con 20 de vuelo); se saca el escritorio Octet provisorio de L = 24.'},
   {fecha:'2026-11-22', v:'1.1.61', txt:'Maxi 22/11: se saca la ratona Octet del living (no tenía el mismo largo de tubo que los otros muebles Octet; Maxi la rehace en la página Octet).'},
   {fecha:'2026-11-22', v:'1.1.60', txt:'Maxi 22/11: (1) el vidrio del tímpano norte (M-10) ya no es un paño único: va repartido en seis paños con montantes de acero alineados con el marco de abajo. (2) Escritorio del estudio y ratona del living con el sistema Octet: escritorio de 7 × 3 celdas con dos pies y tapa de vidrio de 1,80 × 0,76; ratona de 6 × 3 celdas, tapa de vidrio de 1,50 × 0,70, ~38 de alto.'},
