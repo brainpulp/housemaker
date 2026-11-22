@@ -199,7 +199,14 @@ function build(p){
       g=[geo.mapGeo(new THREE.ExtrudeGeometry(sh,{depth:e,bevelEnabled:false,curveSegments:1}),(u,v,w)=>[u,v,ay-e/2+w])];}
     else if(m.id==='M-20'||m.id==='M-22'){top=wingZ(m.a[0]);g=wallGeos(m,top,(x,y)=>wingZ(x)-4);}
     else if(m.id==='M-44'){/* sube hasta el techo del living, como el macizo del hogar */const zt=y=>255+(y+2)*(252/354)-6;top=zt(100);g=wallGeos(m,top,(x,y)=>zt(y));}
-    else if(m.id==='M-10'){/* Maxi 21/11: el riel de arriba del tímpano a la misma altura que el riel alto del ventanal RA-1 (+2,22), no a +2,41 */g=[box(2511,2531,222,242,8,937),box(2511,2531,0,3,8,937),prism([[8,242],[937,242],[937,246],[738,344],[352,507],[8,243]],2515,2527,'ZY')];}
+    else if(m.id==='M-10'){/* Maxi 21/11: el riel de arriba del tímpano a la misma altura que el riel alto del ventanal RA-1 (+2,22), no a +2,41.
+      Maxi 22/11 («M-10 está mal, tiene que estar recortado o repartido con el marco, no es un vidrio único»): el vidrio del tímpano va en paños, con montantes de acero
+      en las juntas de las 4 puertas de abajo (y 1,15 · 3,14 · 5,13 · 7,11 · 9,10) y en las puntas; el riel y el umbral pasan a ser marco de acero (M-10m) */
+      const ol=[[8,242],[937,242],[937,246],[738,344],[352,507],[8,243]],MY=[8,115,313.75,512.5,711.25,910,937],mw=3;
+      const clipY=(P,lo,hi)=>{let q=P;for(const [lim,sg] of [[lo,1],[hi,-1]]){const r=[];for(let j=0;j<q.length;j++){const p1=q[j],p2=q[(j+1)%q.length],d1=sg*(p1[0]-lim),d2=sg*(p2[0]-lim);if(d1>=0)r.push(p1);if((d1>=0)!==(d2>=0)){const k=d1/(d1-d2);r.push([p1[0]+(p2[0]-p1[0])*k,p1[1]+(p2[1]-p1[1])*k]);}}q=r;if(q.length<3)return null;}return q;};
+      g=[];for(let i=0;i<MY.length-1;i++){const q=clipY(ol,MY[i]+mw,MY[i+1]-mw);if(q)g.push(prism(q,2520,2522,'ZY'));}
+      const fr=[box(2511,2531,222,242,8,937),box(2511,2531,0,3,8,937)];for(const y of MY){const q=clipY(ol,Math.max(8,y-mw),Math.min(937,y+mw));if(q)fr.push(prism(q,2515,2527,'ZY'));}
+      Pt('M-10m','M-10 · marco y montantes del tímpano','acero',fr,{fn:'Marco de acero del tímpano vidriado: riel de arriba (+2,22, a la altura de RA-1), umbral y montantes en las juntas de las puertas corredizas de abajo, hasta el techo.',sec:'acero, montantes de 6 × 12'},{group:'Aberturas',tags:['PB','aberturas']});}
     else if(m.id==='M-09'){/* sólo los rieles del retorno (Maxi: no es un muro): abajo a ras del piso y arriba sobre los paños */g=[box(1329,1342,0,1.5,638.5,918.5),box(1329,1342,222,225,638.5,918.5)];}
     else if(m.id==='M-35'){g=[box(0,1323,388,472,-91,-77)];}
     else if(m.id==='M-43'){const lu4=M.TECHOS.find(t=>t.id==='LU-4'),DXH=lu4?Math.min(...lu4.poly.map(q=>q[0]))-(m.a[0]+1):0,x0=m.a[0]+DXH,HT=472,/* toda la corrediza (4 hojas, riel y relleno) cae donde empieza la lucarna LU-4 (Maxi) */u2=y=>468+(y+46)*(27/397),u3=y=>DORM_CU(p,x0,y)??(490-(y-352)*(140/332))/* Maxi 9/11: con el dormer corrido hasta la galería, el techo de este lado es el de sus cabios */,under=y=>y<352?u2(y):u3(y),hp=y=>Math.min(HT,under(y))-1;
