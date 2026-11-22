@@ -136,7 +136,7 @@ export function armar(THREE, m0, opt = {}) { const { m, L, R, I, P, tipos, kmin,
 
 /* texto de la lista de materiales, en castellano */
 export function bomHTML(bom, m, caja) { const f = v => (v / 100).toFixed(3).replace('.', ','); const fl = v => v.toFixed(1).replace('.', ',');
-  const total = caja ? `<tr><td><b>caja total</b></td><td><b>${fl(caja.x[1] - caja.x[0])} × ${fl(caja.z[1] - caja.z[0])} × ${fl(caja.y[1])}</b> cm (ancho × fondo × alto, con vidrio y regatones)</td></tr>` : '';
-  const tubos = bom.tubos.map(t => `<tr><td>${t.n} tubos</td><td>Ø ${fl(m.d)} × <b>${fl(t.Lc)}</b> cm</td></tr>`).join('');
-  return `<table class="octBom"><tbody>${total}${tubos}<tr><td>${bom.full} nodos</td><td>full (12 caras)</td></tr><tr><td>${bom.half} nodos</td><td>half (8 caras)</td></tr>${bom.discos ? `<tr><td>${bom.discos} discos</td><td>apoyo del vidrio</td></tr>` : ''}${bom.pies ? `<tr><td>${bom.pies} regatones</td><td></td></tr>` : ''}${bom.tapa ? `<tr><td>vidrio</td><td>${fl(bom.tapa.x1 - bom.tapa.x0)} × ${fl(bom.tapa.z1 - bom.tapa.z0)} × ${fl(bom.tapa.e)}</td></tr>` : ''}</tbody></table>
-  <div class="s">${bom.tubosTotal} tubos, ${f(bom.metros * 100)} m de tubo en total · largo base L = ${fl(m.L)}, R del nodo ${fl(m.R)}${m.desc ? `, descuento ${fl(m.desc)}` : ''}: cada tubo mide n·L − 2R${m.desc ? ' − descuento' : ''}.</div>`; }
+  const total = caja ? `<tr><td>Total</td><td><b>${fl(caja.x[1] - caja.x[0])} × ${fl(caja.z[1] - caja.z[0])} × ${fl(caja.y[1])}</b> cm<br><span class="s">ancho × fondo × alto, con vidrio y regatones</span></td></tr>` : '';
+  const tubos = bom.tubos.map(t => `<tr><td>${t.n} tubos</td><td>Ø ${fl(m.d)} × <b>${fl(t.Lc)}</b> cm de corte</td></tr>`).join('');
+  return `<table class="octBom"><tbody>${total}${tubos}<tr><td>${bom.full} nodos</td><td>full, 12 caras</td></tr><tr><td>${bom.half} nodos</td><td>half, 8 caras</td></tr>${bom.discos ? `<tr><td>${bom.discos} discos</td><td>apoyo del vidrio</td></tr>` : ''}${bom.pies ? `<tr><td>${bom.pies} regatones</td><td></td></tr>` : ''}${bom.tapa ? `<tr><td>1 vidrio</td><td>${fl(bom.tapa.x1 - bom.tapa.x0)} × ${fl(bom.tapa.z1 - bom.tapa.z0)} × ${fl(bom.tapa.e)} cm</td></tr>` : ''}</tbody></table>
+  <div class="s">${bom.tubosTotal} tubos, ${f(bom.metros * 100)} m de tubo en total.</div>`; }

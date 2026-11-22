@@ -12,13 +12,13 @@ export function initInspector(visor){
 #insp .ih{display:flex;align-items:center;gap:2px;padding:3px 3px 3px 8px;border-bottom:1px solid var(--rule);user-select:none;flex:none}
 #insp .ih b{flex:1;font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 #insp .ib{background:none;border:0;cursor:pointer;color:var(--muted);padding:2px 5px;border-radius:3px;font-size:12px;line-height:16px}#insp .ib:hover{background:var(--accent-soft);color:var(--ink,inherit)}
-#insp .sel{padding:6px 8px;border-bottom:1px solid var(--rule);flex:none;max-height:46%;overflow:auto}
+#insp .sel{padding:8px 12px 10px;border-bottom:1px solid var(--rule);flex:none;max-height:46%;overflow:auto;line-height:1.4}
 #insp .st{display:flex;align-items:center;gap:6px}#insp .chip{font:600 10px var(--f-mono);background:var(--accent-soft);color:var(--accent,#c0461f);padding:1px 6px;border-radius:3px;flex:none}
 #insp .nm{flex:1;min-width:0;font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#insp .nm input{width:100%;font:inherit;padding:1px 3px}
-#insp dl{display:grid;grid-template-columns:50px 1fr;gap:2px 6px;margin:6px 0 0}#insp dt{color:var(--muted);font-size:10px}#insp dd{margin:0;font-size:10.5px;min-width:0;overflow-wrap:anywhere}
-#insp .fn{margin-top:6px;font-size:10px;line-height:1.4;color:var(--muted)}#insp .fn.cut{max-height:3.2em;overflow:hidden;cursor:pointer}
+#insp dl{display:grid;grid-template-columns:56px 1fr;gap:3px 8px;margin:8px 0 0}#insp dt{color:var(--muted);font-size:10px;padding-top:1px}#insp dd{margin:0;font-size:10.5px;min-width:0;overflow-wrap:anywhere}#insp dd .pos{display:block;font:10px var(--f-mono);white-space:nowrap}
+#insp .fn{margin-top:8px;font-size:10.5px;line-height:1.4;color:var(--muted)}#insp .fn.cut{max-height:3.2em;overflow:hidden;cursor:pointer}
 #insp textarea{width:100%;box-sizing:border-box;margin-top:5px;font:10.5px inherit;min-height:34px;resize:vertical;padding:3px 5px}
-#insp .acts{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}#insp .acts .ib{border:1px solid var(--rule);font-size:10px;padding:1px 4px}
+#insp .acts{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}#insp .acts .ib{border:1px solid var(--rule);font-size:10px;padding:2px 6px}
 #insp .ol{display:flex;flex-direction:column;min-height:120px;flex:1 1 auto}#insp .os{padding:6px 8px;border-bottom:1px solid var(--rule);flex:none}#insp .os input{width:100%;box-sizing:border-box;padding:2px 5px;font-size:10.5px}
 #insp .tree{overflow:auto;flex:1 1 auto;padding:2px 0 6px}#insp .g{display:flex;align-items:center;gap:4px;padding:4px 6px 2px;font:600 10px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);cursor:pointer;position:sticky;top:0;background:var(--panel)}
 #insp .r{display:flex;align-items:center;gap:4px;padding:0 4px 0 6px;cursor:pointer;white-space:nowrap}#insp .r:hover{background:var(--accent-soft)}#insp .r.on{background:var(--accent-soft);box-shadow:inset 2px 0 0 var(--accent,#c0461f)}
@@ -44,14 +44,14 @@ export function initInspector(visor){
   /* ---------- datos ---------- */
   const byId=()=>{const m={};for(const p of visor.parts||[])m[p.id]=p;return m;};
   const nombre=p=>{const al=N.alias(p.id);if(al)return al;return (p.name||'').replace(/^[A-Za-z0-9-]+\s*·\s*/,'')||p.id;};
-  const CAT={muro:'muro',ladrillo:'ladrillo',tabique:'tabique',glass:'vidrio',madera:'madera',roble:'roble',acero:'acero',techo:'techo',chapa:'chapa',cabio:'cabio',ep:'entrepiso',piso:'piso',deck:'deck',agua:'agua',pileta:'pileta',corteza:'árbol'};
+  const CAT={muro:'muro',ladrillo:'ladrillo',tabique:'tabique',glass:'vidrio',madera:'madera',roble:'roble',acero:'acero',steel:'acero',inox:'acero inoxidable',herraje:'herraje',goma:'goma',techo:'techo',chapa:'chapa',cabio:'cabio',ep:'entrepiso',piso:'piso',deck:'deck',agua:'agua',pileta:'pileta',corteza:'árbol'};/* info.tipo de la pieza manda sobre la categoría (Maxi 22/11) */
   const f2=v=>(v/100).toFixed(2).replace('.',',');
   let ren=null,fnOpen=false;
   function pintarSel(){const id=visor.selected,p=id&&byId()[id];if(!p){selEl.hidden=true;return;}selEl.hidden=false;const i=p.info||{};const bb=p.bb;let caja='',posi='';
-    if(bb&&!bb.isEmpty()){caja=`${f2(bb.max.x-bb.min.x)} × ${f2(bb.max.z-bb.min.z)} × ${f2(bb.max.y-bb.min.y)} m`;posi=`x ${f2(bb.min.x)}…${f2(bb.max.x)} · y ${f2(bb.min.z)}…${f2(bb.max.z)} · z ${f2(bb.min.y)}…${f2(bb.max.y)}`;}
+    if(bb&&!bb.isEmpty()){caja=`${f2(bb.max.x-bb.min.x)} × ${f2(bb.max.z-bb.min.z)} × ${f2(bb.max.y-bb.min.y)} m`;posi=`<span class="pos">x ${f2(bb.min.x)} – ${f2(bb.max.x)}</span><span class="pos">y ${f2(bb.min.z)} – ${f2(bb.max.z)}</span><span class="pos">z ${f2(bb.min.y)} – ${f2(bb.max.y)}</span>`;}
     const oculto=visor.isHidden(id);const fn=txt(i.fn).replace(/^Tu nota:.*?(?=[A-ZÁÉÍÓÚ¿])/,'').trim();
     selEl.innerHTML=`<div class="st"><span class="chip">${esc(p.id)}</span><span class="nm" title="Doble clic para renombrar">${ren===p.id?`<input value="${esc(N.alias(p.id)||nombre(p))}">`:esc(nombre(p))}</span><button class="ib" data-a="ren" title="Renombrar">✎</button></div>
-      <dl><dt>Tipo</dt><dd>${esc(CAT[p.cat]||p.cat||'—')}${p.group?` · ${esc(p.group)}`:''}</dd>${i.med?`<dt>Medidas</dt><dd>${esc(txt(i.med))}</dd>`:''}${i.sec?`<dt>Sección</dt><dd>${esc(txt(i.sec))}</dd>`:''}${caja?`<dt>Caja</dt><dd>${caja}</dd><dt>Posición</dt><dd style="font-size:11px">${posi}</dd>`:''}</dl>
+      <dl><dt>Tipo</dt><dd>${esc(txt(i.tipo)||CAT[p.cat]||p.cat||'—')}${p.group&&!i.tipo?` · ${esc(p.group)}`:''}</dd>${i.med?`<dt>Medidas</dt><dd>${esc(txt(i.med))}</dd>`:''}${i.sec?`<dt>Sección</dt><dd>${esc(txt(i.sec))}</dd>`:''}${caja?`<dt>Caja</dt><dd>${caja}</dd><dt>Posición</dt><dd>${posi}</dd>`:''}</dl>
       ${fn?`<div class="fn${fnOpen?'':' cut'}" data-a="fn" title="${fnOpen?'':'Ver todo'}">${esc(fn)}</div>`:''}
       ${visor.controlPieza?visor.controlPieza(p.id):''}
       <textarea placeholder="Tu nota sobre ${esc(p.id)}…" data-nota>${esc(N.nota(p.id))}</textarea>

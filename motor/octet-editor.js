@@ -24,56 +24,80 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   const msg = t => { const el = q('octMsg'); if (!el) return; el.textContent = t || ''; clearTimeout(msgT); if (t) msgT = setTimeout(() => { el.textContent = ''; }, 4000); };
 
   /* ---------- base ---------- */
-  const persistir = () => { clearTimeout(saveT); saveT = setTimeout(async () => { saveT = 0; const id = cur || (cur = slug(m.nombre)); m.ts = new Date().toISOString(); const body = O.copiar(m); MOD[id] = body; LS.set(pref + '-cur', id); LS.set(pref + '-modelos', MOD);
-    if (db) { try { await db.collection('octet').doc(id).set(body); } catch (e) { console.error('octet guardar', e); } } lista(); }, 500); };
+  const guardarYa = async () => { clearTimeout(saveT); saveT = 0; const id = cur || (cur = slug(m.nombre)); m.ts = new Date().toISOString(); const body = O.copiar(m); MOD[id] = body; LS.set(pref + '-cur', id); LS.set(pref + '-modelos', MOD);
+    if (db) { try { await db.collection('octet').doc(id).set(body); } catch (e) { console.error('octet guardar', e); } } lista(); };
+  const persistir = () => { clearTimeout(saveT); saveT = setTimeout(guardarYa, 500); };
+  /* antes de cambiar de modelo se guarda lo pendiente (si no, un cambio rápido de modelo lo perdía) */
+  const cerrarPendiente = () => { if (saveT) guardarYa(); };
   MOD = LS.get(pref + '-modelos', {}); if (cur && MOD[cur]) m = O.normalizar(MOD[cur]); else if (!cur) { cur = slug(m.nombre); MOD[cur] = O.copiar(m); } /* sin nada guardado, la semilla es el primer modelo */
   N.getDb().then(d => { db = d; if (!d) return; d.collection('octet').onSnapshot(snap => { const R = {}; snap.docs.forEach(x => { if (x.exists) R[x.id] = x.data(); });
     if (!Object.keys(R).length) { persistir(); return; } /* base vacía: se guarda lo que hay (la semilla) y el próximo aviso trae la lista */
     MOD = R; LS.set(pref + '-modelos', MOD); /* la base manda sobre lo local */
     if (!cur || !R[cur]) abrir(Object.keys(R).sort()[0]); else if (!saveT && R[cur].ts && R[cur].ts !== (m.ts || '')) { m = O.normalizar(R[cur]); fire(); } /* cambiado desde otro navegador */
     lista(); pintar(); }, () => {}); });
-  function abrir(id) { if (!MOD[id]) return; cur = id; LS.set(pref + '-cur', id); hist = []; sel.clear(); fuente = null; m = O.normalizar(MOD[id]); fire(); }
-  function nuevo(nombre, base) { const n = (nombre || '').trim() || 'Nuevo'; let id = slug(n), i = 2; while (MOD[id]) id = slug(n) + '-' + i++; cur = id; hist = []; sel.clear(); fuente = null; m = O.normalizar(base ? { ...O.copiar(base), nombre: n } : O.vacio(n)); fire(); persistir(); }
-  async function borrar(id) { if (!MOD[id]) return; delete MOD[id]; LS.set(pref + '-modelos', MOD); if (db) { try { await db.collection('octet').doc(id).delete(); } catch (e) {} } if (cur === id) { cur = null; const k = Object.keys(MOD).sort()[0]; if (k) abrir(k); else nuevo('Nuevo'); } lista(); }
+  function abrir(id) { if (!MOD[id]) return; cerrarPendiente(); cur = id; LS.set(pref + '-cur', id); hist = []; sel.clear(); fuente = null; m = O.normalizar(MOD[id]); fire(); }
+  function nuevo(nombre, base) { cerrarPendiente(); const n = (nombre || '').trim() || 'Nuevo'; let id = slug(n), i = 2; while (MOD[id]) id = slug(n) + '-' + i++; cur = id; hist = []; sel.clear(); fuente = null; m = O.normalizar(base ? { ...O.copiar(base), nombre: n } : O.vacio(n)); fire(); persistir(); }
+  async function borrar(id) { if (!MOD[id]) return; if (cur !== id) cerrarPendiente(); else { clearTimeout(saveT); saveT = 0; } delete MOD[id]; LS.set(pref + '-modelos', MOD); if (db) { try { await db.collection('octet').doc(id).delete(); } catch (e) {} } if (cur === id) { cur = null; const k = Object.keys(MOD).sort()[0]; if (k) abrir(k); else nuevo('Nuevo'); } lista(); }
 
   /* ---------- panel ---------- */
+  /* Maxi 22/11: panel ordenado como formulario (etiqueta a la izquierda, campo a la derecha), con margen, secciones separadas y ayudas cortas */
   const css = document.createElement('style'); css.textContent = `
-#octPanel .mh{display:flex;justify-content:space-between;align-items:center}#octPanel .mx{cursor:pointer;font-size:16px}
-#octPanel .mrow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:4px 0}#octPanel .seg .btn[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
-#octPanel .mh2{margin-top:8px;font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--rule);padding-top:5px}
-#octPanel .mhint,#octPanel .mmsg,#octPanel .s{color:var(--muted);font-size:11px;line-height:1.35}#octPanel .mmsg:empty{display:none}
-#octPanel label.n{display:inline-flex;align-items:center;gap:3px;font-size:11px}#octPanel label.n input[type=number]{width:46px;font-size:11px;padding:1px 3px}#octPanel input[type=text]{flex:1;min-width:0;font-size:11px;padding:2px 4px}
-#octPanel select{font-size:11px;max-width:100%}#octPanel .btn.mini{padding:0 5px;font-size:10px;line-height:16px}#octPanel textarea{width:100%;box-sizing:border-box;font:10px var(--f-mono);height:70px}
-#octPanel .octBom{border-collapse:collapse;font-size:11px;margin:3px 0}#octPanel .octBom td{padding:1px 6px 1px 0;border-bottom:1px solid var(--rule);vertical-align:top}
-#octPanel .flechas{display:grid;grid-template-columns:repeat(3,26px);gap:2px}#octPanel .flechas .btn{padding:0;height:22px;font-size:12px}
+#octPanel{padding:6px 12px 10px;font-size:11px;line-height:1.4}#octPanel .mh{display:none}
+#octPanel .mh2{margin:12px 0 5px;font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--rule);padding-top:8px;display:flex;align-items:center;gap:8px}
+#octPanel .mh2:first-of-type{margin-top:4px;border-top:0;padding-top:0}#octPanel .mh2 label{font:inherit;text-transform:none;letter-spacing:0;color:var(--ink);display:inline-flex;align-items:center;gap:4px;margin-left:auto}
+#octPanel .mrow{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:5px 0}#octPanel .seg .btn[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+#octPanel .herr{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:4px 0}#octPanel .herr .btn{padding:3px 4px;font-size:11px;line-height:1.3;text-align:center}
+#octPanel .tres{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:5px 0}#octPanel .tres .btn{padding:2px 4px;font-size:10.5px}
+#octPanel .f{display:grid;grid-template-columns:1fr 62px;gap:4px 8px;align-items:center;margin:4px 0}#octPanel .f label{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#octPanel .f input[type=number],#octPanel .f select{width:100%;box-sizing:border-box;font-size:11px;padding:2px 4px;text-align:right}#octPanel .f select{text-align:left}
+#octPanel .f.off label,#octPanel .f.off input{opacity:.45}
+#octPanel .mhint,#octPanel .mmsg,#octPanel .s{color:var(--muted);font-size:10.5px;line-height:1.4;margin:3px 0}#octPanel .mmsg:empty{display:none}#octPanel .mmsg{color:var(--accent);font-weight:600}
+#octPanel select{font-size:11px;max-width:100%}#octPanel #octSel{width:100%;box-sizing:border-box;padding:3px 4px}#octPanel input[type=text]{width:100%;box-sizing:border-box;font-size:11px;padding:3px 5px}
+#octPanel .btn.mini{padding:2px 7px;font-size:10.5px;line-height:16px}#octPanel textarea{width:100%;box-sizing:border-box;font:10px var(--f-mono);height:70px;margin-top:4px}
+#octPanel .octBom{border-collapse:collapse;font-size:11px;margin:2px 0 4px;width:100%}#octPanel .octBom td{padding:3px 6px 3px 0;border-bottom:1px solid var(--rule);vertical-align:top}#octPanel .octBom td:first-child{white-space:nowrap;color:var(--muted)}#octPanel .octBom tr:first-child td{color:var(--ink)}
+#octPanel .flechas{display:grid;grid-template-columns:repeat(3,28px);gap:3px}#octPanel .flechas .btn{padding:0;height:24px;font-size:13px}
+#octPanel .cmd{display:flex;gap:4px;flex-wrap:wrap;margin:5px 0}
+#octPanel #octLista{border:1px solid var(--rule);border-radius:3px;margin:2px 0 4px;max-height:150px;overflow:auto}#octPanel .mi{display:flex;align-items:baseline;gap:6px;padding:3px 7px;cursor:pointer;border-bottom:1px solid var(--rule)}#octPanel .mi:last-child{border-bottom:0}
+#octPanel .mi:hover{background:var(--accent-soft)}#octPanel .mi.on{background:var(--accent-soft);box-shadow:inset 2px 0 0 var(--accent);font-weight:600}#octPanel .mi .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#octPanel .mi .s{margin:0;white-space:nowrap}
+#octPanel label.chk{display:flex;align-items:flex-start;gap:5px;font-size:10.5px;color:var(--muted);margin:3px 0 5px}#octPanel label.chk input{margin:1px 0 0}
+#octPanel [hidden]{display:none!important}#octPanel .f.w{grid-template-columns:1fr 118px}
 #modo-3d .stage.octet-edit #view{cursor:crosshair}`; document.head.appendChild(css);
   const bt = document.createElement('button'); bt.className = 'btn'; bt.id = 'octetTg'; bt.textContent = '⬡ Octet'; bt.title = 'Editar la estructura: agregar, quitar y mover tubos y nodos'; const tr = document.getElementById('topright'); if (tr) tr.prepend(bt);
   const P = document.createElement('div'); P.id = 'octPanel'; P.hidden = true; stage.appendChild(P);
   P.innerHTML = `<div class="mh"><b>Octet</b><span class="mx" id="octX" title="Cerrar">×</span></div>
-   <div class="mrow"><select id="octSel" title="Modelos guardados"></select><button class="btn mini" id="octNuevo" title="Modelo nuevo, vacío">Nuevo</button><button class="btn mini" id="octDup" title="Copiar este modelo con otro nombre">Duplicar</button><button class="btn mini" id="octBorrar" title="Borrar este modelo">Borrar</button></div>
-   <div class="mrow"><input type="text" id="octNombre" placeholder="nombre" maxlength="60"><span class="s" id="octEstado"></span></div>
+   <div class="mh2">Modelos guardados</div>
+   <div id="octLista" title="Tocá uno para abrirlo"></div>
+   <label class="chk"><input type="checkbox" id="octTodos"> Ver todos juntos (los otros en gris, al lado; tocá uno para abrirlo)</label>
+   <div class="tres"><button class="btn mini" id="octNuevo" title="Modelo nuevo, vacío">Nuevo</button><button class="btn mini" id="octDup" title="Copiar este modelo con otro nombre">Duplicar</button><button class="btn mini" id="octBorrar" title="Borrar este modelo">Borrar</button></div>
+   <input type="text" id="octNombre" placeholder="nombre del modelo" maxlength="60" title="Nombre del modelo">
+   <div class="s" id="octEstado"></div>
    <div class="mh2">Herramienta</div>
-   <div class="mrow seg"><button class="btn mini" data-tool="">Navegar</button><button class="btn mini" data-tool="agregar">Agregar tubo</button><button class="btn mini" data-tool="quitar">Quitar</button><button class="btn mini" data-tool="mover">Elegir y mover</button><button class="btn mini" id="octUndo" title="Deshacer (Ctrl/⌘ Z)">↶</button></div>
+   <div class="herr seg"><button class="btn" data-tool="">Navegar</button><button class="btn" data-tool="agregar">Agregar tubo</button><button class="btn" data-tool="quitar">Quitar</button><button class="btn" data-tool="mover">Elegir y mover</button></div>
    <div class="mhint" id="octHint"></div>
-   <div class="mrow" id="octLargoRow"><label class="n">largo del tubo nuevo <select id="octLargo"><option value="1">L</option><option value="2">2 L</option><option value="3">3 L</option></select></label></div>
-   <div id="octMover" hidden><div class="mrow"><span class="s" id="octSelN"></span><button class="btn mini" id="octSelTodo">Todos</button><button class="btn mini" id="octSelNada">Ninguno</button></div>
+   <div class="f" id="octLargoRow"><label for="octLargo">Largo del tubo nuevo</label><select id="octLargo"><option value="1">L</option><option value="2">2 L</option><option value="3">3 L</option></select></div>
+   <div id="octMover" hidden><div class="mrow"><span class="s" id="octSelN" style="flex:1"></span><button class="btn mini" id="octSelTodo">Todos</button><button class="btn mini" id="octSelNada">Ninguno</button></div>
      <div class="mrow"><div class="flechas"><span></span><button class="btn" data-mv="0,2,0" title="+z (atrás)">▲</button><span></span><button class="btn" data-mv="-2,0,0" title="−x">◀</button><span></span><button class="btn" data-mv="2,0,0" title="+x">▶</button><span></span><button class="btn" data-mv="0,-2,0" title="−z (adelante)">▼</button><span></span></div>
        <div class="flechas"><button class="btn" data-mv="1,1,1" title="una capa arriba, corrido a +x +z">⇗</button><button class="btn" data-mv="0,0,2" title="dos capas arriba, en el mismo lugar">⇈</button><button class="btn" data-mv="-1,-1,1" title="una capa arriba, corrido a −x −z">⇖</button><button class="btn" data-mv="1,-1,-1" title="una capa abajo, corrido a +x −z">⇘</button><button class="btn" data-mv="0,0,-2" title="dos capas abajo, en el mismo lugar">⇊</button><button class="btn" data-mv="-1,1,-1" title="una capa abajo, corrido a −x +z">⇙</button></div></div>
-     <div class="mrow"><label class="n">tipo de nodo <select id="octTipo"><option value="auto">según los tubos</option><option value="full">full (12)</option><option value="arriba">half, tubos arriba</option><option value="abajo">half, tubos abajo</option></select></label><button class="btn mini" id="octQuitarSel">Quitar elegidos</button></div></div>
-   <div class="mh2">Retícula y piezas</div>
-   <div class="mrow"><label class="n">L <input type="number" id="octL" step="0.5" min="5" max="500"></label><label class="n">Ø tubo <input type="number" id="octD" step="0.1" min="0.3" max="20"></label><label class="n">R nodo <input type="number" id="octR" step="0.1" min="0.5" max="30"></label><label class="n">descuento <input type="number" id="octDesc" step="0.1" min="0" max="20"></label></div>
-   <div class="mrow"><label class="n"><input type="checkbox" id="octTapaOn"> vidrio</label><label class="n">esp. <input type="number" id="octTapaE" step="0.1" min="0.3" max="10"></label><label class="n">vuelo <input type="number" id="octTapaV" step="1" min="0" max="100"></label><label class="n">disco <input type="number" id="octTapaDisco" step="0.1" min="0" max="10"></label></div>
-   <div class="mrow"><label class="n">ancho <input type="number" id="octTapaAn" step="1" min="0" max="600" title="0: sale de los nodos de arriba más el vuelo"></label><label class="n">fondo <input type="number" id="octTapaFo" step="1" min="0" max="600" title="0: sale de los nodos de arriba más el vuelo"></label><label class="n">corrido x <input type="number" id="octTapaDx" step="1" min="-300" max="300"></label><label class="n">z <input type="number" id="octTapaDz" step="1" min="-300" max="300"></label></div>
-   <div class="mhint">Vidrio: con ancho y fondo en 0 sale de los nodos de arriba más el vuelo; con medidas, queda de ese tamaño centrado en los nodos (y corrido lo que digas).</div>
-   <div class="mrow"><label class="n"><input type="checkbox" id="octPiesOn"> regatones</label><label class="n">alto <input type="number" id="octPiesH" step="0.1" min="0" max="10"></label></div>
-   <div class="mhint">cm. L es de centro a centro de nodo; el tubo se corta a n·L − 2R − descuento. Supuesto hasta medir el nodo real.</div>
+     <div class="mhint">Flechas: un paso en la capa. Diagonales: una capa arriba o abajo, corrido media celda. ⇈ ⇊: dos capas, en el mismo lugar.</div>
+     <div class="f w"><label for="octTipo">Tipo de nodo</label><select id="octTipo"><option value="auto">según los tubos</option><option value="full">full (12)</option><option value="arriba">half, tubos arriba</option><option value="abajo">half, tubos abajo</option></select></div>
+     <div class="cmd"><button class="btn mini" id="octQuitarSel">Quitar los elegidos</button></div></div>
+   <div class="cmd"><button class="btn mini" id="octUndo" title="Deshacer (Ctrl/⌘ Z)">↶ Deshacer</button></div>
+   <div class="mh2">Retícula (cm)</div>
+   <div class="f"><label for="octL" title="De centro de nodo a centro de nodo">Largo L, nodo a nodo</label><input type="number" id="octL" step="0.5" min="5" max="500"><label for="octD">Ø del tubo</label><input type="number" id="octD" step="0.1" min="0.3" max="20"><label for="octR" title="Del centro del nodo a cada cara">R del nodo</label><input type="number" id="octR" step="0.1" min="0.5" max="30"><label for="octDesc" title="Lo que se resta al corte además de 2R">Descuento de corte</label><input type="number" id="octDesc" step="0.1" min="0" max="20"></div>
+   <div class="mhint">Cada tubo se corta a n·L − 2R − descuento. R y Ø son supuestos hasta medir el nodo real.</div>
+   <div class="mh2">Vidrio (cm)<label><input type="checkbox" id="octTapaOn"> lleva</label></div>
+   <div class="f" id="octTapaF"><label for="octTapaE">Espesor</label><input type="number" id="octTapaE" step="0.1" min="0.3" max="10"><label for="octTapaV">Vuelo sobre los nodos</label><input type="number" id="octTapaV" step="1" min="0" max="100"><label for="octTapaDisco">Disco de apoyo, alto</label><input type="number" id="octTapaDisco" step="0.1" min="0" max="10"><label for="octTapaAn" title="0: sale de los nodos de arriba más el vuelo">Ancho (0 = automático)</label><input type="number" id="octTapaAn" step="1" min="0" max="600"><label for="octTapaFo" title="0: sale de los nodos de arriba más el vuelo">Fondo (0 = automático)</label><input type="number" id="octTapaFo" step="1" min="0" max="600"><label for="octTapaDx">Corrido en x</label><input type="number" id="octTapaDx" step="1" min="-300" max="300"><label for="octTapaDz">Corrido en z</label><input type="number" id="octTapaDz" step="1" min="-300" max="300"></div>
+   <div class="mhint">Con ancho y fondo en 0, el vidrio sale de los nodos de arriba más el vuelo.</div>
+   <div class="mh2">Regatones (cm)<label><input type="checkbox" id="octPiesOn"> llevan</label></div>
+   <div class="f" id="octPiesF"><label for="octPiesH">Alto</label><input type="number" id="octPiesH" step="0.1" min="0" max="10"></div>
    <div class="mh2">Sembrar un bloque</div>
-   <div class="mrow"><label class="n">x <input type="number" id="octBx" value="3" min="1" max="20" step="1"></label><label class="n">z <input type="number" id="octBz" value="2" min="1" max="20" step="1"></label><label class="n">capas <input type="number" id="octBc" value="3" min="1" max="12" step="1"></label><button class="btn mini" id="octBloque">Agregar bloque</button><button class="btn mini" id="octVaciar">Vaciar</button></div>
-   <div class="mhint">Celdas de L × L por capa; las capas se apilan a L/√2. Lo agrega desde el origen con todos los tubos; después quitás lo que sobra.</div>
+   <div class="f"><label for="octBx">Celdas en x</label><input type="number" id="octBx" value="3" min="1" max="20" step="1"><label for="octBz">Celdas en z</label><input type="number" id="octBz" value="2" min="1" max="20" step="1"><label for="octBc">Capas</label><input type="number" id="octBc" value="3" min="1" max="12" step="1"></div>
+   <div class="cmd"><button class="btn mini" id="octBloque">Agregar bloque</button><button class="btn mini" id="octVaciar">Vaciar todo</button></div>
+   <div class="mhint">Celdas de L × L; las capas van a L/√2. Lo agrega desde el origen con todos los tubos; después quitás lo que sobra.</div>
    <div class="mh2">Lista de materiales</div><div id="octBom"></div>
-   <div class="mh2">Pasarlo a una casa</div>
-   <div class="mhint">Lo guardado en este modelo lo leo yo y lo pongo como mueble «octet» en Carhué, Arcos o donde digas. Si querés copiarlo a mano:</div>
-   <div class="mrow"><button class="btn mini" id="octCopiar">Copiar JSON</button><button class="btn mini" id="octPegar">Pegar JSON…</button></div><div id="octJson" hidden><textarea id="octTa"></textarea><div class="mrow"><button class="btn mini" id="octImportar">Importar</button><button class="btn mini" id="octJsonX">Cerrar</button></div></div>
+   <div class="mh2">Copiar o pegar el modelo</div>
+   <div class="cmd"><button class="btn mini" id="octCopiar">Copiar JSON</button><button class="btn mini" id="octPegar">Pegar JSON…</button></div><div id="octJson" hidden><textarea id="octTa"></textarea><div class="cmd"><button class="btn mini" id="octImportar">Importar</button><button class="btn mini" id="octJsonX">Cerrar</button></div></div>
+   <div class="mhint">Lo guardado acá lo leo yo y lo pongo como mueble «octet» en la casa que digas.</div>
    <div class="mmsg" id="octMsg"></div>`;
   const q = id => P.querySelector('#' + id);
   const HINT = { '': 'Tocá cualquier pieza para ver su ficha. Elegí una herramienta para editar.', agregar: 'Tocá un nodo: aparecen en naranja las direcciones libres. Tocá una y queda el tubo (y el nodo de la punta). Tocá el vacío para soltar el nodo.',
@@ -87,7 +111,8 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   addEventListener('keydown', e => { if (e.key === 'Shift') shift = true; if (P.hidden || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; if ((e.key === 'z' || e.key === 'Z') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); deshacer(); } if (e.key === 'Escape') { fuente = null; fantasmas(); } });
   addEventListener('keyup', e => { if (e.key === 'Shift') shift = false; }); addEventListener('blur', () => { shift = false; });
   /* modelos */
-  q('octSel').addEventListener('change', e => { if (e.target.value) abrir(e.target.value); });
+  q('octLista').addEventListener('click', e => { const r = e.target.closest('.mi'); if (r && r.dataset.id !== cur) abrir(r.dataset.id); });
+  let todos = !!LS.get(pref + '-todos', false); q('octTodos').checked = todos; q('octTodos').addEventListener('change', e => { todos = e.target.checked; LS.set(pref + '-todos', todos); fire(); });
   q('octNuevo').addEventListener('click', () => { const n = prompt('Nombre del modelo nuevo', 'Nuevo'); if (n != null) nuevo(n); });
   q('octDup').addEventListener('click', () => { const n = prompt('Nombre de la copia', m.nombre + ' copia'); if (n != null) nuevo(n, m); });
   q('octBorrar').addEventListener('click', () => { if (cur && confirm(`¿Borrar «${m.nombre}»? No se puede deshacer.`)) borrar(cur); });
@@ -111,10 +136,11 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   q('octPegar').addEventListener('click', () => { q('octJson').hidden = false; q('octTa').value = ''; q('octTa').focus(); }); q('octJsonX').addEventListener('click', () => { q('octJson').hidden = true; });
   q('octImportar').addEventListener('click', () => { try { const o = JSON.parse(q('octTa').value); if (!o || typeof o !== 'object') throw 0; set({ ...O.copiar(m), ...o }); q('octJson').hidden = true; msg('Importado.'); } catch (e) { msg('Ese texto no es un modelo.'); } });
 
-  function lista() { const s = q('octSel'); const ids = Object.keys(MOD).sort((a, b) => (MOD[a].nombre || a).localeCompare(MOD[b].nombre || b)); s.innerHTML = ids.map(id => `<option value="${esc(id)}"${id === cur ? ' selected' : ''}>${esc(MOD[id].nombre || id)}</option>`).join('') || '<option value="">(sin modelos)</option>'; }
+  function lista() { const el = q('octLista'); const ids = Object.keys(MOD).sort((a, b) => (MOD[a].nombre || a).localeCompare(MOD[b].nombre || b));
+    el.innerHTML = ids.map(id => { const x = MOD[id]; const n = x.nodos ? Object.keys(x.nodos).length : 0, t = x.struts ? x.struts.length : 0; return `<div class="mi${id === cur ? ' on' : ''}" data-id="${esc(id)}"><span class="n">${esc(x.nombre || id)}</span><span class="s">${n} n · ${t} t</span></div>`; }).join('') || '<div class="mi"><span class="n s">(sin modelos)</span></div>'; }
   let ult = null; function pintar() { if (P.hidden) return; const A = ult = O.armar(THREE, m); q('octBom').innerHTML = O.bomHTML(A.bom, m, A.caja); if (document.activeElement !== q('octNombre')) q('octNombre').value = m.nombre || '';
     for (const [id, v] of [['octL', m.L], ['octD', m.d], ['octR', m.R], ['octDesc', m.desc || 0], ['octTapaE', m.tapa.e], ['octTapaV', m.tapa.vuelo], ['octTapaDisco', m.tapa.disco], ['octTapaAn', m.tapa.ancho || 0], ['octTapaFo', m.tapa.fondo || 0], ['octTapaDx', m.tapa.dx || 0], ['octTapaDz', m.tapa.dz || 0], ['octPiesH', m.pies.h]]) { const el = q(id); if (document.activeElement !== el) el.value = v; }
-    q('octTapaOn').checked = !!m.tapa.on; q('octPiesOn').checked = !!m.pies.on; q('octSelN').textContent = sel.size ? `${sel.size} nodo(s) elegido(s)` : 'ningún nodo elegido';
+    q('octTapaOn').checked = !!m.tapa.on; q('octPiesOn').checked = !!m.pies.on; q('octTapaF').classList.toggle('off', !m.tapa.on); q('octPiesF').classList.toggle('off', !m.pies.on); q('octSelN').textContent = sel.size ? `${sel.size} nodo(s) elegido(s)` : 'ningún nodo elegido';
     q('octEstado').textContent = `${Object.keys(m.nodos).length} nodos · ${m.struts.length} tubos · ${fl(A.caja.x[1] - A.caja.x[0])} × ${fl(A.caja.z[1] - A.caja.z[0])} × ${fl(A.caja.y[1])}${db ? '' : ' · sin base: queda en este navegador'}`; lista(); }
 
   /* ---------- 3D: fantasmas y selección ---------- */
@@ -147,6 +173,6 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   const enganchar = () => { if (window.__side && window.__side.add) { window.__side.add('oct', 'Octet', P, () => !P.hidden, () => setOn(false)); return true; } return false; };
   if (!enganchar()) { let n = 0; const t = setInterval(() => { if (enganchar() || ++n > 40) clearInterval(t); }, 250); }
   setTool(''); pintar(); fire();
-  const api = { get modelo() { return m; }, get armado() { return ult; }, get modelos() { return MOD; }, get cur() { return cur; }, abrir, nuevo, set, setTool, toggle: v => setOn(v == null ? P.hidden : v), get abierto() { return !P.hidden; } };
+  const api = { get modelo() { return m; }, get armado() { return ult; }, get modelos() { return MOD; }, get cur() { return cur; }, get todos() { return todos; }, abrir, nuevo, set, setTool, toggle: v => setOn(v == null ? P.hidden : v), get abierto() { return !P.hidden; } };
   visor.octet = api; window.__octet = api; return api;
 }
