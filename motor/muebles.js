@@ -195,6 +195,20 @@ export function catalogoMuebles(THREE){
       g.push([B(a+e+.2,b-.2,M+.2,H-.2,z1-2,z1),p.mad]);
       x=b;g.push([B(x-e,x,0,H,z0,z1),p.mad]);}
     return g;}},
+  /* Maxi 22/11 (dormitorio principal, Arcos): armario bajo que hace de tabique. Abierto de un lado (barrales, cajones, estantes), dorso lleno del otro
+     (ahí apoya la cabecera de la cama), tapa maciza arriba. También sirve, sin dorso a la vista, de cajonera baja bajo una ventana. */
+  armarioBajo:{n:'Armario bajo que hace de tabique (abierto de un lado)',cat:'dormitorio',p:{L:300,D:60,H:160,mods:'colgar:120|cajones:60|colgar:120',mad:'petiribi',car:'blanco'},g:p=>{
+    const g=[],e=1.8,t=3,z0=-p.D/2,z1=p.D/2,H=p.H;const mods=String(p.mods||'').split('|').map(s=>{const [k,w]=s.split(':');return [k,+w||60];});
+    const tot=mods.reduce((a,[,w])=>a+w,0)||p.L,k=p.L/tot;
+    g.push([B(-p.L/2,p.L/2,0,8,z0+2,z1-5),'negro'],[B(-p.L/2,p.L/2,8,8+e,z0+e,z1),p.car],[B(-p.L/2,p.L/2,H-t,H,z0,z1),p.mad],[B(-p.L/2,p.L/2,0,H-t,z0,z0+e),p.mad]);
+    let x=-p.L/2;g.push([B(x,x+e,0,H-t,z0,z1),p.mad]);
+    const est=(a,b,y)=>g.push([B(a+e,b,y-e/2,y+e/2,z0+e,z1-2),p.car]);
+    for(const [tp,w0] of mods){const a=x,b=x+w0*k;
+      if(tp==='colgar')g.push([B(a+e,b,H-t-14,H-t-11.6,-1.2,1.2),'acero']);
+      else if(tp==='cajones'){const n=Math.max(1,Math.round((H-t-8-e)/26)),h=(H-t-8-e)/n;for(let i=0;i<n;i++){const y=8+e+i*h;g.push([B(a+e+.2,b-.2,y+.2,y+h-.2,z1-2,z1),p.mad]);}}
+      else for(let y=8+e+32;y<H-t-15;y+=32)est(a,b,y);
+      x=b;g.push([B(x-e,x,0,H-t,z0,z1),p.mad]);}
+    return g;}},
   /* Maxi 22/11 (cuarto de Isolda, Arcos): tele colgada, pantalla enrollable y proyector de techo, para comparar sala de TV y sala de proyección */
   tele:{n:'Televisor colgado en la pared',cat:'estar',p:{L:145,H:84,e:4},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e/2,p.e/2),'negro'],[B(-p.L/2+1,p.L/2-1,1,p.H-1,p.e/2,p.e/2+.2),'vidrio']]},
   pantalla:{n:'Pantalla de proyección enrollable (caja en el techo)',cat:'estar',p:{L:240,H:140},g:p=>[[B(-p.L/2,p.L/2,p.H,p.H+9,-5,4),'blanco'],[B(-(p.L-16)/2,(p.L-16)/2,0,p.H,-.4,.4),'blanco'],[B(-(p.L-16)/2,(p.L-16)/2,0,3,-.8,.8),'negro']]},

@@ -77,10 +77,18 @@ export function equipArcos({ itA }) {
         I('pantalla', 445, 3676, 90, { L: 240, H: 140 }, 75), I('proyector', 760, 3676, 90, { caida: 25 }, 270),
         I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
-    dormitorio: { n: 'Dormitorio O (2P)', nivel: 'P2', piso: P2, vista: { p: [560, 930, 3050], t: [300, 620, 2650] }, esc: () => { const I = itA('dormitorio'); return {
-      A: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2865, 90, { L: 170, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
-      B: { nombre: 'Mirando al jardín', items: [I('camaDoble', 400, 2970, 180, { L: 220, D: 215 }), I('butacaAm', 150, 2500, 135, { tela: 'mostaza' })] },
-      C: { nombre: 'Vacío', items: [] } }; } },
+    dormitorio: { n: 'Dormitorio principal (2P)', nivel: 'P2', piso: P2, vista: { p: [560, 930, 3050], t: [300, 620, 2650] }, esc: () => { const I = itA('dormitorio'); return {
+      /* Maxi 22/11: armario bajo de 1,60 (la altura del alféizar de la ventana a la terraza) que hace de tabique, con la cama queen apoyada del lado del jardín,
+         mirando al oeste; detrás, el vestidor: el armario abierto, pasillo de 1,00, cajonera baja bajo la ventana y un placard alto contra la pared del palier (la cara de esa pared está en x 6,26, como en el SketchUp, no en 6,43 del plano).
+         Se entra al vestidor por el lado de la medianera sur, donde arranca la escalerita al vestidor de la terraza (E-06). */
+      A: { nombre: 'Cama contra el armario-tabique, vestidor detrás', items: [I('armarioBajo', 415.5, 2899, 0, { L: 421, D: 60, H: 160, mods: 'colgar:170|cajones:80|colgar:171' }),
+        I('camaDoble', 400, 2761.5, 180, { L: 170, D: 215 }), I('mesaLuzM', 292.5, 2848, 180, { L: 45, D: 40 }), I('mesaLuzM', 507.5, 2848, 180, { L: 45, D: 40 }),
+        I('armarioBajo', 383, 3054, 180, { L: 356, D: 50, H: 90, mods: 'cajones:89|cajones:89|cajones:89|cajones:89' }),
+        I('vestidor', 596, 3009, -90, { L: 140, D: 60, H: 260, mods: 'largo:70|doble:70', mad: 'petiribi', car: 'blanco', mal: 220 }),
+        I('butacaAm', 150, 2500, 135, { tela: 'lino' })] },
+      B: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2865, 90, { L: 170, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
+      C: { nombre: 'Mirando al jardín', items: [I('camaDoble', 400, 2970, 180, { L: 220, D: 215 }), I('butacaAm', 150, 2500, 135, { tela: 'mostaza' })] },
+      D: { nombre: 'Vacío', items: [] } }; } },
     vestidor: { n: 'Vestidor (terraza)', piso: TZ, vista: { p: [300, 1000, 3200], t: [100, 760, 3400] }, esc: () => { const I = itA('vestidor'); return {
       A: { nombre: 'Roperos a lo largo', items: [I('roperoA', 46, 3255, 90), I('roperoA', 46, 3367, 90), I('roperoA', 46, 3479, 90)] },
       B: { nombre: 'Vacío', items: [] } }; } },
