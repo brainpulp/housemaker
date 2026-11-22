@@ -35,8 +35,11 @@ export function catalogoLuces(THREE,B,CYL){
           luz:[{t:'spot',p:[0,-p.drop+r*.1,0],d:[0,-1,0],lm:p.lm,beam:110}]};}},
     galponera:{n:'Galponera (campana industrial)',mount:'techo',p:{drop:190,diam:45,lm:1800,K:2700,dim:100,acab:'negro'},
       ui:[['drop','caída','num'],['diam','diámetro','num'],['lm','lúmenes','num'],K,DIM,['acab','terminación',ACAB]],
-      g:p=>{const r=p.diam/2,hh=r*.62;const dm=new THREE.CylinderGeometry(5,r,hh,32,1,true);dm.translate(0,-p.drop+hh/2,0);const cu=new THREE.CylinderGeometry(5.5,5.5,9,16);cu.translate(0,-p.drop+hh+4.5,0);
-        return {geo:[[CYL(.35,-p.drop+hh+9,0,0,0,6),'negro'],[CYL(6,-2,0,0,0,16),p.acab],[dm,p.acab],[cu,p.acab],[new THREE.SphereGeometry(6,16,10).translate(0,-p.drop+hh*.35,0),'@']],
+      /* Maxi 21/11 («wth?»: parecían platos chatos): campana de galpón de verdad, perfil acampanado (cuello angosto, hombro y falda que abre), tan alta como 0,7 del diámetro */
+      g:p=>{const r=p.diam/2,hh=p.diam*.7;const pr=[[5.5,hh],[6.5,hh-4],[r*.32,hh*.78],[r*.5,hh*.55],[r*.7,hh*.3],[r*.88,hh*.1],[r,0]].map(([x,y])=>new THREE.Vector2(x,y));
+        const dm=new THREE.LatheGeometry(pr.slice().reverse(),40);/* de abajo hacia arriba: las caras quedan hacia afuera */dm.translate(0,-p.drop,0);const cu=new THREE.CylinderGeometry(5.5,5.5,9,16);cu.translate(0,-p.drop+hh+4.5,0);
+        const ins=new THREE.LatheGeometry(pr.map(v=>new THREE.Vector2(v.x*.97,v.y-.6)),40);ins.translate(0,-p.drop,0);/* cara de adentro (blanca, refleja) */
+        return {geo:[[CYL(.35,-p.drop+hh+9,0,0,0,6),'negro'],[CYL(6,-2,0,0,0,16),p.acab],[dm,p.acab],[ins,'blanco'],[cu,p.acab],[new THREE.SphereGeometry(7,16,10).translate(0,-p.drop+hh*.32,0),'@']],
           luz:[{t:'spot',p:[0,-p.drop+hh*.2,0],d:[0,-1,0],lm:p.lm,beam:110}]};}},
     linea:{n:'Colgante lineal (sobre mesa)',mount:'techo',p:{L:150,drop:80,lm:2600,K:3000,dim:100,acab:'negro'},
       ui:[['L','largo','num'],['drop','caída','num'],['lm','lúmenes','num'],K,DIM,['acab','terminación',ACAB]],

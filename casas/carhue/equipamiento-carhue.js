@@ -160,7 +160,7 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       A:{nombre:'Lineal sobre la mesa',items:[I('linea',2250,430,R90,{L:160,drop:85}),I('aplique',2445,92,0,{z:190})]},
       B:{nombre:'Colgante grande + bañadores',items:[I('colgante',2250,420,0,{drop:95,diam:55,lm:1400}),I('riel',2250,180,0,{n:3,L:200,tilt:25})]}};
     case 'living':return {
-      A:{nombre:'Galponeras grandes',items:[I('galponera',1540,352,0,{diam:60,lm:2500}),I('galponera',1740,352,0,{diam:60,lm:2500}),I('galponera',1540,560,0,{diam:60,lm:2500}),I('galponera',1740,560,0,{diam:60,lm:2500})]},/* Maxi 21/11: «en el living cambiá las lámparas por galponeras grandes» */
+      A:{nombre:'Galponeras grandes',items:[I('galponera',1570,300,0,{diam:55,lm:2500,alto:230}),I('galponera',1685,300,0,{diam:55,lm:2500,alto:230}),I('galponera',1800,300,0,{diam:55,lm:2500,alto:230})]},/* 21/11: tres en línea sobre la alfombra y la ratona, con el borde de abajo a 2,30 *//* Maxi 21/11: «en el living cambiá las lámparas por galponeras grandes» */
       B:{nombre:'Spots en cuadro + tira en cornisa',items:[I('galponera',1540,352,0),I('galponera',1740,352,0),I('cuadro',1640,330,0,{sep:160}),I('pie',1460,560,0),I('tira',1640,175,0,{L:300,z:235,dir:'arriba'})]}};
     case 'galeria':return {
       A:{nombre:'Guirnalda + lineal',items:[I('guirnalda',2746,450,R90,{L:700,z:255}),I('linea',2746,450,R90,{L:200,drop:70,lm:3000})]},

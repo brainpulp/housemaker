@@ -62,6 +62,8 @@ export function uvMadera(THREE,geo,pano=[160,80]){const P=geo.attributes.positio
 
 export function catalogoMuebles(THREE){
   const B=(x0,x1,y0,y1,z0,z1)=>{const g=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0);g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return g;};
+  const CYLY=(r,y0,y1,n=16)=>{const g=new THREE.CylinderGeometry(r,r,y1-y0,n);g.translate(0,(y0+y1)/2,0);return g;};/* cilindro vertical */
+  const CONO=(r0,r1,y0,y1,n=24)=>{const g=new THREE.CylinderGeometry(r1,r0,y1-y0,n);g.translate(0,(y0+y1)/2,0);return g;};/* cono: radio r0 abajo, r1 arriba */
   const R=(x0,x1,y0,y1,z0,z1,r=3)=>{const w=x1-x0,h=y1-y0,d=z1-z0;const g=new RoundedBoxGeometry(w,h,d,3,Math.min(r,w/2-.01,h/2-.01,d/2-.01));g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return g;};
   const C=(r,y0,y1,x=0,z=0,s=20,r2)=>{const g=new THREE.CylinderGeometry(r2??r,r,y1-y0,s);g.translate(x,(y0+y1)/2,z);return g;};
   const VAR=(a,b,r,s=8)=>{/* varilla entre dos puntos */const A=new THREE.Vector3(...a),Bv=new THREE.Vector3(...b),d=Bv.clone().sub(A);const g=new THREE.CylinderGeometry(r,r,d.length(),s);g.translate(0,d.length()/2,0);g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()));g.translate(...a);return g;};
@@ -264,7 +266,11 @@ export function catalogoMuebles(THREE){
   campanaIsla:{n:'Campana de isla colgada del techo',cat:'cocina',p:{L:90,D:60},z:165,g:(p,ctx)=>{/* cuerpo negro a 1,65 sobre el piso (z fijo) y chimenea hasta el techo real sobre la isla */
     const T=ctx&&ctx.techoMin?ctx.techoMin(Math.max(p.L,p.D)/2):250,h=Math.max(25,Math.min(T-167,700));/* hasta lo más bajo del techo sobre toda la campana (cabios incluidos) */
     /* Maxi 8/11: luz abajo de la campana (panel LED cálido entre dos filtros de acero), para que se vea el anafe */
-    return [[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,-p.L/2+4+(p.L-8)*.3,-.3,0,-p.D/2+4,p.D/2-4),'acero'],[B(p.L/2-4-(p.L-8)*.3,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero'],[B(-p.L/2+4+(p.L-8)*.3,p.L/2-4-(p.L-8)*.3,-.6,0,-p.D/2+6,p.D/2-6),'ledCalido']];}},
+    /* Maxi 21/11 («la campana debe tener bien pensado el tiraje, hacia dónde sale y completo»): con p.sale='techo' el conducto atraviesa el techo:
+       caño de chapa galvanizada Ø15 desde el cielorraso (dentro del cubre-conducto negro de 26 × 26), babeta cónica en la chapa, 80 cm por encima del techo y sombrerete chino.
+       Sin «sale» queda como antes, hasta el cielorraso (sirve donde arriba hay otro piso). */
+    const TT=p.sale==='techo'?[[CYLY(7.5,h,h+95,16),'acero'],[CONO(19,8,h+8,h+16),'acero'],[CYLY(7.5,h+95,h+97,16),'acero'],[CONO(17,1,h+101,h+111),'acero'],...[0,1,2,3].map(k=>{const a=k*Math.PI/2;return [B(Math.cos(a)*7-.4,Math.cos(a)*7+.4,h+95,h+102,Math.sin(a)*7-.4,Math.sin(a)*7+.4),'acero'];})]:[];
+    return [...TT,[R(-p.L/2,p.L/2,0,7,-p.D/2,p.D/2,1),'negro'],[B(-p.L/2+8,p.L/2-8,7,20,-p.D/2+8,p.D/2-8),'negro'],[B(-13,13,20,h,-13,13),'negro'],[B(-p.L/2+4,-p.L/2+4+(p.L-8)*.3,-.3,0,-p.D/2+4,p.D/2-4),'acero'],[B(p.L/2-4-(p.L-8)*.3,p.L/2-4,-.3,0,-p.D/2+4,p.D/2-4),'acero'],[B(-p.L/2+4+(p.L-8)*.3,p.L/2-4-(p.L-8)*.3,-.6,0,-p.D/2+6,p.D/2-6),'ledCalido']];}},
   /* Maxi 5/11: paño de revestimiento de pared (inox detrás de la mesada de Arcos). Chapa de e cm apoyada en la pared, de z a z+H; el frente mira a +z. mat: cualquiera de la paleta */
   revestimiento:{n:'Revestimiento de pared (paño)',cat:'cocina',p:{L:200,H:60,e:1.5,mat:'acero'},z:90,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e,0),p.mat]]},
   /* Maxi 6/11: estante de pared angosto (especias, frascos) bajo las alacenas: tabla de «e» sobre ménsulas en L de planchuela cada ~0,80, la espalda en z 0 local, la tabla hacia +z (el ambiente) */

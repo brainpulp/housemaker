@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.58', fecha:'2026-11-21',
+  nombre:'Carhué', version: '1.1.59', fecha:'2026-11-21',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-21', v:'1.1.59', txt:'Maxi 21/11: (1) galponeras del living: campana de galpón de verdad (motor) y tres en línea sobre la alfombra, con el borde de abajo a 2,30; las lámparas de techo aceptan «alto» (altura desde el piso). (2) El riel del tímpano norte (M-10, PV-RT, paños PV-07…10) y el del retorno sur bajan a +2,22, la altura del riel alto del ventanal RA-1. (3) Campana de la cocina: centrada sobre el anafe y con el conducto completo: caño galvanizado Ø15 que sale por el techo del ala (T-06), babeta, 80 cm sobre la chapa y sombrerete.'},
   {fecha:'2026-11-21', v:'1.1.58', txt:'Maxi 21/11: el alero oeste T-08 entra 22 cm por debajo del alero del techo del quincho T-05 y la ranura de 25 cm entre los dos se cierra con una chapa lisa vertical (ya no queda el hueco entre los dos techos). Motor: la textura de la chapa se orienta por el plano del techo y no por las facetas del zigzag (en los techos de poca pendiente se veía en damero).'},
   {fecha:'2026-11-21', v:'1.1.57', txt:'Maxi 21/11: luces del living: cuatro galponeras grandes (60 cm, 2.500 lm) en dos filas sobre el estar, en lugar de la de pie, el velador, el riel y el aplique.'},
   {fecha:'2026-11-21', v:'1.1.56', txt:'Maxi 21/11: (1) la chapa de los techos tiene relieve en zigzag (motor, todas las casas), no sólo textura. (2) Alero oeste T-08: sin los postes C-09 y C-10; una viga de borde VA-1 de C-11 a la pared del ala recibe las vigas VT; el alero baja 20 cm para pasar por debajo del alero de T-06 y arranca debajo de él. (3) Deck nuevo D-5 bajo T-08.'},

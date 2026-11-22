@@ -192,6 +192,8 @@ export function initEquipamiento(visor,stage,D){
     else{/* Maxi 14/10, artefactos que atravesaban el techo: los de pie se achican bajo el cielorraso; los de techo apoyan cada punto de arriba en el cielorraso real (cables y florones siguen la pendiente) */
       const tq=(x,y)=>techo(Math.round(x/4)*4,Math.round(y/4)*4,piso);const rr=(m.r||0)*Math.PI/180,cs=Math.cos(rr),sn=Math.sin(rr);
       let pp=p;if(c.mount==='piso'){let mn=Infinity;for(const [dx,dz] of [[0,0],[24,0],[-24,0],[0,24],[0,-24]])mn=Math.min(mn,tq(m.x+dx,m.y+dz));pp={...p,_techo:mn};}
+      /* Maxi 21/11: p.alto = altura del borde de abajo de la lámpara desde el piso; la caída se calcula con el cielorraso real que tiene arriba */
+      if(c.mount==='techo'&&p.alto!=null){const h=tq(m.x,m.y);if(isFinite(h)&&h<790)pp={...pp,drop:Math.max(15,h-p.alto)};}
       const out=c.g(pp);
       if(c.mount==='techo'){/* cada pieza que toca el plano de montaje se apoya en el cielorraso real que tiene encima: los cables se estiran (sólo sus puntas de arriba), florones, spots y rieles se trasladan enteros */
         const h0=tq(m.x,m.y);const at=(lx,lz)=>{const wx=m.x+lx*cs+lz*sn,wz=m.y-lx*sn+lz*cs;return Math.min(tq(wx,wz),tq(wx+5,wz),tq(wx-5,wz),tq(wx,wz+5),tq(wx,wz-5))-h0;};
