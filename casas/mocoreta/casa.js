@@ -380,7 +380,7 @@ function build(p) {
        de punta a punta (el sur del ensanche, la casa y el norte); en el par 1 (punta este) un UPN solo, por dentro. Entre pares, tirantes de 2″ × 8″ cada 0,40.
        El cielorraso de hoy no se toca: queda abajo. El ensanche tiene columnas de caño de acero 100 × 100 × 3,2 hasta el terreno, trabadas a la casa en los tres niveles
        por vigas en sándwich que abrazan la columna de acero y la de madera de la casa. Predimensionado mío: lo tiene que verificar un calculista. */
-    { const U = 5.5, sw = (y, x0, x1, z0, z1, solo = 0) => [...(solo < 0 ? [] : [box(x0, x1, z0, z1, y + 7.5, y + 7.5 + U)]), ...(solo > 0 ? [] : [box(x0, x1, z0, z1, y - 7.5 - U, y - 7.5)])],
+    { const U = 5.5, oS = EL ? 7.8 : 7.5 /* con las columnas dobles del sistema de subir y bajar (7,6 de cada lado), el sándwich se abre 3 mm */, sw = (y, x0, x1, z0, z1, solo = 0) => [...(solo < 0 ? [] : [box(x0, x1, z0, z1, y + oS, y + oS + U)]), ...(solo > 0 ? [] : [box(x0, x1, z0, z1, y - oS - U, y - oS)])],
         swI = (y, xa, xb, h) => { const n = Math.ceil((xb - xa) / 60), r = []; for (let k = 0; k < n; k++) { const x0 = xa + (xb - xa) * k / n, x1 = xa + (xb - xa) * (k + 1) / n; for (const ya of [y + 7.5, y - 7.5 - U]) r.push(box8([[x0, zu(x0) - h, ya], [x1, zu(x1) - h, ya], [x1, zu(x1) - h, ya + U], [x0, zu(x0) - h, ya + U], [x0, zu(x0), ya], [x1, zu(x1), ya], [x1, zu(x1), ya + U], [x0, zu(x0), ya + U]])); } return r; },
         YE3 = [1200, 1600, 2000], zB = -4.3, zS = 325, BAH = [[1213, 1587], [1613, 1987]], IS = 'Hipótesis', T = (id, nombre, cat, geos, txt, sec, med) => Pt(`${id}`, `${id} · ${nombre}`, cat, geos, { fn: fn + txt, sec, med, u: 'D-20' }, { group: IS, opt: {} });
       T('H2-30', 'Columnas del ensanche', 'herreria', YE3.map(y => box(XE - 10, XE, MM.TERR + 6, zu(XE - 10) - .3, y - 5, y + 5)),
@@ -489,7 +489,7 @@ function build(p) {
     /* escalera de la terraza al deck norte (Maxi 17/11, tercera vuelta: «no me gusta la de pasos alternados; semi empinada y con un quiebre, para que no avance tanto sobre el deck»):
        descanso de 0,80 × 0,80 a nivel de la terraza, volado de su borde norte, y desde ahí un solo tramo que baja hacia el oeste pegado a la fachada.
        Sobre el deck ocupa 0,80 de fondo (antes 3,75). Sin postes: el descanso vuela de la terraza y la zanca de adentro va abulonada a la casa */
-    { const x0 = MM.CXN + 2.5, x1 = x0 + 80, yd = [1110, 1190], n = Math.ceil(ZTz / 19.5), hA = ZTz / n, g = 24, ys = yd[0], ye = ys - (n - 1) * g, D = 32, zN = y => ZTz + (y - ys) * hA / g, y8 = ys - (ZTz - 8) * g / hA, G = [], F = [];
+    { const x0 = MM.CXN + (EL ? 33.5 : 2.5), x1 = x0 + 80, yd = [1100, 1180]   /* con el sistema de subir y bajar, las columnas dobles salen 3 cm más: la escalera se corre afuera de ellas */, n = Math.ceil(ZTz / 19.5), hA = ZTz / n, g = 24, ys = yd[0], ye = ys - (n - 1) * g, D = 32, zN = y => ZTz + (y - ys) * hA / g, y8 = ys - (ZTz - 8) * g / hA, G = [], F = [];
       G.push(box(x0, x1, ZTz - 4, ZTz, yd[0], yd[1]));   /* piso del descanso, tablones como el deck */
       for (let i = 1; i < n; i++) { const z = ZTz - i * hA; G.push(box(x0 + 6, x1 - 6, z - 4, z, ys - i * g - 2, ys - (i - 1) * g)); }
       for (const [a, b] of [[x0, x0 + 6], [x1 - 6, x1]]) G.push(box8([[a, zN(ys) + 8 - D, ys], [b, zN(ys) + 8 - D, ys], [b, 0, y8], [a, 0, y8], [a, zN(ys) + 8, ys], [b, zN(ys) + 8, ys], [b, 8, y8], [a, 8, y8]]));
@@ -596,13 +596,13 @@ function build(p) {
   /* Maxi 21/11 («que el deck dé toda la vuelta») con el segundo piso: el ensanche ocupa el sur de los módulos 2 y 3, así que el deck lo rodea por afuera (2,00 más allá del ensanche)
      y sigue de 2,00 hasta la punta este. El tramo de los módulos 4 a 6 lo hace modelo({ rodea }); acá van el rodeo y el tramo este */
   if (p.deckO === 'todo' && H2) { const TB = M.TABLON, XQ = -150, xo = XQ - 200, yA = 1212, yB = 1988, yE = MM.CYE, fn = '<b>Hipótesis «deck de toda la vuelta» (D-18).</b> ', D = (id, nombre, cat, geos, txt, sec, med) => Pt(id, `${id} · ${nombre}`, cat, geos, { fn: fn + txt, sec, med, u: 'D-18' }, { group: 'Hipótesis', opt: {} });
-    const poly = [[xo, yA], [XQ, yA], [XQ, yB], [0, yB], [0, yE], [-200, yE], [-200, yB + 160], [xo, yB + 160]], hueco = [[XQ - 2, 1993], [XQ + 12, 1993], [XQ + 12, 2007], [XQ - 2, 2007]];
+    const yP = yA - 200, poly = [[xo, yP], [-200, yP], [-200, yA], [XQ, yA], [XQ, yB], [0, yB], [0, yE], [-200, yE], [-200, yB + 160], [xo, yB + 160]]   /* Maxi 22/11 («¿qué hago acá, salto?»): el ensanchamiento arranca 2,00 antes del ensanche, así el paso desde el deck sur es de todo el ancho y no 50 cm al lado de la columna */, hueco = [[XQ - 2, 1993], [XQ + 12, 1993], [XQ + 12, 2007], [XQ - 2, 2007]];
     if (p.pisos) tablones(geo, A, { poly, huecos: [hueco], z: 0, ancho: 19, junta: .5, esp: TB, seed: 13 }).forEach((g, i) => D(`DR-01${'abc'[i]}`, 'Deck alrededor del ensanche: tablones', 'tabla' + (i + 1), g, 'Con el segundo piso, el ensanche de 1,40 ocupa el sur de los módulos 2 y 3: el deck lo rodea por afuera, con 2,00 de ancho, y después sigue de 2,00 hasta la punta este de la casa. Tablones de sur a norte, como el resto. La columna del ensanche del par 3 queda dentro del deck, con un calado.', 'tablones de 19 × 2″', ''));
     /* vigas de norte a sur (pinza de 2″ × 8″) y postes en sus puntas; tirantes de este a oeste encima, cada 0,60 */
-    const lin = [[1300, xo, XQ], [1600, xo, XQ], [1900, xo, XQ], [2060, -200, -10], [2230, -200, -10], [2390, -200, -10]], V = [], Q = [], J = [];
-    for (const [y, a, b] of lin) { V.push(box(a + 5, b - 5, -TB - 35, -TB - 15, y - 9.5, y - 5), box(a + 5, b - 5, -TB - 35, -TB - 15, y + 5, y + 9.5)); for (const x of [a + 25, b - 25]) Q.push(box(x - 5, x + 5, MM.TERR, -TB - 15, y - 5, y + 5)); }
-    for (let x = xo + 10; x <= XQ - 10; x += 60) J.push(box(x - 2.25, x + 2.25, -TB - 15, -TB, yA + 2, yB + 158));
-    for (let x = -190; x <= -15; x += 58) J.push(box(x - 2.25, x + 2.25, -TB - 15, -TB, yB + 2, yE - 2));
+    const lin = [[yP + 30, xo, -205], [1300, xo, XQ], [1600, xo, XQ], [1900, xo, XQ], [2060, -200, -10], [2230, -200, -10], [2350, -200, -10]], V = [], Q = [], J = [];
+    for (const [y, a, b] of lin) { V.push(box(a + 5, b - 5, -TB - 35, -TB - 15, y - 9.5, y - 5), box(a + 5, b - 5, -TB - 35, -TB - 15, y + 5, y + 9.5)); for (const x of [a + 25, b > -20 ? b - 60 : b - 25]) Q.push(box(x - 5, x + 5, MM.TERR, -TB - 15, y - 5, y + 5)); }
+    for (let x = xo + 10; x <= XQ - 10; x += 60) J.push(box(x - 2.25, x + 2.25, -TB - 15, -TB, x < -205 ? yP + 2 : yA + 2, yB + 158));
+    for (let x = -190; x <= -45; x += 48) J.push(box(x - 2.25, x + 2.25, -TB - 15, -TB, yB + 2, yE - 2));   /* el último tirante queda afuera de la fila de columnas de la casa */
     if (p.tirantes) D('DR-02', 'Deck alrededor del ensanche: tirantes', 'viga', J, 'Tirantes de 2″ × 6″ de este a oeste, cada 0,60, sobre las vigas. Supuesto.', '2″ × 6″', `${J.length}`);
     D('DR-03', 'Deck alrededor del ensanche: vigas', 'viga', V, 'Vigas dobles de 2″ × 8″ en pinza, de norte a sur, cada 1,50 a 1,70, con un poste en cada punta. No se apoyan en el ensanche ni en la casa. Supuesto, sin calcular.', '2 × 2″ × 8″', `${lin.length}`);
     D('DR-04', 'Deck alrededor del ensanche: postes', 'poste', Q, 'Postes de 4″ × 4″ en las puntas de cada viga. Supuesto.', '4″ × 4″', `${Q.length}`); }
