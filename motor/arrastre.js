@@ -1,6 +1,6 @@
 /* Arrastrar un parámetro (Maxi 21/11, en la columna de elevación: «hacé que lo pueda mover con drag and drop, así entiendo cómo funciona»).
    La casa declara qué piezas, al arrastrarlas hacia arriba o abajo, cambian un parámetro numérico:
-     initArrastre(visor, [{ param: 'subida', piezas: /^C-(08|09)$/, activo?: P => bool, escala?: 1 }])
+     initArrastre(visor, [{ param: 'subida', piezas: /^C-(08|09)$/, activo?: P => bool, escala?: 1, eje?: 'x' | 'z' }])  (eje: arrastre horizontal en ese eje del visor; sin eje, vertical)
    Arrastrar verticalmente una de esas piezas cambia el parámetro en cm de pantalla-mundo (lo que sube el puntero en el plano vertical de la pieza)
    y el visor rearma en vivo (un rearme por cuadro como mucho). Un toque sin arrastre elige la pieza, como siempre.
    Respeta las herramientas abiertas (medir, señalar, marcas, editar) y el candado. */
@@ -26,13 +26,15 @@ export function initArrastre(visor, defs) {
     e.stopPropagation(); try { view.setPointerCapture(e.pointerId); } catch (_) {} visor.controls.enabled = false;
     /* plano vertical por el punto tocado, de frente a la cámara */
     const n = new T.Vector3(); visor.camera.getWorldDirection(n); n.y = 0; if (n.lengthSq() < 1e-6) n.set(0, 0, 1); n.normalize();
-    dr = { d, pid, q, v0, sx: e.clientX, sy: e.clientY, moved: false, y0: h.point.y, plane: new T.Plane().setFromNormalAndCoplanarPoint(n, h.point) };
+    /* d.eje (Maxi 22/11, escalera de dos tramos): 'x' o 'z' arrastra en horizontal, sobre el plano horizontal de la pieza; sin eje, en vertical */
+    const ej = d.eje || 'y', pl = ej === 'y' ? new T.Plane().setFromNormalAndCoplanarPoint(n, h.point) : new T.Plane().setFromNormalAndCoplanarPoint(new T.Vector3(0, 1, 0), h.point);
+    dr = { d, pid, q, v0, ej, sx: e.clientX, sy: e.clientY, moved: false, y0: h.point[ej], plane: pl };
   }, true);
   view.addEventListener('pointermove', e => {
     if (!dr) return; e.stopPropagation();
     if (!dr.moved) { if (Math.hypot(e.clientX - dr.sx, e.clientY - dr.sy) < 4) return; dr.moved = true; }
     setRay(e); const pt = ray.ray.intersectPlane(dr.plane, new T.Vector3()); if (!pt) return;
-    const q = dr.q || {}, paso = +q.step || 1; let v = dr.v0 + (pt.y - dr.y0) * (dr.d.escala || 1);
+    const q = dr.q || {}, paso = +q.step || 1; let v = dr.v0 + (pt[dr.ej] - dr.y0) * (dr.d.escala || 1);
     v = Math.round(v / paso) * paso; if (q.min != null) v = Math.max(+q.min, v); if (q.max != null) v = Math.min(+q.max, v);
     if (v !== +visor.params[dr.d.param]) { pend = v; if (!raf) raf = requestAnimationFrame(empujar); }
     st(`<b>${(q.label || dr.d.param)}</b>: ${v}${q.unit || ''}`);
