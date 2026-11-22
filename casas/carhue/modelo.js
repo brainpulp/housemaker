@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.60', fecha:'2026-11-22',
+  nombre:'Carhué', version: '1.1.61', fecha:'2026-11-22',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-22', v:'1.1.61', txt:'Maxi 22/11: se saca la ratona Octet del living (no tenía el mismo largo de tubo que los otros muebles Octet; Maxi la rehace en la página Octet).'},
   {fecha:'2026-11-22', v:'1.1.60', txt:'Maxi 22/11: (1) el vidrio del tímpano norte (M-10) ya no es un paño único: va repartido en seis paños con montantes de acero alineados con el marco de abajo. (2) Escritorio del estudio y ratona del living con el sistema Octet: escritorio de 7 × 3 celdas con dos pies y tapa de vidrio de 1,80 × 0,76; ratona de 6 × 3 celdas, tapa de vidrio de 1,50 × 0,70, ~38 de alto.'},
   {fecha:'2026-11-21', v:'1.1.59', txt:'Maxi 21/11: (1) galponeras del living: campana de galpón de verdad (motor) y tres en línea sobre la alfombra, con el borde de abajo a 2,30; las lámparas de techo aceptan «alto» (altura desde el piso). (2) El riel del tímpano norte (M-10, PV-RT, paños PV-07…10) y el del retorno sur bajan a +2,22, la altura del riel alto del ventanal RA-1. (3) Campana de la cocina: centrada sobre el anafe y con el conducto completo: caño galvanizado Ø15 que sale por el techo del ala (T-06), babeta, 80 cm sobre la chapa y sombrerete.'},
   {fecha:'2026-11-21', v:'1.1.58', txt:'Maxi 21/11: el alero oeste T-08 entra 22 cm por debajo del alero del techo del quincho T-05 y la ranura de 25 cm entre los dos se cierra con una chapa lisa vertical (ya no queda el hueco entre los dos techos). Motor: la textura de la chapa se orienta por el plano del techo y no por las facetas del zigzag (en los techos de poca pendiente se veía en damero).'},

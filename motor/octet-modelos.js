@@ -12,7 +12,4 @@ export const MODELOS = {
      Tapa de vidrio de 20 mm, 1,80 × 0,76; alto total ~0,75. Nodo y tubo como la mesa Konstandt (supuestos). */
   'escritorio-carhue': { v: 1, nombre: 'escritorio Carhué', L: 24, d: 1.4, R: 2.2, desc: 0, tapa: { on: true, e: 2, vuelo: 6, disco: 1.5, ancho: 180, fondo: 76, dx: 0, dz: 0 }, pies: { on: true, h: 3 },
     capas: [{"k": 0, "a": [0, 2, 12, 14], "b": [0, 2, 4, 6]}, {"k": 1, "a": [1, 13], "b": [1, 3, 5]}, {"k": 2, "a": [0, 2, 12, 14], "b": [0, 2, 4, 6]}, {"k": 3, "a": [1, 13], "b": [1, 3, 5]}, {"k": 4, "a": [0, 2, 4, 6, 8, 10, 12, 14], "b": [0, 2, 4, 6]}] },
-  /* ratona: L = 22, bloque entero de 6 × 3 celdas (1,32 × 0,66) y 3 capas; tapa de vidrio de 20 mm, 1,50 × 0,70; alto total ~0,38 */
-  'ratona-carhue': { v: 1, nombre: 'ratona Carhué', L: 22, d: 1.4, R: 2.2, desc: 0, tapa: { on: true, e: 2, vuelo: 9, disco: 1.5, ancho: 150, fondo: 70, dx: 0, dz: 0 }, pies: { on: true, h: 3 },
-    capas: [{"k": 0, "a": [0, 2, 4, 6, 8, 10, 12], "b": [0, 2, 4, 6]}, {"k": 1, "a": [1, 3, 5, 7, 9, 11], "b": [1, 3, 5]}, {"k": 2, "a": [0, 2, 4, 6, 8, 10, 12], "b": [0, 2, 4, 6]}] },
 };
