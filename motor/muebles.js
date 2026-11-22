@@ -195,6 +195,10 @@ export function catalogoMuebles(THREE){
       g.push([B(a+e+.2,b-.2,M+.2,H-.2,z1-2,z1),p.mad]);
       x=b;g.push([B(x-e,x,0,H,z0,z1),p.mad]);}
     return g;}},
+  /* Maxi 22/11 (cuarto de Isolda, Arcos): tele colgada, pantalla enrollable y proyector de techo, para comparar sala de TV y sala de proyección */
+  tele:{n:'Televisor colgado en la pared',cat:'estar',p:{L:145,H:84,e:4},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e/2,p.e/2),'negro'],[B(-p.L/2+1,p.L/2-1,1,p.H-1,p.e/2,p.e/2+.2),'vidrio']]},
+  pantalla:{n:'Pantalla de proyección enrollable (caja en el techo)',cat:'estar',p:{L:240,H:140},g:p=>[[B(-p.L/2,p.L/2,p.H,p.H+9,-5,4),'blanco'],[B(-(p.L-16)/2,(p.L-16)/2,0,p.H,-.4,.4),'blanco'],[B(-(p.L-16)/2,(p.L-16)/2,0,3,-.8,.8),'negro']]},
+  proyector:{n:'Proyector colgado del techo',cat:'estar',p:{L:33,D:28,H:12,caida:30},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2),'negro'],[B(-1.5,1.5,p.H,p.H+p.caida,-1.5,1.5),'acero']]},
   /* Maxi 21/11: tabique liviano (Durlock) de piso a techo, como mueble para poder proponerlo por escenario */
   tabique:{n:'Tabique liviano de piso a techo (Durlock)',cat:'obra',p:{L:300,e:10,H:300,mat:'blanco'},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e/2,p.e/2),p.mat]]},
   escritorio:{n:'Escritorio de tapa gruesa y patas panel',cat:'trabajo',p:{L:140,D:65,H:75,mad:'roble'},g:p=>[[R(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2,.8),p.mad],[B(-p.L/2+3,-p.L/2+7,0,p.H-4,-p.D/2+3,p.D/2-3),p.mad],[B(p.L/2-7,p.L/2-3,0,p.H-4,-p.D/2+3,p.D/2-3),p.mad],

@@ -71,6 +71,8 @@ const params = [
   { id: 'carp', label: 'Carpinterías', type: 'check', value: true, quick: true, group: 'Ver', help: 'Vidrios de ventanas y hojas de puertas, cerradas.' },
   { id: 'detalle', label: 'Detalle del SketchUp', type: 'check', value: true, quick: true, group: 'Ver', help: 'Carpinterías, terraza, tanque, jardín del frente, cocina y baños tal como están en tu SketchUp.' },
   { id: 'escVer', label: 'Giro de la E-02', type: 'select', value: 'hoy', group: 'Escalera', options: [['hoy', 'Hoy (como está en obra)'], ['madera', 'Propuesta A · madera pelada'], ['metal', 'Propuesta B · bastidor de acero']], help: 'Sin poste al piso: el giro cuelga del tensor, se ancla a la medianera y el borde del entrepiso trabaja de viga (Maxi, 5/11).' },
+  { id: 'cuartoAnd', label: 'Cuarto de Andrés', type: 'select', value: 'vestidor', group: 'Cuartos del 1P', options: [['vestidor', 'A · Vestidor detrás de la cama'], ['placard', 'B · Placard contra el baño']], help: 'Maxi 21/11: A, tabique a 1,55 de la pared del baño con el vestidor abierto detrás y la cama contra el tabique; B, sin tabique, placard de piso a techo contra el baño y la cama contra la medianera sur.' },
+  { id: 'cuartoIso', label: 'Cuarto de Isolda', type: 'select', value: 'tele', group: 'Cuartos del 1P', options: [['tele', 'A · Sala de TV, tele sobre la medianera'], ['proyector', 'B · Sofá cama contra la medianera y proyector']], help: 'Maxi 22/11: cuarto de huéspedes usado como sala de TV, con sofá cama. A, tele de 75" y mueble bajo sobre la medianera norte, sofá suelto a 2,9 m; B, sofá contra la medianera y pantalla enrollable de 100" sobre el arco a Andrés.' },
   { id: 'escSola', label: 'Ver sólo la escalera E-02', type: 'check', value: false, quick: true, group: 'Escalera', help: 'Aísla la escalera con la pared, el borde del entrepiso y la losa de donde cuelga el tensor.' },
   { id: 'baranda', label: 'Baranda de la E-02 (propuesta A)', type: 'select', value: 'cables', group: 'Escalera', options: DISENOS.map(d => [d.id, d.name]), help: 'Los diseños de la conversación del 11/10. El de cables es el que elegiste. La propuesta B lleva la de hierro; «Hoy», la de listones de la obra.' },
   { id: 'calco', label: 'Calco SketchUp', type: 'check', value: false, quick: true, group: 'Ver', help: 'Tu modelo Arcos_55.dae, en gris transparente, alineado al plano.' },
@@ -190,6 +192,9 @@ function build(p) {
   if (p.detalle) { const seen = {}; for (const d of DET) { if (d.id === 'SU-13' && !p.techos) continue; if (d.id === 'SU-11' || d.id === 'SU-09' || d.id === 'SU-08') continue; if (d.id === 'SU-06' || d.id === 'SU-05' || (d.id === 'SU-07' && d.cat === 'su000000')) continue; /* SU-05: cocina del SketchUp; va la diseñada en la página Cocinas (equipamiento, Maxi 5/11) */ /* SU-06: caja del toilette del SketchUp, que llegaba a la losa vieja y atravesaba V301 (el toilette sale del video, M-30 a M-33); SU-07 negro: placa a nivel de piso en todo el 1P, debajo de los tablones */ /* SU-08: baño de 2P del SketchUp (ducha al ventanal): va el de la obra, banio2p.js */ /* SU-09: pasamanos del SketchUp, de las escaleras viejas; van las barandas del modelo */ if (d.id === 'SU-04' && d.cat === 'sub58a5a') continue; /* cerco de listones del SketchUp: va el de la foto */ /* el piso de tablas pasa a LO-02 */ const k = (seen[d.id] = (seen[d.id] || 0) + 1); if (d.id === 'VO-H1' && !seen['VO-H1r']) { seen['VO-H1r'] = 1; /* rieles de la puerta chica, del lado de adentro de la hoja 1: arriba un perfil U, abajo una guía */ Pt('VO-H1r', 'VO-H1r · Rieles de la puerta chica', 'marcoO', [geo.box(32.8, 235.8, 287.5, 291.5, 2360.5, 2368), geo.box(32.8, 235.8, 84, 87.6, 2360.5, 2368)], { fn: 'Rieles sobre la hoja grande: la puerta chica corre por ellos (Maxi, 20/10).', sec: 'perfil U de aluminio', med: '2,03 m' }, { group: 'Ventanal O', opt: { noEdges: true } }); }
       Pt(k > 1 ? `${d.id}${String.fromCharCode(96 + k)}` : d.id, `${d.id} · ${d.nombre}`, d.cat, detGeo(d), { fn: d.movil ? 'Hoja del ventanal de tu SketchUp (paños de 1 × 1). Se corre con «Correr», acá abajo.' : 'Tal como está en tu SketchUp (Arcos_55.dae).', sec: '', med: '' }, { group: d.movil ? 'Ventanal O' : 'Detalle del SketchUp', opt: { noEdges: true } }); } }
 
+  /* antes de las luces, para que los downlights se corran del tabique */
+  if (p.cuartoAnd !== 'placard') Pt('TAB-01', 'Tabique del vestidor de Andrés', 'tabique', geo.box(15, 324, zN('P1'), 725, 3448.5, 3458.5), { fn: 'Propuesta A del cuarto de Andrés (Maxi 21/11): Durlock de piso a techo, 3,09 de largo, a 1,55 de la cara de la pared del baño; arriba lo toma el encajonado del caño de la terraza (ubicación a medir en obra). Deja un paso de 0,95 junto a la pared del palier.' }, { group: NIV.P1 });
+
   /* luces: cada downlight va al primer techo real que tiene arriba (losa, viga, cabio, cielorraso); si arriba hay vidrio
      (el ventanal O se inclina hacia adentro), se corre hacia adentro hasta salir de abajo del vidrio. Las fuentes las maneja noche.js. */
   if (!LUCES) { const rc = new THREE.Raycaster(), UP = new THREE.Vector3(0, 1, 0), mat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
@@ -274,7 +279,13 @@ root.addEventListener('click', e => { const h = e.target.closest('[data-hide]');
 /* variables de diseño en la base (todas menos las de «Ver») */
 const PDES = new Set(params.filter(q => (q.group || '') !== 'Ver').map(q => q.id)); const pdes = P => Object.fromEntries(Object.entries(P).filter(([k]) => PDES.has(k)));
 let escSola0 = false;
-visor.onParam = P => { applyCalco(); if (!!P.escSola !== escSola0) { escSola0 = !!P.escSola; if (escSola0) visor.fly([560, 300, 2560], [800, 270, 2900]); } if (vdb && PDES.size) vdb.doc('estado/params').set({ p: pdes(P), ts: new Date().toISOString() }).catch(() => {}); };
+/* opciones de diseño de los cuartos del 1P: eligen el escenario de equipamiento del cuarto (Maxi 22/11) */
+/* sólo cuando cambia la opción: si después se elige otro escenario en el panel de equipamiento, no se lo pisa */
+const cuartosAnt = {};
+const cuartos = P => { const E = visor.equip; if (!E || !E.ST || !E.ST.mue) return; let cambio = false;
+  for (const [k, amb, L] of [['cuartoAnd', 'cuartoSE', P.cuartoAnd === 'placard' ? 'B' : 'A'], ['cuartoIso', 'cuartoNE', P.cuartoIso === 'proyector' ? 'B' : 'A']]) { if (cuartosAnt[k] === P[k]) continue; const st = E.ST.mue[amb]; if (!st) continue; const prim = !(k in cuartosAnt); cuartosAnt[k] = P[k]; if (prim && P[k] === params.find(q => q.id === k).value) continue; if (st.esc[L] && st.activo !== L) { st.activo = L; cambio = true; } }
+  if (cambio && E.rearmar) E.rearmar(); };
+visor.onParam = P => { applyCalco(); try { cuartos(P); } catch (e) { console.error('cuartos', e); } if (!!P.escSola !== escSola0) { escSola0 = !!P.escSola; if (escSola0) visor.fly([560, 300, 2560], [800, 270, 2900]); } if (vdb && PDES.size) vdb.doc('estado/params').set({ p: pdes(P), ts: new Date().toISOString() }).catch(() => {}); };
 
 /* nombres propios y ediciones: al cambiar, se reconstruye */
 N.bindEditor(root, () => {}); N.onChange(() => { visor.rebuild(); applyClips(); }); ED.onChange(() => { visor.rebuild(); applyClips(); });
@@ -302,7 +313,9 @@ try { initEditor(visor, document.querySelector('#modo-3d .stage'), {}, zN('EP'))
 try { initSenalar(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('senalar', e); }
 try { initMedir(visor, document.querySelector('#modo-3d .stage')); } catch (e) { console.error('medir', e); }
 { let vu = null; try { vu = initVistasUI(); } catch (e) { console.error('vistas', e); }
-  try { initToolbar(document.querySelector('#modo-3d .stage'), visor, { vistas: vu, zonas: [] }); } catch (e) { console.error('toolbar', e); } }
+  try { initToolbar(document.querySelector('#modo-3d .stage'), visor, { vistas: vu, zonas: [
+    { id: 'andres', nombre: 'Cuarto de Andrés', piezas: /^(TAB-01|P-07|M-43)$/, params: ['cuartoAnd'], label: Object.fromEntries(params.find(q => q.id === 'cuartoAnd').options), vista: { p: [400, 760, 3300], t: [200, 420, 3650] } },
+    { id: 'isolda', nombre: 'Cuarto de Isolda', piezas: /^(P-09|P-14|M-42)$/, params: ['cuartoIso'], label: Object.fromEntries(params.find(q => q.id === 'cuartoIso').options), vista: { p: [480, 760, 3350], t: [700, 420, 3680] } }] }); } catch (e) { console.error('toolbar', e); } }
 try { initAristas(visor); } catch (e) { console.error('aristas', e); }
 try { initViewCube(visor); } catch (e) { console.error('viewcube', e); }
 try { initInspector(visor); } catch (e) { console.error('inspector', e); }

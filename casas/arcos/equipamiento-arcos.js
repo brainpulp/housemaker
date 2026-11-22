@@ -55,7 +55,7 @@ export function equipArcos({ itA }) {
        pasillo de 0,95 que también lleva al baño; la idea de «usar el respaldo para separar el vestidor» de IKEA); B, sin tabique: placard de piso a techo contra el baño
        y la cama contra la medianera sur, con un rincón de estar. El placard del SketchUp sale en las dos. Medidas de placard: fondo 0,60, colgado 0,94 / 1,88 (Houzz). */
     cuartoSE: { n: 'Cuarto de Andrés (1P)', piso: P1, vista: { p: [400, 760, 3300], t: [200, 420, 3650] }, esc: () => { const I = itA('cuartoSE'); return {
-      A: { nombre: 'Con vestidor detrás de la cama', items: [I('tabique', 169.5, 3453.5, 0, { L: 309, e: 10, H: 308 }),
+      A: { nombre: 'Con vestidor detrás de la cama', items: [/* el tabique es parte del edificio: lo pone la opción de diseño «Cuarto de Andrés» (casa.js) */
         I('vestidor', 170.5, 3325, 0, { L: 307, D: 60, H: 307, mods: 'largo:80|doble:100|cajones:60|zapatos:69', mad: 'petiribi', car: 'blanco', mal: 240 }),
         I('espejo', 16.5, 3401, 90, { L: 60, D: 3, H: 170 }, 30),
         I('camaDoble', 169.5, 3566, 0, { L: 170, D: 215 }), I('mesaLuzM', 62, 3480, 0, { L: 45, D: 40 }), I('mesaLuzM', 277, 3480, 0, { L: 45, D: 40 }),
@@ -64,9 +64,18 @@ export function equipArcos({ itA }) {
         I('camaDoble', 122.5, 3610, 90, { L: 170, D: 215 }), I('mesaLuzM', 37, 3497, 90, { L: 45, D: 40 }), I('mesaLuzM', 37, 3723, 90, { L: 45, D: 40 }),
         I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 403, 3510, -90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 330, 3560, -150, { tela: 'lino' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
-    cuartoNE: { n: 'Cuarto NE (1P)', piso: P1, vista: { p: [480, 760, 3350], t: [700, 420, 3680] }, esc: () => { const I = itA('cuartoNE'); return {
-      A: { nombre: 'Cama contra la medianera N', items: [I('camaDoble', 740, 3592, -90, { L: 240, D: 215 }), I('comodaB', 497, 3868, 180, { L: 120, D: 50 })] },
-      B: { nombre: 'Estudio', items: [I('escritorioM', 813, 3640, -90, { L: 150, D: 70 }), I('sillaCover', 745, 3640, 90), I('sofaRaffey', 485, 3670, 90, { L: 200, D: 99 }), I('estanteM', 490, 3872, 180)] },
+    /* Maxi 22/11: cuarto de Isolda (cuarto NE del 1P): de huéspedes, pero usado como sala de TV, con sofá cama. 4,16 × 4,36; la única pared llena es la medianera norte
+       (al sur el arco a Andrés, al oeste el arco al chill, al este la puerta balcón). Dos propuestas: A, sala de TV con la tele y un mueble bajo sobre la medianera y el sofá
+       cama suelto mirándola a ~2,9 m (75": distancia ≈ 1,5 veces la diagonal, ángulo de ~30°, SMPTE); B, sofá cama contra la medianera y pantalla enrollable de 100"
+       sobre el arco a Andrés (con la plegadiza cerrada), proyector en el techo a ~3,5 m. Abierto, el sofá cama ocupa ~2,10 de fondo: la ratona se corre. */
+    cuartoNE: { n: 'Cuarto de Isolda (1P)', piso: P1, vista: { p: [480, 760, 3350], t: [700, 420, 3680] }, esc: () => { const I = itA('cuartoNE'); return {
+      A: { nombre: 'Sala de TV, tele sobre la medianera', items: [I('aparador', 827, 3676, -90, { L: 300, D: 45, H: 50 }), I('tele', 846, 3676, -90, { L: 167, H: 96, e: 4 }, 88),
+        I('alfombra', 690, 3676, 0, { L: 240, D: 300 }), I('sofaRaffey', 560, 3676, 90, { L: 220, D: 99 }), I('ratonaJoco', 700, 3676, 90, { L: 110, D: 60 }),
+        I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 785, 3535, -150, { tela: 'mostaza' })] },
+      B: { nombre: 'Sofá cama contra la medianera y proyector', items: [I('sofaRaffey', 800, 3676, -90, { L: 220, D: 99 }), I('ratonaJoco', 670, 3676, 90, { L: 110, D: 60 }),
+        I('alfombra', 640, 3676, 0, { L: 240, D: 300 }), I('butacaAm', 795, 3510, -110, { tela: 'mostaza' }), I('butacaAm', 795, 3842, -70, { tela: 'lino' }),
+        I('pantalla', 445, 3676, 90, { L: 240, H: 140 }, 75), I('proyector', 760, 3676, 90, { caida: 25 }, 270),
+        I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     dormitorio: { n: 'Dormitorio O (2P)', nivel: 'P2', piso: P2, vista: { p: [560, 930, 3050], t: [300, 620, 2650] }, esc: () => { const I = itA('dormitorio'); return {
       A: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2865, 90, { L: 170, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
