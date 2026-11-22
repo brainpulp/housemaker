@@ -195,10 +195,10 @@ export function catalogoMuebles(THREE){
       g.push([B(a+e+.2,b-.2,M+.2,H-.2,z1-2,z1),p.mad]);
       x=b;g.push([B(x-e,x,0,H,z0,z1),p.mad]);}
     return g;}},
-  /* Maxi 22/11 (dormitorio principal, Arcos): armario bajo que hace de tabique. Abierto de un lado (barrales, cajones, estantes), dorso lleno del otro
+  /* Maxi 22/11 (dormitorio principal, Arcos): armario bajo que hace de tabique. Abierto de un lado (módulos: colgar, colgarE = estante arriba y barral debajo, cajones, estantes, zapatos), dorso lleno del otro
      (ahí apoya la cabecera de la cama), tapa maciza arriba. También sirve, sin dorso a la vista, de cajonera baja bajo una ventana. */
   armarioBajo:{n:'Armario bajo que hace de tabique (abierto de un lado)',cat:'dormitorio',p:{L:300,D:60,H:160,mods:'colgar:120|cajones:60|colgar:120',mad:'petiribi',car:'blanco'},g:p=>{
-    const g=[],e=1.8,t=3,z0=-p.D/2,z1=p.D/2,H=p.H;const mods=String(p.mods||'').split('|').map(s=>{const [k,w]=s.split(':');return [k,+w||60];});
+    const g=[],e=1.8,t=p.tapa||3,z0=-p.D/2,z1=p.D/2,H=p.H;const mods=String(p.mods||'').split('|').map(s=>{const [k,w]=s.split(':');return [k,+w||60];});
     const tot=mods.reduce((a,[,w])=>a+w,0)||p.L,k=p.L/tot;
     g.push([B(-p.L/2,p.L/2,0,8,z0+2,z1-5),'negro'],[B(-p.L/2,p.L/2,8,8+e,z0+e,z1),p.car],[B(-p.L/2,p.L/2,H-t,H,z0,z1),p.mad],[B(-p.L/2,p.L/2,0,H-t,z0,z0+e),p.mad]);
     let x=-p.L/2;g.push([B(x,x+e,0,H-t,z0,z1),p.mad]);
@@ -206,6 +206,8 @@ export function catalogoMuebles(THREE){
     for(const [tp,w0] of mods){const a=x,b=x+w0*k;
       if(tp==='colgar')g.push([B(a+e,b,H-t-14,H-t-11.6,-1.2,1.2),'acero']);
       else if(tp==='cajones'){const n=Math.max(1,Math.round((H-t-8-e)/26)),h=(H-t-8-e)/n;for(let i=0;i<n;i++){const y=8+e+i*h;g.push([B(a+e+.2,b-.2,y+.2,y+h-.2,z1-2,z1),p.mad]);}}
+      else if(tp==='zapatos')for(let y=8+e+20;y<H-t-12;y+=20)est(a,b,y);
+      else if(tp==='colgarE'){est(a,b,H-t-30);g.push([B(a+e,b,H-t-44,H-t-41.6,-1.2,1.2),'acero']);}
       else for(let y=8+e+32;y<H-t-15;y+=32)est(a,b,y);
       x=b;g.push([B(x-e,x,0,H-t,z0,z1),p.mad]);}
     return g;}},

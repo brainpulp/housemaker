@@ -78,13 +78,14 @@ export function equipArcos({ itA }) {
         I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     dormitorio: { n: 'Dormitorio principal (2P)', nivel: 'P2', piso: P2, vista: { p: [560, 930, 3050], t: [300, 620, 2650] }, esc: () => { const I = itA('dormitorio'); return {
-      /* Maxi 22/11: armario bajo de 1,60 (la altura del alféizar de la ventana a la terraza) que hace de tabique, laqueado índigo, con la cama queen apoyada del lado
-         del jardín, mirando al oeste. Es una isla: se pasa al vestidor por las dos puntas (0,80 contra la pared del palier, cuya cara está en x 6,26 como en el
-         SketchUp, y del lado de la medianera sur, donde arranca la escalerita al vestidor de la terraza, E-06). Detrás: el armario abierto, pasillo de 1,00 y una
-         cajonera baja bajo la ventana. Sin placard alto (Maxi: «no debería estar, es caro»). */
-      A: { nombre: 'Cama contra el armario-tabique, vestidor detrás', items: [I('armarioBajo', 375.5, 2899, 0, { L: 341, D: 60, H: 160, mods: 'colgar:130|cajones:80|colgar:131', mad: 'indigo' }),
+      /* Maxi 22/11: armario bajo que hace de tabique, en isla (se pasa al vestidor por las dos puntas: 0,80 contra la pared del palier, cuya cara está en x 6,26
+         como en el SketchUp, y del lado de la medianera sur, donde arranca la escalerita al vestidor de la terraza, E-06), con la cama queen apoyada del lado del jardín,
+         mirando al oeste. Atrás, pasillo de 1,00 y un mueble bajo contra la ventana a la terraza. Los dos laqueados índigo y con la tapa a +7,57, el nivel de la
+         terraza y del alféizar (Maxi): las tapas, macizas de 4 cm, hacen una pasarela junto a la ventana que llega al descanso de la escalerita.
+         Adentro, divisiones de vestidor: colgar largo, estante con barral debajo, estantes, cajones y zapatero. */
+      A: { nombre: 'Cama contra el armario-tabique, vestidor detrás', items: [I('armarioBajo', 375.5, 2899, 0, { L: 341, D: 60, H: 144, tapa: 4, mods: 'colgar:80|cajones:60|estantes:60|zapatos:60|colgarE:81', mad: 'indigo' }),
         I('camaDoble', 375.5, 2761.5, 180, { L: 170, D: 215 }), I('mesaLuzM', 268, 2848, 180, { L: 45, D: 40 }), I('mesaLuzM', 483, 2848, 180, { L: 45, D: 40 }),
-        I('armarioBajo', 412.5, 3054, 180, { L: 415, D: 50, H: 90, mods: 'cajones:104|cajones:103|cajones:104|cajones:104' }),
+        I('armarioBajo', 412.5, 3054, 180, { L: 415, D: 50, H: 144, tapa: 4, mods: 'estantes:70|cajones:70|zapatos:70|cajones:70|estantes:70|colgarE:65', mad: 'indigo' }),
         I('butacaAm', 150, 2500, 135, { tela: 'lino' })] },
       B: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2865, 90, { L: 170, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
       C: { nombre: 'Mirando al jardín', items: [I('camaDoble', 400, 2970, 180, { L: 220, D: 215 }), I('butacaAm', 150, 2500, 135, { tela: 'mostaza' })] },
