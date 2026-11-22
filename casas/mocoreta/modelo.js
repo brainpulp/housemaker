@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.36', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.37', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -267,6 +267,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-22', v: '0.10.37', txt: 'Escalera de la terraza al deck: dos variantes nuevas en «Escalera de la terraza al deck». Dos tramos con giro de 180° (cada uno de unos 2,2 en planta, descanso en el medio sobre dos postes) y caracol de 1,70 de diámetro con columna central, al lado del descanso de la terraza.' },
   { fecha: '2026-11-22', v: '0.10.36', txt: 'Escalera de dos tramos rehecha (Maxi: «tendría sentido sólo si abajo parecieran una sola escalera»). Los dos tramos son iguales: 8 alzadas de 18,4 y 8 pedadas, la de arriba a nivel del deck; con la casa abajo quedan alineados escalón por escalón, sin baranda en el medio (las del medio son rebatibles y se levantan al separarlos) y sin descanso. Para que eso cierre, la casa sube 1,47 (lo que está el piso del terreno) en vez de 1,43. Con la casa arriba, el tramo de abajo corre 2,24 al norte y el de arriba 1,14 al este: su pie apoya en la pedada de arriba del otro y quedan 16 alzadas iguales. Ya no hace falta la losita.' },
   { fecha: '2026-11-22', v: '0.10.35', txt: 'Deck alrededor del ensanche (segundo piso): para pasar del deck sur al rodeo había que saltar, porque se tocaban en sólo 50 cm, justo donde está la columna del ensanche. Ahora el deck se ensancha 2,00 antes del ensanche y el paso es de todo el ancho. Además, con el sistema de subir y bajar, se corrieron la escalera de la terraza (afuera de las columnas dobles), unos tirantes y postes de ese deck y el sándwich del ensanche, que pisaban las columnas nuevas.' },
   { fecha: '2026-11-22', v: '0.10.34', txt: 'El deck de toda la vuelta pasa a ser el de la casa (Maxi: ya estaba decidido). Arreglado de fondo: lo que estaba guardado de antes tapaba el cambio; ahora, cuando una decisión cambia una opción, se aplica una vez aunque hubiera otra cosa guardada, y después se puede volver a cambiar.' },
