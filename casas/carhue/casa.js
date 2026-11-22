@@ -46,7 +46,8 @@ const lin=(p,q,y)=>p[1]+(q[1]-p[1])*(y-p[0])/(q[0]-p[0]);
 /* Maxi 21/11: «C-09 y C-10 no van, se usa una viga desde C-11 hasta la pared, y T-08 siempre va por debajo de T-06»: viga de borde VA-1 de C-11 a M-22 (x 24,00)
    con las puntas de VT-1…3 apoyadas; el alero baja 20 (VT a +2,50 → +2,30 en VQ-1) para que su chapa pase 3 cm por debajo del alero de T-06 (+2,59 en x 24,42),
    y arranca en x 24,25, debajo de ese alero */
-const AO={xS:2425,xN:2866,yE:37.5,yW:-490,yP:-474,vigas:{'VT-1':2550,'VT-2':2708,'VT-3':2858},postes:{'C-11':2858},borde:{id:'VA-1',x0:2400,x1:2863,y0:-480,y1:-472.5},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>250+.07*(y-38)};
+/* Maxi 21/11 («este gap entre techos está mal»): al bajar T-08 quedaba 25 cm abierto bajo el alero del techo principal (+2,83 en y 0,38); T-08 sigue hasta y 0,60, por debajo de ese alero */
+const AO={xS:2425,xN:2866,yE:60,yW:-490,yP:-474,vigas:{'VT-1':2550,'VT-2':2708,'VT-3':2858},postes:{'C-11':2858},borde:{id:'VA-1',x0:2400,x1:2863,y0:-480,y1:-472.5},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>250+.07*(y-38)};
 /* dormers (Maxi 14/10): DM-1 y DM-2 al jardín entre cabios dobles de CAB-3 (cada 65 desde x 0,32); DM-3 en el faldón norte del ala */
 const DORM_CC=p=>['c','ca','cg'].includes(p.dormers),DORM_ON=p=>['j','ja','c','ca','cg'].includes(p.dormers),DORM_ALT=p=>p.dormAlt==='1'||['ja','ca'].includes(p.dormers),DORM_Y0=358,DORM_SKIP=p=>p.dormers==='cg'?['LU-1','LU-2','LU-4']:DORM_CC(p)?['LU-1','LU-2']:DORM_ON(p)?['LU-1']:[];
 const DORM_J2=[{id:'DM-1',xl:97,xr:357,local:'dormitorio secundario (L-25), en lugar de LU-1'},{id:'DM-2',xl:747,xr:942,local:'dormitorio principal (L-21); 1,8 m para no tocar LU-2'}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
@@ -770,7 +771,7 @@ function build(p){
     else if(t.id==='T-04'||t.id==='T-07'){/* vidrios sueltos: uno por tramo entre cabios (cada 1,30) y dos a lo largo, cortados en la correa CR-1 (y 8,08) */
       const zg=y=>407-(y-581)*(161/360)+1;const xs=[];for(let x=1350;x<=2920;x+=130)xs.push(x);xs.push(2946);const xr=xs.filter(x=>x>=x0-1&&x<=x1+1);if(xr[0]>x0+1)xr.unshift(x0);if(xr[xr.length-1]<x1-1)xr.push(x1);g=[];
       for(let i=0;i<xr.length-1;i++)if(xr[i+1]-xr[i]>12)for(const [ya,yb] of [[690,807],[809,965]])g.push(slabY(xr[i]+3.5,xr[i+1]-3.5,[ya,zg(ya)],[yb,zg(yb)],1));}
-    else if(t.id==='T-08'){const c=y=>AO.u(y)+7.8;g=[slabY(AO.xS,AO.xN,[AO.yW,c(AO.yW)],[-2,c(-2)],1),slabY(2523,AO.xN,[-2,c(-2)],[AO.yE,c(AO.yE)],1)];}
+    else if(t.id==='T-08'){const c=y=>AO.u(y)+7.8;g=[slabY(AO.xS,AO.xN,[AO.yW,c(AO.yW)],[-2,c(-2)],1),slabY(2523,AO.xN,[-2,c(-2)],[AO.yE,c(AO.yE)],1),box(2523,AO.xN,c(36)+1,284,36,38)];}/* cierre de chapa lisa entre T-08 y el alero de T-05 (y 0,38): T-08 queda 25 cm más bajo y la ranura quedaba abierta al quincho */
     else if(t.id==='T-05')g=[slabY(2523,2951,[352,507],[690,lin(ROOF.ridge,ROOF.front,690)],6),slabY(2523,2951,[38,283],[352,507],6)];
     else if(t.id==='T-06'){const q=(pts)=>box8([...pts.map(([x,y])=>[x,wingZ(x),y]),...pts.map(([x,y])=>[x,wingZ(x)+6,y])]);g=[q([[1771,-828],[2103,-828],[2103,338],[1771,4]])];
       if(DORM_ALT(p)){const D=DORM_A;g.push(q([[2103,-828],[2442,-828],[2442,D.y0-7.5],[2103,D.y0-7.5]]),q([[2103,D.y1+7.5],[2442,D.y1+7.5],[2442,4],[2103,338]]),q([[2103,D.y0-7.5],[D.x0,D.y0-7.5],[D.x0,D.y1+7.5],[2103,D.y1+7.5]]),q([[D.xf+8,D.y0-7.5],[2442,D.y0-7.5],[2442,D.y1+7.5],[D.xf+8,D.y1+7.5]]));}

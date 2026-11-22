@@ -62,7 +62,8 @@ export function initRealismo(visor,datos={}){
       case 'acero':return ['acero',100];case 'roble':return ['roble',80];case 'agua':return ['agua',200];default:return null;}};
   /* UV por proyección de caja, en coordenadas del mundo (cm) */
   function boxUV(g,size,slope,rot){let geo=g;if(geo.index)geo=geo.toNonIndexed();const P=geo.attributes.position,n=P.count,uv=new Float32Array(n*2);const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),nn=new THREE.Vector3();
-    for(let i=0;i<n;i+=3){a.fromBufferAttribute(P,i);b.fromBufferAttribute(P,i+1);c.fromBufferAttribute(P,i+2);nn.subVectors(b,a).cross(c.clone().sub(a));const ax=Math.abs(nn.x),ay=Math.abs(nn.y),az=Math.abs(nn.z);
+    const PL=geo.userData&&geo.userData.planos&&geo.userData.planos.length===n?geo.userData.planos:null;/* chapa con zigzag (visor3d acanalar): la orientación sale del plano liso */
+    for(let i=0;i<n;i+=3){a.fromBufferAttribute(P,i);b.fromBufferAttribute(P,i+1);c.fromBufferAttribute(P,i+2);if(PL)nn.set(PL[i],PL[i+1],PL[i+2]);else nn.subVectors(b,a).cross(c.clone().sub(a));const ax=Math.abs(nn.x),ay=Math.abs(nn.y),az=Math.abs(nn.z);
       for(let k=0;k<3;k++){const v=k===0?a:k===1?b:c;let u,w;if(ay>=ax&&ay>=az){if((slope&&ax>az)||rot){u=v.z;w=v.x;}else{u=v.x;w=v.z;}}else if(ax>=az){u=v.z;w=v.y;}else{u=v.x;w=v.y;}uv[(i+k)*2]=u/size;uv[(i+k)*2+1]=w/size;}}
     geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));return geo;}
   /* ---------- luz, cielo, suelo ---------- */
