@@ -31,7 +31,13 @@ const motor=fs.readdirSync(path.join(OUT,'motor')).filter(f=>f.endsWith('.js'));
     let META={};try{const m=await import(path.resolve(dir,'modelo.js'));META=m.META||{};}catch(e){/* catálogo y laboratorio no tienen modelo */}
     const html=fs.readFileSync(path.join(dir,'pagina.html'),'utf8');const t=/<title>([^<]*)<\/title>/.exec(html);
     const RES={octet:'Editor de estructuras de tubos y nodos (octet truss): la mesa de vidrio y sus modelos guardados.',catalogo:'Catálogo y laboratorio: todas las piezas del motor por familia, y el banco para limpiar y ajustar los modelos 3D antes de que entren a una casa.',laboratorio:'Banco para limpiar y ajustar los modelos 3D antes de que entren a una casa.'};
-    casas.push({id:c,nombre:c==='catalogo'?'Muebles':META.nombre||(t?t[1]:c),oculta:c==='laboratorio'/* Maxi 9/11: va como pestaña de «Muebles» */,resumen:META.resumen||RES[c]||'',version:META.version||'',fecha:META.fecha||'',archivos});}
+    /* Maxi 22/11: el índice es una lista con miniatura y datos (herramientas/miniaturas.mjs genera miniatura.jpg y ficha.json) */
+    let ficha={};try{ficha=JSON.parse(fs.readFileSync(path.join(dir,'ficha.json'),'utf8'));}catch(e){}
+    let MOD={};try{MOD=await import(path.resolve(dir,'modelo.js'));}catch(e){}
+    const D=(MOD.DUDAS||[]).filter(d=>!/resuelt|cerrad/i.test(d.estado||'')),C=MOD.CAMBIOS||[];
+    const ult=C[0]?{fecha:C[0].fecha||'',txt:String(C[0].txt||'').replace(/<[^>]+>/g,'').slice(0,220)}:null;
+    casas.push({id:c,nombre:c==='catalogo'?'Muebles':META.nombre||(t?t[1]:c),oculta:c==='laboratorio'/* Maxi 9/11: va como pestaña de «Muebles» */,resumen:META.resumen||RES[c]||'',version:META.version||'',fecha:META.fecha||'',
+      miniatura:archivos.includes('miniatura.jpg')?c+'/miniatura.jpg':'',piezas:ficha.piezas||0,dudas:MOD.DUDAS?D.length:null,cambios:C.length,ultimo:ult,archivos});}
   const imports={"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"};
   fs.writeFileSync(path.join(OUT,'casas.json'),JSON.stringify({motorCommit:MC,motorFecha:MF,imports,motor,casas},null,1));
   console.log('casas.json:',casas.map(c=>c.id+' ('+c.archivos.length+' archivos)').join(', '));})();

@@ -9,3 +9,5 @@
 - **Almacén local:** la cáscara separa el `localStorage` por casa (prefijo `<casa>:`), así las preferencias de una casa no pisan las de otra.
 - **Motor publicado:** a86e318 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
 - **Versiones publicadas:** las de `META.version` de cada `casas/<casa>/modelo.js` al momento de publicar (se ven en el índice).
+
+- **Índice con miniaturas (22/11/2026):** el índice es una lista con una miniatura del 3D de cada casa y datos (versión, piezas, dudas, cambios y el último cambio). Las miniaturas y la cantidad de piezas salen de `node herramientas/miniaturas.mjs [casa …]` (con las páginas de prueba armadas y dist servido en :8765), que escribe `casas/<casa>/miniatura.jpg` y `ficha.json`. Regenerarlas cuando una casa cambie bastante de aspecto.

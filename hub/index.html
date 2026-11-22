@@ -16,7 +16,18 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 #hub{max-width:980px;margin:0 auto;padding:28px 16px 40px}
 #hub h1{font-family:var(--f-display);font-weight:700;font-size:34px;margin:0 0 2px;letter-spacing:.01em}
 #hub .sub{color:var(--muted);font-size:13.5px;margin:0 0 22px}
-#hub .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+#hub .grid:not(.lista){display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+/* Maxi 22/11: lista con miniatura en vez de recuadros */
+#hub .lista{display:flex;flex-direction:column;gap:8px}
+#hub a.fila{display:grid;grid-template-columns:168px 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:8px;color:inherit;text-decoration:none}
+#hub a.fila:hover{border-color:var(--accent);background:var(--accent-soft)}
+#hub a.fila .mini{width:168px;height:105px;border-radius:4px;background:var(--soft) center/cover no-repeat;border:1px solid var(--rule)}
+#hub a.fila h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0 0 2px}
+#hub a.fila p{margin:0 0 4px;font-size:13px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#hub a.fila .datos{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+#hub a.fila .ult{font-size:12px;color:var(--ink);margin-top:4px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#hub a.fila .ult b{font-weight:500;color:var(--muted);font-family:var(--f-mono);font-size:11px}
+@media (max-width:560px){#hub a.fila{grid-template-columns:110px 1fr}#hub a.fila .mini{width:110px;height:70px}}
 #hub a.casa{display:block;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px 12px;color:inherit;text-decoration:none;min-height:120px}
 #hub a.casa:hover{border-color:var(--accent);background:var(--accent-soft)}
 #hub .sub a{color:var(--accent)}
@@ -75,10 +86,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
     const el=document.getElementById('hub');
     try{const info=await (await fetch(root+'casas.json',{cache:'no-store'})).json();
       /* Maxi 9/11: las casas arriba; Octet y Muebles son herramientas de housemaker, aparte */
-      const HERR=['octet','catalogo'],card=c=>`<a class="casa" href="?casa=${c.id}"><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p>${c.version?`<div class="v">v ${esc(c.version)}${c.fecha?' · '+esc(c.fecha):''}</div>`:''}</a>`;
+      const HERR=['octet','catalogo'],fmtF=f=>{let m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(f||'');if(m)return `${+m[3]}/${+m[2]}`;m=/^(\d{1,2})\/(\d{1,2})\/\d{4}$/.exec(f||'');return m?`${+m[1]}/${+m[2]}`:(f||'');},
+        card=c=>{const d=[c.version?'v '+esc(c.version):'',c.piezas?c.piezas+' piezas':'',c.dudas!=null?c.dudas+(c.dudas===1?' duda':' dudas'):'',c.cambios?c.cambios+' cambios':''].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
+          return `<a class="fila" href="?casa=${c.id}"><div class="mini"${c.miniatura?` style="background-image:url('${esc(c.miniatura)}')"`:''}></div><div><h2>${esc(c.nombre)}</h2><p>${esc(c.resumen||'')}</p><div class="datos">${d}</div>${c.ultimo?`<div class="ult"><b>${esc(fmtF(c.ultimo.fecha))}</b> ${esc(c.ultimo.txt)}</div>`:''}</div></a>`;};
       const vis=info.casas.filter(c=>!c.oculta);
       el.querySelector('.grid').innerHTML=vis.filter(c=>!HERR.includes(c.id)).map(card).join('');
-      let h=el.querySelector('.herr');if(!h){h=document.createElement('div');h.innerHTML='<h3 style="font-family:var(--f-display);font-weight:600;font-size:20px;margin:26px 0 8px">Herramientas</h3><div class="grid herr"></div>';el.querySelector('.grid').after(h);h=el.querySelector('.herr');}
+      let h=el.querySelector('.herr');if(!h){h=document.createElement('div');h.innerHTML='<h3 style="font-family:var(--f-display);font-weight:600;font-size:20px;margin:26px 0 8px">Herramientas</h3><div class="lista herr"></div>';el.querySelector('.grid').after(h);h=el.querySelector('.herr');}
       h.innerHTML=vis.filter(c=>HERR.includes(c.id)).map(card).join('');
       /* Maxi 22/11: los modelos de Octet son proyectos, como las casas: uno por tarjeta, desde la base (octet_octet); «Octet» a secas abre el último que usó */
       try{const db=window.claude&&window.claude.use?await window.claude.use('db'):null;if(db){const snap=await db.collection('octet_octet').get();const L=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
@@ -93,6 +106,6 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
 <div id="hub">
   <h1>housemaker</h1>
   <p class="sub">Las casas de Maxi. Tocá una para abrirla; cada una guarda lo suyo (vistas, muebles, ediciones) en esta misma página. Las tareas, compras y plan de cada obra están en <a href="https://claude.ai/artifact/XhQAE7P15ahGjUM7Ntcr9H" target="_blank" rel="noopener">Obras ↗</a>; las compras de las cocinas salen de estos modelos.</p>
-  <div class="grid"></div>
+  <div class="grid lista"></div>
   <div class="pie"></div>
 </div>
