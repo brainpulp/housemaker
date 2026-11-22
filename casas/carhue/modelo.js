@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.56', fecha:'2026-11-21',
+  nombre:'Carhué', version: '1.1.57', fecha:'2026-11-21',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-21', v:'1.1.57', txt:'Maxi 21/11: luces del living: cuatro galponeras grandes (60 cm, 2.500 lm) en dos filas sobre el estar, en lugar de la de pie, el velador, el riel y el aplique.'},
   {fecha:'2026-11-21', v:'1.1.56', txt:'Maxi 21/11: (1) la chapa de los techos tiene relieve en zigzag (motor, todas las casas), no sólo textura. (2) Alero oeste T-08: sin los postes C-09 y C-10; una viga de borde VA-1 de C-11 a la pared del ala recibe las vigas VT; el alero baja 20 cm para pasar por debajo del alero de T-06 y arranca debajo de él. (3) Deck nuevo D-5 bajo T-08.'},
   {fecha:'2026-11-21', v:'1.1.55', txt:'Maxi 21/11: nueva variante de las ventanas al jardín P-05 y P-06: dos hojas de roble con vidrio que abren hacia afuera, con bisagras en las jambas (en «Ventanas al jardín», opción «Dos hojas de abrir hacia afuera»).'},
   {fecha:'2026-11-20', v:'1.1.54', txt:'Maxi 20/11: cocina, mesada de la pared de las ventanas: 3 columnas de cajones de 92,8 en lugar de 4 de 69,6, y la columna de 46 junto al rincón pasa a ser una puerta con estante (bisagras del lado del rincón). El motor acepta en «puertas» una sola puerta por módulo ({i, n:1, lado}).'},
