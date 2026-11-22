@@ -11,7 +11,7 @@
 import * as O from './octet.js';
 import * as N from './nombres.js';
 
-export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCambiar = null, colNodo = 'N:', colStrut = 'S:' } = {}) {
+export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCambiar = null, colNodo = 'N:', colStrut = 'S:', abrirId = null } = {}) {
   const { THREE } = visor; const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
   const fl = v => (+v).toFixed(1).replace('.', ',').replace(/,0$/, '');
@@ -32,8 +32,11 @@ export function initOctet(visor, stage, { pref = 'octet', inicial = null, alCamb
   MOD = LS.get(pref + '-modelos', {}); if (cur && MOD[cur]) m = O.normalizar(MOD[cur]); else if (!cur) { cur = slug(m.nombre); MOD[cur] = O.copiar(m); } /* sin nada guardado, la semilla es el primer modelo */
   N.getDb().then(d => { db = d; if (!d) return; d.collection('octet').onSnapshot(snap => { const R = {}; snap.docs.forEach(x => { if (x.exists) R[x.id] = x.data(); });
     if (!Object.keys(R).length) { persistir(); return; } /* base vacía: se guarda lo que hay (la semilla) y el próximo aviso trae la lista */
-    MOD = R; LS.set(pref + '-modelos', MOD); /* la base manda sobre lo local */
-    if (!cur || !R[cur]) abrir(Object.keys(R).sort()[0]); else if (!saveT && R[cur].ts && R[cur].ts !== (m.ts || '')) { m = O.normalizar(R[cur]); fire(); } /* cambiado desde otro navegador */
+    /* Maxi 22/11 («los demás que hice no los veo»): un modelo recién creado todavía no está en la base cuando llega el aviso del guardado anterior;
+       antes la base pisaba la lista y el editor saltaba al primero: el modelo nuevo se perdía. Ahora lo nuevo de acá se conserva y se guarda. */
+    const propio = cur && !R[cur] && MOD[cur] ? MOD[cur] : null; MOD = R; if (propio) { MOD[cur] = propio; persistir(); } LS.set(pref + '-modelos', MOD);
+    if (abrirId && R[abrirId]) { const id = abrirId; abrirId = null; if (id !== cur) abrir(id); }
+    else if (!cur || !MOD[cur]) abrir(Object.keys(R).sort()[0]); else if (!saveT && R[cur] && R[cur].ts && R[cur].ts !== (m.ts || '')) { m = O.normalizar(R[cur]); fire(); } /* cambiado desde otro navegador */
     lista(); pintar(); }, () => {}); });
   function abrir(id) { if (!MOD[id]) return; cerrarPendiente(); cur = id; LS.set(pref + '-cur', id); hist = []; sel.clear(); fuente = null; m = O.normalizar(MOD[id]); fire(); }
   function nuevo(nombre, base) { cerrarPendiente(); const n = (nombre || '').trim() || 'Nuevo'; let id = slug(n), i = 2; while (MOD[id]) id = slug(n) + '-' + i++; cur = id; hist = []; sel.clear(); fuente = null; m = O.normalizar(base ? { ...O.copiar(base), nombre: n } : O.vacio(n)); fire(); persistir(); }

@@ -80,6 +80,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);margin:0}
       el.querySelector('.grid').innerHTML=vis.filter(c=>!HERR.includes(c.id)).map(card).join('');
       let h=el.querySelector('.herr');if(!h){h=document.createElement('div');h.innerHTML='<h3 style="font-family:var(--f-display);font-weight:600;font-size:20px;margin:26px 0 8px">Herramientas</h3><div class="grid herr"></div>';el.querySelector('.grid').after(h);h=el.querySelector('.herr');}
       h.innerHTML=vis.filter(c=>HERR.includes(c.id)).map(card).join('');
+      /* Maxi 22/11: los modelos de Octet son proyectos, como las casas: uno por tarjeta, desde la base (octet_octet); «Octet» a secas abre el último que usó */
+      try{const db=window.claude&&window.claude.use?await window.claude.use('db'):null;if(db){const snap=await db.collection('octet_octet').get();const L=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
+        if(L.length){const oc=h.querySelector('a.casa[href="?casa=octet"]');const box=document.createElement('div');box.className='grid octm';box.innerHTML=L.map(x=>`<a class="casa" href="?casa=octet&modelo=${encodeURIComponent(x.id)}"><h2>${esc(x.nombre||x.id)}</h2><p>${Object.keys(x.nodos||{}).length} nodos · ${(x.struts||[]).length} tubos · L ${esc(String(x.L||''))} cm</p><div class="v">modelo Octet${x.ts?' · '+esc(String(x.ts).slice(0,10)):''}</div></a>`).join('');
+          const t=document.createElement('h3');t.style.cssText='font-family:var(--f-display);font-weight:600;font-size:20px;margin:26px 0 8px';t.textContent='Proyectos Octet';h.after(t);t.after(box);}}}catch(e){console.warn('octet en el índice',e);}
       el.querySelector('.pie').textContent='motor '+info.motorCommit+' · '+info.motorFecha;
     }catch(e){el.querySelector('.grid').innerHTML='<div id="hub-err">No pude leer la lista de casas: '+esc(String(e))+'</div>';}
   });}

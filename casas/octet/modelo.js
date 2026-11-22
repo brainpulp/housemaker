@@ -1,7 +1,7 @@
 /* Octet — escena para diseñar estructuras espaciales de tubos y nodos (octet truss, retícula FCC) con el motor de housemaker.
    Los modelos (nodos, tubos, L, Ø, R, tapa, regatones) no viven acá: se editan en la página y se guardan en la base del artifact (colección «octet»).
    Esta tabla sólo tiene lo que el motor espera de toda casa (META, NIVELES, LOCALES, DUDAS, CAMBIOS) y el modelo semilla con que arranca una base vacía. */
-export const META = { nombre: 'Octet', version: '0.1.8', fecha: '2026-11-22', lugar: 'Ingeniero Maschwitz' };
+export const META = { nombre: 'Octet', version: '0.1.9', fecha: '2026-11-22', lugar: 'Ingeniero Maschwitz' };
 export const NIVELES = { PB: { nombre: 'Piso', z: 0 } };
 export const LOCALES = [];
 export const DUDAS = [
@@ -12,6 +12,7 @@ export const DUDAS = [
 export const SEMILLA = { v: 1, nombre: 'Mesa de la foto', L: 50, d: 1.6, R: 2.6, desc: 0, tapa: { on: true, e: 1, vuelo: 6, disco: 1.5 }, pies: { on: true, h: 1.5 },
   capas: [{ k: 2, a: [0, 2, 4, 6], b: [0, 2, 4] }, { k: 1, a: [1, 3, 5], b: [1, 3] }, { k: 0, a: [2, 4], b: [2] }] };
 export const CAMBIOS = [
+  { fecha: '22/11/2026', v: '0.1.9', txt: 'Cada modelo Octet es un proyecto en el índice de housemaker («Proyectos Octet»), y se abre desde ahí. Se arregla la pérdida de modelos nuevos: al crear uno, el aviso de la base del guardado anterior pisaba la lista y el editor saltaba al primero. Recuperados «desk» (de la página vieja) y «escritorio Carhué».' },
   { fecha: '22/11/2026', v: '0.1.8', txt: 'Panel Octet ordenado: formulario con etiqueta y campo, secciones (Modelo, Herramienta, Retícula, Vidrio, Regatones, Bloque, Lista de materiales), margen y ayudas cortas. La ficha de la pieza dice qué es (nodo, tubo, vidrio, disco, regatón) y la posición se lee en tres líneas.' },
   {fecha:'8/11/2026', v:'0.1.7', txt:'Motor (Maxi 8/11): lo que escondés con el ojo ya no vuelve a aparecer con cada publicación; la lista de piezas escondidas se guarda en la base de la página (estado/ocultas), como los candados.'},
   {fecha:'8/11/2026', v:'0.1.6', txt:'Motor (Maxi 8/11): las vistas guardadas recuerdan el lente (fov) y si eran en perspectiva o paralela; al volver a una vista se restituyen.'},

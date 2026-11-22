@@ -86,7 +86,9 @@ try { initNoche(visor, { lugar: 'Ing. Maschwitz', lat: -34.381, lon: -58.741, tz
 /* tocar uno de los otros modelos (ver todos juntos) lo abre en el editor; el editor envuelve este pick */
 visor.pick = hit => { const id = hit && hit.object.userData.id; if (id && String(id).startsWith('O:') && OE) { OE.abrir(id.slice(2)); return true; } return false; };
 /* el editor: cada cambio del modelo reconstruye las piezas */
-try { OE = initOctet(visor, stage, { pref: 'octet', inicial: semilla, alCambiar: () => { visor.rebuild(); applyClips(); } }); } catch (e) { console.error('octet', e); }
+/* ?modelo=<id> (desde el índice de housemaker, donde cada modelo es un proyecto) abre ese modelo en cuanto llega la base */
+const abrirId = (() => { try { return new URLSearchParams(location.search).get('modelo') || null; } catch (e) { return null; } })();
+try { OE = initOctet(visor, stage, { pref: 'octet', inicial: semilla, abrirId, alCambiar: () => { visor.rebuild(); applyClips(); } }); } catch (e) { console.error('octet', e); }
 try { initSenalar(visor, stage); } catch (e) { console.error('senalar', e); }
 try { initMedir(visor, stage); } catch (e) { console.error('medir', e); }
 { let vu = null; try { vu = initVistasUI(); } catch (e) { console.error('vistas', e); }
