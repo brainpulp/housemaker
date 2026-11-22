@@ -127,7 +127,7 @@ export function techoGeo(t) {
   const hi = { '−y': Math.max(...ys), '-y': Math.max(...ys), '+y': Math.min(...ys), '−x': Math.max(...xs), '-x': Math.max(...xs), '+x': Math.min(...xs) }[t.baja];
   const ejeY = /y/.test(t.baja), e = t.e || 15;
   const zf = (x, y) => { const s = ((ejeY ? y : x) - hi) / (lo - hi); return t.z[0] + (t.z[1] - t.z[0]) * s; };
-  return mapGeo(losa(t.poly, null, -e, 0), (X, Yv, Z) => [X, Yv + zf(X, Z), Z]);
+  return mapGeo(losa(t.poly, t.huecos || null, -e, 0), (X, Yv, Z) => [X, Yv + zf(X, Z), Z]);   /* huecos: polígonos en planta (lucarnas) */
 }
 
 export function columnaGeo(c) { const [w, d] = SEC(c.sec); return box(c.pos[0] - w / 2, c.pos[0] + w / 2, c.z[0], c.z[1], c.pos[1] - d / 2, c.pos[1] + d / 2); }
