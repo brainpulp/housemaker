@@ -769,7 +769,7 @@ const stage = document.querySelector('#modo-3d .stage');
 /* hipótesis de proyecto como zonas con variantes: aparecen en el botón «Variantes de diseño» de la barra y, al tocar una pieza de la zona, junto a ella */
 const optsDe = id => Object.fromEntries(params.find(q => q.id === id).options);
 const ZONAS = [
-  { id: 'piso2', nombre: 'Segundo piso', piezas: /^(H2-\d+[a-z]?|SJ-\d|PT-1h?|T-0[12]|CE-01|VA-[NSEO]|VT-\d)$/, params: ['piso2'], label: optsDe('piso2'), vista: { p: [2300, 800, 3100], t: [350, 280, 1600] } },
+  { id: 'piso2', nombre: 'Segundo piso', piezas: /^(H2-(?!23[a-z]?$)\d+[a-z]?|SJ-\d|PT-1h?|T-0[12]|CE-01|VA-[NSEO]|VT-\d)$/, params: ['piso2'], label: optsDe('piso2'), vista: { p: [2300, 800, 3100], t: [350, 280, 1600] } },
   { id: 'lucarna', nombre: 'Lucarna sobre la doble altura', piezas: /^H2-4[0-3]$/, params: ['lucarna'], label: optsDe('lucarna'), vista: { p: [-700, 1300, 800], t: [200, 600, 1800] } },
   { id: 'deckO', nombre: 'Deck que rodea la casa', piezas: /^D[OER]-\d+[a-z]?$/, params: ['deckO'], label: optsDe('deckO'), vista: { p: [-900, 700, -900], t: [200, 0, 300] } },
   { id: 'ventanas2', nombre: 'Ventanas del piso alto', piezas: /^(VC|VP|HV)-\d[a-z]?$|^AM\d\d[cv]$/, params: ['ventanas2'], label: optsDe('ventanas2'), vista: { p: [1500, 900, 2900], t: [400, 400, 1700] } },

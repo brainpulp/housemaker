@@ -20,7 +20,7 @@ export function equipMocoreta({ itA }) {
     alto: { n: 'Piso alto (hipótesis)', piso: 328, ver: p => p.piso2 === 'A' || p.piso2 === 'B', vista: { p: [1500, 900, 2900], t: [300, 380, 1800] }, esc: () => { const I = itA('alto'); return {
       A: { nombre: 'Dormitorio y oficina', items: [
         I('cama', 300, 1492, 180, { L: 160, D: 200 }), I('mesaLuz', 190, 1572, 180), I('mesaLuz', 410, 1572, 180), I('alfombra', 300, 1440, 0, { L: 260, D: 170 }), I('placard', 45, 1380, 90, { L: 150, D: 60, H: 240 }),
-        I('escritorio', 300, 2350, 180, { L: 160, D: 70 }), I('silla', 300, 2290, 0), I('biblioteca', 32, 2270, 90, { L: 200, D: 32, H: 200 }), I('butaca', 170, 2090, 90), I('alfombra', 260, 2200, 0, { L: 240, D: 170 })] },
+        I('escritorio', 300, 2350, 180, { L: 160, D: 70 }), I('silla', 300, 2290, 0), I('bibliotecaGrilla', 32, 2270, 90, { L: 200, D: 35, H: 200 }) /* Maxi 22/11: igual a la de abajo (BI-01) */, I('butaca', 170, 2090, 90), I('alfombra', 260, 2200, 0, { L: 240, D: 170 })] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* el jardín: sin muebles; es el ambiente donde el motor pone la capa Plantas */
     exterior: { n: 'Jardín', piso: TERR, suelo: 'terreno', vista: { p: [3400, 250, 1500], t: [600, 400, 1450] }, esc: () => ({ A: { nombre: 'Sin muebles', items: [] } }) },
@@ -63,5 +63,7 @@ export function equipMocoreta({ itA }) {
     /* el fondo: árboles altos detrás de la casa, al sur */
     for (const [x, y, e, h, s] of [[-900, 2900, 'Ash Large', 1700, 2], [-900, 2500, 'Oak Large', 1800, 1], [-1100, 2000, 'Pino', 2100, 2], [-800, 1500, 'Ash Large', 1700, 3], [-1200, 1050, 'Pino', 2200, 4], [-900, 600, 'Oak Large', 1800, 2], [-1150, 100, 'Ash Large', 1600, 1], [-800, -350, 'Pino', 2000, 3], [-1000, -800, 'Oak Large', 1700, 3]]) P('arbol', x, y, e, h, s);
     return { A: { nombre: 'Jardín de hoy (desde la foto y el video del norte)', items: it }, B: { nombre: 'Sin plantas', items: [] } }; }
-  return { inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: escLuces, cal: sin('Sin calefacción') };
+  /* Maxi 22/11: la biblioteca de la oficina de arriba pasa a ser igual a la de abajo, también en lo ya guardado */
+  const MUT = { mue: { alto: [['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
+  return { mut: MUT, inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: escLuces, cal: sin('Sin calefacción') };
 }

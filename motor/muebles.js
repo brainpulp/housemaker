@@ -219,6 +219,14 @@ export function catalogoMuebles(THREE){
   tabique:{n:'Tabique liviano de piso a techo (Durlock)',cat:'obra',p:{L:300,e:10,H:300,mat:'blanco'},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e/2,p.e/2),p.mat]]},
   escritorio:{n:'Escritorio de tapa gruesa y patas panel',cat:'trabajo',p:{L:140,D:65,H:75,mad:'roble'},g:p=>[[R(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2,.8),p.mad],[B(-p.L/2+3,-p.L/2+7,0,p.H-4,-p.D/2+3,p.D/2-3),p.mad],[B(p.L/2-7,p.L/2-3,0,p.H-4,-p.D/2+3,p.D/2-3),p.mad],
     [B(-p.L/2+7,p.L/2-7,p.H-14,p.H-4,-p.D/2+3,-p.D/2+5),p.mad],[B(p.L/2-47,p.L/2-7,p.H-15,p.H-4,-p.D/2+5,p.D/2-4),p.mad],tir(p.L/2-27,p.H-9.5,p.D/2-4,14)]},
+  /* Maxi 22/11 (Mocoretá): la misma biblioteca que la fija de la planta baja (BI-01): cuadrícula alineada de tablas de 6 cm, casilleros de ~0,46 × ~0,43,
+     y abajo, del lado izquierdo, una cajonera tipo fichero que ocupa dos filas (3 columnas, o 2 si la biblioteca es corta) con cajoncitos de ~15 × 11 */
+  bibliotecaGrilla:{n:'Biblioteca de cuadrícula con cajonera',cat:'trabajo',p:{L:200,D:35,H:200,mad:'roble',cj:'nogal'},g:p=>{const e=6,L=p.L,H=p.H,D=p.D,x0=-L/2,nc=Math.max(2,Math.round((L-e)/46)),nr=Math.max(3,Math.round((H-e)/43)),px=(L-e)/nc,pz=(H-e)/nr,xs=[...Array(nc+1)].map((_,k)=>x0+k*px),zs=[...Array(nr+1)].map((_,k)=>k*pz),cc=nc>=5?3:2,g=[];
+    const enCaj=(c,r)=>c<cc&&(r===1||r===2);
+    for(let k=0;k<=nr;k++)g.push([k===2?B(xs[cc],L/2,zs[k],zs[k]+e,-D/2,D/2):B(x0,L/2,zs[k],zs[k]+e,-D/2,D/2),p.mad]);
+    for(let c=0;c<=nc;c++)for(let r=0;r<nr;r++)if(!(c>0&&c<cc&&enCaj(c,r)))g.push([B(xs[c],xs[c]+e,zs[r]+e,zs[r+1],-D/2,D/2),p.mad]);
+    {const a0=xs[0]+e,a1=xs[cc],z0=zs[1]+e,z1=zs[3],na=3*cc,nb=7,w=(a1-a0)/na,h=(z1-z0)/nb;for(let a=0;a<na;a++)for(let b=0;b<nb;b++)g.push([B(a0+a*w+.4,a0+(a+1)*w-.4,z0+b*h+.4,z0+(b+1)*h-.4,-D/2+2,D/2-1.5),p.cj]);}
+    return g;}},
   biblioteca:{n:'Biblioteca abierta de madera',cat:'trabajo',p:{L:160,D:32,H:200,mad:'roble'},g:p=>{const g=[[B(-p.L/2,-p.L/2+2.5,0,p.H,-p.D/2,p.D/2),p.mad],[B(p.L/2-2.5,p.L/2,0,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2,p.L/2,0,6,-p.D/2,p.D/2-2),p.mad],[B(-p.L/2,p.L/2,p.H-2.5,p.H,-p.D/2,p.D/2),p.mad]];
     const nf=Math.max(1,Math.round((p.H-8)/36));for(let i=1;i<nf;i++){const y=6+(p.H-8)*i/nf;g.push([B(-p.L/2,p.L/2,y-1.25,y+1.25,-p.D/2,p.D/2),p.mad]);}
     const nc=Math.max(1,Math.round(p.L/80));for(let i=1;i<nc;i++){const x=-p.L/2+p.L*i/nc;g.push([B(x-1.25,x+1.25,6,p.H-2.5,-p.D/2,p.D/2),p.mad]);}g.push([B(-p.L/2,p.L/2,0,p.H,-p.D/2,-p.D/2+1),p.mad]);return g;}},
