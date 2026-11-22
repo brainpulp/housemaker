@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (21/11/2026, v0.10.35)
+# Mocoretá: resumen para arrancar una conversación nueva (21/11/2026, v0.10.36)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
@@ -25,7 +25,7 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
   - Estructura completa, predimensionada sin calcular: en cada par, dos UPN 220 en sándwich apoyados sobre la casa; columnas de acero de 100 × 100 en el ensanche; techo de dos UPN 120 inclinados con correas y tensores; pisos de fenólico como diafragma. Ver D-20.
 - **Lucarna sobre la doble altura** (Maxi 21/11, con el segundo piso): 2,00 × 2,00 en el módulo 2 (prendida con el segundo piso); variante larga de 1,95 × 3,40, vidrio DVH laminado a 10° sobre marco de madera; no puede ir más al norte porque ahí sale el caño de la salamandra.
 - **Deck que rodea la casa** (decidido: de toda la vuelta, Maxi 22/11): por el sur y el oeste, o de toda la vuelta (Maxi 21/11: sur, oeste y este de 2,00; con el segundo piso rodea el ensanche por afuera).
-- **Escalera de dos tramos** (Maxi 22/11, para subir y bajar la casa): dos escaleras lado a lado con la casa abajo; arriba, una corre 2,00 al norte y la otra 1,25 al este y quedan en línea (D-22).
+- **Escalera de dos tramos** (Maxi 22/11, para subir y bajar la casa): dos tramos iguales alineados con la casa abajo (parecen una escalera); arriba, uno corre 2,24 al norte y el otro 1,14 al este y quedan en línea. La casa sube 1,47 (D-22).
 - **Casa elevada**: piso a 2,90 para habitar abajo.
 - **Sistema para subir y bajar la casa** (Maxi 16 y 17/11, D-21; va junto con «Altura de la casa»: hoy, media maniobra a 2,20, elevada a 2,90). El detalle completo, con cálculos, lista de materiales, costos y plan de obra, está en el documento de Claude «Mocoretá: sistema para subir y bajar la casa»:
   - La idea de Maxi: elevar la casa sin arrepentirse, con un sistema que también la pueda bajar. Se va a mover pocas veces; abajo no se construye nada alto.
