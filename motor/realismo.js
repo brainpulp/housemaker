@@ -38,7 +38,7 @@ export function initRealismo(visor,datos={}){
   const woodMat=new THREE.MeshStandardMaterial({map:T.pino,roughness:.85,color:0xffffff});
   /* tonos (Maxi 18/11: «la madera más oscura; dame una manera de editarla en tiempo real»): cada textura se multiplica por un tinte.
      La casa da los suyos (datos.tintes = {madera:'#…'}); el botón «tonos» de la barra de abajo los cambia en vivo y los guarda en este navegador */
-  const TKEY='hm-tintes:'+location.pathname.replace(/[^/]*$/,'');let TIN0={...(datos.tintes||{})},TIN={...TIN0};try{Object.assign(TIN,JSON.parse(localStorage.getItem(TKEY)||'{}'));}catch(e){}
+  const TKEY='hm-tintes2:'+/* Maxi 22/11: «la madera queda negra»: se descartan los tonos guardados antes */location.pathname.replace(/[^/]*$/,'');let TIN0={...(datos.tintes||{})},TIN={...TIN0};try{Object.assign(TIN,JSON.parse(localStorage.getItem(TKEY)||'{}'));}catch(e){}
   const NOMT={madera:'Madera',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
   const texDe=m=>m&&m.map?Object.keys(T).find(k=>T[k]===m.map):null;
   function materiales(){const out=[woodMat,stoneMat];scene.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material))if(m&&m.map&&!out.includes(m))out.push(m);});return out;}

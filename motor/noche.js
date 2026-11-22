@@ -41,7 +41,7 @@ export function prendida(prog,min,sr,ss){const p=prog||{modo:'prog'};if(p.modo==
 /* datos (de la casa): {lugar,lat,lon,tz,norte,inicioDia}: lugar por defecto y desvío del norte; sin datos, Ing. Maschwitz (Carhué). */
 export function initNoche(visor,datos=null){
   const {THREE,scene,renderer,camera}=visor;
-  const EXPO=1/70;/* lux → unidades de escena: ~150 lux sobre blanco queda bien expuesto */
+  const EXPO=1/45;/* lux → unidades de escena: ~100 lux sobre blanco queda bien expuesto (Maxi 22/11: antes 1/70, muy oscuro) */
   const hoy=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
   const S={ev:0,luna:.35,sombras:4,bloom:.55,max:24,fecha:hoy(),min:new Date().getHours()*60+new Date().getMinutes(),lat:-34.381,lon:-58.741,tz:-3,norte:0,lugar:'Ing. Maschwitz',diaMin:780,nocheMin:1290};
   if(datos)Object.assign(S,datos);
@@ -65,7 +65,7 @@ export function initNoche(visor,datos=null){
     dirty=true;}
   /* Maxi 17/11: «los spots también iluminan de manera difusa»: la luz que rebota en pisos, paredes y techo. Una luz ambiente cuyo valor sale de los lúmenes prendidos cerca de la cámara:
      iluminación indirecta ≈ Φ·ρ/(S·(1−ρ)), con ρ 0,3 (madera oscura) y S ~ 130 m² de superficies por ambiente → 0,0033 lux por lumen, que se apaga con la distancia (6 m). */
-  let rebote=null;const REB=.0033,REBR2=600*600;
+  let rebote=null;const REB=.014,REBR2=800*800;/* Maxi 22/11: rebote ~4× (luz que vuelve de paredes, techo y piso); antes .0033/6 m */
   function quitarPool(){if(rebote){scene.remove(rebote);rebote=null;}if(!pool)return;for(const l of [...pool.spot,...pool.point,...pool.rect]){scene.remove(l);if(l.target)scene.remove(l.target);if(l.shadow&&l.shadow.map){l.shadow.map.dispose();l.shadow.map=null;}l.dispose&&l.dispose();}pool=null;}
 
   /* ---------- reparto: las fuentes prendidas que más importan para la cámara ---------- */
@@ -77,11 +77,11 @@ export function initNoche(visor,datos=null){
     for(const k of ['spot','point','rect']){const L=by[k].sort((a,b)=>b._i-a._i);const P=pool[k];
       for(let i=0;i<P.length;i++){const l=P[i],f=L[i];if(!f){l.intensity=0;continue;}usadas++;l.color.copy(f.col);
         if(k==='spot'){const half=Math.min(Math.PI/2.05,(f.beam||40)/2*R*1.25);const cd=f.lm/(2*Math.PI*(1-Math.cos((f.beam||40)/2*R)));
-          l.intensity=cd*1e4*EXP;l.angle=half;l.penumbra=.5;l.position.copy(f.p);l.target.position.copy(f.p).addScaledVector(f.d,100);l.target.updateMatrixWorld();}
+          l.intensity=cd*1e4*EXP;l.angle=Math.min(Math.PI/2.05,half*1.35);l.penumbra=.9;l.position.copy(f.p);l.target.position.copy(f.p).addScaledVector(f.d,100);l.target.updateMatrixWorld();}
         else if(k==='point'){l.intensity=f.lm/(4*Math.PI)*1e4*EXP;l.distance=f.dist||0;l.position.copy(f.p);}
         else{const A=Math.max(1,f.w)*Math.max(.5,f.h)/1e4;l.width=Math.max(1,f.w);l.height=Math.max(.5,f.h);l.intensity=f.lm/(Math.PI*A)*EXP;l.position.copy(f.p);l.lookAt(tmp.copy(f.p).add(f.d));}}}
     {let E=0;for(const f of fuentes){if(f.lm<=0||!f.on)continue;E+=f.lm*REB/(1+f.p.distanceToSquared(cp)/REBR2);}
-      if(!rebote){rebote=new THREE.AmbientLight(0xffd9a8,0);rebote.name='rebote';scene.add(rebote);}rebote.intensity=E*EXP;}
+      if(!rebote){rebote=new THREE.HemisphereLight(0xffe4c0,0xb08a68,0);rebote.name='rebote';scene.add(rebote);}rebote.intensity=E*EXP;}
     dirty=false;lastCam.copy(cp);}
 
   /* ---------- luces de la escena (realismo / luz realista) ---------- */
@@ -115,10 +115,10 @@ export function initNoche(visor,datos=null){
       renderer.toneMappingExposure=Math.pow(2,S.ev);}
     else{/* de día: sol, cielo y relleno según la altura */
       const ks=smooth(-1,12,sol.alt),kh=.12+.88*smooth(-6,15,sol.alt);
-      if(luzOn){for(const h of l.hemi){h.intensity=.2*kh;h.color.set(0xe4ebf0);h.groundColor.set(0x5f6b45);}for(const f of l.fill)f.visible=false;cDia.set(0xfff0d8);if(lz){lz.setDir(dirV);lz.envInt(.32*kh);}}
-      else{for(const h of l.hemi){h.intensity=1.35*kh;h.color.set(0xe4ebf0);h.groundColor.set(0x5f6b45);}for(const f of l.fill){f.visible=true;f.intensity=.45*ks;}cDia.set(0xfff6e8);}
+      if(luzOn){for(const h of l.hemi){h.intensity=.6*kh;h.color.set(0xe4ebf0);h.groundColor.set(0x9a9070);}for(const f of l.fill)f.visible=false;cDia.set(0xfff0d8);if(lz){lz.setDir(dirV);lz.envInt(.85*kh);}}
+      else{for(const h of l.hemi){h.intensity=1.8*kh;h.color.set(0xe4ebf0);h.groundColor.set(0x9a9070);}for(const f of l.fill){f.visible=true;f.intensity=.6*ks;}cDia.set(0xfff6e8);}
       if(l.sun){const s=l.sun;s.visible=sol.alt>-1;s.intensity=(luzOn?3.4:1.6)*ks;s.color.copy(cBajo).lerp(cDia,smooth(0,25,sol.alt));const t=s.target.position;s.position.copy(t).addScaledVector(dirV,6000);}
-      renderer.toneMappingExposure=(luzOn?.95:1.05)*Math.pow(2,S.ev*smooth(15,-4,sol.alt));}
+      renderer.toneMappingExposure=(luzOn?.95:1.2)*Math.pow(2,S.ev*smooth(15,-4,sol.alt));}
     /* pool: sólo si hay algo prendido */
     if(encendidas&&!pool)armarPool();if(!encendidas&&pool)quitarPool();dirty=true;
     visor.renderHook=noche?hookNoche:(pool||luzOn?hookDia:null);

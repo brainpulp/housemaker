@@ -43,12 +43,12 @@ export function initLuz(visor){
   function grabLights(){const L={hemi:[],dir:[]};scene.traverse(o=>{if(o.isHemisphereLight)L.hemi.push([o,o.intensity]);if(o.isDirectionalLight)L.dir.push([o,o.intensity,o.color.getHex(),o.position.clone(),o.visible]);});return L;}
   const sunOf=L=>{let b=null;for(const d of L.dir)if(d[0].castShadow)b=d;return b;};
   function setShadow(s,size,half){s.shadow.mapSize.set(size,size);const c=s.shadow.camera;c.left=-half;c.right=half;c.top=half;c.bottom=-half;c.updateProjectionMatrix();if(s.shadow.map){s.shadow.map.dispose();s.shadow.map=null;}}
-  let oldBg=null;const ENV_I=.32;
+  let oldBg=null;const ENV_I=.85;
   function envInt(k){scene.traverse(o=>{if(!o.isMesh)return;for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m&&'envMapIntensity' in m)m.envMapIntensity=k;});}
   function apply(v){on=v;try{localStorage.setItem('carhue-luz',v?'1':'0');}catch(e){}
     if(!lights)lights=grabLights();const sun=sunOf(lights);
     if(v){if(!comp)buildComp();scene.add(sky);scene.environment=buildEnv();
-      for(const [h] of lights.hemi)h.intensity=.2;
+      for(const [h] of lights.hemi)h.intensity=.6;
       for(const d of lights.dir){if(d===sun)continue;d[0].visible=false;}
       if(sun){const s=sun[0];s.intensity=3.4;s.color.set(0xfff0d8);s.position.copy(TGT).addScaledVector(SUN_DIR,6000);s.target.position.copy(TGT);s.target.updateMatrixWorld();setShadow(s,4096,3000);s.shadow.camera.far=12000;s.shadow.camera.updateProjectionMatrix();s.shadow.normalBias=1.2;s.shadow.bias=-0.0002;}
       renderer.toneMappingExposure=.95;
