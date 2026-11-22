@@ -166,7 +166,7 @@ export function initEquipamiento(visor,stage,D){
   /* Maxi 16/11 (Mocoretá, casa elevada): las plantas quedaban flotando a la altura del terreno viejo cuando una variante cambia el terreno o la casa.
      Cada medio segundo se mira si cambiaron las piezas o el nivel del terreno; si cambiaron, se vuelve a apoyar cada planta en el suelo */
   let vegP=null,vegT=null;setInterval(()=>{const t=(window.__terreno||{}).t;if(visor.parts===vegP&&t===vegT)return;vegP=visor.parts;vegT=t;
-    setTimeout(()=>{gParts=null;let n=0;for(const g of groups.values())if(g.userData.capa==='veg'){const m=item(g.userData.item);if(m){g.position.y=sueloEn(m.x,m.y);n++;}}if(n&&window.__despertar)window.__despertar();},60);},500);
+    setTimeout(()=>{gParts=null;let n=0;for(const g of groups.values())if(g.userData.capa==='veg'){const m=item(g.userData.item);if(m){g.position.y=sueloEn(m.x,m.y);n++;}}else if(AMB[g.userData.amb]&&AMB[g.userData.amb].suelo)n+=reapoyar(g);if(n&&window.__despertar)window.__despertar();},60);},500);
   /* ---------- 3D ---------- */
   const groups=new Map();let selBox=null,mueCache=null,cajCache=null,glbN=0;
   /* cajas de los muebles para que las personas no los atraviesen (Maxi 15/10): una por mueble, sin alfombras; no se cachea vacía */
@@ -182,7 +182,8 @@ export function initEquipamiento(visor,stage,D){
   function icoMat(g){const on=prendidaFn(g.userData.item)||(visor.noche&&visor.noche.prendida(g.userData.prog));const s=g.userData.item===sel;return s?(on?ICO.selOn:ICO.selOff):(on?ICO.on:ICO.off);}
   function pintarIconos(){for(const g of groups.values())if(g.userData.ico){g.userData.ico.material=icoMat(g);g.userData.ico.visible=iconsOn;}}
   function armarItem(m,a,k){const c=catOf(m.t,k);if(!c)return null;const p={...c.p,...(m.p||{})};const g=new THREE.Group();g.userData.item=m.id;g.userData.amb=a;g.userData.capa=k;
-    const piso=AMB[a].piso??PISO;
+    /* AMB[a].suelo (Maxi 22/11, Mocoretá: «hay reflectores flotando en el aire»): lo del jardín se apoya en el suelo de verdad bajo el punto, no en un nivel fijo; si una variante cambia el terreno, lo sigue */
+    const piso=AMB[a].suelo?sueloAmb(a,m.x,m.y):(AMB[a].piso??PISO);g.userData.base=piso;
     if(k==='veg'){if(!visor.arboles)return null;const pl=visor.arboles.planta(p.esp,p.seed,Math.max(10,+p.alto||100),{copa:p.copa!=null&&p.copa!==''?+p.copa:null,hojas:p.hojas!=null&&p.hojas!==''?+p.hojas:null});pl.traverse(o=>{if(o.isMesh)o.userData.item=m.id;});g.add(pl);g.userData.capaV=c.capaV;
       g.position.set(m.x,sueloEn(m.x,m.y),m.y);g.rotation.y=(m.r||0)*Math.PI/180;return g;}
     if(k==='mue'||k==='cal'){const ctx={techo:()=>techo(m.x,m.y,piso),/* el cielorraso más bajo sobre el mueble (radio r), vidrios incluidos */techoMin:r=>{/* grilla de paso 4 (hasta 31 × 31 muestras): con sólo 3 × 3 muestras se escapaban los cabios finos entre medio (campana de Arcos, 5/11) */let mn=Infinity;const n=Math.min(30,Math.max(2,Math.ceil(2*r/4)));for(let i=0;i<=n;i++)for(let j=0;j<=n;j++){const dx=-r+2*r*i/n,dz=-r+2*r*j/n;mn=Math.min(mn,techo(Math.round((m.x+dx)/4)*4,Math.round((m.y+dz)/4)*4,piso,true));}return mn;}};for(const [geo,mk,ex] of c.g(p,ctx)){if(MADERAS[mk]&&!c.glb)uvMadera(THREE,geo);const mesh=new THREE.Mesh(geo,MAT[mk]||MAT[FR[mk]]||MAT.blanco);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.item=m.id;if(c.glb)mesh.userData.ph=true;let padre=g;if(ex&&ex.mov&&!c.glb){padre=movGrupo(g,ex.mov);const pv=padre.userData.mov.pivot;geo.translate(-pv[0],-pv[1],-pv[2]);}padre.add(mesh);}
@@ -293,7 +294,10 @@ export function initEquipamiento(visor,stage,D){
   function alternar(id){const cur=todos();multiM.clear();const k=cur.indexOf(id);if(k>=0)cur.splice(k,1);else cur.push(id);for(const i of cur)multiM.add(i);sel=cur[0]||null;}
   function quitar(ids){const amb0=new Set();for(const id of ids){const g=groups.get(id);if(!g)continue;const s=ST[g.userData.capa][g.userData.amb],e=s.esc[s.activo];e.items=e.items.filter(x=>x.id!==id);amb0.add(g.userData.amb+'|'+g.userData.capa);}
     multiM.clear();sel=null;armar();panel();for(const k of amb0){const [a,c]=k.split('|');guardar(a,c);}}
-  function poner(id,x,y){const m=item(id),g=groups.get(id);if(!m||!g)return;m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);}
+  /* suelo:'terreno' apoya en el terreno aunque arriba haya una escalera o un deck (proyectores al pie de los pinos); suelo:true, en lo primero que haya abajo */
+  function sueloAmb(a,x,y){return AMB[a].suelo==='terreno'?((window.__terreno||{}).t??(AMB[a].piso??PISO)):sueloEn(x,y);}
+  function reapoyar(g){const m=item(g.userData.item);if(!m||g.userData.base==null)return 0;const nb=sueloAmb(g.userData.amb,m.x,m.y);if(Math.abs(nb-g.userData.base)<.01)return 0;g.position.y+=nb-g.userData.base;g.userData.base=nb;return 1;}
+  function poner(id,x,y){const m=item(id),g=groups.get(id);if(!m||!g)return;m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(AMB[g.userData.amb]&&AMB[g.userData.amb].suelo)reapoyar(g);if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);}
   const guardarTodos=ids=>{const v=new Set();for(const id of ids){const g=groups.get(id);if(g)v.add(g.userData.amb+'|'+g.userData.capa);}for(const k of v){const [a,c]=k.split('|');guardar(a,c);}};
   /* elegir muebles y artefactos tocándolos aunque el panel esté cerrado (Maxi 15/10): gana lo que esté más cerca, respeta los cortes y las paredes que tapan */
   const okClip=h=>(visor.clips||[]).every(q=>{const v=q.axis==='x'?h.point.x:q.axis==='y'?h.point.y:h.point.z;return (q.side||-1)>0?v>=q.value-.5:v<=q.value+.5;});
@@ -344,7 +348,7 @@ export function initEquipamiento(visor,stage,D){
     if(dr.eg){setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;
       if(dr.eg==='r'){const a=Math.atan2(p.z-g.position.z,p.x-g.position.x);let r=dr.r0-(a-dr.a0)*180/Math.PI;r=e.altKey?Math.round(r):Math.round(r/15)*15;m.r=((r%360)+360)%360;g.rotation.y=m.r*Math.PI/180;hint(`${NOMBRE(m.t,capa)} · giro ${m.r}°  (de a 15°; Alt: libre)`);marcarSel();luces();return;}
       let x=dr.mx,y=dr.my;if(dr.eg==='x')x+=p.x-dr.p0.x;else y+=p.z-dr.p0.z;if(!e.altKey){x=Math.round(x/5)*5;y=Math.round(y/5)*5;}else{x=Math.round(x);y=Math.round(y);}
-      m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre)`);return;}
+      m.x=x;m.y=y;g.position.x=x;g.position.z=y;if(AMB[g.userData.amb]&&AMB[g.userData.amb].suelo)reapoyar(g);if(g.userData.mount==='techo'){const pz=AMB[g.userData.amb].piso??PISO;g.position.y=pz+techo(x,y,pz);}if(g.userData.capa==='veg')g.position.y=sueloEn(x,y);marcarSel();luces();hint(`${NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre)`);return;}
     if(dr.rot||e.shiftKey){let r=dr.r0+(e.clientX-dr.x0)*.5;if(!e.altKey)r=Math.round(r/15)*15;m.r=((r%360)+360)%360;g.rotation.y=m.r*Math.PI/180;hint(`${NOMBRE(m.t,capa)} · giro ${m.r}°`);marcarSel();luces();return;}
     setRay(e);const p=new THREE.Vector3();if(!rc.ray.intersectPlane(dr.pl,p))return;let x=p.x+dr.dx,y=p.z+dr.dy;if(!e.altKey){x=Math.round(x/5)*5;y=Math.round(y/5)*5;}
     poner(dr.id,x,y);for(const o of dr.otros)poner(o.id,o.x+(x-dr.mx),o.y+(y-dr.my));marcarSel();luces();hint(`${dr.otros.length?`${dr.otros.length+1} muebles`:NOMBRE(m.t,capa)} · x ${(x/100).toFixed(2)} · y ${(y/100).toFixed(2)}  (imán 5 cm; Alt: libre · Shift: girar)`);},true);

@@ -23,7 +23,7 @@ export function equipMocoreta({ itA }) {
         I('escritorio', 300, 2350, 180, { L: 160, D: 70 }), I('silla', 300, 2290, 0), I('biblioteca', 32, 2270, 90, { L: 200, D: 32, H: 200 }), I('butaca', 170, 2090, 90), I('alfombra', 260, 2200, 0, { L: 240, D: 170 })] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* el jardín: sin muebles; es el ambiente donde el motor pone la capa Plantas */
-    exterior: { n: 'Jardín', piso: TERR, vista: { p: [3400, 250, 1500], t: [600, 400, 1450] }, esc: () => ({ A: { nombre: 'Sin muebles', items: [] } }) },
+    exterior: { n: 'Jardín', piso: TERR, suelo: 'terreno', vista: { p: [3400, 250, 1500], t: [600, 400, 1450] }, esc: () => ({ A: { nombre: 'Sin muebles', items: [] } }) },
     deckN: { n: 'Deck norte', piso: 0, vista: { p: [1500, 350, 1800], t: [750, 60, 1200] }, esc: vacio },
     deckS: { n: 'Deck sur', piso: 0, vista: { p: [-900, 300, 1500], t: [-120, 60, 1200] }, esc: vacio },
   };

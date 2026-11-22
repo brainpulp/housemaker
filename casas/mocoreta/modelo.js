@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.30', fecha: '2026-11-21',
+export const META = { nombre: 'Mocoretá', version: '0.10.31', fecha: '2026-11-21',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -265,6 +265,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-22', v: '0.10.31', txt: 'Los proyectores al pie de los pinos quedaban flotando 1,43 m en el aire con la casa arriba (subir y bajar, o casa elevada): el terreno baja y ellos se quedaban en el nivel viejo. Ahora siguen al terreno.' },
   { fecha: '2026-11-22', v: '0.10.30', txt: 'Lucarna: la cuña de chapa al norte del marco estaba mal armada (se veía una mancha negra retorcida). Ahora es una cuña de chapa lisa, del color del techo, que parte el agua hacia los costados del marco.' },
   { fecha: '2026-11-22', v: '0.10.29', txt: 'Lucarna: vuelve la de 1,95 × 3,40 como variante («Lucarna larga»), al lado de la de 2,00 × 2,00, que sigue siendo la de entrada.' },
   { fecha: '2026-11-21', v: '0.10.28', txt: 'Lucarna de 2,00 × 2,00 (Maxi), centrada en el módulo 2, y prendida de entrada: aparece en cuanto se elige el segundo piso (planta A o B). En el sentido norte-sur quedan 1,95 libres entre las correas.' },
