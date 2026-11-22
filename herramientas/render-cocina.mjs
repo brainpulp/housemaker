@@ -22,6 +22,7 @@ await p.waitForTimeout(3000);
 await p.evaluate(() => window.__setModo && window.__setModo('3d'));
 await p.waitForFunction(() => window.__visor, null, { timeout: 300000 });
 await p.waitForTimeout(14000);
+await p.evaluate(async C => { const V = window.__visor; if (C.esc && V.equip) { for (const [amb, L] of Object.entries(C.esc)) if (V.equip.ST.mue[amb]) V.equip.ST.mue[amb].activo = L; V.equip.rearmar(); await new Promise(r => setTimeout(r, 1500)); } }, C);
 await p.evaluate(C => { const V = window.__visor; if (C.params) V.setParams && V.setParams(C.params); if (C.hide) for (const id of C.hide) V.setHidden && V.setHidden(id, true); }, C);
 await p.waitForTimeout(4000);
 await p.evaluate(C => { const V = window.__visor; if (C.fov) V.camera.fov = C.fov; V.camera.position.set(...C.p); V.controls.target.set(...C.t); V.camera.updateProjectionMatrix(); V.controls.update(); document.querySelectorAll('.label,.edge,[class*="lbl"]').forEach(e => e.style.display = 'none'); }, C);

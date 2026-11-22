@@ -177,6 +177,26 @@ export function catalogoMuebles(THREE){
   comoda:{n:'Cómoda de cajones sobre zócalo rehundido',cat:'dormitorio',p:{L:120,D:50,H:80,fr:'roble'},g:p=>[[B(-p.L/2+4,p.L/2-4,0,8,-p.D/2+4,p.D/2-6),'negro'],[R(-p.L/2,p.L/2,8,p.H,-p.D/2,p.D/2,.8),p.fr],...frente(p.L,p.D,8,p.H,{mods:2,filas:3})]},
   placard:{n:'Placard a medida, puertas lisas',cat:'dormitorio',p:{L:200,D:60,H:240,fr:'roble'},g:p=>[[B(-p.L/2+2,p.L/2-2,0,8,-p.D/2+2,p.D/2-5),'negro'],[B(-p.L/2,p.L/2,8,p.H,-p.D/2,p.D/2),p.fr],...frente(p.L,p.D,8,p.H,{mods:Math.max(2,Math.round(p.L/50)),tirador:'v'})]},
   /* ---------- trabajo y guardado ---------- */
+  /* Maxi 21/11 (cuarto de Andrés, Arcos): vestidor abierto, sin puertas abajo, por módulos. mods = «tipo:ancho|…» de izquierda a derecha mirándolo de frente:
+     largo (barral a 2,00), doble (barrales a 1,00 y 2,00), cajones (4 de 0,20 hasta 0,88 y estantes), zapatos (3 estantes bajos y estantes), estantes (cada 0,33).
+     Todos con estante a 2,15 y maletero con puertas de 2,40 al techo (H). Medidas de vestidores estándar: fondo 0,60, colgado corto 0,94 y largo 1,88 (Houzz). */
+  vestidor:{n:'Vestidor abierto por módulos, maletero con puertas',cat:'dormitorio',p:{L:300,D:60,H:300,mods:'largo:80|doble:100|cajones:60|zapatos:60',mad:'petiribi',car:'blanco',mal:240},g:p=>{
+    const g=[],e=1.8,z0=-p.D/2,z1=p.D/2,H=p.H,M=p.mal||240;const mods=String(p.mods||'').split('|').map(t=>{const [k,w]=t.split(':');return [k,+w||60];});
+    const tot=mods.reduce((a,[,w])=>a+w,0)||p.L,k=p.L/tot;
+    g.push([B(-p.L/2,p.L/2,0,8,z0+1,z1-5),'negro'],[B(-p.L/2,p.L/2,8,8+e,z0,z1),p.car],[B(-p.L/2,p.L/2,M-e,M,z0,z1),p.car],[B(-p.L/2,p.L/2,H-e,H,z0,z1),p.car],[B(-p.L/2,p.L/2,8,H,z0,z0+1),p.car]);
+    let x=-p.L/2;g.push([B(x,x+e,0,H,z0,z1),p.mad]);
+    const est=(a,b,y)=>g.push([B(a+e,b,y-e/2,y+e/2,z0+1,z1-2),p.car]),barral=(a,b,y)=>g.push([B(a+e,b,y-1.2,y+1.2,-1.2,1.2),'acero']);
+    for(const [t,w0] of mods){const w=w0*k,a=x,b=x+w;
+      if(t==='largo'){est(a,b,215);barral(a,b,200);}
+      else if(t==='doble'){est(a,b,215);barral(a,b,200);barral(a,b,100);}
+      else if(t==='cajones'){for(let i=0;i<4;i++){const y=8+e+i*20;g.push([B(a+e+.2,b-.2,y+.2,y+19.8,z1-2,z1),p.mad]);}est(a,b,90);est(a,b,125);est(a,b,160);est(a,b,215);}
+      else if(t==='zapatos'){for(const y of [28,48,68])est(a,b,y);est(a,b,100);est(a,b,135);est(a,b,170);est(a,b,215);}
+      else{for(let y=8+33;y<M-10;y+=33)est(a,b,y);}
+      g.push([B(a+e+.2,b-.2,M+.2,H-.2,z1-2,z1),p.mad]);
+      x=b;g.push([B(x-e,x,0,H,z0,z1),p.mad]);}
+    return g;}},
+  /* Maxi 21/11: tabique liviano (Durlock) de piso a techo, como mueble para poder proponerlo por escenario */
+  tabique:{n:'Tabique liviano de piso a techo (Durlock)',cat:'obra',p:{L:300,e:10,H:300,mat:'blanco'},g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e/2,p.e/2),p.mat]]},
   escritorio:{n:'Escritorio de tapa gruesa y patas panel',cat:'trabajo',p:{L:140,D:65,H:75,mad:'roble'},g:p=>[[R(-p.L/2,p.L/2,p.H-4,p.H,-p.D/2,p.D/2,.8),p.mad],[B(-p.L/2+3,-p.L/2+7,0,p.H-4,-p.D/2+3,p.D/2-3),p.mad],[B(p.L/2-7,p.L/2-3,0,p.H-4,-p.D/2+3,p.D/2-3),p.mad],
     [B(-p.L/2+7,p.L/2-7,p.H-14,p.H-4,-p.D/2+3,-p.D/2+5),p.mad],[B(p.L/2-47,p.L/2-7,p.H-15,p.H-4,-p.D/2+5,p.D/2-4),p.mad],tir(p.L/2-27,p.H-9.5,p.D/2-4,14)]},
   biblioteca:{n:'Biblioteca abierta de madera',cat:'trabajo',p:{L:160,D:32,H:200,mad:'roble'},g:p=>{const g=[[B(-p.L/2,-p.L/2+2.5,0,p.H,-p.D/2,p.D/2),p.mad],[B(p.L/2-2.5,p.L/2,0,p.H,-p.D/2,p.D/2),p.mad],[B(-p.L/2,p.L/2,0,6,-p.D/2,p.D/2-2),p.mad],[B(-p.L/2,p.L/2,p.H-2.5,p.H,-p.D/2,p.D/2),p.mad]];

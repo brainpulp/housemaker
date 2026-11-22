@@ -51,10 +51,18 @@ export function equipArcos({ itA }) {
       A: { nombre: 'Contra la medianera sur', items: [I('escritorioM', 55, 2560, 90, { L: 150, D: 70 }), I('sillaCover', 125, 2560, -90), I('estanteM', 400, 3018, 180), I('estanteM', 490, 3018, 180)] },
       B: { nombre: 'Mirando al estar', items: [I('escritorioM', 270, 2560, -90, { L: 150, D: 70 }), I('sillaCover', 200, 2560, 90), I('estanteM', 400, 3018, 180), I('estanteM', 490, 3018, 180), I('butacaAm', 120, 2950, 135, { tela: 'lino' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
-    /* el cuarto SE ya tiene placard en tu SketchUp (frente de 3,05 en y 34,00, del lado del baño): no se suman roperos */
-    cuartoSE: { n: 'Cuarto SE (1P)', piso: P1, vista: { p: [400, 760, 3300], t: [200, 420, 3650] }, esc: () => { const I = itA('cuartoSE'); return {
-      A: { nombre: 'Matrimonial', items: [I('camaDoble', 125, 3600, 90, { L: 240, D: 215 })] },
-      B: { nombre: 'Dos camas', items: [I('camaSimple', 118, 3470, 90), I('camaSimple', 118, 3730, 90), I('mesaLuzM', 40, 3600, 90)] },
+    /* Maxi 21/11: es el cuarto de Andrés (20 años). Dos propuestas para comparar: A, vestidor detrás del respaldo de la cama (tabique a 1,55 de la pared del baño,
+       pasillo de 0,95 que también lleva al baño; la idea de «usar el respaldo para separar el vestidor» de IKEA); B, sin tabique: placard de piso a techo contra el baño
+       y la cama contra la medianera sur, con un rincón de estar. El placard del SketchUp sale en las dos. Medidas de placard: fondo 0,60, colgado 0,94 / 1,88 (Houzz). */
+    cuartoSE: { n: 'Cuarto de Andrés (1P)', piso: P1, vista: { p: [400, 760, 3300], t: [200, 420, 3650] }, esc: () => { const I = itA('cuartoSE'); return {
+      A: { nombre: 'Con vestidor detrás de la cama', items: [I('tabique', 169.5, 3453.5, 0, { L: 309, e: 10, H: 308 }),
+        I('vestidor', 170.5, 3325, 0, { L: 307, D: 60, H: 307, mods: 'largo:80|doble:100|cajones:60|zapatos:69', mad: 'petiribi', car: 'blanco', mal: 240 }),
+        I('espejo', 16.5, 3401, 90, { L: 60, D: 3, H: 170 }, 30),
+        I('camaDoble', 169.5, 3566, 0, { L: 170, D: 215 }), I('mesaLuzM', 62, 3480, 0, { L: 45, D: 40 }), I('mesaLuzM', 277, 3480, 0, { L: 45, D: 40 }),
+        I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 32, 3740, 90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 355, 3815, -135, { tela: 'lino' })] },
+      B: { nombre: 'Con placard contra el baño', items: [I('placard', 170.5, 3325, 0, { L: 307, D: 60, H: 300, fr: 'petiribi' }),
+        I('camaDoble', 122.5, 3610, 90, { L: 170, D: 215 }), I('mesaLuzM', 37, 3497, 90, { L: 45, D: 40 }), I('mesaLuzM', 37, 3723, 90, { L: 45, D: 40 }),
+        I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 403, 3510, -90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 330, 3560, -150, { tela: 'lino' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     cuartoNE: { n: 'Cuarto NE (1P)', piso: P1, vista: { p: [480, 760, 3350], t: [700, 420, 3680] }, esc: () => { const I = itA('cuartoNE'); return {
       A: { nombre: 'Cama contra la medianera N', items: [I('camaDoble', 740, 3592, -90, { L: 240, D: 215 }), I('comodaB', 497, 3868, 180, { L: 120, D: 50 })] },

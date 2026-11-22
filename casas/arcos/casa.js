@@ -47,7 +47,7 @@ const SEC2 = s => String(s).split('×').map(v => parseFloat(v.replace(',', '.'))
 const PISOS_Z = [72, 409, 607], esPiso = (a, b, c) => Math.max(a, b, c) - Math.min(a, b, c) < 0.5 && PISOS_Z.some(z => a > z - 4 && a < z + 12);
 const DZ_SU = { 'SU-02': 23, 'SU-03': 23, 'SU-07': 8, 'SU-08': 6, 'SU-10': 7, 'SU-13': y => (M.NIVELES.P2.z + 396 - 0.12 * (4516 - y - 1425)) - (1013 - 0.108 * (4516 - y - 1425)) };
 const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.charCodeAt(0)); const q = new Int16Array(b.buffer); const f = [];
-  const fuera = (a, b, c) => (d.id === 'SU-04' && Math.min(a, b, c) > 4440); /* cerco del frente: va el de fachada.js */
+  const fuera = (a, b, c) => (d.id === 'SU-04' && Math.min(a, b, c) > 4440) /* cerco del frente: va el de fachada.js */ || (d.id === 'SU-07' && (Math.min(a, b, c) > 3284 || (Math.max(a, b, c) > 3390 && Math.max(a, b, c) < 3410 && Math.min(a, b, c) > 3270))); /* Maxi 21/11: el placard del SketchUp en el cuarto de Andrés sale (va el vestidor o el placard nuevo, equipamiento) */
   for (let i = 0; i < q.length; i += 9) { if (esPiso(q[i + 1] / ESCALA, q[i + 4] / ESCALA, q[i + 7] / ESCALA) || fuera(q[i + 2] / ESCALA, q[i + 5] / ESCALA, q[i + 8] / ESCALA)) continue; for (let k = 0; k < 9; k++) f.push(q[i + k] / ESCALA); }
   /* niveles del plano (Maxi 16/10): lo que queda del SketchUp se sube a su nivel. El SketchUp tenía 1P +4,09, 2P +6,07,
      terraza +7,34 y el techo +10,13 al 10,8 %; el plano da +4,17, +6,13, +7,57 y el techo 3,81 sobre el 2P al 12 %. */
