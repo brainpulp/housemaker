@@ -1,4 +1,4 @@
-# Mocoretá: resumen para arrancar una conversación nueva (21/11/2026, v0.10.26)
+# Mocoretá: resumen para arrancar una conversación nueva (21/11/2026, v0.10.27)
 
 Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `modelo.js` (constantes, `CAMBIOS`, `DUDAS`) y en `casa.js` (piezas 3D). Reglas de trabajo: `CLAUDE.md` y `docs/GUIAS-DE-DISENO.md`.
 
@@ -20,7 +20,7 @@ Leer esto en lugar de toda la conversación. El detalle de cada pieza está en `
 - **Segundo piso, planta A** (la elegida; la B, que enroca escalera y puente, queda como opción):
   - Piso alto a +3,28 sobre los módulos 1 (oficina) y 3 (dormitorio). El módulo 2 queda en doble altura, con una galería al sur.
   - Terraza sobre los módulos 4 y 5. El 6 sigue con su chapa.
-  - Frente norte de vidrio inclinado 30° hacia el sur, con vidrio repartido. Las ventanas son corredizas o proyectantes, según la opción. Las proyectantes se abren arrastrándolas hasta 95°: bisagra de piano por fuera, dos amortiguadores a gas de 1.300 N y 0,50 de carrera por dentro, correa de cierre.
+  - Frente norte de vidrio inclinado 30° hacia el sur, con vidrio repartido. Cabecera este de la oficina: ventanal con el mismo repartido, la fila de abajo de madera (Maxi 21/11). Las ventanas son corredizas o proyectantes, según la opción. Las proyectantes se abren arrastrándolas hasta 95°: bisagra de piano por fuera, dos amortiguadores a gas de 1.300 N y 0,50 de carrera por dentro, correa de cierre.
   - Ensanche de 1,40 al sur en los módulos 2 y 3, con la escalera (18 alzadas, pedada 24) y un baño arriba.
   - Estructura completa, predimensionada sin calcular: en cada par, dos UPN 220 en sándwich apoyados sobre la casa; columnas de acero de 100 × 100 en el ensanche; techo de dos UPN 120 inclinados con correas y tensores; pisos de fenólico como diafragma. Ver D-20.
 - **Lucarna sobre la doble altura** (Maxi 21/11, con el segundo piso): 1,95 × 3,40 en el módulo 2, vidrio DVH laminado a 10° sobre marco de madera; no puede ir más al norte porque ahí sale el caño de la salamandra.
