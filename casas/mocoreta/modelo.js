@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.44', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.45', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -284,6 +284,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-23', v: '0.10.45', txt: 'Los cajones (y los bandejeros) se abren 50 cm como mucho, en todas las casas; antes salían el 90 % de su fondo.' },
   { fecha: '2026-11-23', v: '0.10.44', txt: 'Planta baja, lo que existe hoy: pared entre el último módulo y el penúltimo (MC-04), de lado a lado; en el pasillo norte, la puerta del dormitorio oeste pegada al ventanal y un armario de 1,00 entre esa puerta y la del cuarto intermedio, que está en la punta oeste de MC-03. Baño de 2,00 al oeste de la pared de la cocina, de MC-03 al ventanal sur (MC-05); falta su puerta. Alero norte del techo de arriba: 1,20 (0,70 más), con las vigas en voladizo y dos correas más. Sin el tirante de borde a lo largo de la escalera interior (planta B). Al elegir una pieza, sólo se acotan las medidas útiles: aristas del contorno, una por dirección (la más larga y la más corta), 24 como mucho.' },
   { fecha: '2026-11-23', v: '0.10.43', txt: 'El tabique del pasillo norte (MC-02, el de la heladera) sigue al oeste del otro lado de la pared de la cocina, en el mismo plano, hasta justo antes del último módulo (y 4,00): MC-03.' },
   { fecha: '2026-11-23', v: '0.10.42', txt: 'Al subir o bajar la casa con la regla, el menú o arrastrándola, la cámara queda quieta respecto del terreno: se ve subir la casa, no bajar el piso (la animación ya lo hacía).' },

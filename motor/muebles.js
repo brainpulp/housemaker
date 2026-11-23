@@ -100,7 +100,7 @@ export function catalogoMuebles(THREE){
   /* módulo i: límites del frente (xl, xr) y luz interior entre laterales o divisorias (xa, xb) */
   const modX=(x0,x1,mods,i)=>{const c=cortes(x0,x1,mods),xl=c[i],xr=c[i+1];return [xl,xr,i===0?xl+1.8:xl+.9,i===c.length-2?xr-1.8:xr-.9];};
   /* bandejero: frente entero de la altura del módulo que sale con tres bandejas de alambre en un bastidor, sobre guías telescópicas abajo (igual que un cajón) */
-  function bandejero(id,xl,xr,xa,xb,y0,y1,zb,zf,fr){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Dc*.9}};
+  function bandejero(id,xl,xr,xa,xb,y0,y1,zb,zf,fr){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Math.min(50,Dc*.9)}}/* Maxi 23/11: salen 50 como mucho */;
     g.push([FR(xl,xr,y0,y1,zf),fr,mv]);
     const h=y1-y0;for(let k=0;k<3;k++){const y=y0+2+(h-14)*k/2;g.push([B(xa+2.4,xb-2.4,y,y+.6,zf-Dc,zf-.3),'acero',mv],[B(xa+2.4,xa+2.9,y,y+9,zf-Dc,zf-.3),'acero',mv],[B(xb-2.9,xb-2.4,y,y+9,zf-Dc,zf-.3),'acero',mv],[B(xa+2.4,xb-2.4,y,y+9,zf-Dc,zf-Dc+.5),'acero',mv]);}
     for(const [a,b] of [[xa+2.9,xa+3.5],[xb-3.5,xb-2.9]])g.push([B(a,b,y0+2,y1-2,zf-1.6,zf-.3),'acero',mv]);/* parantes que cuelgan las bandejas del frente */
@@ -108,7 +108,7 @@ export function catalogoMuebles(THREE){
     for(const [a,b] of [[xa+1.3,xa+2.2],[xb-2.2,xb-1.3]])g.push([B(a,b,y0+2.5,y0+5.5,zf-Dc,zf-.3),'acero',mv]);
     g.push([...tir((xl+xr)/2,(y0+y1)/2,zf+2,30,true),mv]);return g;}
   /* cajón: frente de 2 con juntas de 3 mm, caja de madera clara (laterales, fondo y piso), guías telescópicas de acero: el perfil del mueble queda, el del cajón sale con él */
-  function cajon(id,xl,xr,xa,xb,ya,yb,zb,zf,fr,tirador=true){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Dc*.9}};
+  function cajon(id,xl,xr,xa,xb,ya,yb,zb,zf,fr,tirador=true){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Math.min(50,Dc*.9)}}/* Maxi 23/11: salen 50 como mucho */;
     g.push([FR(xl,xr,ya,yb,zf),fr,mv]);
     const hb=Math.max(6,Math.min(yb-ya-6,24));
     g.push([B(xa+2.2,xa+3.8,ya+1.5,ya+1.5+hb,zf-Dc,zf-.3),CAJ,mv],[B(xb-3.8,xb-2.2,ya+1.5,ya+1.5+hb,zf-Dc,zf-.3),CAJ,mv],[B(xa+3.8,xb-3.8,ya+1.5,ya+1.5+hb,zf-Dc,zf-Dc+1.6),CAJ,mv],[B(xa+2.2,xb-2.2,ya+1.5,ya+2.5,zf-Dc,zf-.3),CAJ,mv]);
