@@ -371,7 +371,11 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
     if(t.dataset.tab==='armado')setStep(stepMode?stepIdx:0);else if(stepMode)exitSteps();}));
 
   /* ----- reconstrucción ----- */
-  function rebuild(recam){const keep=selId;out=model.build({...P},geo);
+  /* Maxi 23/11: al subir o bajar la casa (variante, regla, arrastre) la cámara queda quieta respecto del terreno, no de la casa: si el modelo corre el terreno
+     (window.__terreno.t), la cámara se corre lo mismo. Así se ve subir la casa y no bajar el piso. */
+  function animOn(){try{return !!anim;}catch(e){return false;}}
+  function rebuild(recam){const keep=selId,tA=(window.__terreno||{}).t;out=model.build({...P},geo);const tB=(window.__terreno||{}).t;
+    if(!recam&&!animOn()&&Number.isFinite(tA)&&Number.isFinite(tB)&&Math.abs(tB-tA)>.01){const d=tB-tA;camera.position.y+=d;controls.target.y+=d;controls.update();}
     (out.steps||[]).forEach((s,i)=>{for(const id of resolveIn(s.parts))if(out.parts.find(p=>p.id===id&&p.step==null))out.parts.find(p=>p.id===id).step=i;});
     mount();renderViews();renderPanes();if(keep&&byId[keep])showPart(keep);else resetSel();if(recam){const v=out.views[out.defaultView||'iso'];fly(v.p,v.t);}}
   function resolveIn(list){const tk={};for(const p of out.parts){for(const t of [p.id,...(p.tags||[])])(tk[t]=tk[t]||[]).push(p.id);}return [...new Set((list||[]).flatMap(t=>tk[t]||[]))];}

@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.41', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.42', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -268,6 +268,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-23', v: '0.10.42', txt: 'Al subir o bajar la casa con la regla, el menú o arrastrándola, la cámara queda quieta respecto del terreno: se ve subir la casa, no bajar el piso (la animación ya lo hacía).' },
   { fecha: '2026-11-23', v: '0.10.41', txt: 'Escalera de la terraza: el descanso de arriba arranca en la tapa de la terraza, sin hueco aunque esté el sistema de subir, y la baranda de la terraza se abre justo su ancho (de 1100 a la columna 4). La de dos tramos ahora gira con seis compensados triangulares alrededor de un poste, sin descanso plano en el medio: ocupa 2,72 en vez de 3,71. La caracol, 2 m al oeste y con el poste lo más cerca posible de la casa; arriba no tiene descanso: el primer sector, a nivel de la terraza, se apoya en su borde y la baranda se abre justo ese ancho. Puerta de entrada: caños de 40 × 70 de canto (antes 30 × 70).' },
   { fecha: '2026-11-22', v: '0.10.40', txt: 'Vuelve el desplegable de variantes junto a la pieza elegida (en todas las casas): al tocar algo que tiene opciones de diseño aparece ahí mismo un menú para cambiarla.' },
   { fecha: '2026-11-22', v: '0.10.39', txt: 'La biblioteca de la oficina de arriba es igual a la de abajo: cuadrícula de tablas de 6 cm y cajonera tipo fichero en las dos filas de abajo (también en lo ya guardado). La escalera de la terraza ahora se elige tocándola: antes el toque la tomaba como parte del segundo piso.' },
