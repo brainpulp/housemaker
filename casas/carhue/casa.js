@@ -38,7 +38,8 @@ import { initTermica } from './termica.js';
 import { GLB64 } from './casa-carhue-glb.js';
 const {THREE,prism,box,rod,box8,f1}=geo;
 
-const H_EP=262;                       // cara superior del piso del entrepiso
+const H_EP=262;
+const Y43=683;                         // Maxi 22/11: la corrediza M-43 llega hasta el frente del volado del estudio (cara de adentro del bastidor, y 6,83; antes 6,25)                       // cara superior del piso del entrepiso
 const AR_C08=37+Math.sqrt(36*36-22*22)+30;/* Maxi 7/11: columna C-08 a 30 cm del tronco de AR-1 (centro x 29,24 y 0,37, radio 0,36), medido en el plano de la cercha (x 29,46) */
 const ROOF={ridge:[352,507],front:[738,344],backRaised:[-81,478],backLiving:[-2,255],glass:[[581,407],[941,246]]};
 const lin=(p,q,y)=>p[1]+(q[1]-p[1])*(y-p[0])/(q[0]-p[0]);
@@ -46,8 +47,10 @@ const lin=(p,q,y)=>p[1]+(q[1]-p[1])*(y-p[0])/(q[0]-p[0]);
 /* Maxi 21/11: «C-09 y C-10 no van, se usa una viga desde C-11 hasta la pared, y T-08 siempre va por debajo de T-06»: viga de borde VA-1 de C-11 a M-22 (x 24,00)
    con las puntas de VT-1…3 apoyadas; el alero baja 20 (VT a +2,50 → +2,30 en VQ-1) para que su chapa pase 3 cm por debajo del alero de T-06 (+2,59 en x 24,42),
    y arranca en x 24,25, debajo de ese alero */
-/* Maxi 21/11 («este gap entre techos está mal»): al bajar T-08 quedaba 25 cm abierto bajo el alero del techo principal (+2,83 en y 0,38); T-08 sigue hasta y 0,60, por debajo de ese alero */
-const AO={xS:2425,xN:2866,yE:60,yW:-490,yP:-474,vigas:{'VT-1':2550,'VT-2':2708,'VT-3':2858},postes:{'C-11':2858},borde:{id:'VA-1',x0:2400,x1:2863,y0:-480,y1:-472.5},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>250+.07*(y-38)};
+/* Maxi 22/11 («estos cabios van atornillados en sus puntas entre sí, no deben interrumpirse y la chapa baja y apoya en la de abajo»): los cabios del quincho (POR-1) que caen sobre T-08
+   siguen de largo por encima de VQ-1 hasta y −0,14; cada viga VT corre al lado de uno (cara contra cara) y termina en y 0,02: en esos 16 cm se atornillan las puntas.
+   La chapa de T-05 baja hasta apoyar en la de T-08 (y ≈ 0) y la de T-08 llega a y 0,02, debajo; se va el cierre vertical de chapa del 21/11 */
+const AO={xS:2425,xN:2866,yE:60,yW:-490,yP:-474,vigas:{'VT-1':2548.75,'VT-2':2691.25,'VT-3':2821.25},yT:2,yC:-14,postes:{'C-11':2858},borde:{id:'VA-1',x0:2400,x1:2863,y0:-480,y1:-472.5},correas:[-20,-76.25,-132.5,-188.75,-245,-301.25,-357.5,-413.75,-470],u:y=>250+.07*(y-38)};
 /* dormers (Maxi 14/10): DM-1 y DM-2 al jardín entre cabios dobles de CAB-3 (cada 65 desde x 0,32); DM-3 en el faldón norte del ala */
 const DORM_CC=p=>['c','ca','cg'].includes(p.dormers),DORM_ON=p=>['j','ja','c','ca','cg'].includes(p.dormers),DORM_ALT=p=>p.dormAlt==='1'||['ja','ca'].includes(p.dormers),DORM_Y0=358,DORM_SKIP=p=>p.dormers==='cg'?['LU-1','LU-2','LU-4']:DORM_CC(p)?['LU-1','LU-2']:DORM_ON(p)?['LU-1']:[];
 const DORM_J2=[{id:'DM-1',xl:97,xr:357,local:'dormitorio secundario (L-25), en lugar de LU-1'},{id:'DM-2',xl:747,xr:942,local:'dormitorio principal (L-21); 1,8 m para no tocar LU-2'}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
@@ -58,7 +61,10 @@ const DORM_C=[{id:'DM-C',xl:0,xr:942,local:'dormitorio secundario, baño y dormi
 const VCG=(cs)=>cs.slice(0,-1).map((c,i)=>[c+(i?6:0),cs[i+1]-6]);
 /* Maxi 13/11 (puestas en obra): dos columnas metálicas en las puntas del frente del dormer corrido. Al sur, caño de 45 × 45; al norte, caño de 120 × 40 con el canto hacia el este,
    directamente sobre C-01 (la columna sur del perfil W). Las intermedias no van: los muros M-40 y M-41 hacen de estructura (los postes de madera sobre ellos salen). */
-const DORM_CG=[{...DORM_C[0],xr:993,latB0:637,alero:50,ventanas:VCG([35,188,370,570,780.75,991]),postes:[],madera:true,cols:[{id:'C-12',x:[35,39.5],y:[683,687.5],z0:262,sec:'caño de 45 × 45 mm',nombre:'Columna del dormer, punta sur'}]},{id:'DM-C2',xl:993,xr:1340.5,yf:641,yt:690,sinA:true,alero:50,local:'estudio (sigue hasta la galería: Maxi 28/10)',ventanas:VCG([999,1011,1172.75,1334.5]).slice(1),postes:[],integrada:true,madera:true,cols:[{id:'C-13',x:[1345.5,1349.5],y:[627,639],z0:370,sec:'caño de 120 × 40 mm, canto hacia el este',nombre:'Columna del dormer, punta norte (sobre C-01)'}]}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
+/* Maxi 22/11 («falta el volado que unifica la fachada que da al jardín… las ventanas coplanares»): el entrepiso del estudio vuela 0,70 sobre la fachada retranqueada M-07
+   y el frente del dormer sigue derecho en y 6,90, en el mismo plano que el del dormitorio: un solo dormer de x 0 a 13,405, sin el escalón ni su lateral.
+   Los montantes caen sobre los tabiques y sobre la corrediza M-43 (10,27); C-13 se corre a la punta norte del frente nuevo, sobre un tirante de borde */
+const DORM_CG=[{...DORM_C[0],xr:1340.5,alero:50,local:'dormitorio secundario, baño, dormitorio principal y estudio (corrido hasta la galería; el estudio en volado: Maxi 22/11)',ventanas:VCG([35,188,370,570,798.5,1027,1180.75,1334.5]),postes:[],madera:true,cols:[{id:'C-12',x:[35,39.5],y:[683,687.5],z0:262,sec:'caño de 45 × 45 mm',nombre:'Columna del dormer, punta sur'},{id:'C-13',x:[1334.5,1338.5],y:[678,690],z0:260,sec:'caño de 120 × 40 mm, canto hacia el este',nombre:'Columna del dormer, punta norte (sobre el tirante de borde del volado)'}]}].map(d=>({...d,xa:d.xl+7.5,xb:d.xr-7.5}));
 const DORM_J_=p=>p.dormers==='cg'?DORM_CG:DORM_CC(p)?DORM_C:DORM_J2;
 /* Maxi 28/10: con el dormer corrido, las paredes que quedan debajo (M-04 y los tabiques del entrepiso) suben hasta los cabios del dormer, no hasta la línea del techo viejo. Devuelve la cara de abajo de los cabios (DU) o null */
 const DORM_CU=(p,x,y)=>DORM_CC(p)&&DORM_J_(p).some(d=>x>=d.xl-1&&x<=d.xr+1&&y>=352&&y<=(d.yf??690)+5)?502-(y-352)*Math.tan(4*Math.PI/180)-15:null;
@@ -211,7 +217,7 @@ function build(p){
     else if(m.id==='M-35'){g=[box(0,1323,388,472,-91,-77)];}
     else if(m.id==='M-43'){const lu4=M.TECHOS.find(t=>t.id==='LU-4'),DXH=lu4?Math.min(...lu4.poly.map(q=>q[0]))-(m.a[0]+1):0,x0=m.a[0]+DXH,HT=472,/* toda la corrediza (4 hojas, riel y relleno) cae donde empieza la lucarna LU-4 (Maxi) */u2=y=>468+(y+46)*(27/397),u3=y=>DORM_CU(p,x0,y)??(490-(y-352)*(140/332))/* Maxi 9/11: con el dormer corrido hasta la galería, el techo de este lado es el de sus cabios */,under=y=>y<352?u2(y):u3(y),hp=y=>Math.min(HT,under(y))-1;
       const corte=z=>{let y=352;while(y<800&&u3(y)>z)y+=.5;return y;}/* y donde el techo baja a la altura z */;
-      const Y0=27,W=(625-27)/4/* arranca en la cara de M-42, no adentro (Maxi 15/10) */,yC=corte(HT);
+      const Y0=27,W=(Y43-27)/4/* arranca en la cara de M-42, no adentro (Maxi 15/10) */,yC=corte(HT);
       const quad=(xa,xb,a0,a1,z0f,z1f)=>box8([[xa,z0f(a0),a0],[xb,z0f(a0),a0],[xb,z0f(a1),a1],[xa,z0f(a1),a1],[xa,z1f(a0),a0],[xb,z1f(a0),a0],[xb,z1f(a1),a1],[xa,z1f(a1),a1]]);
       /* riel horizontal a +4,72 y relleno fijo entre el riel y el techo */
       const tr=[box(x0-25,x0+3,HT,HT+5,Y0,yC)],inf=[];const y86=-46+(HT+5-468)*(397/27),yB=corte(HT+5);
@@ -253,7 +259,7 @@ function build(p){
          - Amortiguadores de cierre suave en los dos extremos de cada riel y tope de goma; el tirador de H-1 es un canal vertical fresado en el canto. */
       {const rl=[],gd=[],pl=[],cb=[],zc=[],am=[];const T5=5,xp=n=>x0-22+(4-n)*6+T5/2,yS=Y0-2,off=n=>n===4?0:(HOJAS['H-'+n]||0),ya=n=>Y0+(4-n)*W-(n<4?4:0)+off(n),yb=n=>Y0+(5-n)*W+off(n);
         const zb=H_EP+1,zM=zb+3.4;/* altura del eje de poleas, en la ventana del zócalo */
-        for(const n of [1,2,3]){rl.push(box(xp(n)-.6,xp(n)+.6,H_EP-1.5,H_EP+.05,yS,625));gd.push(box(xp(n)-1,xp(n)+1,HT-.6,HT,Y0,yC));
+        for(const n of [1,2,3]){rl.push(box(xp(n)-.6,xp(n)+.6,H_EP-1.5,H_EP+.05,yS,Y43));gd.push(box(xp(n)-1,xp(n)+1,HT-.6,HT,Y0,yC));
           for(const y of [Y0+4,621])am.push(rod([xp(n),H_EP+1.6,y-3],[xp(n),H_EP+1.6,y+3],.9,10));}
         /* zócalos: base + dos labios por cara, con ventana entre zb+2 y zb+4,5 */
         for(let n=1;n<=4;n++){const xa=xp(n)-T5/2,xb=xp(n)+T5/2,y0=ya(n),y1=yb(n);
@@ -583,9 +589,9 @@ function build(p){
   for(const s of M.ESTRUCTURA){if(s.id==='V-03')continue;
     if(s.id in AO.vigas||s.id in AO.postes||s.id==='CO-8'||s.id===AO.borde.id){if(!p.techos)continue;const u=AO.u,B=AO.borde;
       if(s.id===B.id){const zt=u(B.y0);Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[box(B.x0,B.x1,zt-20,zt,B.y0,B.y1)],{...base(s),sec:s.sec,med:`${f1((B.x1-B.x0)/100)} m, cara de arriba a +${f1(zt/100)}, libre debajo ${f1((zt-20)/100)} m`},{group:'Techos',tags:['TE','estructura','techos']});}
-      else if(s.id in AO.vigas){const x=AO.vigas[s.id];Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[slabY(x-3.75,x+3.75,[B.y1,u(B.y1)-20],[33,u(33)-20],20)]/* de la cara de VQ-1 (y 0,33, colgada con estribo al ras de su canto de arriba) a la de VA-1 */,{...base(s),sec:s.sec,med:`5,1 m, de +${f1(u(38)/100)} a +${f1(u(B.y1)/100)} (cara de arriba)`},{group:'Techos',tags:['TE','estructura','techos']});}
+      else if(s.id in AO.vigas){const x=AO.vigas[s.id];Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',[slabY(x-3.75,x+3.75,[B.y1,u(B.y1)-20],[AO.yT,u(AO.yT)-20],20)]/* de VA-1 a y 0,02, atornillada de costado a la punta de un cabio del quincho */,{...base(s),sec:s.sec,med:`4,7 m, de +${f1(u(AO.yT)/100)} a +${f1(u(B.y1)/100)} (cara de arriba)`},{group:'Techos',tags:['TE','estructura','techos']});}
       else if(s.id in AO.postes){const x=AO.postes[s.id],zt=u(AO.borde.y0)-20;Pt(s.id,`${s.id} · ${s.nombre}`,'col',box(x-5,x+5,0,zt,AO.yP-5,AO.yP+5),{...base(s),sec:s.sec,med:`alto ${f1(zt/100)} m`},{group:'Estructura',tags:['estructura']});}
-      else{const g=[box(2523,AO.xN,u(32.5),u(32.5)+7.5,27.5,32.5)];for(const y of AO.correas)g.push(box(AO.xS,AO.xN,u(y+2.5),u(y+2.5)+7.5,y-2.5,y+2.5));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${g.length} correas`},{group:'Techos',tags:['TE','estructura','techos']});}
+      else{const g=[];for(const y of AO.correas)g.push(box(AO.xS,AO.xN,u(y+2.5),u(y+2.5)+7.5,y-2.5,y+2.5));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${g.length} correas`},{group:'Techos',tags:['TE','estructura','techos']});}
       continue;}
         if(s.id==='CR-1'||s.id==='CR-2'||s.id==='CR-3')continue;
     if(s.id==='CER-2'){if(p.techos){const x0=2515.5,x1=2530.5,D=5,zg=y=>407-(y-581)*(161/360)-1,rz=y=>y<352?255+(y+2)*(252/354)-6:y<690?lin(ROOF.ridge,ROOF.front,y)-6:zg(y);
@@ -602,9 +608,9 @@ function build(p){
     if(s.id==='POR-1'||s.id==='VQ-1'){if(!p.techos)continue;const zN=y=>lin([38,283],[352,507],y),zS=y=>lin(ROOF.ridge,ROOF.front,y);
       if(s.id==='POR-1'){const g=[],D=15,uP=y=>lin([38,283],[352,507],y)-2.5,uJ=y=>lin(ROOF.ridge,ROOF.front,y)-2.5;
         const par=(x,y0,y1,u)=>{const z0=u(y0),z1=u(y1),d=D/Math.cos(Math.atan2(Math.abs(z1-z0),Math.abs(y1-y0)));return box8([[x-2.5,z0-d,y0],[x+2.5,z0-d,y0],[x+2.5,z1-d,y1],[x-2.5,z1-d,y1],[x-2.5,z0,y0],[x+2.5,z0,y0],[x+2.5,z1,y1],[x-2.5,z1,y1]]);};
-        for(let x=2555;x<=2946;x+=65){g.push(par(x,38,352,uP),par(x,352,690,uJ));}
+        for(let x=2555;x<=2946;x+=65){g.push(par(x,x<AO.xN?AO.yC:38,352,uP),par(x,352,690,uJ));}/* Maxi 22/11: los que caen sobre T-08 siguen hasta la punta de su viga VT */
         Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${g.length/2} cabios continuos, cada 0,65`},{group:'Techos',tags:['TE','estructura','techos']});
-        const tb=M.ESTRUCTURA.find(t=>t.id==='TBL-1');if(tb)Pt('TBL-1','TBL-1 · '+tb.nombre,'madera',[slabY(2523,2951,[38,uP(38)],[352,uP(352)],2.5),slabY(2523,2951,[352,uJ(352)],[690,uJ(690)],2.5)],{...base(tb),sec:tb.sec,med:'2 faldones'},{group:'Techos',tags:['TE','techos']});}
+        const tb=M.ESTRUCTURA.find(t=>t.id==='TBL-1');if(tb)Pt('TBL-1','TBL-1 · '+tb.nombre,'madera',[slabY(2523,AO.xN,[1,uP(1)],[352,uP(352)],2.5),slabY(AO.xN,2951,[38,uP(38)],[352,uP(352)],2.5),slabY(2523,2951,[352,uJ(352)],[690,uJ(690)],2.5)],{...base(tb),sec:tb.sec,med:'2 faldones'},{group:'Techos',tags:['TE','techos']});}
       else Pt(s.id,`${s.id} · ${s.nombre}`,'madera',[box(2523,2951,235,250,33,43)],{...base(s),sec:s.sec,med:'4,5 m'},{group:'Estructura',tags:['estructura']});continue;}
     if(s.id==='MON-1'){if(p.ep){const g=[];const zc=y=>468+(y+46)*(27/397),under=(x,y)=>{for(let r=32;r<=1332;r+=65)if(Math.abs(r-x)<5)return zc(y);return 478+(y+81)*(29/433);};
       for(let x=30;x<=1300;x+=240)g.push(box8([[x-2.5,367,-94],[x+2.5,367,-94],[x+2.5,367,-79],[x-2.5,367,-79],[x-2.5,under(x,-94),-94],[x+2.5,under(x,-94),-94],[x+2.5,under(x,-79),-79],[x-2.5,under(x,-79),-79]]));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${Math.floor((1300-30)/240)+1} parantes`},{group:'Entrepiso',tags:['EP','estructura']});}continue;}
@@ -658,7 +664,7 @@ function build(p){
       Pt('CIE-1m','CIE-1 · marco de roble','roble',[box(-2.5,2.5,367,372,-96,7.5),box(-2.5,2.5,367,zu(-96),-96,-91),box(-2.5,2.5,367,zu(7.5),2.5,7.5)],{fn:'Marco de la ventana del extremo sur.'},{group:'Entrepiso',tags:['EP','aberturas','CIE-1']});}
     else if(s.id==='CIE-2'&&p.ep){const zu=y=>478+(y+81)*(29/433)-.5;const ch=M.CHIMENEAS.find(c=>c.id==='CH-1'),xc=ch?ch.pos[0]-ch.w/2:1332.5,yc=ch?ch.pos[1]-ch.dp/2:40;Pt(s.id,`${s.id} · ${s.nombre}`,'chapa',[box8([[xc-2,240,-98],[xc,240,-98],[xc,240,yc],[xc-2,240,yc],[xc-2,zu(-98),-98],[xc,zu(-98),-98],[xc,zu(yc),yc],[xc-2,zu(yc),yc]]),box(1323,xc,240,262,-98,-77)],{...base(s),sec:s.sec,med:'del piso de la galería al techo'},{...ex(s),group:'Entrepiso',tags:['EP','estructura']});}
     else if(s.id==='BAR-1'&&p.ep){Pt(s.id,`${s.id} · ${s.nombre}`,'chapa',[box(0,1323,240,367,-98,-96)],{...base(s),sec:s.sec,med:'13,2 m · 1,05 de alto'},{...ex(s),group:'Entrepiso',tags:['EP','estructura']});Pt('BAR-1i','BAR-1 · cara interior de fenólico y tapa','ep',[box(0,1323,262,367,-79,-77),box(0,1323,367,370,-94,-75)],{fn:'Fenólico del lado de la galería y tabla de remate sobre el parapeto.',sec:'fenólico 18 mm · tapa 2″×8″'},{group:'Entrepiso',tags:['EP','estructura','BAR-1']});}
-    else if(s.id==='TIR-1'&&p.ep){const g=[];const yEnd=x=>x<=993?690:x<=1318?620:YEDGE;for(let x=65;x<=1410;x+=61)g.push(box(x-2.5,x+2.5,240,260,25,yEnd(x)));/* tirante de borde bajo el canto del voladizo, al ras de la cara norte de ESC-ZE2 (Maxi) */g.push(box(1437,1442,240,260,25,YEDGE));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${Math.floor((1499-132)/61)+1} tirantes; terminan dentro de la fachada (M-05 / M-07)`},{group:'Entrepiso',tags:['EP','estructura']});}
+    else if(s.id==='TIR-1'&&p.ep){const g=[];const yEnd=x=>x<=993?690:x<=1318?(p.dormers==='cg'?690:620):YEDGE;for(let x=65;x<=1410;x+=61)g.push(box(x-2.5,x+2.5,240,260,25,yEnd(x)));if(p.dormers==='cg')g.push(box(1334,1339,240,260,603,690));/* Maxi 22/11: con el volado del estudio los tirantes siguen hasta y 6,90, y uno corto de borde en x 13,365 (apoyado en M-07) lleva la columna C-13 *//* tirante de borde bajo el canto del voladizo, al ras de la cara norte de ESC-ZE2 (Maxi) */g.push(box(1437,1442,240,260,25,YEDGE));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${Math.floor((1499-132)/61)+1} tirantes; terminan dentro de la fachada (M-05 / M-07)`},{group:'Entrepiso',tags:['EP','estructura']});}
     else if(s.id==='COS-1'&&p.ep){const g=[];for(let x=30;x<=1300;x+=61)g.push(box(x-2.5,x+2.5,246,260,-95,100));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:`${Math.floor((1300-30)/61)+1} tirantes`},{group:'Entrepiso',tags:['EP','estructura']});}
     else if(s.id==='MON-1'&&p.ep){const g=[];for(let x=30;x<=1300;x+=61)g.push(box(x-2.5,x+2.5,262,roofZ(-82,0)-8,-82,-77));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec},{group:'Entrepiso',tags:['EP','estructura']});}
     else if(s.id==='CAB-2'&&p.techos){const g=[];const zc=y=>468+(y+46)*(27/397),yE=-124;for(let x=32;x<=1332;x+=65)g.push(slabY(x-2.5,x+2.5,[yE,zc(yE)],[351,495],7));Pt(s.id,`${s.id} · ${s.nombre}`,'cabio',g,{...base(s),sec:s.sec,med:'21 cabios'},{group:'Techos',tags:['TE','estructura','techos']});}
@@ -695,7 +701,7 @@ function build(p){
       es.push(box(fx0,xb+7.5,Z0,Z0+5,YF-7,YF+5),box(fx0,xb+7.5,DU(YF)-10,DU(YF),YF-7,YF+5));for(const [xw0,xw1] of W2)es.push(box(xw0-5,xw1+5,zw1,zw1+15,YF-7,YF+5));
       for(const xp of d.postes||[])es.push(box(xp-5,xp+5,262,rb(357),352,362));/* postes bajo el cabezal largo, sobre los tabiques */
       for(const c of d.cols||[])Pt(c.id,`${c.id} · ${c.nombre}`,'acero',[box(c.x[0],c.x[1],c.z0,DU(YF)-10,c.y[0],c.y[1])],{fn:'Puesta en obra (Maxi 13/11). Sostiene la punta del frente del dormer, bajo la solera alta.',sec:c.sec,med:`alto ${f1((DU(YF)-10-c.z0)/100)} m`},{group:'Estructura',tags:['estructura','dormers']});
-      const sx=(d.cols||[]).some(c=>Math.abs(c.x[0]-fx0)<1)?[]:[fx0];for(let x=xa;x<xb;x+=40)if(x>=fx0+5)sx.push(x);sx.push(xb+2.5);
+      const sx=(d.cols||[]).some(c=>Math.abs(c.x[0]-fx0)<1)?[]:[fx0];for(let x=xa;x<xb;x+=40)if(x>=fx0+5)sx.push(x);if(!(d.cols||[]).some(c=>c.x[0]<xb+7.5&&c.x[1]>xb+2.5))sx.push(xb+2.5);
       for(const x of sx){const inW=W2.some(([xw0,xw1])=>x>xw0-5&&x<xw1);if(!inW)es.push(box(x,x+5,Z0+5,DU(YF)-10,YF-7,YF+5));else es.push(box(x,x+5,Z0+5,zw0-5,YF-7,YF+5),box(x,x+5,zw1+15,DU(YF)-10,YF-7,YF+5));}
       for(const [xw0,xw1] of W2)es.push(box(xw0-10,xw0-5,Z0+5,zw1,YF-7,YF+5),box(xw1+5,xw1+10,Z0+5,zw1,YF-7,YF+5),box(xw0-5,xw1+5,zw0-5,zw0,YF-7,YF+5));
       /* 3 · laterales: solera inclinada sobre el cabio doble, montantes cada 40 hasta los cabios del dormer */
@@ -778,8 +784,8 @@ function build(p){
     else if(t.id==='T-04'||t.id==='T-07'){/* vidrios sueltos: uno por tramo entre cabios (cada 1,30) y dos a lo largo, cortados en la correa CR-1 (y 8,08) */
       const zg=y=>407-(y-581)*(161/360)+1;const xs=[];for(let x=1350;x<=2920;x+=130)xs.push(x);xs.push(2946);const xr=xs.filter(x=>x>=x0-1&&x<=x1+1);if(xr[0]>x0+1)xr.unshift(x0);if(xr[xr.length-1]<x1-1)xr.push(x1);g=[];
       for(let i=0;i<xr.length-1;i++)if(xr[i+1]-xr[i]>12)for(const [ya,yb] of [[690,807],[809,965]])g.push(slabY(xr[i]+3.5,xr[i+1]-3.5,[ya,zg(ya)],[yb,zg(yb)],1));}
-    else if(t.id==='T-08'){const c=y=>AO.u(y)+7.8;g=[slabY(AO.xS,AO.xN,[AO.yW,c(AO.yW)],[-2,c(-2)],1),slabY(2523,AO.xN,[-2,c(-2)],[AO.yE,c(AO.yE)],1),box(2523,AO.xN,c(36)+1,284,36,38)];}/* cierre de chapa lisa entre T-08 y el alero de T-05 (y 0,38): T-08 queda 25 cm más bajo y la ranura quedaba abierta al quincho */
-    else if(t.id==='T-05')g=[slabY(2523,2951,[352,507],[690,lin(ROOF.ridge,ROOF.front,690)],6),slabY(2523,2951,[38,283],[352,507],6)];
+    else if(t.id==='T-08'){const c=y=>AO.u(y)+7.8;g=[slabY(AO.xS,AO.xN,[AO.yW,c(AO.yW)],[-2,c(-2)],1),slabY(2523,AO.xN,[-2,c(-2)],[AO.yT,c(AO.yT)],1)];}/* Maxi 22/11: llega a y 0,02, debajo de la chapa de T-05 que baja a apoyarse */
+    else if(t.id==='T-05'){const z=y=>lin([38,283],[352,507],y);g=[slabY(2523,2951,[352,507],[690,lin(ROOF.ridge,ROOF.front,690)],6),slabY(2523,AO.xN,[-3,z(-3)],[352,507],6),slabY(AO.xN,2951,[38,283],[352,507],6)];}/* Maxi 22/11: sobre T-08 la chapa baja hasta y −0,03 y apoya en la de T-08 */
     else if(t.id==='T-06'){const q=(pts)=>box8([...pts.map(([x,y])=>[x,wingZ(x),y]),...pts.map(([x,y])=>[x,wingZ(x)+6,y])]);g=[q([[1771,-828],[2103,-828],[2103,338],[1771,4]])];
       if(DORM_ALT(p)){const D=DORM_A;g.push(q([[2103,-828],[2442,-828],[2442,D.y0-7.5],[2103,D.y0-7.5]]),q([[2103,D.y1+7.5],[2442,D.y1+7.5],[2442,4],[2103,338]]),q([[2103,D.y0-7.5],[D.x0,D.y0-7.5],[D.x0,D.y1+7.5],[2103,D.y1+7.5]]),q([[D.xf+8,D.y0-7.5],[2442,D.y0-7.5],[2442,D.y1+7.5],[D.xf+8,D.y1+7.5]]));}
       else g.push(q([[2103,-828],[2442,-828],[2442,4],[2103,338]]));}
@@ -1054,7 +1060,7 @@ N.bindEditor(root,()=>{});
 N.onChange(()=>{visor.rebuild();applyClips();});
 ED.onChange(()=>{visor.rebuild();applyClips();});
 /* arrastrar las hojas H-1…H-3 a lo largo del riel (H-4 es fija) */
-{const view=document.getElementById('view'),T=visor.THREE,ray=new T.Raycaster(),mv=new T.Vector2();let dr=null;const W=(625-27)/4,MIN={'H-1':-3*W,'H-2':-2*W,'H-3':-W,'H-4':0},MAX={};
+{const view=document.getElementById('view'),T=visor.THREE,ray=new T.Raycaster(),mv=new T.Vector2();let dr=null;const W=(Y43-27)/4,MIN={'H-1':-3*W,'H-2':-2*W,'H-3':-W,'H-4':0},MAX={};
   /* puerta-ventanas del ventanal (PV-01…06, corren en X sobre su riel) y del tímpano norte (PV-07…10, corren a lo ancho) */
   for(let i=1;i<=10;i++){const id=`PV-${String(i).padStart(2,'0')}`;[MIN[id],MAX[id]]=limHoja(id);}/* el tímpano corre hasta 2 m más allá de M-03 */MIN['PV-12']=-140;MAX['PV-12']=0;
   const EJE=id=>/^PV-0[1-6]$/.test(id)?'x':'z';const base=id=>id.replace(/[vkm]$/,'');
