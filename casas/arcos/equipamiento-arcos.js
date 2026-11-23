@@ -86,7 +86,9 @@ export function equipArcos({ itA }) {
       A: { nombre: 'Cama contra el armario-tabique, vestidor detrás', items: [I('armarioBajo', 375.5, 2899, 0, { L: 341, D: 60, H: 144, tapa: 4, mods: 'colgar:80|cajones:60|estantes:60|zapatos:60|colgarE:81', mad: 'indigo' }),
         I('camaDoble', 375.5, 2761.5, 180, { L: 170, D: 215 }), I('mesaLuzM', 268, 2848, 180, { L: 45, D: 40 }), I('mesaLuzM', 483, 2848, 180, { L: 45, D: 40 }),
         I('armarioBajo', 412.5, 3054, 180, { L: 415, D: 50, H: 144, tapa: 4, mods: 'estantes:70|cajones:70|zapatos:70|cajones:70|estantes:70|colgarE:65', mad: 'indigo' }),
-        I('butacaAm', 150, 2500, 135, { tela: 'lino' })] },
+        /* Maxi 22/11: cómodas que ya tiene, contra la medianera sur (la pared lejos de la puerta), dejando libre el paso al vestidor */
+        I('comodaB', 41, 2520, 90, { L: 160, D: 50, H: 80 }), I('comodaB', 41, 2700, 90, { L: 160, D: 50, H: 80 }),
+        I('butacaAm', 540, 2475, -135, { tela: 'lino' })] },
       B: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2865, 90, { L: 170, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
       C: { nombre: 'Mirando al jardín', items: [I('camaDoble', 400, 2970, 180, { L: 220, D: 215 }), I('butacaAm', 150, 2500, 135, { tela: 'mostaza' })] },
       D: { nombre: 'Vacío', items: [] } }; } },

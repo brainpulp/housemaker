@@ -55,9 +55,9 @@ const DET = DETALLE.map(d => { const b = Uint8Array.from(atob(d.b64), c => c.cha
   return { ...d, pos: new Float32Array(f) }; }).filter(d => d.pos.length);
 /* SU-01 (ventanal O) partido en sus hojas móviles, sin tocar la geometría */
 for (let i = DET.length - 1; i >= 0; i--) { const d = DET[i]; if (d.id !== 'SU-01') continue; const g = partirSU01(d.pos); DET.splice(i, 1, ...Object.entries(g).map(([k, pos]) => k === 'resto' ? { ...d, pos } : { ...d, id: k, nombre: HOJAS[k].nombre, pos, movil: true })); }
-/* marcos del ventanal O (contrafrente) en gris oscuro casi negro (Maxi 20/10): todo lo que no es vidrio de SU-01 y sus hojas, salvo las ventanas de 2P a la terraza (y > 24,80) */
+/* marcos del ventanal O (contrafrente) en gris oscuro casi negro (Maxi 20/10): todo lo que no es vidrio de SU-01 y sus hojas; desde el 22/11 también las ventanas de 2P a la terraza */
 for (let i = DET.length - 1; i >= 0; i--) { const d = DET[i]; if (!(d.id === 'SU-01' || HOJAS[d.id]) || d.cat === 'glass') continue;
-  const si = [], no = []; for (let t = 0; t < d.pos.length; t += 9) ((d.pos[t + 2] + d.pos[t + 5] + d.pos[t + 8]) / 3 <= 2480 ? si : no).push(...d.pos.subarray(t, t + 9));
+  const si = [], no = []; for (let t = 0; t < d.pos.length; t += 9) si /* Maxi 22/11: también la ventana del dormitorio a la terraza, en negro */.push(...d.pos.subarray(t, t + 9));
   const out = []; if (si.length) out.push({ ...d, cat: 'marcoO', pos: new Float32Array(si) }); if (no.length) out.push({ ...d, pos: new Float32Array(no) }); DET.splice(i, 1, ...out); }
 const detGeo = d => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(d.pos, 3)); g.computeVertexNormals(); return g; };
 
