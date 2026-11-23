@@ -27,7 +27,7 @@ def mm(x): return int(round(x * 10))
 piezas = []
 def add(g, pieza, cant, L, A, esp, mat, canto='', nota=''):
     piezas.append(dict(g=g, pieza=pieza, cant=cant, L=L, A=A, esp=esp, mat=mat, canto=canto, nota=nota))
-PET = 'Petiribí macizo'; NEGT = 'Melamina negra texturada 18'; NEG = 'Melamina negra 18'; MEL15 = 'Melamina blanca 15'; FIB = 'Fibroplus 3'
+PET = 'Petiribí macizo'; NEGT = 'Melamina negra texturada 18'; NEG = 'Melamina negra 18'; MEL15 = 'Melamina blanca 18'; FIB = 'Fibroplus 3'
 col = lambda i: f'columna {i+1}'
 
 # ---------- frentes ----------
@@ -73,8 +73,8 @@ for k in range(2):
 
 # ---------- cajas de los cajones ----------
 def caja(nombre, ancho, fondo, alto, nota=''):
-    add('Cajas de cajón', f'{nombre}: lateral', 2, fondo, alto, 15, MEL15, '1 largo (arriba)', nota)
-    add('Cajas de cajón', f'{nombre}: frente y contrafrente', 2, ancho - 30, alto, 15, MEL15, '1 largo (arriba)', nota)
+    add('Cajas de cajón', f'{nombre}: lateral', 2, fondo, alto, 18, MEL15, '1 largo (arriba)', nota)
+    add('Cajas de cajón', f'{nombre}: frente y contrafrente', 2, ancho - 36, alto, 18, MEL15, '1 largo (arriba)', nota)
     add('Cajas de cajón', f'{nombre}: piso', 1, ancho, fondo, 3, FIB, '', 'clavado y encolado abajo')
 for i, W in enumerate(MODS):
     if i == PUERTA_IDX: continue
@@ -273,7 +273,7 @@ def tabla(grupo):
             f'<tbody>{tr}</tbody><tfoot><tr><td>Total</td><td class="n">{sum(p["cant"] for p in rows)}</td><td colspan="6"></td></tr></tfoot></table></div>')
 grupos = [('Frentes', 'Petiribí macizo de 20 mm en cajones, puertas de la bacha, columna del horno y alacena de la heladera; melamina negra texturada en las alacenas altas y en los bandejeros. Juntas de 2 mm.'),
           ('Cajoneras', 'Cajas del mueble en melamina negra de 18 mm, una por módulo; las de piso sobre patas regulables. Fondo de fibroplus de 3 mm.'),
-          ('Cajas de cajón', 'Laterales, frente y contrafrente de melamina blanca de 15 mm; piso de fibroplus de 3 mm. El ancho ya descuenta 13 mm por lado para las guías.'),
+          ('Cajas de cajón', 'Laterales, frente y contrafrente de melamina blanca de 18 mm (Maxi 23/11); piso de fibroplus de 3 mm. El ancho ya descuenta 13 mm por lado para las guías.'),
           ('Zócalo', 'Melamina negra de 18 mm, 10 cm de alto, rehundido 8 cm del frente.')]
 desp = ''.join(f'<section class="grp"><h3>{E(g)}</h3><p class="mut">{E(t)}</p>{tabla(g)}<button class="copy" data-copy="ar:{E(g)}" type="button">Copiar tabla</button></section>' for g, t in grupos)
 herr_html = ''.join(f'<tr><td>{E(a)}</td><td class="n">{b}</td><td>{E(u)}</td><td class="nota">{E(n)}</td></tr>' for a, b, u, n in herr)
@@ -376,7 +376,7 @@ carp = f'''
           <div><dt>Juntas entre frentes</dt><dd>2 mm</dd></div>
           <div><dt>Muebles</dt><dd>melamina negra 18 mm</dd></div>
           <div><dt>Fondos</dt><dd>fibroplus 3 mm</dd></div>
-          <div><dt>Cajas de cajón</dt><dd>melamina blanca 15 mm</dd></div>
+          <div><dt>Cajas de cajón</dt><dd>melamina blanca 18 mm</dd></div>
           <div><dt>Guías mesada y columna</dt><dd>telescópicas 450 mm, cierre suave</dd></div>
           <div><dt>Guías isla</dt><dd>telescópicas 500 mm, cierre suave</dd></div>
           <div><dt>Alacenas altas</dt><dd>brazos para puerta proyectable</dd></div>
