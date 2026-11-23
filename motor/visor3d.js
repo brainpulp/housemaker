@@ -302,14 +302,23 @@ export function createVisor({model,colors={},lift={},root=null,radial=.3,far=900
 
   /* ----- selección y medidas por arista ----- */
   function clearEdgeDims(){lblDirty=true;if(curDims){curDims.traverse(ob=>{if(ob.isCSS2DObject&&ob.element)ob.element.remove();});curDims.parent&&curDims.parent.remove(curDims);curDims=null;}}
-  function edgeDims(ids){const g0=new THREE.Group();const seen=new Set();const segs=[];
-    for(const id of ids){const p=byId[id];if(!p)continue;p.geos.forEach((g,gi)=>{
-      if(g.userData&&g.userData.rod){const {a,b,L}=g.userData;segs.push(a,b);const key=id+'r'+L.toFixed(1);if(p.opt.dedupeAll&&seen.has(key))return;seen.add(key);tag(f1(L),a.clone().add(b).multiplyScalar(.5).toArray(),'edge',g0,L);return;}
+  /* Maxi 23/11: «limitá a las que definan una dimensión útil»: se acotan sólo las aristas del contorno de la pieza (las dos puntas sobre una cara de su caja),
+     una por dirección y largo en toda la pieza (no una por cada tabla, onda o quiebre interno), y como mucho las 24 más largas. Se dibujan resaltadas todas las aristas igual */
+  const DIM_MAX=24;
+  function edgeDims(ids){const g0=new THREE.Group();const seen=new Set();const segs=[];const cand=[];const porDir=new Map();
+    for(const id of ids){const p=byId[id];if(!p)continue;const bx=new THREE.Box3();for(const g of p.geos){if(!g.boundingBox)g.computeBoundingBox();bx.union(g.boundingBox);}
+      const tol=Math.max(1,.004*bx.getSize(new THREE.Vector3()).length()),enCara=P=>Math.abs(P.x-bx.min.x)<tol||Math.abs(P.x-bx.max.x)<tol||Math.abs(P.y-bx.min.y)<tol||Math.abs(P.y-bx.max.y)<tol||Math.abs(P.z-bx.min.z)<tol||Math.abs(P.z-bx.max.z)<tol;
+      p.geos.forEach((g,gi)=>{
+      if(g.userData&&g.userData.rod){const {a,b,L}=g.userData;segs.push(a,b);const key=id+'r'+Math.round(L);if(seen.has(key))return;seen.add(key);cand.push([L,a.clone().add(b).multiplyScalar(.5).toArray()]);return;}
       const e=new THREE.EdgesGeometry(g,25).attributes.position;
       for(let i=0;i<e.count;i+=2){const A=new THREE.Vector3(e.getX(i),e.getY(i),e.getZ(i)),B=new THREE.Vector3(e.getX(i+1),e.getY(i+1),e.getZ(i+1));const L=A.distanceTo(B);if(L<0.8)continue;segs.push(A,B);
+        if(L<2||!enCara(A)||!enCara(B))continue;
         const d=B.clone().sub(A).normalize();const sg=Math.abs(d.x)>1e-3?Math.sign(d.x):Math.abs(d.y)>1e-3?Math.sign(d.y):Math.sign(d.z);d.multiplyScalar(sg);
-        const key=`${id}|${p.opt.dedupeAll?'':gi}|${d.x.toFixed(2)},${d.y.toFixed(2)},${d.z.toFixed(2)}|${L.toFixed(1)}`;if(seen.has(key))continue;seen.add(key);
-        tag(f1(L),A.clone().add(B).multiplyScalar(.5).toArray(),'edge',g0,L);}});}
+        const dk=`${id}|${d.x.toFixed(1)},${d.y.toFixed(1)},${d.z.toFixed(1)}`,b=porDir.get(dk);const m=A.clone().add(B).multiplyScalar(.5).toArray();
+        /* por dirección, sólo la más larga y la más corta (las ondas de una chapa recortada en diagonal dan una escalera de largos que no dice nada) */
+        if(!b)porDir.set(dk,{max:[L,m],min:[L,m]});else{if(L>b.max[0])b.max=[L,m];if(L<b.min[0])b.min=[L,m];}}});}
+    for(const b of porDir.values()){cand.push(b.max);if(b.max[0]-b.min[0]>Math.max(2,.1*b.max[0]))cand.push(b.min);}
+    cand.sort((a,b)=>b[0]-a[0]);const vis=new Set();for(const [L,m] of cand){const k=Math.round(L);if(vis.has(k))continue;vis.add(k);if(vis.size>DIM_MAX)break;tag(f1(L),m,'edge',g0,L);}
     if(segs.length){const ls=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs),hiEdge);ls.renderOrder=11;g0.add(ls);}
     if(ids[0]&&byId[ids[0]])g0.position.copy(byId[ids[0]].grp.position);G0.add(g0);return g0;}
   /* selección múltiple (Maxi 9/11): Shift + toque agrega o saca piezas; los muebles se suman igual (equipamiento.js). multi = todas las elegidas, selId la primera */

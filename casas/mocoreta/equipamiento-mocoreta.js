@@ -2,7 +2,7 @@
    Giro r: 0 = el frente del mueble mira al este, 90 = al norte, 180 = al oeste, −90 = al sur.
    Interior: la cocina como está hoy, del croquis de Maxi del 3/11 (la misma de casas/cocinas/equipamiento-cocinas.js), trasladada al origen COC del modelo
    (cara interior del ventanal sur, cara este de la pared O). Lo demás del interior todavía no tiene muebles (D-10). */
-import { COC, TERR } from './modelo.js';
+import { COC, TERR, PAS } from './modelo.js';
 export function equipMocoreta({ itA }) {
   const vacio = () => ({ A: { nombre: 'Vacío', items: [] } });
   const sillas = (I, cx, cy, L, D, n, t = 'sillaCover') => [...Array(n)].flatMap((_, k) => { const x = cx - L / 2 + L * (k + .5) / n; return [I(t, x, cy - D / 2 - 28, 0), I(t, x, cy + D / 2 + 28, 180)]; });
@@ -14,7 +14,9 @@ export function equipMocoreta({ itA }) {
         /* Maxi 10/11: isla de ibirapitá con cajones de frente negro y, en la punta sur, el agregado de 1,00 × 0,90 con el anafe de 5 */
         I('isla', 300, 265, 0, { L: 220, D: 90, vol: 0, fr: 'negro', top: 'madRust' }), I('mesada', 150, 265, 0, { L: 80, D: 90, H: 91, fr: 'negro', top: 'granito', puertas: [0], tapaMas: 20, tapaLado: 1, tapaD: 90 }), I('anafe', 158, 265, 0, { L: 90, D: 52, n: 5 }, 91),
         I('mesaTablas', 267, 530, 0, { L: 280, D: 120, P: 20, mad: 'pinotea' }), ...sillas(I, 267, 530, 280, 120, 3),
-        I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150)] },
+        I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150),
+        /* Maxi 23/11: armario de 1,00 al fondo oeste del pasillo norte, entre las dos puertas (existe hoy). Fondo y alto supuestos */
+        J('placard', (PAS.xs + PAS.xm) / 2, 405 + 30, 0, { L: PAS.xm - PAS.xs - 1, D: 60, H: 220 })] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* piso alto (hipótesis del segundo piso; Maxi 15/11: «equipá el dormitorio de arriba y la oficina»). Sólo se ve con el segundo piso prendido. Medidas y ubicación supuestas */
     alto: { n: 'Piso alto (hipótesis)', piso: 328, ver: p => p.piso2 === 'A' || p.piso2 === 'B', vista: { p: [1500, 900, 2900], t: [300, 380, 1800] }, esc: () => { const I = itA('alto'); return {
@@ -64,6 +66,6 @@ export function equipMocoreta({ itA }) {
     for (const [x, y, e, h, s] of [[-900, 2900, 'Ash Large', 1700, 2], [-900, 2500, 'Oak Large', 1800, 1], [-1100, 2000, 'Pino', 2100, 2], [-800, 1500, 'Ash Large', 1700, 3], [-1200, 1050, 'Pino', 2200, 4], [-900, 600, 'Oak Large', 1800, 2], [-1150, 100, 'Ash Large', 1600, 1], [-800, -350, 'Pino', 2000, 3], [-1000, -800, 'Oak Large', 1700, 3]]) P('arbol', x, y, e, h, s);
     return { A: { nombre: 'Jardín de hoy (desde la foto y el video del norte)', items: it }, B: { nombre: 'Sin plantas', items: [] } }; }
   /* Maxi 22/11: la biblioteca de la oficina de arriba pasa a ser igual a la de abajo, también en lo ya guardado */
-  const MUT = { mue: { alto: [['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
+  const MUT = { mue: { interior: [['armarioPasillo2311', items => { if (items.some(m => m.t === 'isla') && !items.some(m => m.t === 'placard' && Math.abs(m.y - 435) < 5)) items.push({ id: 'interior_armarioPasillo', t: 'placard', x: (PAS.xs + PAS.xm) / 2, y: 435, r: 0, p: { L: PAS.xm - PAS.xs - 1, D: 60, H: 220 } }); }]], alto: [['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
   return { mut: MUT, inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: escLuces, cal: sin('Sin calefacción') };
 }
