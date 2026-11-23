@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.64', fecha:'2026-11-22',
+  nombre:'Carhué', version: '1.1.65', fecha:'2026-11-23',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -145,7 +145,7 @@ export const ESTRUCTURA = [
   {id:'C-04', tipo:'columna', nivel:'PB', pos:[1727,915], sec:'6×6 (¿perfil doble T?)', estado:'existente', conf:'modelo', nombre:'Columna del ventanal', nota:'La del problema de torsión. En el modelo es un poste de 6 cm en el medio del ventanal.'},
   {id:'C-05', tipo:'columna', nivel:'PB', pos:[2382,38],  sec:'10×10, de -0,46 a +2,55', estado:'nuevo', conf:'modelo', nombre:'Poste del fondo, eje 7'},
   {id:'C-06', tipo:'columna', nivel:'PB', pos:[2831,38],  sec:'tubo de hierro 45 × 45 mm, de -0,46 a +2,55 (Maxi 7/11)', estado:'nuevo', conf:'modelo', nombre:'Poste del fondo de la extensión norte'},
-  {id:'W-1', tipo:'viga', nivel:'PB', a:[900,633], b:[2951,633], z:350, sec:'perfil W (ala ancha), 20 m', estado:'existente', conf:'estimado', nombre:'Perfil W longitudinal', nota:'El doble T de ala ancha: de C-03 (quincho) a C-01 y 4 m más hacia el sur, hasta el baño del entrepiso (x≈9,0). A +3,50 en la línea donde el techo de vidrio encuentra la chapa (y 633). Altura y distancia a la pared del patio a confirmar.'},
+  {id:'W-1', tipo:'viga', nivel:'PB', a:[1342,633], b:[2951,633], z:350, sec:'perfil W (ala ancha), 16,1 m', estado:'existente', conf:'estimado', nombre:'Perfil W longitudinal', nota:'El doble T de ala ancha: de C-03 (quincho) a C-01, en el final de la galería (Maxi 23/11: el tramo que seguía 4 m hacia el sur, hasta el baño del entrepiso, se sacó). A +3,50 en la línea donde el techo de vidrio encuentra la chapa (y 633). Altura y distancia a la pared del patio a confirmar.'},
   {id:'RA-1', tipo:'viga', nivel:'PB', a:[1353,925], b:[2523,925], z:222, sec:'perfil de acero (ángulo o U de ~100) sobre los paños', estado:'existente', conf:'estimado', nombre:'Riel alto del ventanal', nota:'Fotos 1, 2 y 8: el perfil de acero oxidado que corona los paños del ventanal; los cabios del techo de vidrio apoyan ENCIMA de él (cara inferior del cabio sobre el riel, con cuñas) y vuelan 0,30. Los paños terminan a +2,22, debajo del riel. Resuelve D-14.'},
   {id:'CR-1', tipo:'viga', nivel:'TE', a:[1347,808], b:[2951,808], z:390, sec:'misma sección que los cabios (6 × 17), caras alineadas con ellos', estado:'nuevo', conf:'estimado', nombre:'Correa media del techo de vidrio', nota:'Fotos 8 y 11: tres correas cruzan los cabios del techo de vidrio; esta es la del medio, a media pendiente. Entre correas va un vidrio por tramo.'},
   {id:'CR-2', tipo:'viga', nivel:'TE', a:[1347,692], b:[2951,692], z:398, sec:'misma sección que los cabios (6 × 17), caras alineadas con ellos', estado:'nuevo', conf:'estimado', nombre:'Correa alta del techo de vidrio', nota:'Fotos 8, 11 y 17: la correa de arriba, justo bajo el borde de la chapa (y 6,92), donde arranca el vidrio.'},
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-23', v:'1.1.65', txt:'Maxi 23/11: el perfil W-1 va sólo del extremo norte (C-03) hasta el final de la galería (C-01, x 13,42); el tramo que seguía hacia el sur por el entrepiso se sacó en obra. Con eso no queda nada cruzando el estudio ni la corrediza.'},
   {fecha:'2026-11-22', v:'1.1.64', txt:'Maxi 22/11: encuentro del quincho con el alero oeste T-08. Los cabios del quincho que caen sobre T-08 siguen de largo por encima de la viga VQ-1 hasta y −0,14; las vigas VT-1…3 se corren al lado de uno de esos cabios (x 25,49 / 26,91 / 28,21) y terminan en y 0,02, con las puntas atornilladas entre sí. La chapa de T-05 baja hasta apoyarse en la de T-08; se saca el cierre vertical de chapa. (2) Volado al jardín: el entrepiso del estudio vuela 0,70 sobre la fachada retranqueada M-07 y el frente del dormer sigue derecho en y 6,90, coplanar con el del dormitorio (un solo frente de x 0 a 13,40, sin el escalón). La corrediza M-43 llega hasta ese frente: hojas de 1,64 en vez de 1,50. La columna C-13 pasa a la punta norte del frente nuevo, sobre un tirante de borde.'},
   {fecha:'2026-11-22', v:'1.1.63', txt:'Maxi 22/11: la «ratona» que Maxi diseñó en la página Octet (L = 45, 0,90 × 1,35, una capa, vidrio con 20 de vuelo) va en el living, en el centro de la alfombra y con el lado largo de frente al hogar.'},
   {fecha:'2026-11-22', v:'1.1.62', txt:'Maxi 22/11: el escritorio del estudio es el «desk» que Maxi diseñó en la página Octet (L = 45, 0,90 × 1,35, vidrio con 20 de vuelo); se saca el escritorio Octet provisorio de L = 24.'},
