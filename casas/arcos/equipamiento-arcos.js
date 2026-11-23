@@ -47,9 +47,13 @@ export function equipArcos({ itA }) {
     despensa: { n: 'Despensa (M-33, hacia el jardín)', piso: PB, vista: { p: [300, 360, 3000], t: [100, 120, 3180] }, esc: () => { const I = itA('despensa'); return {
       A: { nombre: 'Tres alacenas altas', items: [I('alacenaV', 36, 3127, 90, { L: 95, D: 40, H: 204 }), I('alacenaV', 36, 3226, 90, { L: 95, D: 40, H: 204 }), I('alacenaV', 140, 3255, 180, { L: 95, D: 40, H: 204 })] },
       B: { nombre: 'Vacía', items: [] } }; } },
+    /* Maxi 23/11: a lo largo del entrepiso, contra la pared del lado del palier y el baño de 1P, un mueble bajo de puertas corredizas cuya tapa queda al nivel del
+       piso de 1P (+4,17): une las dos alturas y sigue el piso del palier por el vano cuadrado (P-15). 6,25 de largo, de la medianera sur hasta antes del tensor T5 y la
+       columna CN4, con el fondo contra el borde de la losa de 1P (y 30,64); va en dos módulos (2,96 y 3,25) con una luz de 4 cm entre ellos por donde pasa el tensor T4; la tapa
+       puede ser una sola, con una muesca atrás para el tensor. Reemplaza a las dos bibliotecas que había contra esa pared. */
     escritorio: { n: 'Escritorio (entrepiso)', nivel: 'EP', piso: EP, vista: { p: [560, 640, 2500], t: [170, 340, 2800] }, esc: () => { const I = itA('escritorio'); return {
-      A: { nombre: 'Contra la medianera sur', items: [I('escritorioM', 55, 2560, 90, { L: 150, D: 70 }), I('sillaCover', 125, 2560, -90), I('estanteM', 400, 3018, 180), I('estanteM', 490, 3018, 180)] },
-      B: { nombre: 'Mirando al estar', items: [I('escritorioM', 270, 2560, -90, { L: 150, D: 70 }), I('sillaCover', 200, 2560, 90), I('estanteM', 400, 3018, 180), I('estanteM', 490, 3018, 180), I('butacaAm', 120, 2950, 135, { tela: 'lino' })] },
+      A: { nombre: 'Contra la medianera sur', items: [I('escritorioM', 55, 2560, 90, { L: 150, D: 70 }), I('sillaCover', 125, 2560, -90), I('bajoCorredizo', 163, 3041.5, 180, { L: 296, D: 45, H: 88.3, hojas: 4, div: '74,148,222', mad: 'petiribi', fr: 'petiribi' }), I('bajoCorredizo', 477.5, 3041.5, 180, { L: 325, D: 45, H: 88.3, hojas: 4, div: '81,162,244', mad: 'petiribi', fr: 'petiribi' })] },
+      B: { nombre: 'Mirando al estar', items: [I('escritorioM', 270, 2560, -90, { L: 150, D: 70 }), I('sillaCover', 200, 2560, 90), I('bajoCorredizo', 163, 3041.5, 180, { L: 296, D: 45, H: 88.3, hojas: 4, div: '74,148,222', mad: 'petiribi', fr: 'petiribi' }), I('bajoCorredizo', 477.5, 3041.5, 180, { L: 325, D: 45, H: 88.3, hojas: 4, div: '81,162,244', mad: 'petiribi', fr: 'petiribi' }), I('butacaAm', 120, 2950, 135, { tela: 'lino' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     /* Maxi 21/11: es el cuarto de Andrés (20 años). Dos propuestas para comparar: A, vestidor detrás del respaldo de la cama (tabique a 1,55 de la pared del baño,
        pasillo de 0,95 que también lleva al baño; la idea de «usar el respaldo para separar el vestidor» de IKEA); B, sin tabique: placard de piso a techo contra el baño
@@ -93,7 +97,14 @@ export function equipArcos({ itA }) {
       C: { nombre: 'Mirando al jardín', items: [I('camaDoble', 400, 2970, 180, { L: 220, D: 215 }), I('butacaAm', 150, 2500, 135, { tela: 'mostaza' })] },
       D: { nombre: 'Vacío', items: [] } }; } },
     vestidor: { n: 'Vestidor (terraza)', piso: TZ, vista: { p: [300, 1000, 3200], t: [100, 760, 3400] }, esc: () => { const I = itA('vestidor'); return {
-      A: { nombre: 'Roperos a lo largo', items: [I('roperoA', 46, 3255, 90), I('roperoA', 46, 3367, 90), I('roperoA', 46, 3479, 90)] },
+      /* Maxi 23/11: interior del vestidor de la terraza (1,88 × 5,42; se entra por la escalerita, en la punta sur-este). Contra la medianera, placard abierto de 0,60
+         desde 0,75 de la pared de la puerta (ahí está la ventanita, que queda libre), con colgado largo, doble barral, cajones y zapatero; enfrente, estantes de 0,35 (desde 0,90 de la puerta, para que abra), pasillo de 0,93,
+         y un espejo de cuerpo entero en el fondo. Barrales a 2,00, estante a 2,15 y maletero arriba hasta 2,40 (un cabio del techo pasa a 2,42 sobre la punta del placard). */
+      A: { nombre: 'Placard abierto contra la medianera y estantes enfrente', items: [
+        I('vestidor', 45, 3396.5, 90, { L: 473, D: 60, H: 240, mods: 'doble:100|cajones:80|largo:100|zapatos:80|doble:113', mad: 'petiribi', car: 'blanco', mal: 220 }),
+        I('vestidor', 185.5, 3410, -90, { L: 440, D: 35, H: 240, mods: 'estantes:110|zapatos:110|estantes:110|estantes:110', mad: 'petiribi', car: 'blanco', mal: 220 }),
+        I('espejo', 120, 3630, 180, { L: 60, D: 3, H: 170 }, 30)] },
+      C: { nombre: 'Roperos a lo largo', items: [I('roperoA', 46, 3255, 90), I('roperoA', 46, 3367, 90), I('roperoA', 46, 3479, 90)] },
       B: { nombre: 'Vacío', items: [] } }; } },
     terraza: { n: 'Terraza', piso: TZ, vista: { p: [700, 1150, 3150], t: [520, 760, 3600] }, esc: () => { const I = itA('terraza'); return {
       A: { nombre: 'Mesa afuera + reposeras', items: [I('mesaComedor', 560, 3650, 0, { L: 180, D: 90 }), ...sillas(I, 560, 3650, 180, 90, 2, 'sillaDSW'), I('reposera', 330, 3500, 0), I('reposera', 410, 3500, 0)] },

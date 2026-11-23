@@ -195,6 +195,21 @@ export function catalogoMuebles(THREE){
       g.push([B(a+e+.2,b-.2,M+.2,H-.2,z1-2,z1),p.mad]);
       x=b;g.push([B(x-e,x,0,H,z0,z1),p.mad]);}
     return g;}},
+  /* Maxi 23/11 (entrepiso de Arcos): mueble bajo a lo largo de una pared, con puertas corredizas en dos rieles. div: posiciones de los parantes desde la punta
+     izquierda (cm), separadas por «,»; un parante doble deja pasar un tensor o un caño entre las dos chapas. Estante a media altura en cada tramo. */
+  bajoCorredizo:{n:'Mueble bajo con puertas corredizas',cat:'estar',p:{L:300,D:45,H:88,hojas:4,div:'',dobles:'',mad:'petiribi',fr:'petiribi',car:'blanco'},g:p=>{
+    const g=[],e=1.8,z0=-p.D/2,z1=p.D/2,zc=z1-5,H=p.H,L2=p.L/2;
+    const dv=String(p.div||'').split(',').map(Number).filter(v=>v>0&&v<p.L),db=new Set(String(p.dobles||'').split(',').map(Number));
+    /* tapa, piso y fondo con una muesca de 4 × 7 atrás en cada parante doble, para que pase el tensor */
+    const cortes=[...db].filter(d=>d>0&&d<p.L).map(d=>-L2+d).sort((a,b)=>a-b),tramos=[];let xa=-L2;for(const c of cortes){tramos.push([xa,c-2]);xa=c+2;}tramos.push([xa,L2]);
+    const pl=(y0,y1,zA,zB,m)=>{g.push([B(-L2,L2,y0,y1,zA+7,zB),m]);for(const [a,b] of tramos)g.push([B(a,b,y0,y1,zA,zA+7),m]);};
+    g.push([B(-L2+1,L2-1,0,8,z0+8,zc-3),'negro']);pl(H-2.5,H,z0,z1,p.mad);pl(8,8+e,z0,zc,p.car);for(const [a,b] of tramos)g.push([B(a,b,8,H-2.5,z0,z0+e),p.car]);
+    g.push([B(-L2,-L2+e,8,H-2.5,z0,z1),p.mad],[B(L2-e,L2,8,H-2.5,z0,z1),p.mad]);
+    const xs=[-L2+e];for(const d of dv){const x=-L2+d;if(db.has(d)){g.push([B(x-6,x-6+e,8+e,H-2.5,z0+e,zc),p.car],[B(x+6-e,x+6,8+e,H-2.5,z0+e,zc),p.car]);}else g.push([B(x-e/2,x+e/2,8+e,H-2.5,z0+e,zc),p.car]);xs.push(x);}xs.push(L2-e);
+    const ym=(8+e+H-2.5)/2;g.push([B(-L2+e,L2-e,ym-e/2,ym+e/2,z0+7,zc-.5),p.car]);for(const [a,b] of tramos)g.push([B(Math.max(a,-L2+e),Math.min(b,L2-e),ym-e/2,ym+e/2,z0+e,z0+7),p.car]);
+    const n=Math.max(2,p.hojas|0),w=(p.L-2*e)/n;
+    for(let i=0;i<n;i++){const a=-L2+e+i*w-(i?2:0),b=-L2+e+(i+1)*w+(i<n-1?2:0),t=i%2?[zc+.4,zc+2.2]:[zc+2.6,zc+4.4];g.push([B(a,b,8.5,H-3,t[0],t[1]),p.fr]);}
+    return g;}},
   /* Maxi 22/11 (dormitorio principal, Arcos): armario bajo que hace de tabique. Abierto de un lado (módulos: colgar, colgarE = estante arriba y barral debajo, cajones, estantes, zapatos), dorso lleno del otro
      (ahí apoya la cabecera de la cama), tapa maciza arriba. También sirve, sin dorso a la vista, de cajonera baja bajo una ventana. */
   armarioBajo:{n:'Armario bajo que hace de tabique (abierto de un lado)',cat:'dormitorio',p:{L:300,D:60,H:160,mods:'colgar:120|cajones:60|colgar:120',mad:'petiribi',car:'blanco'},g:p=>{
