@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.42', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.43', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -124,6 +124,8 @@ for (const [f, x] of [['N', GN], ['S', GS]]) for (let i = 1; i <= 13; i++) {
    y el pasillo de 2,00 sigue hacia ellos contra el ventanal norte. La posición a lo largo de la casa es un supuesto (D-16). COC = origen de los ejes del croquis en los de la casa */
 MUROS.push({ id: 'MC-01', nivel: 'PB', a: [COC.x, 800], b: [COC.x + 335, 800], e: 15, tipo: 'madera', z0: 0, top: ZV, estado: 'existente', conf: 'supuesto', nombre: 'Cocina: pared O', nota: 'Croquis 3/11: del ventanal sur hasta el pasillo (5,35 − 2,00 = 3,35). La puse en el quinto par de columnas; material y espesor supuestos (D-16).' });
 MUROS.push({ id: 'MC-02', nivel: 'PB', a: [COC.x + 330, 807.5], b: [COC.x + 330, 897.5], e: 10, tipo: 'madera', z0: 0, top: ZV, estado: 'existente', conf: 'supuesto', nombre: 'Cocina: tabique de la heladera', nota: 'Maxi 3/11: «falta un tabique que rodea a H», del lado del pasillo. Altura supuesta (D-16).' });
+/* Maxi 23/11: MC-02 define el pasillo norte y sigue al oeste, del otro lado de la pared O de la cocina, hasta justo antes del último módulo (el sexto par de columnas, y 4,00) */
+MUROS.push({ id: 'MC-03', nivel: 'PB', a: [COC.x + 330, 407.5], b: [COC.x + 330, 792.5], e: 10, tipo: 'madera', z0: 0, top: ZV, estado: 'existente', conf: 'supuesto', nombre: 'Tabique del pasillo norte (módulo 5)', nota: 'Maxi 23/11: sigue a MC-02 del otro lado de la pared O de la cocina y termina justo antes del último módulo (y 4,00). Mismo plano, espesor y altura que MC-02.' });
 
 /* ---------- estructura ---------- */
 const ESTRUCTURA = [];
@@ -268,6 +270,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-23', v: '0.10.43', txt: 'El tabique del pasillo norte (MC-02, el de la heladera) sigue al oeste del otro lado de la pared de la cocina, en el mismo plano, hasta justo antes del último módulo (y 4,00): MC-03.' },
   { fecha: '2026-11-23', v: '0.10.42', txt: 'Al subir o bajar la casa con la regla, el menú o arrastrándola, la cámara queda quieta respecto del terreno: se ve subir la casa, no bajar el piso (la animación ya lo hacía).' },
   { fecha: '2026-11-23', v: '0.10.41', txt: 'Escalera de la terraza: el descanso de arriba arranca en la tapa de la terraza, sin hueco aunque esté el sistema de subir, y la baranda de la terraza se abre justo su ancho (de 1100 a la columna 4). La de dos tramos ahora gira con seis compensados triangulares alrededor de un poste, sin descanso plano en el medio: ocupa 2,72 en vez de 3,71. La caracol, 2 m al oeste y con el poste lo más cerca posible de la casa; arriba no tiene descanso: el primer sector, a nivel de la terraza, se apoya en su borde y la baranda se abre justo ese ancho. Puerta de entrada: caños de 40 × 70 de canto (antes 30 × 70).' },
   { fecha: '2026-11-22', v: '0.10.40', txt: 'Vuelve el desplegable de variantes junto a la pieza elegida (en todas las casas): al tocar algo que tiene opciones de diseño aparece ahí mismo un menú para cambiarla.' },
