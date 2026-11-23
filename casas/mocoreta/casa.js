@@ -122,7 +122,8 @@ function build(p) {
   const base = d => ({ fn: (d.conf === 'supuesto' ? '<b>Supuesto.</b> ' : '') + (d.nota || ''), sec: '', med: '', u: MM.DUDAS.filter(x => x.ref.includes(d.id)).map(x => x.id).join(' · ') });
 
   /* fachadas: ventanales (vidrio + marco), puertas corredizas y paños de madera con vidrio arriba */
-  const TRon = H2 && p.techoTerr && p.techoTerr !== 'no';   /* techo retráctil en la terraza (Maxi 19/11): va entre la cubierta y el deck, que sube a +3,60 */
+  const TRon = H2 && p.techoTerr && p.techoTerr !== 'no';
+  const CARc = 940;   /* centro de la escalera caracol de la terraza (Maxi 23/11: 2 m al oeste de donde estaba) */   /* techo retráctil en la terraza (Maxi 19/11): va entre la cubierta y el deck, que sube a +3,60 */
   const SACA = H2 ? new Set(['MS-03', 'MS-04', 'MS-05', 'MS-06', 'V-S03', 'V-S04', 'V-S06', 'FC-2S', 'FC-3S']) : new Set();   /* el ensanche sur de los módulos 2 y 3 abre esa fachada */
   for (const m of MM.MUROS) { if (SACA.has(m.id)) continue; const L = Math.hypot(m.b[0] - m.a[0], m.b[1] - m.a[1]), med = `${f2(L)} × ${f2(A.zTope(MM, m, 0) - A.zBase(MM, m))}`;
     if (m.corrediza) { /* hoja corrediza de hierro, fuera del plano del vidrio (N por dentro, S colgada por fuera). Se dibuja cerrada: la corre motor/corredizas.js al arrastrarla */
@@ -133,7 +134,7 @@ function build(p) {
       const ya = y0 + Math.min(0, h.dy), yb = y1 + Math.max(0, h.dy);
       const riel = f === 'S' ? box(MM.XS - 3, MM.XS, MM.ZV + 1, MM.ZV + 6, ya, yb) : box(xa, xb, MM.ZV, MM.ZV + 2, ya, yb)   /* 2 cm: abriendo al oeste pasa justo por debajo de la viga transversal del par 4 */;
       if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', box(h.x - .5, h.x + .5, z0 + w, z1 - w, y0 + w, y1 - w), { ...base(m), med }, { group: G.fach, opt: {} });
-      Pt(m.id + 'h', `${m.id} · hoja de hierro`, 'hierro', marco, { ...base(m), med, sec: f === 'N' ? 'caño 70 × 30 de canto' : 'caño 50 × 50' }, { group: G.fach, opt: {} });
+      Pt(m.id + 'h', `${m.id} · hoja de hierro`, 'hierro', marco, { ...base(m), med, sec: f === 'N' ? 'caño 40 × 70 de canto (40 a la vista, 70 de fondo)' : 'caño 50 × 50' }, { group: G.fach, opt: {} });
       Pt(`RL-${f}`, `RL-${f} · Riel de la corrediza ${f === 'N' ? 'de entrada' : 'de atrás'}`, 'hierro', riel, { fn: f === 'S' ? 'Riel de hierro por fuera, sobre la viga de arriba: la hoja cuelga de él.' : 'Riel de hierro por dentro, bajo la viga de arriba.', sec: 'hierro', med: `${f2(yb - ya)} de largo`, u: 'D-06' }, { group: G.fach, opt: {} }); continue; }
     if (m.tipo === 'vidrio') { const g = A.vidrioGeos(MM, m);
       if (p.carp) Pt(m.id, `${m.id} · ${m.nombre}`, 'glass', g.vidrio, { ...base(m), med }, { group: G.fach, opt: {} });
@@ -524,45 +525,79 @@ function build(p) {
     H('H2-08', 'Balcón de la oficina: baranda', 'madera', A.barandaGeos({ pts: [[gal, 2000], [xi(Z2 + 100) - 14, 2000]], z: Z2, h: 100 }), 'La oficina balconea sobre la doble altura.', 'baranda de 1,00', { noEdges: true });
     for (let i = 0; i < 3; i++) H(`SJ-${i + 1}`, `Panel corredizo tipo japonés ${i + 1}`, 'shoji', [my(i % 2 ? 2012 : 2006, gal + i * 92, gal + (i + 1) * 92, Z2, ZT - 6)], 'Tres paneles corredizos para cerrar la oficina cuando hace falta privacidad. Arrastralos para abrirlos. Maxi 15/11: antes eran cuatro y atravesaban el ventanal inclinado; ahora terminan donde el vidrio deja pasar un panel entero.', '0,92', { op: .7 });
     { const xe = gal + 276, zt = ZT - 6; H('H2-20', 'Paño fijo junto al ventanal', 'shoji', [box8([[xe, Z2, 2005], [gn - 4, Z2, 2005], [gn - 4, Z2, 2008], [xe, Z2, 2008], [xe, zt, 2005], [xi(zt) - 4, zt, 2005], [xi(zt) - 4, zt, 2008], [xe, zt, 2008]])], 'Paño fijo del mismo material que cierra el triángulo entre los paneles corredizos y el ventanal inclinado.', '', { op: .7 }); }
-    H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...(PB2 ? [...A.barandaGeos({ pts: [[gal, ESC.y[0]], [gal, ESC.y[1]]], h: 100 }, ESC), ...A.barandaGeos({ pts: [[gal, ESC.y[1]], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[5, 1608], [5, 1948]], z: Z2, h: 100 })] : [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 })]), ...A.barandaGeos({ pts: [[xs + 4, 1190], [xs + 4, 404], [xn - 4, 404], [xn - 4, 1122]], z: ZTz, h: 100 })], 'Baranda de 1,00 hacia el vacío y en los tres lados libres de la terraza; se abre al este del lado norte, donde sale la escalera al deck.', '', { noEdges: true });
+    H('H2-10', 'Barandas de la galería y de la terraza', 'madera', [...(PB2 ? [...A.barandaGeos({ pts: [[gal, ESC.y[0]], [gal, ESC.y[1]]], h: 100 }, ESC), ...A.barandaGeos({ pts: [[gal, ESC.y[1]], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[5, 1608], [5, 1948]], z: Z2, h: 100 })] : [...A.barandaGeos({ pts: [[gal, 1600], [gal, 2000]], z: Z2, h: 100 }), ...A.barandaGeos({ pts: [[gs, 1600], [gs, 1900]], z: Z2, h: 100 })]), ...A.barandaGeos({ pts: [[xs + 4, 1190], [xs + 4, 404], [xn - 4, 404], [xn - 4, p.escTerr === 'caracol' ? CARc - 60.1 : 1100]], z: ZTz, h: 100 }), ...(p.escTerr === 'caracol' ? A.barandaGeos({ pts: [[xn - 4, CARc + 60.1], [xn - 4, 1188]], z: ZTz, h: 100 }) : [])], 'Baranda de 1,00 hacia el vacío y en los tres lados libres de la terraza; se abre al este del lado norte, donde sale la escalera al deck: justo el ancho del descanso, de 1100 a la columna 4 (Maxi 23/11).', '', { noEdges: true });
     /* escalera de la terraza al deck norte (Maxi 17/11, tercera vuelta: «no me gusta la de pasos alternados; semi empinada y con un quiebre, para que no avance tanto sobre el deck»):
        descanso de 0,80 × 0,80 a nivel de la terraza, volado de su borde norte, y desde ahí un solo tramo que baja hacia el oeste pegado a la fachada.
        Sobre el deck ocupa 0,80 de fondo (antes 3,75). Sin postes: el descanso vuela de la terraza y la zanca de adentro va abulonada a la casa */
     /* Maxi 22/11: variantes de la escalera de la terraza: dos tramos con giro de 180° (cada uno de menos de 2,50 en planta) o caracol */
-    if (p.escTerr === 'ida' || p.escTerr === 'caracol') { const x0 = MM.CXN + (EL ? 33.5 : 2.5), W = 80, yd = [1100, 1180], n = Math.ceil(ZTz / 19), hA = ZTz / n, G = [], F = [], hl = 90;
-      G.push(box(x0, x0 + W, ZTz - 4, ZTz, yd[0], yd[1]));
+    /* Maxi 23/11: «la separación de la casa y la escalera es inútil, tiene que estar pegada; la interrupción de la baranda, la medida justa; descansos triangulares para ahorrar pedadas».
+       El descanso de arriba arranca en la tapa de la terraza (x = 560, sin hueco aunque las columnas dobles del sistema de subir salgan más) y ocupa justo el hueco de la baranda:
+       de y = 1100 (donde termina la baranda de la terraza) hasta la columna 4 (1192). */
+    if (p.escTerr === 'ida' || p.escTerr === 'caracol') { const xT = 560, x0 = xT, W = 80, yd = [1100, 1192], n = Math.ceil(ZTz / 19), hA = ZTz / n, G = [], F = [], hl = 90;
+      if (p.escTerr === 'ida') G.push(box(xT, x0 + W, ZTz - 4, ZTz, yd[0], yd[1]));
       const zz = (ya, za, yb, zb, xa, xb, D = 32) => box8([[xa, za + 8 - D, ya], [xb, za + 8 - D, ya], [xb, zb + 8 - D, yb], [xa, zb + 8 - D, yb], [xa, za + 8, ya], [xb, za + 8, ya], [xb, zb + 8, yb], [xa, zb + 8, yb]]);
-      if (p.escTerr === 'ida') { const g = 24, n1 = Math.ceil(n / 2), n2 = n - n1, ys = yd[0], yM = ys - (n1 - 1) * g, zM = ZTz - n1 * hA, xB = x0 + W + 4, LD = 75;
-        for (let i = 1; i < n1; i++) { const z = ZTz - i * hA; G.push(box(x0 + 6, x0 + W - 6, z - 4, z, ys - i * g - 2, ys - (i - 1) * g)); }
-        G.push(box(x0, xB + W, zM - 4, zM, yM - LD, yM));   /* descanso del medio */
-        for (let j = 1; j < n2; j++) { const z = zM - j * hA; G.push(box(xB + 6, xB + W - 6, z - 4, z, yM + (j - 1) * g, yM + j * g + 2)); }
-        const yB8 = yM + (zM - 8) / hA * g;   /* donde la línea de la zanca de abajo llega al deck */
-        for (const [a, b] of [[x0, x0 + 6], [x0 + W - 6, x0 + W]]) G.push(zz(ys, ZTz, yM, zM, a, b));
-        for (const [a, b] of [[xB, xB + 6], [xB + W - 6, xB + W]]) G.push(zz(yM, zM, yB8, 0, a, b));
-        for (const [a, b] of [[x0 + 2, x0 + 10], [xB + W - 10, xB + W - 2]]) G.push(box(a, b, 0, zM - 12, yM - LD + 2, yM - LD + 10));   /* dos postes bajo el descanso del medio */
-        const nl = (y0, z0, y1, z1, x) => geo.rod([x, z0 + hl, y0], [x, z1 + hl, y1], 1.6, 8);
-        F.push(nl(ys, ZTz, yM, zM, x0 + 3), nl(ys, ZTz, yM, zM, x0 + W + 2), nl(yM, zM, yB8, 0, xB + W + 2), geo.rod([x0 + 3, zM + hl, yM - LD + 3], [xB + W - 3, zM + hl, yM - LD + 3], 1.6, 8),
-          ...[[x0 + 3, yM - LD + 3], [xB + W - 3, yM - LD + 3], [xB + W + 2, yB8 - 3]].map(([x, y]) => geo.rod([x, y > yM ? 8 : zM, y], [x, (y > yM ? 0 : zM) + hl, y], 1.3, 8)));
-        H('H2-23', 'Escalera de la terraza al deck (dos tramos, giro de 180°)', 'madera', G, `Maxi 22/11: dos tramos con un descanso en el medio y giro de 180°. Arriba, el descanso de 0,80 a nivel de la terraza; el primer tramo baja hacia el oeste pegado a la fachada (${n1} alzadas, ${f2((n1 - 1) * g)} en planta), descanso de ${f2(2 * W + 4)} × ${f2(LD)} sobre dos postes, y el segundo vuelve hacia el este (${n2} alzadas, ${f2((n2 - 1) * g)} en planta). ${n} alzadas de ${f1(hA)} y huellas de 24. Ocupa ${f2(2 * W + 4)} de fondo sobre el deck.`, `${n} alzadas de ${f1(hA)} · huella 24`, `${f2(2 * W + 4)} × ${f2(yd[1] - yM + LD)}`);
-        H('H2-23b', 'Escalera de la terraza: barandas', 'negro', F, 'Pasamanos del lado de la casa y entre los dos tramos, y baranda de afuera en el segundo tramo y en el descanso del medio, a 0,90.', 'caño Ø 32', ''); }
-      else { const cx = x0 + W + 87, cy = yd[0] + 40, R = 85, r0 = 6, dA = 22.5 * Math.PI / 180, a0 = Math.PI, P = (rr, a, z, y0 = 0) => [cx + rr * Math.cos(a), z, cy + rr * Math.sin(a)];
+      if (p.escTerr === 'ida') {
+        /* dos tramos de 80 lado a lado (el primero pegado a la casa) y el giro de 180° resuelto con seis compensados triangulares de 30° alrededor de un poste central:
+           no hay descanso plano, cada triángulo es un escalón */
+        const g = 24, nw = 6, a = 4, b = n - 1 - nw - a, ys = yd[0], yT = ys - a * g, yE = yT - W, xm = x0 + W + 2, xB = xm + 2, xR = xB + W, zt = k => ZTz - k * hA;
+        for (let i = 1; i <= a; i++) G.push(box(x0 + 6, x0 + W - 6, zt(i) - 4, zt(i), ys - i * g - 2, ys - (i - 1) * g));
+        /* compensados: cuñas desde el poste (xm, yT), recortadas por el contorno de la caja del giro (casa al sur, fondo al oeste, borde norte) */
+        const hit = th => { const dx = Math.cos(th), dy = Math.sin(th); let t = 1e9; if (dx < -1e-6) t = Math.min(t, (x0 - xm) / dx); if (dx > 1e-6) t = Math.min(t, (xR - xm) / dx); if (dy < -1e-6) t = Math.min(t, (yE - yT) / dy); return [xm + dx * t, yT + dy * t]; };
+        const esq = [[x0, yE], [xR, yE]].map(([x, y]) => [Math.atan2(y - yT, x - xm) + 2 * Math.PI, x, y]);
+        const losa = (poly, z0, z1) => { const sh = new THREE.Shape(poly.map(([x, y]) => new THREE.Vector2(x, -y))); const gg = new THREE.ExtrudeGeometry(sh, { depth: z1 - z0, bevelEnabled: false }); gg.rotateX(-Math.PI / 2); gg.translate(0, z0, 0); return gg; };
+        for (let k = 1; k <= nw; k++) { const t1 = Math.PI + (k - 1) * Math.PI / nw, t2 = Math.PI + k * Math.PI / nw, z = zt(a + k);
+          const poly = [[xm, yT], hit(t1), ...esq.filter(([t]) => t > t1 + 1e-6 && t < t2 - 1e-6).map(([, x, y]) => [x, y]), hit(t2)];
+          /* 1 cm de luz contra el poste y entre escalones */
+          G.push(losa(poly.map(([x, y], i) => i === 0 ? [x + Math.cos((t1 + t2) / 2) * 6, y + Math.sin((t1 + t2) / 2) * 6] : [x, y]), z - 4, z)); }
+        for (let j = 1; j <= b; j++) G.push(box(xB + 6, xR - 6, zt(a + nw + j) - 4, zt(a + nw + j), yT + (j - 1) * g, yT + j * g + 2));
+        const yF = yT + b * g, zB = zt(a + nw), y8 = yT + (zB - 8) / hA * g;   /* donde la zanca del segundo tramo toca el deck */
+        /* zancas: tramo 1 (la de la casa, abulonada; la de adentro, del descanso al poste), contorno del giro, tramo 2 (del poste y del borde al deck) */
+        G.push(zz(ys, ZTz, yT, zt(a), x0, x0 + 6), zz(ys, ZTz, yT, zt(a), x0 + W - 6, x0 + W));
+        const zw = th => ZTz - (a + (th - Math.PI) / (Math.PI / nw) + .5) * hA;   /* altura del compensado a ese ángulo */
+        const [tA, , ] = esq[0], [tB, , ] = esq[1];
+        G.push(zz(yT, zt(a), yE, zw(tA), x0, x0 + 6), box8([[x0, zw(tA) + 8 - 32, yE], [xR, zw(tB) + 8 - 32, yE], [xR, zw(tB) + 8 - 32, yE + 6], [x0, zw(tA) + 8 - 32, yE + 6], [x0, zw(tA) + 8, yE], [xR, zw(tB) + 8, yE], [xR, zw(tB) + 8, yE + 6], [x0, zw(tA) + 8, yE + 6]]),
+          zz(yE, zw(tB), yT, zB, xR - 6, xR));
+        G.push(zz(yT, zB, y8, 0, xB, xB + 6), zz(yT, zB, y8, 0, xR - 6, xR));
+        /* poste central del giro (madera dura 10 × 10, del deck al pasamanos) y dos postes en las esquinas del fondo */
+        const zP = zt(a) + hl; G.push(box(xm - 5, xm + 5, 0, zP + 6, yT - 5, yT + 5), ...[[x0 + 1, yE + 1], [xR - 9, yE + 1]].map(([x, y]) => box(x, x + 8, 0, Math.min(zw(tA), zw(tB)) - 24, y, y + 8)));
+        /* barandas: la del descanso (este y norte) sigue sin cortes por el lado de adentro del tramo 1 hasta el poste, y del poste baja por el tramo 2;
+           del lado de la casa, pasamanos abulonado; afuera del giro y del tramo 2, baranda con parantes */
+        const r = (A, B, rr = 1.6) => geo.rod(A, B, rr, 8), pu = (x, y, z0, z1) => geo.rod([x, z0, y], [x, z1, y], 1.3, 8);
+        F.push(r([xT + 2, ZTz + hl, yd[1] - 3], [xm, ZTz + hl, yd[1] - 3]), r([xm, ZTz + hl, yd[1] - 3], [xm, ZTz + hl, ys]), r([xm, ZTz + hl, ys], [xm, zt(a) + hl, yT + 5]),
+          r([xm, zB + hl, yT + 5], [xm, hA + hl, yF]), pu(xm, yd[1] - 3, ZTz, ZTz + hl), pu(xm, ys, ZTz, ZTz + hl), pu(xm, yF, hA, hA + hl));
+        F.push(r([x0 + 3, ZTz + hl, ys], [x0 + 3, zt(a) + hl, yT]), r([x0 + 3, zt(a) + hl, yT], [x0 + 3, zw(tA) + hl, yE - 2]));
+        /* parantes abulonados por fuera de las zancas */
+        F.push(r([x0 + 3, zw(tA) + hl, yE - 2], [xR + 2, zw(tB) + hl, yE - 2]), r([xR + 2, zw(tB) + hl, yE - 2], [xR + 2, zB + hl, yT]), r([xR + 2, zB + hl, yT], [xR + 2, hA + hl, yF]),
+          ...[[x0 + 3, yE - 2, zw(tA)], [(x0 + xR) / 2, yE - 2, zw(Math.PI * 1.5)], [xR + 2, yE - 2, zw(tB)], [xR + 2, yT, zB], [xR + 2, (yT + yF) / 2, zt(a + nw + b / 2)], [xR + 2, yF, hA]].map(([x, y, z]) => pu(x, y, z - 16, z + hl)));
+        H('H2-23', 'Escalera de la terraza al deck (dos tramos, giro de 180° con compensados)', 'madera', G, `Maxi 23/11: pegada a la casa y con el giro de 180° resuelto con ${nw} compensados triangulares de 30° alrededor de un poste central, sin descanso plano. Arriba, el descanso a nivel de la terraza: arranca en la tapa (sin hueco) y ocupa justo el hueco de la baranda, de la baranda a la columna 4 (${f2(yd[1] - yd[0])}). Primer tramo hacia el oeste pegado a la fachada (${a} escalones), el giro y el segundo tramo de vuelta hacia el este (${b} escalones). ${n} alzadas de ${f1(hA)}; huellas de 24 en los tramos rectos y, en los compensados, ${f1(40 * Math.PI / nw)} a 40 cm del poste. Ocupa ${f2(xR - xT)} × ${f2(Math.max(yd[1], yF) - yE)} sobre el deck (antes ${f2(1.64)} × ${f2(3.71)}).`, `${n} alzadas de ${f1(hA)} · ${nw} compensados`, `${f2(xR - xT)} × ${f2(Math.max(yd[1], yF) - yE)}`);
+        H('H2-23b', 'Escalera de la terraza: barandas', 'negro', F, 'Baranda del descanso que sigue sin cortes por adentro del primer tramo hasta el poste del giro y baja por el segundo; pasamanos del lado de la casa; baranda con parantes por afuera del giro y del segundo tramo. A 0,90.', 'caño Ø 32', ''); }
+      else { /* Maxi 23/11: caracol 2 m al oeste, con el poste lo más pegado posible a la casa (la circunferencia toca la tapa de la terraza) y girada para no necesitar descanso:
+           arriba, el primer "escalón" es un sector a nivel de la terraza que se apoya en su borde; desde ahí bajan los escalones de 22,5° */
+        const R = 85, cx = xT + R + 1, cy = CARc, r0 = 6, dA = 22.5 * Math.PI / 180, P = (rr, a, z) => [cx + rr * Math.cos(a), z, cy + rr * Math.sin(a)], s45 = R * Math.SQRT1_2, xs = cx - s45;
+        const losa = (poly, z0, z1) => { const sh = new THREE.Shape(poly.map(([x, y]) => new THREE.Vector2(x, -y))); const gg = new THREE.ExtrudeGeometry(sh, { depth: z1 - z0, bevelEnabled: false }); gg.rotateX(-Math.PI / 2); gg.translate(0, z0, 0); return gg; };
+        /* sector de arriba (135° a 225°, del lado de la casa) más el triangulito hasta la tapa: es el piso de llegada, a nivel de la terraza */
+        G.push(losa([[cx - r0, cy], [xs, cy + s45], [xT, cy + s45], [xT, cy - s45], [xs, cy - s45]], ZTz - 4, ZTz));
+        const a0 = Math.PI * .75;
         for (let k = 1; k < n; k++) { const z = ZTz - k * hA, a1 = a0 - (k - 1) * dA, a2 = a1 - dA * 1.12;
           G.push(box8([P(r0, a1, z - 4), P(R, a1, z - 4), P(R, a2, z - 4), P(r0, a2, z - 4), P(r0, a1, z), P(R, a1, z), P(R, a2, z), P(r0, a2, z)])); }
         G.push(geo.rod([cx, 0, cy], [cx, ZTz + hl, cy], 6, 16));   /* columna central, caño de 4″ */
-        for (let k = 1; k < n - 1; k++) { const z1 = ZTz - k * hA, z2 = ZTz - (k + 1) * hA, a1 = a0 - (k - .5) * dA, a2 = a0 - (k + .5) * dA; F.push(geo.rod(P(R - 3, a1, z1 + hl), P(R - 3, a2, z2 + hl), 1.6, 8)); if (k % 2) F.push(geo.rod(P(R - 3, a1, z1), P(R - 3, a1, z1 + hl), 1.1, 6)); }
-        F.push(geo.rod([x0 + 3, ZTz + hl, yd[1] - 3], [x0 + W - 3, ZTz + hl, yd[1] - 3], 1.6, 8), geo.rod([x0 + 40, ZTz, yd[1] - 3], [x0 + 40, ZTz + hl, yd[1] - 3], 1.3, 8));
-        H('H2-23', 'Escalera de la terraza al deck (caracol)', 'madera', G, `Maxi 22/11: escalera caracol de ${f2(2 * R)} de diámetro, al lado del descanso de la terraza (el primer escalón sale del borde del descanso). ${n - 1} escalones de 22,5° (${Math.round((n - 1) * 22.5)}° en total, poco más de una vuelta), ${n} alzadas de ${f1(hA)}; a 2/3 del radio la huella es de ${f1(2 * R / 3 * dA)} cm. Columna central de caño de 4″, escalones de madera dura soldados a planchuelas. Ocupa ${f2(2 * R)} × ${f2(2 * R)} sobre el deck.`, `${n} alzadas de ${f1(hA)}`, `Ø ${f2(2 * R)}`);
-        H('H2-23b', 'Escalera de la terraza: barandas', 'negro', F, 'Pasamanos helicoidal por el borde de afuera, con parantes cada dos escalones, y baranda en el borde del descanso.', 'caño Ø 32', ''); }
+        /* baranda: los dos lados del piso de llegada (del extremo de la baranda de la terraza al borde) y el radio de 225° hasta el poste; después, el pasamanos helicoidal */
+        F.push(geo.rod([xT - 19, ZTz + hl, cy + s45], [xs, ZTz + hl, cy + s45], 1.6, 8), geo.rod([xT - 19, ZTz + hl, cy - s45], [xs, ZTz + hl, cy - s45], 1.6, 8), geo.rod([xs, ZTz + hl, cy - s45], [cx - 6.5 * Math.SQRT1_2, ZTz + hl, cy - 6.5 * Math.SQRT1_2], 1.6, 8),
+          ...[[xs, cy + s45], [xs, cy - s45]].map(([x, y]) => geo.rod([x, ZTz, y], [x, ZTz + hl, y], 1.3, 8)));
+        for (let k = 0; k < n - 1; k++) { const z1 = ZTz - k * hA, z2 = ZTz - (k + 1) * hA, a1 = a0 - (k - .5) * dA, a2 = a0 - (k + .5) * dA; const b1 = k === 0 ? a0 : a1;
+          F.push(geo.rod(P(R - 3, b1, z1 + hl), P(R - 3, a2, z2 + hl), 1.6, 8)); if (k % 2 && k) F.push(geo.rod(P(R - 3, a1, z1), P(R - 3, a1, z1 + hl), 1.1, 6)); }
+        H('H2-23', 'Escalera de la terraza al deck (caracol)', 'madera', G, `Maxi 22/11: escalera caracol de ${f2(2 * R)} de diámetro. Maxi 23/11: corrida 2 m al oeste y con el poste lo más cerca posible de la casa (la circunferencia toca la tapa de la terraza); arriba no hay descanso: el primer sector, a nivel de la terraza, se apoya en su borde y la baranda se abre justo ${f2(2 * s45)}. ${n - 1} escalones de 22,5° (${Math.round((n - 1) * 22.5)}° en total), ${n} alzadas de ${f1(hA)}; a 2/3 del radio la huella es de ${f1(2 * R / 3 * dA)} cm. Columna central de caño de 4″, escalones de madera dura soldados a planchuelas. Ocupa ${f2(2 * R)} × ${f2(2 * R)} sobre el deck.`, `${n} alzadas de ${f1(hA)}`, `Ø ${f2(2 * R)}`);
+        H('H2-23b', 'Escalera de la terraza: barandas', 'negro', F, 'Baranda a los dos lados del piso de llegada y en su radio libre; pasamanos helicoidal por el borde de afuera con parantes cada dos escalones.', 'caño Ø 32', ''); }
     } else
-    { const x0 = MM.CXN + (EL ? 33.5 : 2.5), x1 = x0 + 80, yd = [1100, 1180]   /* con el sistema de subir y bajar, las columnas dobles salen 3 cm más: la escalera se corre afuera de ellas */, n = Math.ceil(ZTz / 19.5), hA = ZTz / n, g = 24, ys = yd[0], ye = ys - (n - 1) * g, D = 32, zN = y => ZTz + (y - ys) * hA / g, y8 = ys - (ZTz - 8) * g / hA, G = [], F = [];
-      G.push(box(x0, x1, ZTz - 4, ZTz, yd[0], yd[1]));   /* piso del descanso, tablones como el deck */
+    { const x0 = MM.CXN + (EL ? 33.5 : 2.5), x1 = x0 + 80, yd = [1100, 1192] /* Maxi 23/11: el descanso llena hasta la columna 4 y arranca en la tapa de la terraza */   /* con el sistema de subir y bajar, las columnas dobles salen 3 cm más: la escalera se corre afuera de ellas */, n = Math.ceil(ZTz / 19.5), hA = ZTz / n, g = 24, ys = yd[0], ye = ys - (n - 1) * g, D = 32, zN = y => ZTz + (y - ys) * hA / g, y8 = ys - (ZTz - 8) * g / hA, G = [], F = [];
+      G.push(box(560, x1, ZTz - 4, ZTz, yd[0], yd[1]));   /* piso del descanso, tablones como el deck: desde la tapa de la terraza, sin hueco */
       for (let i = 1; i < n; i++) { const z = ZTz - i * hA; G.push(box(x0 + 6, x1 - 6, z - 4, z, ys - i * g - 2, ys - (i - 1) * g)); }
       for (const [a, b] of [[x0, x0 + 6], [x1 - 6, x1]]) G.push(box8([[a, zN(ys) + 8 - D, ys], [b, zN(ys) + 8 - D, ys], [b, 0, y8], [a, 0, y8], [a, zN(ys) + 8, ys], [b, zN(ys) + 8, ys], [b, 8, y8], [a, 8, y8]]));
       H('H2-23', 'Escalera de la terraza al deck', 'madera', G, `Maxi 17/11: semi empinada y con un quiebre. Arriba, un descanso de 0,80 × 0,80 a nivel de la terraza, volado de su borde norte (un marco de UPN 120 abulonado a la tapa y a la columna 4); desde ahí baja un solo tramo hacia el oeste, pegado a la fachada, sin ventanas que tapar más que el ventanal de abajo. Sobre el deck ocupa 0,80 de fondo y ${f2(ys - ye + g)} de largo. ${n} alzadas de ${f1(hA)} y huellas de 24 (unos ${Math.round(Math.atan(hA / g) * 180 / Math.PI)}°, empinada pero de frente, como una escalera de barco ancha). Escalones de 2″ × 10″ con el borde redondeado, sin contrahuella. Zancas de 3″ × 12″: la de adentro abulonada a la casa con separadores, la de afuera de la viga del descanso al deck. Sin postes.`, `${n} alzadas de ${f1(hA)} · huella 24`, `ancho 0,80 · ${f2(ys - ye + g)} de largo`);
       const hl = 90, posts = [ys - 6, (ys + y8) / 2, y8 + 6];
       F.push(geo.rod([x1 - 3, zN(ys) + hl, ys], [x1 - 3, zN(y8) + hl, y8], 1.6, 8), ...posts.map(y => geo.rod([x1 - 3, Math.max(zN(y + 2), 0) + 8.5, y], [x1 - 3, Math.max(zN(y), 0) + hl, y], 1.3, 8)),
         geo.rod([x0 + 3, zN(ys) + hl, ys], [x0 + 3, zN(y8) + hl, y8], 1.6, 8), geo.rod([x0 + 3, zN(ys) + hl, ys], [x0 + 3, zN(ys) + hl, ys + 4], 1.3, 8),
-        geo.rod([x1 - 3, ZTz + hl, ys], [x1 - 3, ZTz + hl, yd[1] - 3], 1.6, 8), geo.rod([x0, ZTz + hl, yd[1] - 3], [x1 - 3, ZTz + hl, yd[1] - 3], 1.6, 8), ...[[x1 - 3, yd[1] - 3], [x0 + 40, yd[1] - 3]].map(([x, y]) => geo.rod([x, ZTz, y], [x, ZTz + hl, y], 1.3, 8)));
+        geo.rod([x1 - 3, ZTz + hl, ys], [x1 - 3, ZTz + hl, yd[1] - 3], 1.6, 8), geo.rod([562, ZTz + hl, yd[1] - 3], [x1 - 3, ZTz + hl, yd[1] - 3], 1.6, 8), ...[[x1 - 3, yd[1] - 3], [x0 + 40, yd[1] - 3]].map(([x, y]) => geo.rod([x, ZTz, y], [x, ZTz + hl, y], 1.3, 8)));
       H('H2-23b', 'Escalera de la terraza: barandas', 'negro', F, 'Baranda de caño en el borde del descanso y del lado de afuera del tramo, a 0,90, y pasamanos del lado de la casa, sobre la zanca abulonada.', 'caño Ø 32', '2 pasamanos'); }
     /* techo nuevo: chapa a un agua con la misma lógica, alta al norte, sobre los módulos 1 a 3 y el ensanche */
     /* cierre entre la cabeza de las paredes y vidrios (+5,70) y la chapa: todo el perímetro del piso alto. Sin esto quedaba una ranura abierta de 6 a 36 cm (Maxi 14/11) */

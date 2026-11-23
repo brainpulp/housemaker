@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.40', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.41', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -81,7 +81,7 @@ const DSB = { resp: 40,   /* el respaldo termina en una repisa de 40 de ancho (M
 export const DES = DSB;
 /* corredizas de hierro (oxidado): la del norte corre por dentro; la del sur cuelga por fuera (Maxi 14/11). x = eje de la hoja; dy = hacia dónde abre (D-06) */
 /* Maxi 14/11: la de entrada es de caño estructural de 70 × 30 de canto (3 a la vista, 7 de fondo); la de atrás, de caño de 50 × 50 */
-export const HOJA = { e: 3, perfil: 4, N: { x: ANCHO - CI - FC - 1 - 3.5, dy: -192 /* Maxi 16/11: la de entrada abre hacia el oeste */, e: 7, perfil: 3 }, S: { x: CI - 1 - 2.5, dy: -192, e: 5, perfil: 5 } };
+export const HOJA = { e: 3, perfil: 4, N: { x: ANCHO - CI - FC - 1 - 3.5, dy: -192 /* Maxi 16/11: la de entrada abre hacia el oeste */, e: 7, perfil: 4 /* Maxi 23/11: caño de 40 × 70 de canto (40 a la vista, 70 de fondo); antes 30 × 70 */ }, S: { x: CI - 1 - 2.5, dy: -192, e: 5, perfil: 5 } };
 
 /* Todo lo que depende de la altura sobre el terreno y del deck sur sale de modelo({ terr, deckS }); las exportaciones fijas son la casa de hoy. casa.js arma la variante elegida en «Ver». */
 /* origen de los ejes del croquis de la cocina (3/11) en los de la casa: la cara interior de las falsas columnas del sur (el fondo de la mesada apoya contra ellas, no contra el vidrio:
@@ -268,6 +268,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-23', v: '0.10.41', txt: 'Escalera de la terraza: el descanso de arriba arranca en la tapa de la terraza, sin hueco aunque esté el sistema de subir, y la baranda de la terraza se abre justo su ancho (de 1100 a la columna 4). La de dos tramos ahora gira con seis compensados triangulares alrededor de un poste, sin descanso plano en el medio: ocupa 2,72 en vez de 3,71. La caracol, 2 m al oeste y con el poste lo más cerca posible de la casa; arriba no tiene descanso: el primer sector, a nivel de la terraza, se apoya en su borde y la baranda se abre justo ese ancho. Puerta de entrada: caños de 40 × 70 de canto (antes 30 × 70).' },
   { fecha: '2026-11-22', v: '0.10.40', txt: 'Vuelve el desplegable de variantes junto a la pieza elegida (en todas las casas): al tocar algo que tiene opciones de diseño aparece ahí mismo un menú para cambiarla.' },
   { fecha: '2026-11-22', v: '0.10.39', txt: 'La biblioteca de la oficina de arriba es igual a la de abajo: cuadrícula de tablas de 6 cm y cajonera tipo fichero en las dos filas de abajo (también en lo ya guardado). La escalera de la terraza ahora se elige tocándola: antes el toque la tomaba como parte del segundo piso.' },
   { fecha: '2026-11-22', v: '0.10.38', txt: 'Escala real de barco (accommodation ladder) como opción nueva en «Plataforma baja del deck»: cuatro largueros de 4,60, 16 pedadas tomadas adelante y atrás que siguen horizontales, pie en un carro sobre rieles; se inclina sola al subir la casa (17° abajo, 37° arriba). Dormitorio a la terraza (con techo retráctil): faltaba la pedada de arriba, ahora son dos escalones de 16. Planta B: la escalera interior chocaba con la cabeza contra la viga del par 3 y las del entrepiso; corre 48 cm al norte y sobre ella ya no hay tirantes (brochal en el descanso). Capa «Segundo piso» en Capas: destildada corta la casa a 2,90 y deja ver la planta baja. Luz: de noche mucha más luz y más difusa (rebote de paredes y techo, focos más abiertos), de día más cielo y suelo más claro; la madera, bastante más clara (se descartan los tonos guardados).' },
