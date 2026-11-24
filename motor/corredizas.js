@@ -8,9 +8,11 @@ export function initCorredizas(visor, HOJAS, pref = 'casa') {
   const KEY = pref + '-corredizas'; let MOV = {}; try { MOV = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
   const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(MOV)); } catch (e) {} };
   const base = id => id.replace(/[a-z]$/, ''), clave = id => HOJAS[base(id)] ? base(id) : null;
-  const fmt = v => (Math.abs(v) / 100).toFixed(2).replace('.', ','), fmtK = (k, v) => HOJAS[k] && HOJAS[k].giro ? Math.round(v) + '°' : fmt(v) + ' m';
+  const fmt = v => (Math.abs(v) / 100).toFixed(2).replace('.', ','), fmtK = (k, v) => HOJAS[k] && (HOJAS[k].giro || HOJAS[k].bis) ? Math.round(v) + '°' : fmt(v) + ' m';
   const gir = H => typeof H.giro === 'function' ? H.giro() : H.giro;
   const aplicar = () => { for (const p of visor.parts || []) { const k = p.grp && clave(p.id); if (!k) continue; const v = MOV[k] || 0;
+      if (HOJAS[k].bis) { const b = HOJAS[k].bis, a = v * Math.PI / 180 * (b.s || 1), c = Math.cos(a), sn = Math.sin(a);   /* 23/11: puertas y frentes con bisagra vertical en (x, y) de planta */
+        p.grp.rotation.y = a; p.grp.position.set(b.x - (c * b.x + sn * b.y), 0, b.y - (-sn * b.x + c * b.y)); continue; }
       if (HOJAS[k].giro) { const g = gir(HOJAS[k]); if (!g) continue; const a = v * Math.PI / 180 * (g.s || 1), c = Math.cos(a), sn = Math.sin(a); p.grp.rotation.z = a; p.grp.position.set(g.x - (c * g.x - sn * g.z), g.z - (sn * g.x + c * g.z), 0); continue; }
       if (HOJAS[k].eje === 'x') p.grp.position.x = v; else p.grp.position.z = v; if (HOJAS[k].pend) p.grp.position.y = v * HOJAS[k].pend;   /* pend: lo que sube por cada cm que corre (techo corredizo sobre una pendiente) */ }
     for (const k of Object.keys(HOJAS)) if (HOJAS[k].alMover) try { HOJAS[k].alMover(MOV[k] || 0, visor); } catch (e) {}
@@ -32,10 +34,12 @@ export function initCorredizas(visor, HOJAS, pref = 'casa') {
     view.addEventListener('pointermove', e => { if (!dr) return; e.stopPropagation();
       if (!dr.moved) { if (Math.hypot(e.clientX - dr.sx, e.clientY - dr.sy) < 4) return; dr.moved = true; }
       const H = HOJAS[dr.k]; let nv;
-      if (H.giro) nv = dr.v0 + (dr.sy - e.clientY) * .4;   /* las que giran: arrastrar hacia arriba abre */
+      if (H.giro || H.bis) nv = dr.v0 + (dr.sy - e.clientY) * .4;   /* las que giran: arrastrar hacia arriba abre */
       else { setRay(e); const q = ray.ray.intersectPlane(dr.plane, new T.Vector3()); if (!q) return; nv = dr.v0 + (H.eje === 'x' ? q.x - dr.p0.x : q.z - dr.p0.z); }
       MOV[dr.k] = Math.round(Math.max(H.min, Math.min(H.max, nv))); aplicar(); const st = document.getElementById('stTool'); if (st) st.innerHTML = `<b>${dr.k}</b> abierta ${fmtK(dr.k, MOV[dr.k])}`; }, true);
-    const fin = e => { if (!dr) return; e.stopPropagation(); visor.controls.enabled = true; const d = dr; dr = null; if (!d.moved) { visor.showPart && visor.showPart(d.pid); return; } guardar(); };
+    const fin = e => { if (!dr) return; e.stopPropagation(); visor.controls.enabled = true; const d = dr; dr = null; if (!d.moved) { if (HOJAS[d.k].toque) { anim(d.k, (MOV[d.k] || 0) > (HOJAS[d.k].max + HOJAS[d.k].min) / 2 ? HOJAS[d.k].min : HOJAS[d.k].max); return; } visor.showPart && visor.showPart(d.pid); return; } guardar(); };
+    /* toque: las que llevan {toque: true} (puertas, frentes de placar) se abren o se cierran del todo con un toque, animadas (Maxi 23/11) */
+    const anim = (k, to) => { const v0 = MOV[k] || 0, t0 = performance.now(), T = 450; const paso = () => { const t = Math.min(1, (performance.now() - t0) / T), e2 = t * t * (3 - 2 * t); MOV[k] = v0 + (to - v0) * e2; aplicar(); if (t < 1) requestAnimationFrame(paso); else { MOV[k] = to; guardar(); } }; requestAnimationFrame(paso); };
     view.addEventListener('pointerup', fin, true); view.addEventListener('pointercancel', fin, true); }
   return { aplicar, set(k, v) { if (HOJAS[k]) { MOV[k] = v; aplicar(); guardar(); } },
     html(id) { const k = clave(id); if (!k) return ''; const h = HOJAS[k], v = MOV[k] || 0;

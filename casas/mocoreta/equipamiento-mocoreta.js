@@ -15,8 +15,7 @@ export function equipMocoreta({ itA }) {
         I('isla', 300, 265, 0, { L: 220, D: 90, vol: 0, fr: 'negro', top: 'madRust' }), I('mesada', 150, 265, 0, { L: 80, D: 90, H: 91, fr: 'negro', top: 'granito', puertas: [0], tapaMas: 20, tapaLado: 1, tapaD: 90 }), I('anafe', 158, 265, 0, { L: 90, D: 52, n: 5 }, 91),
         I('mesaTablas', 267, 530, 0, { L: 280, D: 120, P: 20, mad: 'pinotea' }), ...sillas(I, 267, 530, 280, 120, 3),
         I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150),
-        /* Maxi 23/11: armario de 1,00 al fondo oeste del pasillo norte, entre las dos puertas (existe hoy). Fondo y alto supuestos */
-        J('placard', (PAS.xs + PAS.xm) / 2, 405 + 30, 0, { L: PAS.xm - PAS.xs - 1, D: 60, H: 220 })] },
+        ] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* piso alto (hipótesis del segundo piso; Maxi 15/11: «equipá el dormitorio de arriba y la oficina»). Sólo se ve con el segundo piso prendido. Medidas y ubicación supuestas */
     alto: { n: 'Piso alto (hipótesis)', piso: 328, ver: p => p.piso2 === 'A' || p.piso2 === 'B', vista: { p: [1500, 900, 2900], t: [300, 380, 1800] }, esc: () => { const I = itA('alto'); return {
@@ -66,6 +65,7 @@ export function equipMocoreta({ itA }) {
     for (const [x, y, e, h, s] of [[-900, 2900, 'Ash Large', 1700, 2], [-900, 2500, 'Oak Large', 1800, 1], [-1100, 2000, 'Pino', 2100, 2], [-800, 1500, 'Ash Large', 1700, 3], [-1200, 1050, 'Pino', 2200, 4], [-900, 600, 'Oak Large', 1800, 2], [-1150, 100, 'Ash Large', 1600, 1], [-800, -350, 'Pino', 2000, 3], [-1000, -800, 'Oak Large', 1700, 3]]) P('arbol', x, y, e, h, s);
     return { A: { nombre: 'Jardín de hoy (desde la foto y el video del norte)', items: it }, B: { nombre: 'Sin plantas', items: [] } }; }
   /* Maxi 22/11: la biblioteca de la oficina de arriba pasa a ser igual a la de abajo, también en lo ya guardado */
-  const MUT = { mue: { interior: [['armarioPasillo2311', items => { if (items.some(m => m.t === 'isla') && !items.some(m => m.t === 'placard' && Math.abs(m.y - 435) < 5)) items.push({ id: 'interior_armarioPasillo', t: 'placard', x: (PAS.xs + PAS.xm) / 2, y: 435, r: 0, p: { L: PAS.xm - PAS.xs - 1, D: 60, H: 220 } }); }]], alto: [['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
+  /* Maxi 23/11: el armario del pasillo es empotrado (AR-01, parte de la casa): se saca el mueble que se había agregado */
+  const MUT = { mue: { interior: [['armarioPasillo2311', () => {}], ['armarioEmpotrado2311', items => { for (let i = items.length - 1; i >= 0; i--) if (items[i].t === 'placard' && Math.abs(items[i].y - 435) < 6) items.splice(i, 1); }]], alto: [['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
   return { mut: MUT, inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: escLuces, cal: sin('Sin calefacción') };
 }
