@@ -195,6 +195,9 @@ export function catalogoMuebles(THREE){
       g.push([B(a+e+.2,b-.2,M+.2,H-.2,z1-2,z1),p.mad]);
       x=b;g.push([B(x-e,x,0,H,z0,z1),p.mad]);}
     return g;}},
+  /* Maxi 23/11 (Arcos, lavadero del sótano): lavarropas o secarropas de carga frontal, caja blanca con la puerta redonda en el frente */
+  lavarropas:{n:'Lavarropas / secarropas de carga frontal',cat:'servicio',p:{L:60,D:60,H:85},g:p=>{const g=[[B(-p.L/2,p.L/2,0,p.H,-p.D/2,p.D/2),'blanco'],[B(-p.L/2,p.L/2,p.H-12,p.H-1,p.D/2,p.D/2+.3),'negro']];
+    const r=p.L*.3,cy=(p.H-12)/2+2;for(let i=0;i<6;i++){const a=i*Math.PI/6,h=r*Math.cos(a)*.98,w=r*Math.sin(a);g.push([B(-w,w,cy-h,cy+h,p.D/2,p.D/2+1.2),i%2?'vidrio':'negro']);}return g;}},
   /* Maxi 23/11 (entrepiso de Arcos): mueble bajo a lo largo de una pared, con puertas corredizas en dos rieles. div: posiciones de los parantes desde la punta
      izquierda (cm), separadas por «,»; un parante doble deja pasar un tensor o un caño entre las dos chapas. Estante a media altura en cada tramo. */
   bajoCorredizo:{n:'Mueble bajo con puertas corredizas',cat:'estar',p:{L:300,D:45,H:88,hojas:4,div:'',dobles:'',mad:'petiribi',fr:'petiribi',car:'blanco'},g:p=>{

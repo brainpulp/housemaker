@@ -7,7 +7,7 @@
    Giro r: 0 = el frente del mueble mira al este (calle), 180 = al jardín, 90 = al norte, −90 = al sur.
    Los baños de 1P y 2P no van: ya están amueblados (SketchUp de Maxi y baño de 2P de la obra). La cocina sale de la página Cocinas (5/11). */
 export function equipArcos({ itA }) {
-  const PB = 72.3, HUND = 22.3, EP = 329, P1 = 417.3, P2 = 613.3, TZ = 757;
+  const SS = -198, PB = 72.3, HUND = 22.3, EP = 329, P1 = 417.3, P2 = 613.3, TZ = 757;
   /* sillas alrededor de una mesa rectangular a lo ancho (r 0): n por lado */
   const sillas = (I, cx, cy, L, D, n, t = 'sillaCover') => [...Array(n)].flatMap((_, k) => { const x = cx - L / 2 + L * (k + .5) / n; return [I(t, x, cy - D / 2 - 28, 0), I(t, x, cy + D / 2 + 28, 180)]; });
   /* sillas alrededor de una mesa cuadrada de lado L: n por lado, en los cuatro lados */
@@ -17,9 +17,9 @@ export function equipArcos({ itA }) {
     living: { n: 'Living (PB)', piso: PB, vista: { p: [520, 650, 3150], t: [520, 90, 3600] }, esc: () => { const I = itA('living'); return {
       /* Maxi 4/11 y 5/11: su mesa octet va en el escenario de entrada (A) (la diseñó en la página octet: 3 × 3 celdas de L 45, vidrio 2,05 × 2,05 con 35 de vuelo; motor/octet-modelos.js), con dos sillas por lado afuera del vidrio */
       A: { nombre: 'Comedor + estar', items: [I('octet', 520, 3250, 0, { modelo: 'mesa-konstandt' }), ...sillas4(I, 520, 3250, 205, 2),
-        I('alfombra', 560, 3730, 0, { L: 280, D: 200 }), I('sofaRaffey', 560, 3590, 0, { L: 240, D: 99 }), I('ratonaJoco', 560, 3740, 0, { L: 130, D: 105 }), I('butacaAm', 330, 3800, 135, { tela: 'mostaza' })] },
+        I('alfombra', 560, 3730, 0, { L: 280, D: 200 }), I('sofaRaffey', 560, 3590, 0, { L: 240, D: 99 }), I('ratonaJoco', 560, 3740, 0, { L: 130, D: 105 }), I('butacaAm', 330, 3800, 135, { tela: 'mostaza' }), I('placard', 45, 3700, 90, { L: 200, D: 60, H: 240, fr: 'petiribi' })] },
       B: { nombre: 'Estar mirando a la calle', items: [I('alfombra', 520, 3650, 0, { L: 300, D: 220 }), I('sofaRaffey', 520, 3515, 0, { L: 260, D: 99 }), I('ratonaJoco', 520, 3670, 0, { L: 140, D: 115 }),
-        I('butacaAm', 320, 3770, 135, { tela: 'lino' }), I('butacaAm', 720, 3770, -135, { tela: 'mostaza' })] },
+        I('butacaAm', 320, 3770, 135, { tela: 'lino' }), I('butacaAm', 720, 3770, -135, { tela: 'mostaza' }), I('placard', 45, 3700, 90, { L: 200, D: 60, H: 240, fr: 'petiribi' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     estar: { n: 'Estar hundido (foso del living)', piso: HUND, vista: { p: [520, 560, 2350], t: [600, 40, 2720] }, esc: () => { const I = itA('estar'); return {
       /* el foso va de x 4,70 (4,55 de la medianera S, Maxi 5/11) a 8,30 y de y 24,25 a 28,63: el sillón en L apoya el respaldo largo contra el lado este y la chaise corre todo el lado norte (Maxi 5/11) */
@@ -58,6 +58,17 @@ export function equipArcos({ itA }) {
     /* Maxi 21/11: es el cuarto de Andrés (20 años). Dos propuestas para comparar: A, vestidor detrás del respaldo de la cama (tabique a 1,55 de la pared del baño,
        pasillo de 0,95 que también lleva al baño; la idea de «usar el respaldo para separar el vestidor» de IKEA); B, sin tabique: placard de piso a techo contra el baño
        y la cama contra la medianera sur, con un rincón de estar. El placard del SketchUp sale en las dos. Medidas de placard: fondo 0,60, colgado 0,94 / 1,88 (Houzz). */
+    /* Maxi 23/11: placares que faltaban (propuesta para ver en 3D): ropa blanca en el palier de 1P y lavadero con estanterías en el sótano.
+       El depósito ya tiene sus vitrinas en el SketchUp. El de abrigos de la entrada está en el living y el ropero chico del cuarto de Isolda, en ese cuarto. */
+    palier: { n: 'Palier de 1P', piso: P1, vista: { p: [520, 640, 3130], t: [820, 500, 3330] }, esc: () => { const I = itA('palier'); return {
+      /* contra la medianera norte, desde 1,28 del pie de la escalera a 2P (para dejar el arranque libre) hasta la pared del cuarto de Isolda */
+      A: { nombre: 'Placard de ropa blanca contra la medianera', items: [I('placard', 820, 3328, -90, { L: 232, D: 60, H: 240, fr: 'petiribi' })] },
+      B: { nombre: 'Vacío', items: [] } }; } },
+    sotano: { n: 'Sótano', piso: SS, vista: { p: [700, -20, 3700], t: [380, -150, 3250] }, esc: () => { const I = itA('sotano'); return {
+      /* lavadero contra el muro sur: lavarropas con el secarropas encima y un placard de limpieza al lado; estanterías contra el muro del frente (que en el SketchUp está en y 38,50 y tiene un murete en x 3,68–3,92), lejos de la puerta P-04 */
+      A: { nombre: 'Lavadero y estanterías', items: [I('lavarropas', 358, 3150, 90), I('lavarropas', 358, 3150, 90, {}, 86), I('placard', 357.5, 3250, 90, { L: 120, D: 60, H: 220, fr: 'blanco' }),
+        I('biblioteca', 500, 3830, 180, { L: 200, D: 40, H: 180, mad: 'blanco' }), I('biblioteca', 675, 3830, 180, { L: 140, D: 40, H: 180, mad: 'blanco' })] },
+      B: { nombre: 'Vacío', items: [] } }; } },
     cuartoSE: { n: 'Cuarto de Andrés (1P)', piso: P1, vista: { p: [400, 760, 3300], t: [200, 420, 3650] }, esc: () => { const I = itA('cuartoSE'); return {
       A: { nombre: 'Con vestidor detrás de la cama', items: [/* el tabique es parte del edificio: lo pone la opción de diseño «Cuarto de Andrés» (casa.js) */
         I('vestidor', 170.5, 3325, 0, { L: 307, D: 60, H: 307, mods: 'largo:80|doble:100|cajones:60|zapatos:69', mad: 'petiribi', car: 'blanco', mal: 240 }),
@@ -75,11 +86,11 @@ export function equipArcos({ itA }) {
     cuartoNE: { n: 'Cuarto de Isolda (1P)', piso: P1, vista: { p: [480, 760, 3350], t: [700, 420, 3680] }, esc: () => { const I = itA('cuartoNE'); return {
       A: { nombre: 'Sala de TV, tele sobre la medianera', items: [I('aparador', 827, 3676, -90, { L: 300, D: 45, H: 50 }), I('tele', 846, 3676, -90, { L: 167, H: 96, e: 4 }, 88),
         I('alfombra', 690, 3676, 0, { L: 240, D: 300 }), I('sofaRaffey', 560, 3676, 90, { L: 220, D: 99 }), I('ratonaJoco', 700, 3676, 90, { L: 110, D: 60 }),
-        I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 785, 3535, -150, { tela: 'mostaza' })] },
+        I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 785, 3535, -150, { tela: 'mostaza' }), I('placard', 488, 3486, 0, { L: 95, D: 55, H: 210, fr: 'petiribi' })] },
       B: { nombre: 'Sofá cama contra la medianera y proyector', items: [I('sofaRaffey', 800, 3676, -90, { L: 220, D: 99 }), I('ratonaJoco', 670, 3676, 90, { L: 110, D: 60 }),
         I('alfombra', 640, 3676, 0, { L: 240, D: 300 }), I('butacaAm', 795, 3510, -110, { tela: 'mostaza' }), I('butacaAm', 795, 3842, -70, { tela: 'lino' }),
         I('pantalla', 445, 3676, 90, { L: 240, H: 140 }, 75), I('proyector', 760, 3676, 90, { caida: 25 }, 270),
-        I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' })] },
+        I('biblioteca', 499, 3877, 180, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('placard', 488, 3486, 0, { L: 95, D: 55, H: 210, fr: 'petiribi' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     dormitorio: { n: 'Dormitorio principal (2P)', nivel: 'P2', piso: P2, vista: { p: [560, 930, 3050], t: [300, 620, 2650] }, esc: () => { const I = itA('dormitorio'); return {
       /* Maxi 22/11: armario bajo que hace de tabique, en isla (se pasa al vestidor por las dos puntas: 0,80 contra la pared del palier, cuya cara está en x 6,26
