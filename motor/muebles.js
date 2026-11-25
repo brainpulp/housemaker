@@ -267,6 +267,16 @@ export function catalogoMuebles(THREE){
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}
         /* Maxi 20/11 (Carhué): una entrada de «puertas» puede ser {i, n:1, lado} = una sola puerta (lado −1: bisagras a −x), con estante al medio */
         {const q=pu.find(e=>e&&typeof e==='object'&&e.i===i);if(q&&q.n===1){g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}`,xl,xr,xa,xb,y0,y1,zf,p.fr,q.lado<0?-1:1));continue;}}
+        /* Maxi 25/11 (Arcos): «tacho» = índices de módulos para la basura: arriba el cajón finito (bolsas, repasadores) y abajo un extraíble del alto de las dos filas de abajo,
+           una caja baja de 18 sobre guías telescópicas con tachos rectangulares sueltos adentro («tachos» = cuántos, 3 por omisión: húmedos, reciclables y vidrio u orgánicos) */
+        if((p.tacho||[]).includes(i)){const [ya,yb]=filaY(y0,y1,filas,filas-1),yt=ya,Dc=Math.max(20,zf-zb-2.3),mv={mov:{id:`t${i}`,tipo:'desl',eje:[0,0,1],max:Math.min(50,Dc*.9)}};
+          g.push(...cajon(`c${i}t`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));
+          g.push([FR(xl,xr,y0,yt,zf),p.fr,mv],[...tir((xl+xr)/2,yt-4,zf+2,Math.min(24,(xr-xl)*.5)),mv]);
+          g.push([B(xa+2.2,xb-2.2,y0+1.5,y0+3.3,zf-Dc,zf-.3),CAJ,mv],[B(xa+2.2,xa+4,y0+3.3,y0+18,zf-Dc,zf-.3),CAJ,mv],[B(xb-4,xb-2.2,y0+3.3,y0+18,zf-Dc,zf-.3),CAJ,mv],[B(xa+4,xb-4,y0+3.3,y0+18,zf-Dc,zf-Dc+1.8),CAJ,mv]);
+          for(const [a,b] of [[xa,xa+1.3],[xb-1.3,xb]])g.push([B(a,b,y0+2,y0+6,zf-Dc,zf-.3),'acero']);
+          for(const [a,b] of [[xa+1.3,xa+2.2],[xb-2.2,xb-1.3]])g.push([B(a,b,y0+2.5,y0+5.5,zf-Dc,zf-.3),'acero',mv]);
+          const nt=Math.max(1,p.tachos||3),w=(xb-xa-9)/nt,ht=Math.min(48,yt-y0-9);for(let k=0;k<nt;k++){const a=xa+4.5+k*w;g.push([R(a+.6,a+w-.6,y0+3.3,y0+3.3+ht,zf-Dc+3,zf-3,1.5),'grafito',mv]);}
+          continue;}
         if(pu.includes(i)){const xm=(xl+xr)/2;g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}a`,xl,xm,xa,xb,y0,y1,zf,p.fr,-1),...puerta(`p${i}b`,xm,xr,xa,xb,y0,y1,zf,p.fr,1));continue;}
         for(let j=0;j<filas;j++){const [ya,yb]=filaY(y0,y1,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));}}return g;}},
   isla:{n:'Isla con barra y laterales de piedra',cat:'cocina',p:{L:200,D:90,H:90,vol:30,fr:'madOsc',top:'granito',top2:'',corte:0,filas:3},g:p=>{const z0=-p.D/2+p.vol;
@@ -287,7 +297,9 @@ export function catalogoMuebles(THREE){
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,0,p.H,zb,zf,p.fr));continue;}
         if(p.H>40)g.push([B(xa,xb,p.H/2-.9,p.H/2+.9,zb+.8,zf-2),MEL]);g.push(...puertaArriba(`a${i}`,xl,xr,xa,xb,0,p.H,zf,p.fr));}
-      if(p.led!==false)g.push([B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']);return g;}},
+      /* Maxi 25/11 (Arcos): «led:'perfil'» = perfil de aluminio embutido en el piso de la alacena, con difusor opal, a 6 cm del frente de la caja, unos 27 de la pared en una de 35 (así la luz pasa por delante del estante de abajo y llega al fondo de la mesada) */
+      if(p.led==='perfil'){const zc=zf-6;g.push([B(-p.L/2+2,p.L/2-2,-.2,0,zc-1.25,zc+1.25),'aluminio'],[B(-p.L/2+2.2,p.L/2-2.2,-.3,-.1,zc-.85,zc+.85),'ledCalido']);}
+      else if(p.led!==false)g.push([B(-p.L/2+2,p.L/2-2,-.5,0,-p.D/2+4,p.D/2-6),'ledCalido']);return g;}},
   columna:{n:'Columna con horno empotrado',cat:'cocina',p:{L:60,D:60,H:220,fr:'madOsc'},/* Maxi 4/11: abajo del horno, dos cajones; arriba, puerta con bisagras cazoleta */
     g:p=>{const zf=p.D/2-2,zb=-p.D/2,g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,10,p.H,zb,zf,p.fr,1)];
       const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,1,0);
