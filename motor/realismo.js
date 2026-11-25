@@ -29,6 +29,21 @@ export function initRealismo(visor,datos={}){
     pasto:mk(512,512,(x,w,h)=>{x.fillStyle='#6f8a46';x.fillRect(0,0,w,h);noise(x,w,h,5000,.25,v=>v>.66?'#566f33':v>.33?'#86a15a':'#9aa865');noise(x,w,h,80,.15,()=>'#8a7a55');}),
     blanco:mk(512,512,(x,w,h)=>{x.fillStyle='#ecebe6';x.fillRect(0,0,w,h);noise(x,w,h,2200,.10,v=>v>.5?'#dcdad3':'#f6f5f1');}),
     agua:mk(256,256,(x,w,h)=>{x.fillStyle='#3f8fbf';x.fillRect(0,0,w,h);noise(x,w,h,400,.15,()=>'#7fc0e0');}),
+    /* Maxi 25/11 (idea para los baños de Carhué): empapelado floreado de flores grandes sobre fondo verde oscuro. El paño se repite sin costura (cada flor se dibuja también corrida un paño) */
+    empapelado:mk(1024,1024,(x,w,h)=>{x.fillStyle='#24392f';x.fillRect(0,0,w,h);noise(x,w,h,900,.06,()=>'#3a5446');
+      const FL=[[180,200,170,'#d9677a'],[650,150,150,'#f0b37e'],[430,560,190,'#c94f63'],[880,610,140,'#e8909c'],[150,820,150,'#f3c49a'],[690,910,120,'#d9677a']];
+      const tile=(f)=>{for(const dx of [-w,0,w])for(const dy of [-h,0,h])f(dx,dy);};
+      /* hojas */
+      for(const [cx,cy,r] of FL)for(let k=0;k<6;k++){const a=k*1.047+rnd()*.5,L=r*(1.05+rnd()*.35);tile((dx,dy)=>{x.save();x.translate(cx+dx+Math.cos(a)*L*.62,cy+dy+Math.sin(a)*L*.62);x.rotate(a);x.fillStyle=k%2?'#4f7a52':'#3d6343';x.beginPath();x.ellipse(0,0,L*.55,L*.2,0,0,7);x.fill();x.strokeStyle='#76a070';x.globalAlpha=.6;x.lineWidth=3;x.beginPath();x.moveTo(-L*.5,0);x.lineTo(L*.5,0);x.stroke();x.globalAlpha=1;x.restore();});}
+      /* flores: tres coronas de pétalos, de afuera hacia adentro, y el centro */
+      for(const [cx,cy,r,col] of FL){const c0=col;tile((dx,dy)=>{x.save();x.translate(cx+dx,cy+dy);
+        for(const [rr,n,sh] of [[1,9,-.18],[.72,8,-.05],[.46,7,.12]]){const R=r*rr;for(let k=0;k<n;k++){const a=k*6.283/n+rr;x.save();x.rotate(a);const g=x.createRadialGradient(R*.45,0,R*.05,R*.45,0,R*.6);g.addColorStop(0,c0);g.addColorStop(1,sh<0?'#7d2636':'#ffe2d6');x.fillStyle=g;x.globalAlpha=.92;x.beginPath();x.ellipse(R*.48,0,R*.5,R*.3,0,0,7);x.fill();x.restore();}}
+        x.globalAlpha=1;x.fillStyle='#f2d27a';x.beginPath();x.arc(0,0,r*.13,0,7);x.fill();x.fillStyle='#9c6b2e';for(let k=0;k<14;k++){const a=k*.45,q=r*.08*rnd();x.beginPath();x.arc(Math.cos(a)*q,Math.sin(a)*q,3,0,7);x.fill();}x.restore();});}
+      /* florcitas sueltas */
+      for(let i=0;i<26;i++){const cx=rnd()*w,cy=rnd()*h;tile((dx,dy)=>{x.fillStyle='#f6e7c8';for(let k=0;k<5;k++){const a=k*1.2566;x.beginPath();x.arc(cx+dx+Math.cos(a)*9,cy+dy+Math.sin(a)*9,7,0,7);x.fill();}x.fillStyle='#e0a04a';x.beginPath();x.arc(cx+dx,cy+dy,5,0,7);x.fill();});}}),
+    /* cerámica vieja de baño, 15 × 15 con junta (dibujo genérico, no la de la obra) */
+    ceramica:mk(512,512,(x,w,h)=>{x.fillStyle='#bdb6a6';x.fillRect(0,0,w,h);const n=4,s=w/n;for(let i=0;i<n;i++)for(let j=0;j<n;j++){const k=rnd();x.fillStyle=`rgb(${226+k*14|0},${221+k*12|0},${204+k*10|0})`;x.fillRect(i*s+2,j*s+2,s-4,s-4);x.globalAlpha=.25;x.fillStyle='#ffffff';x.fillRect(i*s+6,j*s+6,s*.4,s*.12);x.globalAlpha=1;}}),
+    microcemento:mk(512,512,(x,w,h)=>{x.fillStyle='#c9c4ba';x.fillRect(0,0,w,h);noise(x,w,h,1600,.06,v=>v>.5?'#bdb7ac':'#d4cfc6');for(let i=0;i<40;i++){x.strokeStyle='#b3ada2';x.globalAlpha=.08;x.lineWidth=20+rnd()*40;x.beginPath();const y=rnd()*h;x.moveTo(0,y);x.quadraticCurveTo(w/2,y+rnd()*80-40,w,y+rnd()*40-20);x.stroke();}x.globalAlpha=1;}),
   };
   /* categoría → [textura, tamaño del paño en cm] */
   const PIEDRA=new Set(datos.piedra??['M-05','M-27','M-06','M-07','M-22']);/* M-22: misma terminación que M-05 en su cara de afuera (norte, +x) — Maxi 14/10 *//* piedra: textura sacada de la foto de Maxi (pared de piedra partida en junta seca), ~3,3 × 2,0 m por paño; la misma imagen da el relieve */
@@ -39,7 +54,7 @@ export function initRealismo(visor,datos={}){
   /* tonos (Maxi 18/11: «la madera más oscura; dame una manera de editarla en tiempo real»): cada textura se multiplica por un tinte.
      La casa da los suyos (datos.tintes = {madera:'#…'}); el botón «tonos» de la barra de abajo los cambia en vivo y los guarda en este navegador */
   const TKEY='hm-tintes2:'+/* Maxi 22/11: «la madera queda negra»: se descartan los tonos guardados antes */location.pathname.replace(/[^/]*$/,'');let TIN0={...(datos.tintes||{})},TIN={...TIN0};try{Object.assign(TIN,JSON.parse(localStorage.getItem(TKEY)||'{}'));}catch(e){}
-  const NOMT={madera:'Madera',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
+  const NOMT={madera:'Madera',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',empapelado:'Empapelado',ceramica:'Cerámica',microcemento:'Microcemento',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
   const texDe=m=>m&&m.map?Object.keys(T).find(k=>T[k]===m.map):null;
   function materiales(){const out=[woodMat,stoneMat];scene.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material))if(m&&m.map&&!out.includes(m))out.push(m);});return out;}
   function aplicarTintes(){for(const m of materiales()){const k=texDe(m);if(k&&k!=='pasto'&&m.userData.real!==false)m.color.set(TIN[k]||'#ffffff');}window.__despertar&&window.__despertar();}
@@ -59,7 +74,7 @@ export function initRealismo(visor,datos={}){
     if(datos.cats&&datos.cats[p.cat])return datos.cats[p.cat];
     switch(p.cat){case 'muro':return ['revoque',200];case 'tabique':return ['tabique',200];case 'ladrillo':return ['ladrillo',100];case 'techo':return ['chapa',76];case 'chapa':return ['chapaNegra',60];
       case 'cabio':case 'madera':return ['madera',120];case 'ep':return [/^L-/.test(b)?'eucalipto':'pino',/^L-/.test(b)?72:120];case 'deck':return ['deck',160];case 'piso':return ['cemento',300];
-      case 'acero':return ['acero',100];case 'roble':return ['roble',80];case 'agua':return ['agua',200];default:return null;}};
+      case 'acero':return ['acero',100];case 'roble':return ['roble',80];case 'agua':return ['agua',200];case 'empapelado':return ['empapelado',106];case 'ceramica':return ['ceramica',60];case 'microcemento':return ['microcemento',200];default:return null;}};
   /* UV por proyección de caja, en coordenadas del mundo (cm) */
   function boxUV(g,size,slope,rot){let geo=g;if(geo.index)geo=geo.toNonIndexed();const P=geo.attributes.position,n=P.count,uv=new Float32Array(n*2);const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),nn=new THREE.Vector3();
     const PL=geo.userData&&geo.userData.planos&&geo.userData.planos.length===n?geo.userData.planos:null;/* chapa con zigzag (visor3d acanalar): la orientación sale del plano liso */
@@ -93,7 +108,7 @@ export function initRealismo(visor,datos={}){
             for(let i=0;i<P.count;i+=3){a.fromBufferAttribute(P,i);b.fromBufferAttribute(P,i+1);c.fromBufferAttribute(P,i+2);const n=b.clone().sub(a).cross(c.clone().sub(a)).normalize();
               const m=(n.z>.7||(n.x>.7&&(pb==='M-06'||pb==='M-27'||pb==='M-22')))?1:0;if(m!==cur){if(cur>=0)o.geometry.addGroup(st,i-st,cur);cur=m;st=i;}}
             o.geometry.addGroup(st,P.count-st,cur);o.material=[p.mat,stoneMat];}}});
-      if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set(TIN[pk[0]]||'#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='zincalum'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
+      if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set(TIN[pk[0]]||'#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='zincalum'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:pk[0]==='ceramica'?.35:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
       if(glass&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.color.set('#a9c4cc');p.mat.roughness=.05;p.mat.metalness=.2;p.mat.opacity=Math.min(p.mat.opacity,.22);p.mat.needsUpdate=true;}}}
   (function loop(){if(visor.parts!==last){last=visor.parts;try{decorate();}catch(e){console.error('realismo',e);}}requestAnimationFrame(loop);})();
 }

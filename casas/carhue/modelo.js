@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.70', fecha:'2026-11-25',
+  nombre:'Carhué', version: '1.1.71', fecha:'2026-11-25',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -235,6 +235,7 @@ export const IMPLANTACION = [
 
 /* Dudas numeradas: respondé por número. ref = elementos que cambian con la respuesta. */
 export const DUDAS = [
+  {id:'D-16', ref:['REV-02','REV-03','REV-11'], q:'Baños con cerámica vieja (baño 1, baño 2 y baño piletero): ¿hasta qué altura llega la cerámica? Puse el empapelado (o el microcemento) hasta +2,40, sin los vanos.'},
   {id:'D-15', ref:['VM-1','C-07','M-17','TIR-1','V-07'], q:'Frente del ala corrido 1,44 (19/10): la viga VM-1 la puse en y 3,45 (en línea con M-15), de 10×20, con C-07 en x 13,28. ¿Es así? ¿Los tirantes del entrepiso van este-oeste (como están dibujados) y apoyan en VM-1? La ventana V-07 termina en x 11,88 y la cara de M-17 queda en 11,83: ¿la ventana está bien medida?'},
   {id:'D-14', ref:['PIL-1'], q:'Pileta (18/10): ¿la escalera del vaso está en la esquina noreste, bajando hacia el oeste, como la entiendo de las fotos 7 a 9? ¿A qué nivel queda el agua? ¿Dónde está exactamente la caja del filtro (la dibujé al norte del pozo, 1,1 × 1,1)?'},
   {id:'D-13', ref:['W-1','C-01','C-02','C-03'], q:'El perfil W (del quincho al baño del entrepiso): ¿a qué altura está y a qué distancia de la pared del patio? ¿Qué apoya en él: los cabios del techo de vidrio, los de la chapa, los dos? Lo dibujé a +3,50 en y 633. ¿Y en qué apoya el tramo que entra sobre el entrepiso?'},
@@ -288,6 +289,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'1.1.71', txt:'Maxi 25/11, idea para los baños con cerámica vieja (baño 1, baño 2 y baño piletero): en vez de microcemento, taparla con empapelado floreado de flores grandes. Nueva opción «Paredes de los baños» (tocando una pared de un baño): empapelado (por defecto), microcemento o la cerámica como está. Hasta +2,40 y sin los vanos; la altura real de la cerámica no la tengo.'},
   {fecha:'2026-11-25', v:'1.1.70', txt:'Maxi 25/11: los dos triángulos del descanso de la escalera al entrepiso (como está en obra) se ven otra vez armados con tablones paralelos a la diagonal: 3 por triángulo, con junta de 4 mm.'},
   {fecha:'2026-11-25', v:'1.1.69', txt:'Maxi 25/11: la escalera al entrepiso va sin herrajes contra el piso (son innecesarios): se sacan el estribo al pie del postecito y los ángulos al pie de los limones de abajo, también en la variante de diseño; la animación de armado pierde el paso del estribo.'},
   {fecha:'2026-11-25', v:'1.1.68', txt:'Entrepiso a la altura medida por Maxi: 2,67 de pisada a pisada sobre el piso de planta baja actual. Como el piso que falta abajo sube menos de 1 cm, el piso del entrepiso queda a +2,66 del piso terminado (antes +2,62). Suben 4 cm los tirantes, la galería con su baranda y sus ventanas, las ventanas al jardín, los muros de abajo que llegan al entrepiso y los muebles de arriba; la planta baja gana 4 cm de alto bajo el entrepiso. El altillo del ala no cambia (sigue estimado a +2,62). La escalera de obra, tal como está cargada, llega a +2,47: le falta una alzada de ~19.'},
