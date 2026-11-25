@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.67', fecha:'2026-11-25',
+  nombre:'Carhué', version: '1.1.68', fecha:'2026-11-25',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'1.1.68', txt:'Cocina: torre de horno de 0,60 junto a la heladera (la opción A). La mesada queda en 4,15: las tres cajoneras de 0,93 pasan a 0,73, y el tacho, la bacha y el rincón no se mueven. Las tiras LED van de la torre a la punta.'},
   {fecha:'2026-11-25', v:'1.1.67', txt:'Cocina: el tacho y las tiras LED se ven al abrir, sin tener que elegir nada (la cocina guardada se actualiza sola y la escena de las tiras queda como la de partida).'},
   {fecha:'2026-11-25', v:'1.1.66', txt:'Maxi 25/11, cocina: el módulo de 0,46 entre el rincón y la bacha pasa a ser el del tacho (un frente de alto completo que saca un bastidor con dos tachos, sobre guías de extracción total con cierre suave). Luces: escena nueva «Tiras LED: mesada y zócalo», con un perfil en la pared de las ventanas a +2,05 que ilumina toda la mesada y una tira baja en el zócalo, cada una en su llave.'},
   {fecha:'2026-11-23', v:'1.1.65', txt:'Maxi 23/11: el perfil W-1 va sólo del extremo norte (C-03) hasta el final de la galería (C-01, x 13,42); el tramo que seguía hacia el sur por el entrepiso se sacó en obra. Con eso no queda nada cruzando el estudio ni la corrediza.'},
