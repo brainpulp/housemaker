@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.57', fecha: '2026-11-25',
+export const META = { nombre: 'Cocinas', version: '0.1.58', fecha: '2026-11-25',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'0.1.58', txt:'Arcos (Maxi 25/11): todas las cajas de los muebles en melamina negra y el mueble sobre la heladera negro. Igual que en el modelo de Arcos.'},
   {fecha:'2026-11-25', v:'0.1.57', txt:'Arcos (Maxi 25/11): la torre del horno en melamina negra texturada, como las alacenas; igual que en el modelo de Arcos.'},
   {fecha:'2026-11-25', v:'0.1.56', txt:'Arcos (Maxi 25/11): la torre del horno junto a la heladera pasa a 0,60 para que entre un horno de 60; la mesada, el inox, el estante y las alacenas se corren 2 cm hacia el ventanal. Igual que en el modelo de Arcos.'},
   {fecha:'2026-11-25', v:'0.1.55', txt:'Arcos (Maxi 25/11): luz de noche en el zócalo de la mesada, con sensor de movimiento. Igual que en el modelo de Arcos.'},
