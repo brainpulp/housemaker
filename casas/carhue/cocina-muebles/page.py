@@ -80,10 +80,8 @@ def alzado_mesada():
     for i, W in enumerate(MODS):
         if i == 0:
             s.append(rect(x + .2, Y(87) + .2, W - .4, 77 - .4, 'frontF'))
-            s.append(f'<line class="unero" x1="{x+W-1.6}" y1="{Y(60)}" x2="{x+W-1.6}" y2="{Y(76)}"/>')
-            for hh in (19, 78): s.append(f'<circle class="ghost" cx="{x+2.5}" cy="{Y(hh)}" r="1.75"/>')
-            s.append(f'<line class="ghost" x1="{x+.6}" y1="{Y(48.5)}" x2="{x+W-.6}" y2="{Y(48.5)}"/>')
-            s.append(label(x + W/2, Y(28), '1', 9, 'num')); s.append(label(x + W/2, Y(62), 'puerta', 5, 'lbg')); s.append(label(x + W/2, Y(51), 'estante', 4.5, 'lbg'))
+            s.append(f'<line class="unero" x1="{x+W/2-8}" y1="{Y(85.6)}" x2="{x+W/2+8}" y2="{Y(85.6)}"/>')
+            s.append(label(x + W/2, Y(28), '1', 9, 'num')); s.append(label(x + W/2, Y(60), 'tacho', 5, 'lbg')); s.append(label(x + W/2, Y(53), 'extraíble', 4.5, 'lbg'))
             x += W; continue
         if i == 1:
             rows = [(10, 46.19), (46.19, 65.6)]
