@@ -3,7 +3,7 @@
 # Sale del despiece de gen.py: sólo placas (melamina negra, negra texturada, blanca y fibroplus). El petiribí macizo
 # no va: lo hace el carpintero (Maxi 25/11). Una fila por medida, con cantos por lado (L1 L2 = lados del largo,
 # A1 A2 = lados del ancho) y su color. En la texturada el largo va en el sentido de la veta (vertical en el mueble).
-# Las piezas de la alacena sobre la heladera dependen de la heladera (supuesta 0,75 × 1,90 × 0,70) y van marcadas.
+# Desde el 25/11 (heladera 0,80 × 1,90 × 0,70) no hay medidas provisorias.
 # Uso: python3 gen.py /tmp/cm/arcos.json && python3 corte.py /tmp/cm/arcos.json <carpeta de salida>
 import json, sys, csv, math, html, os, re
 from collections import OrderedDict
@@ -31,7 +31,10 @@ def lados(canto):
     if c.strip(): raise SystemExit('canto no reconocido: ' + canto)
     return []
 
-def dep_heladera(nombre): return 'heladera' in nombre.lower()
+# Maxi 25/11: la heladera ya está definida (0,80 × 1,90 × 0,70): no queda ninguna medida provisoria. Para volver a marcar
+# piezas provisorias, listarlas acá.
+PROVISORIAS = ()
+def dep_heladera(nombre): return any(nombre.startswith(p) for p in PROVISORIAS)
 
 piezas = []
 for r in rows:
@@ -106,9 +109,11 @@ for mat, m in MATS.items():
 
 os.makedirs(out, exist_ok=True)
 base = os.path.join(out, 'arcos-cocina-corte-placas')
-COLS = ['ID', 'Cant', 'Largo mm', 'Ancho mm', 'Esp mm', 'Material y color', 'Veta', 'Canto L1', 'Canto L2', 'Canto A1', 'Canto A2', 'Pieza', 'Nota', 'Medida provisoria']
-def fila(f): return [f['id'], f['cant'], f['L'], f['A'], f['esp'], f['color'], f['veta'], f['L1'], f['L2'], f['A1'], f['A2'], f['desc'], f['nb'],
-                     'Sí: depende de la heladera' if f['dep'] else '']
+COLS = ['ID', 'Cant', 'Largo mm', 'Ancho mm', 'Esp mm', 'Material y color', 'Veta', 'Canto L1', 'Canto L2', 'Canto A1', 'Canto A2', 'Pieza', 'Nota']
+HAY_PROV = any(f['dep'] for f in filas)
+if HAY_PROV: COLS.append('Medida provisoria')
+def fila(f): return [f['id'], f['cant'], f['L'], f['A'], f['esp'], f['color'], f['veta'], f['L1'], f['L2'], f['A1'], f['A2'], f['desc'], f['nb']] + (
+                     ['Sí: depende de la heladera' if f['dep'] else ''] if HAY_PROV else [])
 with open(base + '.csv', 'w', newline='', encoding='utf-8-sig') as fh:
     w = csv.writer(fh, delimiter=';'); w.writerow(COLS)
     for f in filas: w.writerow(fila(f))
@@ -120,7 +125,7 @@ ws.append(['Cocina de Arcos: lista de corte de placas'])
 ws['A1'].font = Font(bold=True, size=14)
 ws.append(['Medidas finales en mm, con el canto incluido. Largo × ancho; en la texturada el largo va en el sentido de la veta (vertical en el mueble). '
            'L1 y L2 son los dos lados del largo; A1 y A2, los dos del ancho. Canto PVC 0,45 mm del color de la placa. Veta «Sí»: no rotar la pieza en la placa.'])
-ws.append(['Las filas en amarillo son de la alacena sobre la heladera: medida provisoria, para una heladera de 0,75 × 1,90 × 0,70 m. Se confirman cuando esté la heladera.'])
+if any(f['dep'] for f in filas): ws.append(['Las filas en amarillo son medidas provisorias.'])
 ws.append([])
 hdr_row = ws.max_row + 1
 ws.append(COLS)

@@ -46,8 +46,9 @@ for k, t in tot.items():
 <div class="scroll"><table class="stack"><thead><tr><th>ID</th><th class="r">Cant.</th><th class="r">Largo</th><th class="r">Ancho</th><th class="r">Esp.</th><th>Veta</th><th>Cantos</th><th>Pieza</th></tr></thead><tbody>{rows}</tbody></table></div></section>''')
 
 COLS = d['COLS']
-tsv = '\t'.join(COLS) + '\n' + '\n'.join('\t'.join(str(x) for x in [f['id'], f['cant'], f['L'], f['A'], f['esp'], f['color'], f['veta'], f['L1'], f['L2'], f['A1'], f['A2'], f['desc'], f['nb'], 'Sí: depende de la heladera' if f['dep'] else '']) for f in filas)
+tsv = '\t'.join(COLS) + '\n' + '\n'.join('\t'.join(str(x) for x in [f['id'], f['cant'], f['L'], f['A'], f['esp'], f['color'], f['veta'], f['L1'], f['L2'], f['A1'], f['A2'], f['desc'], f['nb']] + (['Sí: depende de la heladera' if f['dep'] else ''] if len(COLS) > 13 else [])) for f in filas)
 ndep = sum(f['cant'] for f in filas if f['dep'])
+dep_li = (f'<li><b><i class="dep-k"></i>Medidas provisorias</b>Las {ndep} piezas marcadas en rosa son provisorias.</li>' if ndep else '<li><b>Medidas definitivas</b>Todas las medidas están confirmadas, incluido el mueble sobre la heladera.</li>')
 
 page = f'''<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cocina Arcos: corte de placas</title>
@@ -94,7 +95,7 @@ footer{{color:var(--soft);font-size:14px}}
 <li><b>Medidas</b>Finales, en milímetros: largo × ancho × espesor. El canto de 0,45 mm no se descuenta.</li>
 <li><b>Veta</b>Sólo la texturada: el largo va en el sentido de la veta, vertical en el mueble. No rotar esas piezas. Las lisas y el fibroplus se pueden rotar.</li>
 <li><b>Cantos</b>PVC 0,45 mm del color de la placa: negro en las negras, blanco en la blanca. L1 y L2 son los dos lados del largo; A1 y A2, los del ancho. En el dibujo, el trazo grueso es el lado con canto.</li>
-<li><b><i class="dep-k"></i>Medidas provisorias</b>Las {ndep} piezas de la alacena sobre la heladera (marcadas en rosa) son para una heladera de 0,75 × 1,90 × 0,70 m. Se confirman cuando esté definida.</li>
+{dep_li}
 </ul>
 <div class="tools"><button id="cp" type="button">Copiar la tabla para Excel</button><span id="ok" role="status"></span></div></section>
 {"".join(secs)}
