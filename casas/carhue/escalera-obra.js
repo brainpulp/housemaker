@@ -72,8 +72,6 @@ export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;
   Pt('ESC1-Vp','ESC-1 · poste de afuera (propuesta)','cabio',Vp,{fn:'Propuesta: poste de 3″×3″ en la esquina de afuera del descanso, del contrapiso al triángulo alto.',sec:'3″ × 3″'},G1);
   Pt('ESC1-Vd','ESC-1 · diagonal (propuesta)','cabio',Vd,{fn:'Propuesta: diagonal de 2″ del postecito al poste de afuera; su cara es la contrahuella entre los dos triángulos y lleva el borde de los dos.'},G1);
   Pt('ESC1-Vb','ESC-1 · viga del triángulo bajo (propuesta)','cabio',Vb,{fn:'Propuesta: viga de 2″×8″ en el borde de afuera del triángulo bajo (lado de la pileta), del poste de afuera al limón de abajo.'},G1);
-  Pt('ESC1-Ha','ESC-1 · ángulos al pie de los limones de abajo','herraje',Ha,{fn:'Ángulos de 2″×3/16″ al pie de los limones de abajo: 2 tirafondos de 5/16″ al limón y 2 brocas Ø8 al piso.'},G1);
-  Pt('ESC1-Hb','ESC-1 · estribo del postecito','herraje',Hb,{fn:'Estribo de chapa en U al pie del postecito, con 2 brocas Ø10 al piso.'},G1);
   Pt('ESC1-Ka','ESC-1 · bulones limón de arriba–postecito','perno',Ka,{fn:'2 bulones pasantes de 3/8″ con arandelas grandes del limón de arriba al postecito.'},G1);
   Pt('ESC1-Kb','ESC-1 · bulones limón de abajo–postecito','perno',Kb,{fn:'2 bulones pasantes de 3/8″ con arandelas grandes del limón de abajo al postecito.'},G1);
   Pt('ESC1-Kc','ESC-1 · bulones de la diagonal','perno',Kc,{fn:'2 bulones pasantes de 3/8″ de la diagonal al poste de afuera.'},G1);

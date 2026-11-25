@@ -482,9 +482,7 @@ function build(p){
     for(const xc of [X0+f/2,X1-f/2]){hw.push(box(xc-.3,xc+.3,H_EP-20,H_EP-8,YE-15,YE+15));for(const yy of [YE-9,YE+9])for(const zz of [H_EP-17,H_EP-11])pe.push(rod([xc-2,zz,yy],[xc+2,zz,yy],.6,8));}
     let fp={x0:X0,x1:X1,y0:YE,y1:yFin},nota='';
     /* pie de poste: estribo de chapa de 3/16″ en U (base 12×12, alas de 14), el poste queda 2 cm sobre el piso; alas en las caras libres */
-    const piePoste=(r,alasY)=>{const cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2,bx0=Math.max(X0,cx-6);hw.push(box(bx0,bx0+12,0,.6,cy-6,cy+6),box(cx-5,cx+5,.6,B,cy-1.5,cy+1.5));
-      if(alasY){hw.push(box(cx-4,cx+4,0,14,r.y0-.5,r.y0),box(cx-4,cx+4,0,14,r.y1,r.y1+.5));for(const s of [-1,1])cab(cx,9,s<0?r.y0-.5:r.y1+.5,'y',s);}
-      else{hw.push(box(r.x0-.5,r.x0,0,14,cy-4,cy+4),box(r.x1,r.x1+.5,0,14,cy-4,cy+4));for(const s of [-1,1])cab(s<0?r.x0-.5:r.x1+.5,9,cy,'x',s);}};
+    const piePoste=()=>{};/* Maxi 25/11: sin herrajes contra el piso («son innecesarios»): los postes apoyan directo en el contrapiso */
     if(giro==='comp'){
       /* giro: coordenadas de la escalera original (X a lo largo del tramo de arriba, Z a lo ancho) → planta: x = X0+5+Z, y = yT−1−X */
       const Mx=Z=>X0+5+Z,My=X=>yT-1-X,MP=([X,Z])=>[Mx(Z),My(X)],mrect=(Xa,Xb,Za,Zb)=>R4(Mx(Za),Mx(Zb),My(Xb),My(Xa));
@@ -519,7 +517,7 @@ function build(p){
         const perf=[[xs,botL(xs)],[xE,botL(xE)],[xE,topL(xE)],[xs,topL(xs)]];const perfC=clip(perf,v=>uC1-v[1]);
         zanca2([perfC],My(5),My(0),true,'y',mL);zanca2([perfC],My(-90),My(-95),false,'y',mL);/* Z1 (lado fondo) y Z2 (lado jardín) */
         /* pie de las zancas de abajo: ángulo de 2″×3/16″ por fuera, 2 tirafondos a la zanca y 2 brocas al piso */
-        const xp=xn+(k0*R-EXP-VD)/k,xq=xp+2;hw.push(box(xq,xq+10,0,8,My(5)-.5,My(5)),box(xq,xq+10,0,.5,My(5)-5,My(5)-.5),box(xq,xq+10,0,8,My(-95),My(-95)+.5),box(xq,xq+10,0,.5,My(-95)+.5,My(-95)+5));
+        const xp=xn+(k0*R-EXP-VD)/k,xq=xp+2;/* Maxi 25/11: sin ángulos al piso al pie de las zancas */
         /* varillas Ø10 pasantes bajo cada pedada de abajo */
         for(const m of mL){const xm=(m.x0+m.x1)/2+3;const zz=Math.max(botL(xm)+4,(m.y0+botL(xm))/2);varilla([xm,zz,My(5)-.4],[xm,zz,My(-95)+.4],.5);}
         fp={x0:X0,x1:xE,y0:YE,y1:My(-95)};}
@@ -555,7 +553,7 @@ function build(p){
     if(vg.length)Pt('ESC1-V','ESC-1 · vigas del giro','cabio',vg,{fn:giro==='comp'?'Vigas de 2″×8″: V1 en el borde del lado fondo y V2 cabezal bajo la primera pedada de arriba (llevan la compensada alta), V3 en el borde del lado jardín y V5 en el frente de la compensada baja; V4 es la diagonal entre P3 y P1: lleva encima la nariz de la compensada alta y su cara es la contrahuella entre las dos.':'Vigas de 2″×8″ en el borde del descanso.'},G1);
     if(ls.length)Pt('ESC1-L','ESC-1 · listón y travesaños','madera',ls,{fn:'Listón de 2″×2″ atornillado a la cara de V4 (lleva el borde de la compensada baja) y travesaños de 1″×3″ bajo cada compensada para mantener unidas sus tablas (no estructurales).'},G1);
     Pt('ESC1-B','ESC-1 · pasamanos','acero',rods,{fn:'Pasamanos de caño de 40 mm del lado del vacío, sobre tres parantes de planchuela de 1/4″ × 1½″ abulonados a la cara de afuera de la zanca (2 bulones de 3/8″ cada uno).'},G1);
-    Pt('ESC1-H','ESC-1 · herrajes','herraje',hw,{fn:'Estribos de chapa de 3/16″ en U al pie de los postes (base 12×12, alas de 14, 2 brocas Ø10 al piso y 2 bulones M10); ángulos de 2″×3/16″ al pie de las zancas de abajo (2 tirafondos de 5/16″ y 2 brocas Ø8). Arriba, unión oculta entre limón y tirante del entrepiso: chapa de 6 mm de 12 × 30 embutida en una ranura al medio de los dos, con 4 pasadores de acero Ø12 ciegos y tarugos de la misma madera; no se ve ningún herraje.'},G1);
+    Pt('ESC1-H','ESC-1 · herrajes','herraje',hw,{fn:'Sin herrajes contra el piso (Maxi 25/11): postes y zancas apoyan directo en el contrapiso. Arriba, unión oculta entre limón y tirante del entrepiso: chapa de 6 mm de 12 × 30 embutida en una ranura al medio de los dos, con 4 pasadores de acero Ø12 ciegos y tarugos de la misma madera; no se ve ningún herraje.'},G1);
     Pt('ESC1-K','ESC-1 · bulones y varillas','perno',pe,{fn:'Bulones M12 en los nudos del giro (postes con vigas, diagonal y zancas), varillas roscadas Ø10 pasantes bajo las pedadas de abajo y bulones de los parantes y pasadores ocultos de la unión con los tirantes.'},G1);}
   {const es=M.ESCALERAS&&M.ESCALERAS.find(e=>e.id==='ESC-1');if(es&&p.ep&&p.escTipo==='orig'){const [ex,ey]=es.pos,rot=(es.rot??90)*Math.PI/180;let ps=[];try{ps=escaleraCompensada(geo);}catch(e){console.error('escalera',e);}
     const MAT=new THREE.Matrix4().makeTranslation(ex,0,ey).multiply(new THREE.Matrix4().makeRotationY(rot));
@@ -1138,19 +1136,17 @@ const EXPLICA={escEP:{titulo:'Armado de la escalera al entrepiso',params:{escTip
       texto:'Dos módulos de limones de 2″ con huellas de 2″×10″: el de arriba baja hacia el este hasta un descanso compensado de dos triángulos, y el de abajo gira 90° y baja hacia la pileta. Subiendo desde el piso terminado: 15 · 33 · 51 · 68 · 85, y de ahí 9 alzadas de 18 hasta el entrepiso.'},
     {titulo:'Lo que ya está',solo:ESC_CTX,ocultar:ESC_FALTA,resaltar:/^ESC1-(Zu|Tu|P|Ka)$/,cam:[1700,190,820],mira:[1400,130,560],dur:8,
       texto:'El tramo de arriba está fijo: 8 huellas a 18. En la esquina de adentro del giro, el postecito de 3″×3″ ya está abulonado al limón de arriba (2 bulones de 3/8″).'},
-    {titulo:'1 · Pie del postecito',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|V\w|Ha|Kb|Kc)$/,armar:[/^ESC1-Hb$/],cam:[1650,140,800],mira:[1430,40,620],dur:6,
-      texto:'Se aploma el postecito y se fija al contrapiso con un estribo de chapa en U y 2 brocas Ø10. El postecito llega hasta el triángulo alto.'},
-    {titulo:'2 · Poste de afuera',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Va|Vd|Vb|H\w|Kb|Kc)$/,armar:[/^ESC1-Vp$/],cam:[1600,150,900],mira:[1360,40,690],dur:6,
+    {titulo:'1 · Poste de afuera',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Va|Vd|Vb|H\w|Kb|Kc)$/,armar:[/^ESC1-Vp$/],cam:[1600,150,900],mira:[1360,40,690],dur:6,
       texto:'En la esquina de afuera del descanso (junto a la columna C-01) va un poste de 3″×3″, del contrapiso al triángulo alto. Es propuesta: hoy no está.'},
-    {titulo:'3 · Vigas del triángulo alto',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Vd|Vb|Ha|Kb|Kc)$/,armar:[/^ESC1-Va$/],resaltar:/^C-01$/,cam:[1620,200,840],mira:[1390,70,640],dur:8,
+    {titulo:'2 · Vigas del triángulo alto',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Vd|Vb|Ha|Kb|Kc)$/,armar:[/^ESC1-Va$/],resaltar:/^C-01$/,cam:[1620,200,840],mira:[1390,70,640],dur:8,
       texto:'Dos vigas de 2″×8″ llevan el triángulo alto: el cabezal bajo la última huella de arriba, entre los dos limones, y la viga del borde de afuera, que se corta en la columna C-01 y se abulona a ella. Sus cantos quedan a +85 menos el espesor de la tabla.'},
-    {titulo:'4 · Diagonal y viga del triángulo bajo',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Ha|Kb)$/,armar:[/^ESC1-Vd$/,/^ESC1-Vb$/,/^ESC1-Kc$/],cam:[1650,210,900],mira:[1400,50,660],dur:9,
+    {titulo:'3 · Diagonal y viga del triángulo bajo',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1|Td|Zd|Ha|Kb)$/,armar:[/^ESC1-Vd$/,/^ESC1-Vb$/,/^ESC1-Kc$/],cam:[1650,210,900],mira:[1400,50,660],dur:9,
       texto:'Una diagonal de 2″ va del postecito al poste de afuera: su cara es la contrahuella de 17 entre los dos triángulos y lleva el borde de los dos. Después, la viga de 2″×8″ del borde del triángulo bajo, del lado de la pileta. La diagonal se abulona al poste de afuera.'},
-    {titulo:'5 · Módulo de abajo',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1)$/,armar:[/^ESC1-Zd$/,/^ESC1-Td$/,/^ESC1-Kb$/,/^ESC1-Ha$/],cam:[1760,150,820],mira:[1470,30,650],dur:9,
-      texto:'El módulo de abajo (3 huellas a 18) se presenta apoyado en el contrapiso. Su limón del lado del postecito pasa por debajo de la punta del limón de arriba y se abulona al postecito (2 bulones de 3/8″). Al pie, un ángulo de 2″×3/16″ por limón, con tirafondos al limón y brocas al piso.'},
-    {titulo:'6 · Triángulo bajo, a +68',solo:ESC_CTX,ocultar:/^ESC1-T2$/,armar:[/^ESC1-T1$/],cam:[1700,260,800],mira:[1400,60,660],dur:7,
+    {titulo:'4 · Módulo de abajo',solo:ESC_CTX,ocultar:/^ESC1-(T2|T1)$/,armar:[/^ESC1-Zd$/,/^ESC1-Td$/,/^ESC1-Kb$/],cam:[1760,150,820],mira:[1470,30,650],dur:9,
+      texto:'El módulo de abajo (3 huellas a 18) se presenta apoyado en el contrapiso. Su limón del lado del postecito pasa por debajo de la punta del limón de arriba y se abulona al postecito (2 bulones de 3/8″).'},
+    {titulo:'5 · Triángulo bajo, a +68',solo:ESC_CTX,ocultar:/^ESC1-T2$/,armar:[/^ESC1-T1$/],cam:[1700,260,800],mira:[1400,60,660],dur:7,
       texto:'Tablas de 2″ apoyadas en la diagonal y en la viga del borde, a 17 sobre la huella de arriba del módulo de abajo. Se recortan alrededor del postecito y de la columna.'},
-    {titulo:'7 · Triángulo alto, a +85',solo:ESC_CTX,armar:[/^ESC1-T2$/],cam:[1650,300,760],mira:[1390,80,640],dur:7,
+    {titulo:'6 · Triángulo alto, a +85',solo:ESC_CTX,armar:[/^ESC1-T2$/],cam:[1650,300,760],mira:[1390,80,640],dur:7,
       texto:'Tablas de 2″ sobre el cabezal, la viga de afuera y la diagonal, a 17 sobre el triángulo bajo y al nivel del rebaje del limón de arriba.'},
     {titulo:'Terminada',solo:ESC_CTX,cam:[1700,170,860],mira:[1420,90,600],dur:9,
       texto:'Primer escalón a 15 del piso terminado (el alisado sube 3), y desde ahí 18 · 18 · 17 · 17 y 9 alzadas de 18. Con 8 huellas arriba llega a +2,47, y Maxi midió el entrepiso a +2,67 sobre el piso de PB actual (25/11): falta una alzada de ~19 en algún lado.'}]}};
