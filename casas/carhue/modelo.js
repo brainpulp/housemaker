@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.66', fecha:'2026-11-25',
+  nombre:'Carhué', version: '1.1.67', fecha:'2026-11-25',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'1.1.67', txt:'Cocina: el tacho y las tiras LED se ven al abrir, sin tener que elegir nada (la cocina guardada se actualiza sola y la escena de las tiras queda como la de partida).'},
   {fecha:'2026-11-25', v:'1.1.66', txt:'Maxi 25/11, cocina: el módulo de 0,46 entre el rincón y la bacha pasa a ser el del tacho (un frente de alto completo que saca un bastidor con dos tachos, sobre guías de extracción total con cierre suave). Luces: escena nueva «Tiras LED: mesada y zócalo», con un perfil en la pared de las ventanas a +2,05 que ilumina toda la mesada y una tira baja en el zócalo, cada una en su llave.'},
   {fecha:'2026-11-23', v:'1.1.65', txt:'Maxi 23/11: el perfil W-1 va sólo del extremo norte (C-03) hasta el final de la galería (C-01, x 13,42); el tramo que seguía hacia el sur por el entrepiso se sacó en obra. Con eso no queda nada cruzando el estudio ni la corrediza.'},
   {fecha:'2026-11-22', v:'1.1.64', txt:'Maxi 22/11: encuentro del quincho con el alero oeste T-08. Los cabios del quincho que caen sobre T-08 siguen de largo por encima de la viga VQ-1 hasta y −0,14; las vigas VT-1…3 se corren al lado de uno de esos cabios (x 25,49 / 26,91 / 28,21) y terminan en y 0,02, con las puntas atornilladas entre sí. La chapa de T-05 baja hasta apoyarse en la de T-08; se saca el cierre vertical de chapa. (2) Volado al jardín: el entrepiso del estudio vuela 0,70 sobre la fachada retranqueada M-07 y el frente del dormer sigue derecho en y 6,90, coplanar con el del dormitorio (un solo frente de x 0 a 13,40, sin el escalón). La corrediza M-43 llega hasta ese frente: hojas de 1,64 en vez de 1,50. La columna C-13 pasa a la punta norte del frente nuevo, sobre un tirante de borde.'},

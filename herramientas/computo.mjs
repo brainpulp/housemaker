@@ -78,6 +78,12 @@ export function pieza(it) {
   }
 }
 
+async function casaMod(F) {
+  const mod = await import(pathToFileURL(path.resolve(F.mod)).href);
+  let uid = 1; const it = (t, x, y, r, p = {}, z) => ({ id: 'm' + (uid++), t, x, y, r, p, ...(z != null ? { z } : {}) });
+  const itA = a => { let n = 1; return (t, x, y, r, p = {}, z) => ({ id: a + '_' + (n++), t, x: Math.round(x), y: Math.round(y), r, p, ...(z != null ? { z } : {}) }); };
+  return mod[F.fn]({ it, itA, mover: x => x, SILLAS: () => [], MESA3: () => [], PISO: 0 });
+}
 /* ---------- la cocina de cada casa, como la ve la página ---------- */
 export async function cocina(casa, dbDir) {
   const F = FUENTES[casa];
@@ -85,13 +91,15 @@ export async function cocina(casa, dbDir) {
   const f = dbDir && path.join(dbDir, F.doc[0], F.doc[1] + '.json');
   if (f && fs.existsSync(f)) {
     let d = JSON.parse(fs.readFileSync(f, 'utf8')); d = d.data || d;
-    if (d.esc && d.esc[d.activo]) { items = d.esc[d.activo].items; escenario = d.activo + ' · ' + (d.esc[d.activo].nombre || ''); fuente = 'base'; }
+    if (d.esc && d.esc[d.activo]) {
+      items = d.esc[d.activo].items; escenario = d.activo + ' · ' + (d.esc[d.activo].nombre || ''); fuente = 'base';
+      /* 25/11: las migraciones de la casa (MUT) que lo guardado todavía no tiene: la página las aplica al abrir, el cómputo también */
+      const R = await casaMod(F); const mig = (R.mut && R.mut.mue && R.mut.mue[F.amb]) || [];
+      for (const [fl, fn] of mig) if (!(d.migr || []).includes(fl)) fn(items);
+    }
   }
   if (!items) {
-    const mod = await import(pathToFileURL(path.resolve(F.mod)).href);
-    let uid = 1; const it = (t, x, y, r, p = {}, z) => ({ id: 'm' + (uid++), t, x, y, r, p, ...(z != null ? { z } : {}) });
-    const itA = a => { let n = 1; return (t, x, y, r, p = {}, z) => ({ id: a + '_' + (n++), t, x: Math.round(x), y: Math.round(y), r, p, ...(z != null ? { z } : {}) }); };
-    const R = mod[F.fn]({ it, itA, mover: x => x, SILLAS: () => [], MESA3: () => [], PISO: 0 });
+    const R = await casaMod(F);
     const A = R.AMB[F.amb], e = A.esc(), act = A.activo && e[A.activo] ? A.activo : Object.keys(e)[0];
     items = e[act].items; escenario = act + ' · ' + e[act].nombre;
   }

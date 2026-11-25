@@ -36,7 +36,7 @@ const CAMPOS = {
   frentesJuego: ps => ({ medidas: `${ps[0].columnas} columnas × ${ps[0].filas} cajones` }),
   carcasas: ps => { const n = sum(ps, p => p.modulos); return { medidas: `${n} módulos`, cant: n }; },
   guias: ps => { const t = sum(ps, p => p.tachoArriba ? p.tachos || 0 : 0); /* el tacho de frente completo (Carhué) trae sus guías */ return { medidas: `largo 45 cm, ${sum(ps, cajCount)} cajones${t ? ` + ${t} extraíble de basura` : ''}`, cant: sum(ps, cajCount) + t }; },
-  tiradores: ps => { const c = sum(ps, cajCount), u = sum(ps, putCount); return { medidas: [c ? `${c} cajones` : '', u ? `${u} puertas` : ''].filter(Boolean).join(' + '), cant: c + u }; },
+  tiradores: ps => { const c = sum(ps, cajCount), u = sum(ps, putCount), t = sum(ps, p => p.tachoArriba ? 0 : p.tachos || 0); return { medidas: [c ? `${c} cajones` : '', u ? `${u} puertas` : '', t ? `${t} del tacho` : ''].filter(Boolean).join(' + '), cant: c + u + t }; },
   mesaIsla: ps => ({ medidas: `${m(ps[0].mesa.L)} × ${m(ps[0].mesa.D)} menos el bloque`, cant: ps[0].mesa.m2 }),
   timon: ps => ({ medidas: `timón ${m(ps[0].timon.L)} × ${m(ps[0].timon.H)}, ½″` }),
   puertaTablero: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].H)}, separada ${m(ps[0].caja)} de la pared` }),
@@ -59,7 +59,7 @@ const CAMPOS = {
   led: ps => { const t = ps.filter(p => p.led), L = sum(t, p => p.led); return { medidas: `${m(L)} m` + (t.length > 1 ? ` (tramos de ${t.map(p => m(p.led - 4)).join(' y ')} bajo las ${t.length === 2 ? "dos" : t.length} alacenas)` : ''), cant: Math.ceil(L / 100) }; },
   revestimiento: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].H)}`, cant: n1(ps[0].L * ps[0].H / 1e4) }),
   estante: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].D)} × ${ps[0].e} cm, a ${m(ps[0].z)}` }),
-  tacho: ps => ({ medidas: `módulo de ${m(ps[0].anchoTacho)} × ${m(ps[0].frenteH)} de frente, doble tacho extraíble con guías de extracción total y cierre suave`, cant: ps[0].tachos }),
+  tacho: ps => ({ medidas: `frente de ${m(ps[0].anchoTacho)} × ${m(ps[0].frenteH)} + doble tacho extraíble con guías de extracción total y cierre suave`, cant: ps[0].tachos }),
   columna: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].D)} × ${m(ps[0].H)}, ${ps[0].cajones} cajones${ps[0].puertas ? ' + puerta' : ''}` }),
 };
 /* tipos que se compran: si aparece una pieza de estos sin fila, se agrega */

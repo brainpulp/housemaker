@@ -119,7 +119,7 @@ export function initEquipamiento(visor,stage,D){
   const NOMBRE=(t,k='mue')=>catOf(t,k)?.n||t;
 
   /* ---------- estado: ST[capa][ambiente] = {activo, esc:{id:{nombre,items}}, borrados}; base del artifact ---------- */
-  const ST={mue:{},luz:{},veg:{},cal:{}};for(const k in ST)for(const a of AMB_ORDEN){const e=CAPA[k].esc(a),d=k==='mue'&&AMB[a]&&AMB[a].activo;ST[k][a]={activo:d&&e[d]?d:'A',esc:e,borrados:[]};}/* Maxi 9/11: AMB[a].activo = escenario elegido, el que se ve sin nada guardado */
+  const ST={mue:{},luz:{},veg:{},cal:{}};for(const k in ST)for(const a of AMB_ORDEN){const e=CAPA[k].esc(a),d=k==='mue'?AMB[a]&&AMB[a].activo:Object.keys(e).find(i=>e[i]&&e[i].def);/* luces y calor: la escena de fábrica con def:true es la que se ve sin nada guardado */ST[k][a]={activo:d&&e[d]?d:'A',esc:e,borrados:[]};}/* Maxi 9/11: AMB[a].activo = escenario elegido, el que se ve sin nada guardado */
   const GV=new THREE.Group();GV.name='vegetacion';scene.add(GV);
   let capa='mue',modo='',amb=DD.inicial||AMB_ORDEN[0],sel=null,db=null,dr=null;const saveT={},dirty={};
   try{const c=localStorage.getItem('carhue-equip-capa');if(c==='luz'||c==='veg'||c==='cal')capa=c;}catch(e){}if(capa==='veg'&&AMB.exterior)amb='exterior';
