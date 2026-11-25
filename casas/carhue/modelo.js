@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.69', fecha:'2026-11-25',
+  nombre:'Carhué', version: '1.1.70', fecha:'2026-11-25',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'1.1.70', txt:'Maxi 25/11: los dos triángulos del descanso de la escalera al entrepiso (como está en obra) se ven otra vez armados con tablones paralelos a la diagonal: 3 por triángulo, con junta de 4 mm.'},
   {fecha:'2026-11-25', v:'1.1.69', txt:'Maxi 25/11: la escalera al entrepiso va sin herrajes contra el piso (son innecesarios): se sacan el estribo al pie del postecito y los ángulos al pie de los limones de abajo, también en la variante de diseño; la animación de armado pierde el paso del estribo.'},
   {fecha:'2026-11-25', v:'1.1.68', txt:'Entrepiso a la altura medida por Maxi: 2,67 de pisada a pisada sobre el piso de planta baja actual. Como el piso que falta abajo sube menos de 1 cm, el piso del entrepiso queda a +2,66 del piso terminado (antes +2,62). Suben 4 cm los tirantes, la galería con su baranda y sus ventanas, las ventanas al jardín, los muros de abajo que llegan al entrepiso y los muebles de arriba; la planta baja gana 4 cm de alto bajo el entrepiso. El altillo del ala no cambia (sigue estimado a +2,62). La escalera de obra, tal como está cargada, llega a +2,47: le falta una alzada de ~19.'},
   {fecha:'2026-11-25', v:'1.1.67', txt:'Cocina: el tacho y las tiras LED se ven al abrir, sin tener que elegir nada (la cocina guardada se actualiza sola y la escena de las tiras queda como la de partida).'},

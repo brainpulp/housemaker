@@ -28,7 +28,11 @@ export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;
   const huecos=[[PO[0],X1,yT,PO[3]]];if(COL)huecos.push([COL.x0,COL.x1,COL.y0,COL.y1]);
   const tri2=[[X0,yT],[X1,yT],[X0,yE2]],tri1=[[X1,yT],[X1,yE2],[X0,yE2]];
   const losa=(pl,z,hs,dest)=>{for(const q of minus(pl,hs))dest.push(prism(q,z-TT,z,'XZ'));};
-  losa(tri2,ZD2,huecos,T2);losa(tri1,ZD1,huecos,T1);
+  /* Maxi 25/11: cada triángulo va de 3 tablones con la veta paralela a la diagonal (s = (x−X0)+(y−yT) constante); 4 mm de junta entre tablones */
+  const cut=(pl,f)=>{const o=[];for(let i=0;i<pl.length;i++){const P=pl[i],Q=pl[(i+1)%pl.length],fp=f(P),fq=f(Q);if(fp>=-1e-9)o.push(P);if((fp>=-1e-9)!==(fq>=-1e-9)){const t=fp/(fp-fq);o.push([P[0]+t*(Q[0]-P[0]),P[1]+t*(Q[1]-P[1])]);}}return o;};
+  const sOf=q=>(q[0]-X0)+(q[1]-yT),JT=.4*Math.SQRT2;
+  const tablones=(pl,sa,sb,z,dest)=>{const n=3,st=(sb-sa)/n;for(let i=0;i<n;i++){const a0=sa+i*st+(i?JT/2:0),b0=sa+(i+1)*st-(i<n-1?JT/2:0);const b=cut(cut(pl,q=>sOf(q)-a0),q=>b0-sOf(q));if(b.length>2)losa(b,z,huecos,dest);}};
+  tablones(tri2,0,W,ZD2,T2);tablones(tri1,W,2*W,ZD1,T1);
   /* armazón del descanso (propuesta): vigas de 2″×8″ en los bordes, la diagonal hace de contrahuella entre los dos triángulos */
   const BD=19;
   for(const [a,b] of COL&&COL.x0<X0+F&&COL.y0>yT?[[yT,COL.y0],[COL.y1,yE2-PS]]:[[yT,yE2-PS]])Va.push(box(X0+F,X0+2*F,ZD2-TT-BD,ZD2-TT,a,b));/* V1: borde de afuera del triángulo alto, junto a C-01 */
@@ -62,8 +66,8 @@ export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;
   const info=`Como está en obra · triángulos a 17 · ${rs} · llega a +${(ZTOP/100).toFixed(2).replace(".",",")}${Math.abs(dif)>1?` · ⚠ el entrepiso del modelo está a +${(H_EP/100).toFixed(2).replace(".",",")}: ${f1(dif)} cm de diferencia, a medir`:''}`;
   const G1={group:'Escalera',tags:['PB','escalera']};
   Pt('ESC1-Tu','ESC-1 · huellas de arriba','ep',Tu,{fn:`Escalera al entrepiso como está en obra. Tramo de arriba: ${nUp} huellas de 2″×10″ encastradas en los limones, a 18. ${info}.`,sec:'huellas de 2″',med:info},G1);
-  Pt('ESC1-T2','ESC-1 · triángulo alto del descanso','ep',T2,{fn:`Triángulo alto del descanso compensado, a +${f1(ZD2)} (nivel del rebaje del limón de arriba): tablas de 2″ sobre el cabezal, la viga de afuera y la diagonal.`,sec:'tablas de 2″'},G1);
-  Pt('ESC1-T1','ESC-1 · triángulo bajo del descanso','ep',T1,{fn:`Triángulo bajo del descanso compensado, a +${f1(ZD1)}: tablas de 2″ sobre la diagonal y la viga de afuera del lado de la pileta.`,sec:'tablas de 2″'},G1);
+  Pt('ESC1-T2','ESC-1 · triángulo alto del descanso','ep',T2,{fn:`Triángulo alto del descanso compensado, a +${f1(ZD2)} (nivel del rebaje del limón de arriba): 3 tablones de 2″ con la veta paralela a la diagonal, sobre el cabezal, la viga de afuera y la diagonal.`,sec:'tablas de 2″'},G1);
+  Pt('ESC1-T1','ESC-1 · triángulo bajo del descanso','ep',T1,{fn:`Triángulo bajo del descanso compensado, a +${f1(ZD1)}: 3 tablones de 2″ con la veta paralela a la diagonal, sobre la diagonal y la viga de afuera del lado de la pileta.`,sec:'tablas de 2″'},G1);
   Pt('ESC1-Td','ESC-1 · huellas de abajo','ep',Td,{fn:`Módulo de abajo: ${nLo} huellas de 2″×10″ a 18, bajando hacia la pileta.`,sec:'huellas de 2″'},G1);
   Pt('ESC1-Zu','ESC-1 · limones de arriba','cabio',Zu,{fn:`Limones de 2″ (5 × 25) del tramo de arriba, ${nUp} huellas a 18; el del lado del giro sigue hasta el postecito y se le abulona de costado.`},G1);
   Pt('ESC1-Zd','ESC-1 · limones de abajo','cabio',Zd,{fn:`Limones de 2″ (5 × 25) del módulo de abajo, ${nLo} huellas a 18, apoyados en el contrapiso; el de este lado se abulona al postecito.`},G1);
