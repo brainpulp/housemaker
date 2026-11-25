@@ -271,6 +271,8 @@ export function catalogoMuebles(THREE){
       /* Maxi 11/11 (Carhué): «zocalo» = alto del zócalo plegado de la misma chapa, contra la pared (la mesada de hierro no lleva salpicadero aparte) */
       if(p.zocalo)tapa.push([B(-(p.L+tm)/2+tl*tm/2,(p.L+tm)/2+tl*tm/2,p.H,p.H+p.zocalo,-p.D/2,-p.D/2+.5),p.top]);
       const g=[[B(-p.L/2,p.L/2,0,10,zb,p.D/2-8),'negro'],...carcasa(-p.L/2,p.L/2,y0,y1,zb,zf,p.fr,mods),...tapa];
+      /* Maxi 25/11 (Arcos): «ledZocalo» = luz de noche: perfil de aluminio con difusor pegado bajo el piso del mueble, en el vuelo de 6 cm delante del zócalo rehundido, que alumbra el piso (lo prende un sensor de movimiento) */
+      if(p.ledZocalo)g.push([B(-p.L/2+2,p.L/2-2,y0-.8,y0,zf-4.4,zf-1.8),'aluminio'],[B(-p.L/2+2.2,p.L/2-2.2,y0-.9,y0-.7,zf-4,zf-2.2),'ledCalido']);
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
         if(i===iC){g.push([FR(xl,xr,y0,y1,zf),p.fr]);continue;}
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}

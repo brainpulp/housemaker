@@ -45,6 +45,7 @@
   "arcos-12": { "piezas": ["cocina_7"], "campo": "bandejeroAlacena" },
   "arcos-13": { "piezas": ["cocina_7", "cocina_9"], "campo": "brazos" },
   "arcos-14": { "piezas": ["cocina_7", "cocina_9", "cocina_3"], "campo": "led" },
+  "arcos-14b": { "piezas": ["cocina_4"], "campo": "ledZocalo" },
   "arcos-15": { "piezas": ["cocina_5"], "campo": "revestimiento" },
   "arcos-16": { "piezas": ["cocina_8"], "campo": "estante" },
   "arcos-17": { "piezas": ["cocina_2"], "campo": "columna" },

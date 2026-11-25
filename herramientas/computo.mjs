@@ -35,7 +35,7 @@ function mesada(p) {
     t: 'mesada', L, D, H, tapa: { L: tapaL, D: tapaD, zocalo: zoc, m2: m2(tapaL, tapaD + zoc), huecos: (p.huecos || []).map(h => ({ L: h[1], D: h[2] })) },
     columnasCaj: caj.length, anchoCaj: caj.length ? caj[0].w : 0, anchosCaj: caj.map(c => Math.round(c.w * 10) / 10), filas, cajones: caj.length * filas + (p.tachoArriba ? tac.length : 0), tachos: tac.length, tachoArriba: !!p.tachoArriba, anchoTacho: tac.length ? tac[0].w : 0, cantTachos: tac.length ? (p.tachos || (p.tachoArriba ? 3 : 2)) : 0,
     modPuertas: pus.length, anchoPuerta: pus.length ? pus[0].w / (pus[0].n || 2) : 0, puertas: pus.reduce((a, x) => a + (x.n || 2), 0), frenteH,
-    bandejero: band, ciego: cie, modulos: mods.filter(x => x.tipo !== 'ciego').length, fondoCajon: D - 17,
+    bandejero: band, ciego: cie, modulos: mods.filter(x => x.tipo !== 'ciego').length, fondoCajon: D - 17, ledZocalo: p.ledZocalo ? L - 4 : 0,
   };
 }
 function islaMesa(p) {

@@ -57,6 +57,7 @@ const CAMPOS = {
   bandejeroAlacena: ps => ({ medidas: `${m(ps[0].bandejero)} × ${m(ps[0].H)}`, cant: ps[0].bandejero ? 1 : 0 }),
   brazos: ps => { const n = sum(ps, putCount); return { medidas: `${n} puertas`, cant: n }; },
   led: ps => { const t = ps.filter(p => p.led), L = sum(t, p => p.led); return { medidas: `${m(L)} m` + (t.length > 1 ? ` (tramos de ${t.map(p => m(p.led - 4)).join(' y ')} bajo las ${t.length === 2 ? "dos" : t.length} alacenas)` : ''), cant: Math.ceil(L / 100) }; },
+  ledZocalo: ps => { const L = sum(ps, p => p.ledZocalo); return { medidas: `${m(L)} m, bajo el frente de la mesada sobre el zócalo, con sensor de movimiento`, cant: Math.ceil(L / 100) }; },
   revestimiento: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].H)}`, cant: n1(ps[0].L * ps[0].H / 1e4) }),
   estante: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].D)} × ${ps[0].e} cm, a ${m(ps[0].z)}` }),
   tacho: ps => ({ medidas: `frente de ${m(ps[0].anchoTacho)} × ${m(ps[0].frenteH)} + doble tacho extraíble con guías de extracción total y cierre suave`, cant: ps[0].tachos }),

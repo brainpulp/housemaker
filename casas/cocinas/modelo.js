@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.54', fecha: '2026-11-25',
+export const META = { nombre: 'Cocinas', version: '0.1.55', fecha: '2026-11-25',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'0.1.55', txt:'Arcos (Maxi 25/11): luz de noche en el zócalo de la mesada, con sensor de movimiento. Igual que en el modelo de Arcos.'},
   {fecha:'2026-11-25', v:'0.1.54', txt:'Arcos (Maxi 25/11): módulo de la basura en la columna pegada a la bacha, del lado de la heladera (cajón finito arriba, extraíble con tres tachos abajo) y perfil LED embutido bajo las alacenas. Igual que en el modelo de Arcos.'},
   {fecha:'2026-11-20', v:'0.1.53', txt:'Arcos (Maxi 20/11): la mesada pasa a cuatro columnas de cajones de 0,94 (antes cinco de 0,75); la bacha se corre 28 cm para quedar centrada en la columna de puertas. Igual que en el modelo de Arcos.'},
   { fecha: '2026-11-13', v: '0.1.52', txt: 'Maxi 13/11: la cocina de Carhué como quedó en la lista de compras: mesada larga y mueble del anafe de hierro 1010 negro con el zócalo plegado de la misma chapa (sin salpicadero de pizarra), frentes de madera maciza (roble hasta elegir la madera). Las compras de la cocina en la página Obras toman medidas y cantidades de este modelo y se actualizan solas cuando cambia.' },
