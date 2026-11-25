@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # Cocina de Arcos: diagrama para el carpintero + despiece (Maxi 20/11/2026), con el mismo formato que la de Carhué
 # (casas/carhue/cocina-muebles). Medidas del escenario A de la cocina (casas/arcos/equipamiento-arcos.js, versión 0.10.45):
-# mesada de 3,92 = 4 columnas de 93,75 + bandejero de 17, columna del horno de 58, alacena sobre la heladera, alacenas altas
+# mesada de 3,92 = 4 columnas de 93,75 + bandejero de 17, columna del horno de 60, alacena sobre la heladera, alacenas altas
 # de 2,11 (con bandejero de 30) y 1,81, estante, y el bloque de la isla de 1,60 × 0,70 con 2 columnas de 76.
 # Materiales: los de la tabla de Compras de Obras (arcos-01…29).
+# Maxi 25/11: columna del horno de 60 (versión 0.10.56), módulo de basura en la columna 2 (cajón finito + extraíble con 3 tachos),
+# cajas del mueble en melamina blanca (adentro claro; cerrado sólo se ven los frentes) y los costados que quedan a la vista con
+# terminación del frente: petiribí en la punta de la mesada y en la columna, melamina negra texturada en la punta de las alacenas.
 # Uso: python3 gen.py <salida.json>   → secciones HTML y CSV para armar.py
 import json, math, html, sys
 E = html.escape
@@ -14,8 +17,9 @@ H_CAJ, ZOC, D_CAJ = 77.0, 10.0, 60.0           # mesada: caja de 10 a 87, fondo 
 MODS = [93.75] * 4                              # columnas de la mesada, del lado de la columna del horno hacia el ventanal
 BAND = 17.0                                     # bandejero bajo mesada, en la punta del ventanal
 PUERTA_IDX = 2                                  # la 3.ª columna va bajo la bacha: dos puertas con estante
+TACHO_IDX = 1                                   # la 2.ª, pegada a la bacha del lado de la heladera: cajón finito arriba y extraíble de basura abajo (Maxi 25/11)
 ROWS = [36.19, 25.41, 15.40]                    # 47 / 33 / 20 % de 77
-COL_W, COL_D, COL_H = 58.0, 62.0, 228.0         # columna del horno (caja de 10 a 228)
+COL_W, COL_D, COL_H = 60.0, 62.0, 228.0         # columna del horno (caja de 10 a 228)
 ALH_W, ALH_D, ALH_H, ALH_Z = 75.0, 62.0, 38.0, 190.0   # alacena sobre la heladera
 AL_D, AL_H, AL_Z = 35.0, 78.0, 150.0            # alacenas altas
 AL_PUERTAS = [90.5] * 4; AL_BAND = 30.0
@@ -36,6 +40,10 @@ for i, W in enumerate(MODS):
     if i == PUERTA_IDX:
         add('Frentes', f'Puerta, {col(i)} (bacha)', 2, mm(H_CAJ - J), mm(W / 2 - J), 20, PET, '', 'veta vertical; 2 bisagras cazoleta cada una, hacia afuera')
         continue
+    if i == TACHO_IDX:
+        add('Frentes', f'Cajón arriba, {col(i)} (basura)', 1, w, mm(ROWS[2] - J), 20, PET, '', '')
+        add('Frentes', f'Extraíble de basura, {col(i)}', 1, w, mm(ROWS[0] + ROWS[1] - J), 20, PET, '', 'saca 3 tachos sueltos')
+        continue
     for r, n in zip(ROWS, ['abajo', 'medio', 'arriba']):
         add('Frentes', f'Cajón {n}, {col(i)}', 1, w, mm(r - J), 20, PET, '', '')
 add('Frentes', 'Bandejero bajo mesada (17)', 1, mm(H_CAJ - J), mm(BAND - J), 18, NEG, '4 cantos', 'sale entero con las bandejas')
@@ -52,32 +60,42 @@ for k in range(2):
 add('Frentes', 'Estante de pared (3,92)', 1, 3920, 150, 20, PET, '', 'a 1,30 del piso, bajo las alacenas')
 
 # ---------- cajoneras (cajas del mueble) ----------
-def cajonera(t, W, H, D, estante=False, techo=False, nota=''):
-    add('Cajoneras', f'{t}: lateral', 2, mm(H), mm(D - .3), 18, NEG, '1 largo (adelante)', nota)
-    add('Cajoneras', f'{t}: piso', 1, mm(W - 3.6), mm(D - .3), 18, NEG, '1 largo')
-    if techo: add('Cajoneras', f'{t}: techo', 1, mm(W - 3.6), mm(D - .3), 18, NEG, '1 largo')
-    else: add('Cajoneras', f'{t}: travesaño arriba', 2, mm(W - 3.6), 100, 18, NEG, '1 largo')
+CANTO = ' (color a definir: blanco o negro)'
+def cajonera(t, W, H, D, estante=False, techo=False, nota='', vista=None):
+    # vista = (material, espesor, dónde): un lateral queda a la vista y va con la terminación del frente (Maxi 25/11)
+    nb = 2 - (1 if vista else 0)
+    add('Cajoneras', f'{t}: lateral', nb, mm(H), mm(D - .3), 18, MEL15, '1 largo (adelante)', nota)
+    if vista:
+        m, e, donde = vista
+        add('Cajoneras', f'{t}: lateral a la vista ({donde})', 1, mm(H), mm(D - .3), e, m, '' if m == PET else '1 largo (adelante)', 'terminación como los frentes')
+    add('Cajoneras', f'{t}: piso', 1, mm(W - 3.6), mm(D - .3), 18, MEL15, '1 largo')
+    if techo: add('Cajoneras', f'{t}: techo', 1, mm(W - 3.6), mm(D - .3), 18, MEL15, '1 largo')
+    else: add('Cajoneras', f'{t}: travesaño arriba', 2, mm(W - 3.6), 100, 18, MEL15, '1 largo')
     add('Cajoneras', f'{t}: fondo', 1, mm(W - .4), mm(H - .4), 3, FIB, '', 'clavado y encolado atrás')
-    if estante: add('Cajoneras', f'{t}: estante', 1, mm(W - 3.8), mm(D - .3 - 2.5), 18, NEG, '1 largo', 'regulable, sobre 4 soportes')
+    if estante: add('Cajoneras', f'{t}: estante', 1, mm(W - 3.8), mm(D - .3 - 2.5), 18, MEL15, '1 largo', 'regulable, sobre 4 soportes')
 for i, W in enumerate(MODS):
     cajonera(f'Mesada, {col(i)}', W, H_CAJ, D_CAJ, estante=(i == PUERTA_IDX), nota='recorte atrás para el desagüe' if i == PUERTA_IDX else '')
-cajonera('Mesada, bandejero (17)', BAND, H_CAJ, D_CAJ)
-cajonera('Columna del horno (58)', COL_W, COL_H - 10, COL_D - 2, techo=True, nota='alto 2,18 sobre zócalo de 10')
-add('Cajoneras', 'Columna del horno: estantes que enmarcan el horno', 2, mm(COL_W - 3.6), mm(COL_D - 2 - .3), 18, NEG, '1 largo', 'fijos, a 0,79 y 1,40 del piso')
+cajonera('Mesada, bandejero (17)', BAND, H_CAJ, D_CAJ, vista=(PET, 20, 'punta del ventanal'))
+cajonera('Columna del horno (60)', COL_W, COL_H - 10, COL_D - 2, techo=True, nota='alto 2,18 sobre zócalo de 10', vista=(PET, 20, 'lado de la mesada'))
+add('Cajoneras', 'Columna del horno: estantes que enmarcan el horno', 2, mm(COL_W - 3.6), mm(COL_D - 2 - .3), 18, MEL15, '1 largo', 'fijos, a 0,79 y 1,40 del piso; hueco libre de 56 × 59')
 cajonera('Alacena sobre la heladera (75)', ALH_W, ALH_H, ALH_D - 2, techo=True)
 for k, W in enumerate(AL_PUERTAS):
     cajonera(f'Alacena alta {k+1}', W, AL_H, AL_D - 2, estante=True, techo=True)
-cajonera('Alacena alta, bandejero (30)', AL_BAND, AL_H, AL_D - 2, techo=True)
+cajonera('Alacena alta, bandejero (30)', AL_BAND, AL_H, AL_D - 2, techo=True, vista=(NEGT, 18, 'punta del ventanal'))
 for k in range(2):
     cajonera(f'Isla, columna {k+1}', I_W, I_H, I_D)
 
 # ---------- cajas de los cajones ----------
-def caja(nombre, ancho, fondo, alto, nota=''):
+def caja(nombre, ancho, fondo, alto, nota='', piso=(3, FIB)):
     add('Cajas de cajón', f'{nombre}: lateral', 2, fondo, alto, 18, MEL15, '1 largo (arriba)', nota)
     add('Cajas de cajón', f'{nombre}: frente y contrafrente', 2, ancho - 36, alto, 18, MEL15, '1 largo (arriba)', nota)
-    add('Cajas de cajón', f'{nombre}: piso', 1, ancho, fondo, 3, FIB, '', 'clavado y encolado abajo')
+    add('Cajas de cajón', f'{nombre}: piso', 1, ancho, fondo, piso[0], piso[1], '' if piso[1] == FIB else '1 largo', 'clavado y encolado abajo' if piso[1] == FIB else 'entre los laterales, atornillado')
 for i, W in enumerate(MODS):
     if i == PUERTA_IDX: continue
+    if i == TACHO_IDX:
+        caja(f'Caja arriba, {col(i)}', mm(W - 3.6 - 2.6), 450, 90)
+        caja(f'Extraíble de basura, {col(i)}', mm(W - 3.6 - 2.6), 450, 180, 'caja baja para los tachos', piso=(18, MEL15))
+        continue
     for alto, n in [(240, 'abajo'), (190, 'medio'), (90, 'arriba')]:
         caja(f'Caja {n}, {col(i)}', mm(W - 3.6 - 2.6), 450, alto)
 caja('Caja abajo, columna del horno', mm(COL_W - 3.6 - 2.6), 450, 280)
@@ -100,13 +118,14 @@ for p in piezas:
     p['nota'] = (f'{n} tablas encoladas de canto' if n > 1 else '1 tabla') + ('; ' + p['nota'] if p['nota'] else '')
 
 # ---------- herrajes ----------
-n_caj_m = 3 * (len(MODS) - 1)
+n_caj_m = 3 * (len(MODS) - 1) - 1   # el módulo de basura tiene cajón + extraíble
 herr = [
-    ('Guías telescópicas de extracción total con cierre suave, 450 mm', n_caj_m + 2, 'par', f'{n_caj_m} de la mesada y 2 de la columna del horno. En Compras: genéricas; para los cajones de 0,94 cargados conviene Häfele 45 kg (como en Carhué). Las cajas del despiece van con 13 mm por lado'),
+    ('Guías telescópicas de extracción total con cierre suave, 450 mm', n_caj_m + 2, 'par', f'{n_caj_m} de la mesada (con el extraíble de basura) y 2 de la columna del horno. En Compras: genéricas; para los cajones de 0,94 cargados conviene Häfele 45 kg (como en Carhué). Las cajas del despiece van con 13 mm por lado'),
     ('Guías telescópicas de extracción total con cierre suave, 500 mm', 6, 'par', 'isla'),
     ('Bisagras cazoleta 35 mm, cierre suave', 8, 'u', 'bacha (4), puerta de la columna (2), alacena de la heladera (2)'),
     ('Brazos para puerta proyectable hacia arriba (Häfele Free Flap o Blum Aventos)', 4, 'juego', 'alacenas altas, puertas de 0,90 × 0,78'),
     ('Herraje de bandejero extraíble 15 cm, bajo mesada', 1, 'u', 'con 2 o 3 bandejas de alambre'),
+    ('Tachos de basura sueltos para el extraíble', 3, 'u', 'entran parados en la caja baja de la columna 2'),
     ('Herraje de bandejero extraíble 30 cm, alacena', 1, 'u', 'con bandejas de alambre'),
     ('Soportes de estante', 4 + 4 * len(AL_PUERTAS), 'u', 'bajo la bacha y en las alacenas altas'),
     ('Patas regulables de 10 cm para zócalo', 4 * (len(MODS) + 1 + 1 + 2), 'u', '4 por mueble de piso'),
@@ -127,7 +146,7 @@ for (mat, esp), m2 in sorted(tot.items()):
     else:
         ml = sum(p['cant'] * p.get('tablas', 1) * p['L'] for p in piezas if p['mat'] == mat) / 1000 * 1.15
         tot_rows.append((mat, esp, round(m2, 2), f'unos {ml:.0f} m lineales de tabla de 21 cm de ancho cepillada (≈ 25 mm en bruto), con 15 % de despunte'))
-n_caj = n_caj_m + 2 + 6
+n_caj = n_caj_m - 1 + 2 + 6   # cajones, sin contar el extraíble de basura
 
 # ---------- dibujos ----------
 FS = [1.0]
@@ -143,20 +162,21 @@ def rect(x, y, w, h, cls): return f'<rect class="{cls}" x="{x}" y="{y}" width="{
 def label(x, y, t, size=7, cls='lb', anc='middle'): size *= FS[0]; return f'<text class="{cls}" x="{x}" y="{y}" font-size="{size}" text-anchor="{anc}">{t}</text>'
 
 # u: cm desde el borde de la heladera del lado del depósito (este) hacia el ventanal; mirando a la medianera sur
-U_COL, U_MES = 75.0, 133.5
+U_COL = 75.5; U_MES = U_COL + COL_W   # la columna a 0,5 de la heladera; la mesada pegada a la columna
 XS = [U_MES]
 for W in MODS: XS.append(XS[-1] + W)
-U_BAND1 = XS[-1] + BAND   # 525,5
+U_BAND1 = XS[-1] + BAND   # 527,5
+U_BACHA = U_BAND1 - 158   # eje de la bacha a 1,58 de la punta del ventanal
 
 def planta():
     s = []
     s.append(rect(-20, -12, 580, 12, 'wall')); s.append(label(270, -4, 'MEDIANERA SUR', 6, 'lbw'))
     s.append(rect(0, 0, 75, 70, 'ghost')); s.append(label(37.5, 38, 'heladera', 6, 'lbg'))
-    s.append(rect(U_COL, 0, COL_W, 60, 'box')); s.append(rect(U_COL, 60, COL_W, 2, 'front')); s.append(label(U_COL + 29, 34, 'horno', 6, 'lbg'))
+    s.append(rect(U_COL, 0, COL_W, 60, 'box')); s.append(rect(U_COL, 60, COL_W, 2, 'front')); s.append(label(U_COL + COL_W / 2, 34, 'horno', 6, 'lbg'))
     for i, W in enumerate(MODS):
         s.append(rect(XS[i], 0, W, 60, 'box')); s.append(rect(XS[i], 60, W, 2, 'front')); s.append(label(XS[i] + W / 2, 34, f'{i+1}', 9, 'num'))
     s.append(rect(XS[-1], 0, BAND, 60, 'box')); s.append(rect(XS[-1], 60, BAND, 2, 'frontN')); s.append(label(XS[-1] + BAND / 2, 34, 'B', 7, 'num'))
-    s.append('<rect class="sink" x="{}" y="8" width="70" height="44" rx="4"/>'.format(367.9 - 35)); s.append(label(367.9, 48, 'bacha', 5.5, 'lbg'))
+    s.append('<rect class="sink" x="{}" y="8" width="70" height="44" rx="4"/>'.format(U_BACHA - 35)); s.append(label(U_BACHA, 48, 'bacha', 5.5, 'lbg'))
     s.append('<path class="arrow" d="M 180 66 L 180 78 M 176.5 74 L 180 78 L 183.5 74"/>')
     # isla: bloque de 160 × 70 (chapa en los costados y atrás), mesa de madera en L
     v0 = 167.0
@@ -169,7 +189,7 @@ def planta():
     s.append('<path class="arrow" d="M 154.5 {0} L 154.5 {1} M 151 {2} L 154.5 {1} L 158 {2}"/>'.format(v0 - 2, v0 - 14, v0 - 10))
     s.append(label(154.5, v0 - 18, 'cajones hacia la mesada', 5.5, 'lbg'))
     # cotas
-    s.append(dim_h(0, 75, 92, '75', False)); s.append(dim_h(U_COL, U_MES, 92, '58', False))
+    s.append(dim_h(0, 75, 92, '75', False)); s.append(dim_h(U_COL, U_MES, 92, c(COL_W), False))
     for a, b in zip(XS, XS[1:]): s.append(dim_h(a, b, 92, c(b - a), False))
     s.append(dim_h(XS[-1], U_BAND1, 82, '17', False, 5))
     s.append(dim_h(U_MES, U_BAND1, 112, '392 (mesada)', False))
@@ -212,6 +232,10 @@ def alzado():
             s.append(f'<line class="unero" x1="{x+W/2-2}" y1="{Y(70)}" x2="{x+W/2-2}" y2="{Y(80)}"/><line class="unero" x1="{x+W/2+2}" y1="{Y(70)}" x2="{x+W/2+2}" y2="{Y(80)}"/>')
             s.append(f'<line class="ghost" x1="{x+1}" y1="{Y(48.5)}" x2="{x+W-1}" y2="{Y(48.5)}"/>')
             s.append('<rect class="sinkF" x="{}" y="{}" width="70" height="18"/>'.format(x + W / 2 - 35, Y(87)))
+        elif i == TACHO_IDX:
+            for a, b in [(10, 10 + ROWS[0] + ROWS[1]), (10 + ROWS[0] + ROWS[1], 87)]:
+                s.append(rect(x + .2, Y(b) + .2, W - .4, b - a - .4, 'frontF')); s.append(f'<line class="unero" x1="{x+W/2-8}" y1="{Y(b)+2}" x2="{x+W/2+8}" y2="{Y(b)+2}"/>')
+            s.append(label(x + W / 2, Y(45), 'basura', 5.5, 'lbg'))
         else:
             acc = 10
             for r in ROWS:
@@ -220,7 +244,7 @@ def alzado():
     s.append(rect(XS[-1] + .2, Y(87) + .2, BAND - .4, 77 - .4, 'frontN'))
     # cotas
     for a, b in zip(XS, XS[1:]): s.append(dim_h(a, b, Y(-8), c(b - a), False))
-    s.append(dim_h(XS[-1], U_BAND1, Y(-18), '17', False, 5)); s.append(dim_h(0, 75, Y(-8), '75', False)); s.append(dim_h(U_COL, U_MES, Y(-8), '58', False))
+    s.append(dim_h(XS[-1], U_BAND1, Y(-18), '17', False, 5)); s.append(dim_h(0, 75, Y(-8), '75', False)); s.append(dim_h(U_COL, U_MES, Y(-8), c(COL_W), False))
     xa = U_MES; ax = [xa]
     for W in AL_PUERTAS + [AL_BAND]: ax.append(ax[-1] + W)
     for a, b in zip(ax, ax[1:]): s.append(dim_h(a, b, Y(236), c(b - a), True))
@@ -272,7 +296,7 @@ def tabla(grupo):
     return (f'<div class="tw"><table data-g="{E(grupo)}"><thead><tr><th>Pieza</th><th class="n">Cant.</th><th class="n">Largo</th><th class="n">Ancho</th><th class="n">Esp.</th><th>Material</th><th>Tapacanto</th><th>Nota</th></tr></thead>'
             f'<tbody>{tr}</tbody><tfoot><tr><td>Total</td><td class="n">{sum(p["cant"] for p in rows)}</td><td colspan="6"></td></tr></tfoot></table></div>')
 grupos = [('Frentes', 'Petiribí macizo de 20 mm en cajones, puertas de la bacha, columna del horno y alacena de la heladera; melamina negra texturada en las alacenas altas y en los bandejeros. Juntas de 2 mm.'),
-          ('Cajoneras', 'Cajas del mueble en melamina negra de 18 mm, una por módulo; las de piso sobre patas regulables. Fondo de fibroplus de 3 mm.'),
+          ('Cajoneras', 'Cajas del mueble en melamina blanca de 18 mm, una por módulo (Maxi 25/11: cerrado sólo se ven los frentes y adentro queda claro); las de piso sobre patas regulables. Fondo de fibroplus de 3 mm. Los costados que quedan a la vista van como los frentes: petiribí en la punta de la mesada y en el costado de la columna, melamina negra texturada en la punta de las alacenas. Color del tapacanto: a definir, blanco o negro.'),
           ('Cajas de cajón', 'Laterales, frente y contrafrente de melamina blanca de 18 mm (Maxi 23/11); piso de fibroplus de 3 mm. El ancho ya descuenta 13 mm por lado para las guías.'),
           ('Zócalo', 'Melamina negra de 18 mm, 10 cm de alto, rehundido 8 cm del frente.')]
 desp = ''.join(f'<section class="grp"><h3>{E(g)}</h3><p class="mut">{E(t)}</p>{tabla(g)}<button class="copy" data-copy="ar:{E(g)}" type="button">Copiar tabla</button></section>' for g, t in grupos)
@@ -290,15 +314,15 @@ carp = f'''
             <div class="big">3,92 m</div>
             <ul>
               <li>4 columnas de 0,94 (93,75) y un bandejero de 0,17 en la punta del ventanal</li>
-              <li>Columnas 1, 2 y 4: 3 cajones cada una. Columna 3, bajo la bacha: 2 puertas con estante y recorte atrás para el desagüe</li>
+              <li>Columnas 1 y 4: 3 cajones cada una. Columna 2, la de la basura: cajón finito arriba y abajo un extraíble con 3 tachos sueltos. Columna 3, bajo la bacha: 2 puertas con estante y recorte atrás para el desagüe</li>
               <li>Caja de 0,77 de alto sobre zócalo de 0,10 (0,87 sin la tapa); 0,62 de fondo con el frente</li>
             </ul>
           </div>
           <div class="item">
             <b>Columna del horno y alacena de la heladera</b>
-            <div class="big">0,58 + 0,75 m</div>
+            <div class="big">0,60 + 0,75 m</div>
             <ul>
-              <li>Columna de 0,58 × 0,62 × 2,28: 2 cajones abajo (0,41 y 0,28), nicho del horno y puerta arriba de 0,86</li>
+              <li>Columna de 0,60 × 0,62 × 2,28: 2 cajones abajo (0,41 y 0,28), nicho del horno de 56 × 59 libres y puerta arriba de 0,86</li>
               <li>Alacena de 0,75 × 0,62 × 0,38 sobre la heladera, de 1,90 a 2,28, con una puerta</li>
             </ul>
           </div>
@@ -320,10 +344,11 @@ carp = f'''
           </div>
           <div class="item">
             <b>En total</b>
-            <div class="big">{n_caj} cajones + 5 puertas + 4 alacenas</div>
+            <div class="big">{n_caj} cajones + 1 extraíble + 5 puertas + 4 alacenas</div>
             <ul>
               <li>Frentes de petiribí macizo de 20 mm (cajones, puertas bajas, columna y alacena de la heladera); alacenas altas y bandejeros en melamina negra texturada</li>
-              <li>Muebles en melamina negra; cajones de melamina blanca con guías telescópicas de cierre suave</li>
+              <li>Cajas del mueble en melamina blanca (cerrado sólo se ven los frentes); los costados que quedan a la vista van como los frentes: petiribí en la punta de la mesada y en la columna, negro texturado en la punta de las alacenas</li>
+              <li>Cajones de melamina blanca con guías telescópicas de cierre suave</li>
               <li>Zócalo negro rehundido, sobre patas regulables</li>
             </ul>
           </div>
@@ -342,7 +367,7 @@ carp = f'''
         <figure>
           <figcaption><span>Pared de la cocina · vista de frente</span><span>cm</span></figcaption>
           <div class="dw">{alzado()}</div>
-          <div class="legend"><span><i style="background:var(--oak-soft)"></i>petiribí</span><span><i style="background:var(--zoc)"></i>melamina negra</span></div>
+          <div class="legend"><span><i style="background:var(--oak-soft)"></i>petiribí</span><span><i style="background:var(--zoc)"></i>melamina negra texturada / zócalo negro</span></div>
         </figure>
         <p class="mut" style="margin-top:10px">1 a 4 son las columnas de la mesada, B los bandejeros, C la columna del horno y A1 a A4 las alacenas altas, como en el despiece. Las alturas son las de cada fila de cajones; el frente es 4 mm más chico por las juntas.</p>
       </div>
@@ -363,7 +388,8 @@ carp = f'''
       <div class="sheet">
         <h2>A definir antes de cortar</h2>
         <ul>
-          <li><b>Horno:</b> es de 60 cm y la columna mide 58 por fuera, así que adentro quedan unos 54. Un horno de 60 pide un nicho de 56 a 57: la columna tiene que crecer a 60 (la mesada o la heladera ceden 2 cm).</li>
+          <li><b>Tapacanto de la melamina blanca:</b> blanco o negro, a definir.</li>
+          <li><b>Piso de las alacenas altas:</b> se ve desde abajo; con la caja blanca queda blanco (el perfil LED va embutido ahí).</li>
           <li><b>Bajo el anafe:</b> el cajón de arriba de la isla queda debajo del anafe de 5 hornallas. En Carhué ahí va un frente fijo de 0,14 y dos cajones; acá habría que hacer lo mismo o confirmar que el anafe deja lugar.</li>
           <li><b>Tiradores:</b> en el modelo son barras negras; en Carhué es uñero fresado.</li>
         </ul>
@@ -374,7 +400,8 @@ carp = f'''
           <div><dt>Frentes bajos, columna, alacena de la heladera</dt><dd>petiribí macizo 20 mm</dd></div>
           <div><dt>Alacenas altas y bandejeros</dt><dd>melamina negra texturada 18 mm</dd></div>
           <div><dt>Juntas entre frentes</dt><dd>2 mm</dd></div>
-          <div><dt>Muebles</dt><dd>melamina negra 18 mm</dd></div>
+          <div><dt>Cajas del mueble</dt><dd>melamina blanca 18 mm; tapacanto blanco o negro, a definir</dd></div>
+          <div><dt>Costados a la vista</dt><dd>como los frentes: petiribí 20 mm abajo y en la columna, melamina negra texturada en las alacenas</dd></div>
           <div><dt>Fondos</dt><dd>fibroplus 3 mm</dd></div>
           <div><dt>Cajas de cajón</dt><dd>melamina blanca 18 mm</dd></div>
           <div><dt>Guías mesada y columna</dt><dd>telescópicas 450 mm, cierre suave</dd></div>
