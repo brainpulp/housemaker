@@ -158,9 +158,15 @@ export function catalogoMuebles(THREE){
       const sh=new THREE.Shape(),n=Math.max(10,Math.round(p.L/4)),ola=(x,f)=>1.8*Math.sin(x*.035+f)+1.0*Math.sin(x*.11+2.1*f)+.5*Math.sin(x*.37+f*3);
       for(let i=0;i<=n;i++){const x=-p.L/2+p.L*i/n,y=p.D/2-1.5-ola(x,.7);i?sh.lineTo(x,y):sh.moveTo(x,y);}
       for(let i=n;i>=0;i--){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2+1.5+ola(x,2.3));}
-      const ge=new THREE.ExtrudeGeometry(sh,{depth:5.4,bevelEnabled:true,bevelThickness:.3,bevelSize:.5,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.3,0);return ge;};
-    const g=[[p.canto==='vivo'?tapa():R(-p.L/2,p.L/2,p.H-5,p.H,-p.D/2,p.D/2,1),p.mad],[B(-p.L/2+12,p.L/2-12,p.H-12,p.H-5,-p.D/2+12,p.D/2-12),p.mad]];
-    for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(2.2,0,p.H-5,sx*(p.L/2-14),sz*(p.D/2-14),16,3.6),p.mad]);return g;}},
+      const ge=new THREE.ExtrudeGeometry(sh,{depth:(p.e||5.4),bevelEnabled:true,bevelThickness:.3,bevelSize:.5,bevelSegments:2,curveSegments:4});ge.rotateX(Math.PI/2);ge.translate(0,p.H-.3,0);return ge;};
+    const e=p.e||5,g=[[p.canto==='vivo'?tapa():R(-p.L/2,p.L/2,p.H-e,p.H,-p.D/2,p.D/2,1),p.mad]];
+    if(p.pata==='placa'){/* Maxi 25/11 (mesa larga de Carhué): «patas mucho más cojudas»: dos placas macizas del mismo tablón (espesor e) a 0,70 de las puntas, del piso a la tapa,
+         con un patín abajo y una viga de 10 × 20 entre las dos, bajo el centro de la tapa */
+      const xp=p.L/2-70,w=p.e||10,hb=p.H-e;
+      for(const sx of [-1,1]){const x=sx*xp;g.push([B(x-w/2,x+w/2,8,hb,-p.D/2+15,p.D/2-15),p.mad],[B(x-w*.9,x+w*.9,0,8,-p.D/2+8,p.D/2-8),p.mad]);}
+      g.push([B(-xp+w/2,xp-w/2,hb-20,hb,-5,5),p.mad]);return g;}
+    g.push([B(-p.L/2+12,p.L/2-12,p.H-e-7,p.H-e,-p.D/2+12,p.D/2-12),p.mad]);
+    for(const sx of [-1,1])for(const sz of [-1,1])g.push([C(2.2,0,p.H-e,sx*(p.L/2-14),sz*(p.D/2-14),16,3.6),p.mad]);return g;}},
   /* Maxi 4/11: estructuras octet diseñadas en la página casas/octet (editor), copiadas en octet-modelos.js; con «modelo» se elige cuál. Nodos, tubos, discos, vidrio y regatones salen de octet.js */
   octet:{n:'Estructura octet (tubos y nodos, del editor Octet)',cat:'comedor',p:{modelo:Object.keys(OCTET)[0]||''},ui:[['modelo','modelo',Object.keys(OCTET)]],g:p=>{const m=OCTET[p.modelo];if(!m)return [[B(-20,20,0,2,-20,20),'rojo']];
     const A=armarOctet(THREE,m,{centrar:true});const MAT={vidrio:'vidrio',disco:'aluminio',goma:'gomaN'};return [...A.nodos.map(n=>[n.geo,'aluFund']),...A.struts.map(s=>[s.geo,'aluminio']),...A.extra.map(x=>[x.geo,MAT[x.cat]||'aluminio'])];}},
@@ -366,7 +372,7 @@ export function catalogoMuebles(THREE){
   /* Maxi 5/11: paño de revestimiento de pared (inox detrás de la mesada de Arcos). Chapa de e cm apoyada en la pared, de z a z+H; el frente mira a +z. mat: cualquiera de la paleta */
   revestimiento:{n:'Revestimiento de pared (paño)',cat:'cocina',p:{L:200,H:60,e:1.5,mat:'acero'},z:90,g:p=>[[B(-p.L/2,p.L/2,0,p.H,-p.e,0),p.mat]]},
   /* Maxi 6/11: estante de pared angosto (especias, frascos) bajo las alacenas: tabla de «e» sobre ménsulas en L de planchuela cada ~0,80, la espalda en z 0 local, la tabla hacia +z (el ambiente) */
-  estante:{n:'Estante de pared',cat:'cocina',p:{L:200,D:15,e:2,mat:'acero'},z:130,g:p=>{const g=[[B(-p.L/2,p.L/2,0,p.e,0,p.D),p.mat]],n=Math.max(2,Math.round(p.L/80)+1);
+  estante:{n:'Estante de pared',cat:'cocina',p:{L:200,D:15,e:2,mat:'acero'},z:130,g:p=>{const g=[[B(-p.L/2,p.L/2,0,p.e,0,p.D),p.mat]],n=Math.max(2,Math.round(p.L/80)+1);if(p.ocultas)return g;/* Maxi 25/11: con «ocultas» las ménsulas van embutidas (estante flotante), sin nada abajo */
     for(let i=0;i<n;i++){const x=-p.L/2+6+(p.L-12)*i/(n-1);g.push([B(x-1.5,x+1.5,-10,0,0,.6),'acero'],[B(x-1.5,x+1.5,-.6,0,0,p.D-1.5),'acero']);}return g;}},
   salpicadero:{n:'Salpicadero de pizarra en lajas',cat:'cocina',p:{L:200,H:10,caja:0},z:90,g:p=>{/* lajas de pizarra en hiladas de 10, largos alternados y canto irregular; con caja > 0 es una puerta de pizarra separada de la pared (tapa un tablero, por ejemplo) */
     const g=[],c=p.caja||0,LS=[37,52,29,45,60,33,48],X=p.L/2;let k=0;
