@@ -9,3 +9,13 @@ Va en la misma página que la de Carhué: https://claude.ai/artifact/SLXfWvDJuVM
 Pendientes que la página marca: color del tapacanto de las cajas blancas (blanco o negro); el cajón de arriba de la isla queda bajo el anafe (en Carhué ahí va un frente fijo de 0,14); tiradores (el modelo tiene barras negras).
 
 Para republicar sólo Arcos sin tocar Carhué: bajar el `index.html` publicado, reemplazar desde `<section id="v-ar-carpintero"` hasta `</main>` por el `html` de `gen.py` (con el render) y el `ar:` del `const CSV` por su `csv` (así se hizo el 25/11/2026).
+
+## Lista de corte para el cortero (Sólido)
+
+`corte.py` arma la lista de corte de placas (sin el petiribí macizo, que hace el carpintero): una fila por medida, cantos por lado
+(L1 L2 A1 A2) con su color, veta en la texturada, y las piezas de la alacena sobre la heladera marcadas como provisorias.
+`corte_page.py` arma la página para compartir (artifact https://claude.ai/artifact/CurWLRA1ALVqAonwFHCPSS, publicado desde archivos).
+
+    python3 gen.py /tmp/cm/arcos.json && python3 corte.py /tmp/cm/arcos.json /tmp/corte && python3 corte_page.py /tmp/corte/arcos-cocina-corte-placas.json index.html
+
+La planilla (xlsx y csv) va a /mnt/project-files/arcos/.
