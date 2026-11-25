@@ -6,7 +6,8 @@
 # Materiales: los de la tabla de Compras de Obras (arcos-01…29).
 # Maxi 25/11: columna del horno de 60 (versión 0.10.56), módulo de basura en la columna 2 (cajón finito + extraíble con 3 tachos),
 # cajas del mueble en melamina blanca (adentro claro; cerrado sólo se ven los frentes) y los costados que quedan a la vista con
-# terminación del frente: petiribí en la punta de la mesada y en la columna, melamina negra texturada en la punta de las alacenas.
+# terminación del frente: petiribí en la punta de la mesada, melamina negra texturada en la punta de las alacenas.
+# Maxi 25/11 (más tarde): la torre del horno va toda en melamina negra texturada (frentes y lateral a la vista), no en petiribí.
 # Uso: python3 gen.py <salida.json>   → secciones HTML y CSV para armar.py
 import json, math, html, sys
 E = html.escape
@@ -47,9 +48,9 @@ for i, W in enumerate(MODS):
     for r, n in zip(ROWS, ['abajo', 'medio', 'arriba']):
         add('Frentes', f'Cajón {n}, {col(i)}', 1, w, mm(r - J), 20, PET, '', '')
 add('Frentes', 'Bandejero bajo mesada (17)', 1, mm(H_CAJ - J), mm(BAND - J), 18, NEG, '4 cantos', 'sale entero con las bandejas')
-add('Frentes', 'Columna del horno: cajón abajo', 1, mm(COL_W - J), mm(41 - J), 20, PET, '', '')
-add('Frentes', 'Columna del horno: cajón arriba', 1, mm(COL_W - J), mm(28 - J), 20, PET, '', '')
-add('Frentes', 'Columna del horno: puerta arriba', 1, mm(COL_H - 142 - J), mm(COL_W - J), 20, PET, '', 'veta vertical; 2 bisagras cazoleta')
+add('Frentes', 'Columna del horno: cajón abajo', 1, mm(COL_W - J), mm(41 - J), 18, NEGT, '4 cantos', '')
+add('Frentes', 'Columna del horno: cajón arriba', 1, mm(COL_W - J), mm(28 - J), 18, NEGT, '4 cantos', '')
+add('Frentes', 'Columna del horno: puerta arriba', 1, mm(COL_H - 142 - J), mm(COL_W - J), 18, NEGT, '4 cantos', '2 bisagras cazoleta')
 add('Frentes', 'Alacena sobre la heladera: puerta', 1, mm(ALH_W - J), mm(ALH_H - J), 20, PET, '', '2 bisagras cazoleta')
 for k, W in enumerate(AL_PUERTAS):
     add('Frentes', f'Alacena alta: puerta {k+1}', 1, mm(W - J), mm(AL_H - J), 18, NEGT, '4 cantos', 'se abre hacia arriba con brazo')
@@ -76,7 +77,7 @@ def cajonera(t, W, H, D, estante=False, techo=False, nota='', vista=None):
 for i, W in enumerate(MODS):
     cajonera(f'Mesada, {col(i)}', W, H_CAJ, D_CAJ, estante=(i == PUERTA_IDX), nota='recorte atrás para el desagüe' if i == PUERTA_IDX else '')
 cajonera('Mesada, bandejero (17)', BAND, H_CAJ, D_CAJ, vista=(PET, 20, 'punta del ventanal'))
-cajonera('Columna del horno (60)', COL_W, COL_H - 10, COL_D - 2, techo=True, nota='alto 2,18 sobre zócalo de 10', vista=(PET, 20, 'lado de la mesada'))
+cajonera('Columna del horno (60)', COL_W, COL_H - 10, COL_D - 2, techo=True, nota='alto 2,18 sobre zócalo de 10', vista=(NEGT, 18, 'lado de la mesada'))
 add('Cajoneras', 'Columna del horno: estantes que enmarcan el horno', 2, mm(COL_W - 3.6), mm(COL_D - 2 - .3), 18, MEL15, '1 largo', 'fijos, a 0,79 y 1,40 del piso; hueco libre de 56 × 59')
 cajonera('Alacena sobre la heladera (75)', ALH_W, ALH_H, ALH_D - 2, techo=True)
 for k, W in enumerate(AL_PUERTAS):
