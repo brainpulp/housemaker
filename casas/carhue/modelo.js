@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.68', fecha:'2026-11-25',
+  nombre:'Carhué', version: '1.1.69', fecha:'2026-11-25',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,10 +288,10 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'1.1.69', txt:'Maxi 25/11: la escalera al entrepiso va sin herrajes contra el piso (son innecesarios): se sacan el estribo al pie del postecito y los ángulos al pie de los limones de abajo, también en la variante de diseño; la animación de armado pierde el paso del estribo.'},
   {fecha:'2026-11-25', v:'1.1.68', txt:'Entrepiso a la altura medida por Maxi: 2,67 de pisada a pisada sobre el piso de planta baja actual. Como el piso que falta abajo sube menos de 1 cm, el piso del entrepiso queda a +2,66 del piso terminado (antes +2,62). Suben 4 cm los tirantes, la galería con su baranda y sus ventanas, las ventanas al jardín, los muros de abajo que llegan al entrepiso y los muebles de arriba; la planta baja gana 4 cm de alto bajo el entrepiso. El altillo del ala no cambia (sigue estimado a +2,62). La escalera de obra, tal como está cargada, llega a +2,47: le falta una alzada de ~19.'},
   {fecha:'2026-11-25', v:'1.1.67', txt:'Cocina: el tacho y las tiras LED se ven al abrir, sin tener que elegir nada (la cocina guardada se actualiza sola y la escena de las tiras queda como la de partida).'},
   {fecha:'2026-11-25', v:'1.1.66', txt:'Maxi 25/11, cocina: el módulo de 0,46 entre el rincón y la bacha pasa a ser el del tacho (un frente de alto completo que saca un bastidor con dos tachos, sobre guías de extracción total con cierre suave). Luces: escena nueva «Tiras LED: mesada y zócalo», con un perfil en la pared de las ventanas a +2,05 que ilumina toda la mesada y una tira baja en el zócalo, cada una en su llave.'},
-  {fecha:'2026-11-25', v:'1.1.66', txt:'Maxi 25/11: la escalera al entrepiso va sin herrajes contra el piso (son innecesarios): se sacan el estribo al pie del postecito y los ángulos al pie de los limones de abajo, también en la variante de diseño; la animación de armado pierde el paso del estribo.'},
   {fecha:'2026-11-23', v:'1.1.65', txt:'Maxi 23/11: el perfil W-1 va sólo del extremo norte (C-03) hasta el final de la galería (C-01, x 13,42); el tramo que seguía hacia el sur por el entrepiso se sacó en obra. Con eso no queda nada cruzando el estudio ni la corrediza.'},
   {fecha:'2026-11-22', v:'1.1.64', txt:'Maxi 22/11: encuentro del quincho con el alero oeste T-08. Los cabios del quincho que caen sobre T-08 siguen de largo por encima de la viga VQ-1 hasta y −0,14; las vigas VT-1…3 se corren al lado de uno de esos cabios (x 25,49 / 26,91 / 28,21) y terminan en y 0,02, con las puntas atornilladas entre sí. La chapa de T-05 baja hasta apoyarse en la de T-08; se saca el cierre vertical de chapa. (2) Volado al jardín: el entrepiso del estudio vuela 0,70 sobre la fachada retranqueada M-07 y el frente del dormer sigue derecho en y 6,90, coplanar con el del dormitorio (un solo frente de x 0 a 13,40, sin el escalón). La corrediza M-43 llega hasta ese frente: hojas de 1,64 en vez de 1,50. La columna C-13 pasa a la punta norte del frente nuevo, sobre un tirante de borde.'},
   {fecha:'2026-11-22', v:'1.1.63', txt:'Maxi 22/11: la «ratona» que Maxi diseñó en la página Octet (L = 45, 0,90 × 1,35, una capa, vidrio con 20 de vuelo) va en el living, en el centro de la alfombra y con el lado largo de frente al hogar.'},
