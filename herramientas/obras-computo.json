@@ -8,6 +8,7 @@
   "carhue-04": { "piezas": ["m273"], "campo": "frentesCajones" },
   "carhue-04b": { "piezas": ["m273"], "campo": "cajasCajones" },
   "carhue-05": { "piezas": ["m273"], "campo": "panelCiego" },
+  "carhue-05b": { "piezas": ["m273"], "campo": "tacho" },
   "carhue-06": { "piezas": ["m277"], "campo": "frentesBloque" },
   "carhue-06b": { "piezas": ["m277"], "campo": "cajasCajones" },
   "carhue-07": { "piezas": ["m273", "m277"], "campo": "carcasas" },

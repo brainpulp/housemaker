@@ -155,7 +155,9 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
     case 'cocina':return {
       A:{nombre:'Riel + tira bajo alacena',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('tira',1866,-150,R90,{L:300,z:148,dir:'abajo'}),I('colgante',2165,-175,0,{drop:85,diam:30})]},
       B:{nombre:'Embutidos + colgantes sobre isla',items:[I('emb',1910,-300,R90,{n:4,sep:110}),I('colgante',2165,-245,0,{drop:80,diam:25}),I('colgante',2165,-175,0,{drop:80,diam:25}),I('colgante',2165,-105,0,{drop:80,diam:25})]},
-      C:{nombre:'Riel sobre la mesada + colgantes a los lados de la campana',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('colgante',1930,45,0,{drop:85,diam:25}),I('colgante',2124,45,0,{drop:85,diam:25})]}};
+      C:{nombre:'Riel sobre la mesada + colgantes a los lados de la campana',items:[I('riel',1905,-150,R90,{n:4,L:300,tilt:20}),I('colgante',1930,45,0,{drop:85,diam:25}),I('colgante',2124,45,0,{drop:85,diam:25})]},
+      /* Maxi 25/11: tiras LED en la cocina del escenario E (sin alacenas: las ventanas V-21 y V-38 van sobre la mesada). Trabajo: perfil en la pared de las ventanas, 10 cm sobre los dinteles (+2,05), a lo largo de toda la mesada (de la heladera a la punta, 4,75), en ángulo hacia la tapa; 3000 K, ~1000 lm/m. Zócalo: tira en el zócalo rehundido de la mesada, bajo los frentes (+0,08), hacia el piso; 2700 K, baja, en su propia llave (luz de noche) */
+      D:{nombre:'Tiras LED: mesada y zócalo (25/11)',items:[I('tira',1834.6,-221,R90,{L:475,z:205,dir:'abajo',lmm:1000,K:3000}),I('tira',1888.6,-221,R90,{L:475,z:8,dir:'abajo',lmm:300,K:2700})]}};
     case 'comedor':return {
       A:{nombre:'Lineal sobre la mesa',items:[I('linea',2250,430,R90,{L:160,drop:85}),I('aplique',2445,92,0,{z:190})]},
       B:{nombre:'Colgante grande + bañadores',items:[I('colgante',2250,420,0,{drop:95,diam:55,lm:1400}),I('riel',2250,180,0,{n:3,L:200,tilt:25})]}};
