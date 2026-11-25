@@ -11,3 +11,4 @@
 
 Desde la 1.0.58 se publica desde `dist/carhue`; los archivos viejos `modelo-carhue.js` y `modelo-3d.js` se borraron del artifact.
 - **Motor publicado:** 0ac8d7f (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- Hub publicado 2026-11-25 (versión 1795611518-d682): Carhué 1.1.68, entrepiso a +2,66.
