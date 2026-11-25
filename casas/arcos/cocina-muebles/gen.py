@@ -210,9 +210,9 @@ def alzado():
     # columna del horno
     x = U_COL
     for a, b in [(10, 51), (51, 79)]:
-        s.append(rect(x + .2, Y(b) + .2, COL_W - .4, b - a - .4, 'frontF')); s.append(f'<line class="unero" x1="{x+COL_W/2-8}" y1="{Y(b)+2}" x2="{x+COL_W/2+8}" y2="{Y(b)+2}"/>')
+        s.append(rect(x + .2, Y(b) + .2, COL_W - .4, b - a - .4, 'frontN')); s.append(f'<line class="unero" x1="{x+COL_W/2-8}" y1="{Y(b)+2}" x2="{x+COL_W/2+8}" y2="{Y(b)+2}"/>')
     s.append(rect(x + 3, Y(139.5), COL_W - 6, 58.5, 'oven')); s.append(label(x + COL_W / 2, Y(108), 'horno 60', 5.5, 'lbw'))
-    s.append(rect(x + .2, Y(228) + .2, COL_W - .4, 86 - .4, 'frontF')); s.append(label(x + COL_W / 2, Y(190), 'C', 8, 'num'))
+    s.append(rect(x + .2, Y(228) + .2, COL_W - .4, 86 - .4, 'frontN')); s.append(label(x + COL_W / 2, Y(190), 'C', 8, 'numw'))
     s.append(rect(x, Y(10), COL_W, 10, 'zoc'))
     # inox y estante
     s.append(rect(U_MES, Y(150), 392, 60, 'inox')); s.append(label(U_MES + 196, Y(142), 'revestimiento de inox (no incluido)', 5, 'lbg'))
@@ -296,8 +296,8 @@ def tabla(grupo):
     tr = ''.join(f'<tr><td>{E(p["pieza"])}</td><td class="n">{p["cant"]}</td><td class="n">{p["L"]}</td><td class="n">{p["A"]}</td><td class="n">{p["esp"]}</td><td>{E(p["mat"])}</td><td>{E(p["canto"])}</td><td class="nota">{E(p["nota"])}</td></tr>' for p in rows)
     return (f'<div class="tw"><table data-g="{E(grupo)}"><thead><tr><th>Pieza</th><th class="n">Cant.</th><th class="n">Largo</th><th class="n">Ancho</th><th class="n">Esp.</th><th>Material</th><th>Tapacanto</th><th>Nota</th></tr></thead>'
             f'<tbody>{tr}</tbody><tfoot><tr><td>Total</td><td class="n">{sum(p["cant"] for p in rows)}</td><td colspan="6"></td></tr></tfoot></table></div>')
-grupos = [('Frentes', 'Petiribí macizo de 20 mm en cajones, puertas de la bacha, columna del horno y alacena de la heladera; melamina negra texturada en las alacenas altas y en los bandejeros. Juntas de 2 mm.'),
-          ('Cajoneras', 'Cajas del mueble en melamina blanca de 18 mm, una por módulo (Maxi 25/11: cerrado sólo se ven los frentes y adentro queda claro); las de piso sobre patas regulables. Fondo de fibroplus de 3 mm. Los costados que quedan a la vista van como los frentes: petiribí en la punta de la mesada y en el costado de la columna, melamina negra texturada en la punta de las alacenas. Color del tapacanto: a definir, blanco o negro.'),
+grupos = [('Frentes', 'Petiribí macizo de 20 mm en cajones, puertas de la bacha y alacena de la heladera; melamina negra texturada en la torre del horno, las alacenas altas y los bandejeros. Juntas de 2 mm.'),
+          ('Cajoneras', 'Cajas del mueble en melamina blanca de 18 mm, una por módulo (Maxi 25/11: cerrado sólo se ven los frentes y adentro queda claro); las de piso sobre patas regulables. Fondo de fibroplus de 3 mm. Los costados que quedan a la vista van como los frentes: petiribí en la punta de la mesada, melamina negra texturada en el costado de la columna y en la punta de las alacenas. Color del tapacanto: a definir, blanco o negro.'),
           ('Cajas de cajón', 'Laterales, frente y contrafrente de melamina blanca de 18 mm (Maxi 23/11); piso de fibroplus de 3 mm. El ancho ya descuenta 13 mm por lado para las guías.'),
           ('Zócalo', 'Melamina negra de 18 mm, 10 cm de alto, rehundido 8 cm del frente.')]
 desp = ''.join(f'<section class="grp"><h3>{E(g)}</h3><p class="mut">{E(t)}</p>{tabla(g)}<button class="copy" data-copy="ar:{E(g)}" type="button">Copiar tabla</button></section>' for g, t in grupos)
@@ -347,8 +347,8 @@ carp = f'''
             <b>En total</b>
             <div class="big">{n_caj} cajones + 1 extraíble + 5 puertas + 4 alacenas</div>
             <ul>
-              <li>Frentes de petiribí macizo de 20 mm (cajones, puertas bajas, columna y alacena de la heladera); alacenas altas y bandejeros en melamina negra texturada</li>
-              <li>Cajas del mueble en melamina blanca (cerrado sólo se ven los frentes); los costados que quedan a la vista van como los frentes: petiribí en la punta de la mesada y en la columna, negro texturado en la punta de las alacenas</li>
+              <li>Frentes de petiribí macizo de 20 mm (cajones, puertas bajas y alacena de la heladera); torre del horno, alacenas altas y bandejeros en melamina negra texturada</li>
+              <li>Cajas del mueble en melamina blanca (cerrado sólo se ven los frentes); los costados que quedan a la vista van como los frentes: petiribí en la punta de la mesada, negro texturado en la columna y en la punta de las alacenas</li>
               <li>Cajones de melamina blanca con guías telescópicas de cierre suave</li>
               <li>Zócalo negro rehundido, sobre patas regulables</li>
             </ul>
@@ -398,11 +398,11 @@ carp = f'''
       <div class="sheet">
         <h2>Materiales</h2>
         <dl class="spec">
-          <div><dt>Frentes bajos, columna, alacena de la heladera</dt><dd>petiribí macizo 20 mm</dd></div>
+          <div><dt>Frentes bajos y alacena de la heladera</dt><dd>petiribí macizo 20 mm</dd></div>
           <div><dt>Alacenas altas y bandejeros</dt><dd>melamina negra texturada 18 mm</dd></div>
           <div><dt>Juntas entre frentes</dt><dd>2 mm</dd></div>
           <div><dt>Cajas del mueble</dt><dd>melamina blanca 18 mm; tapacanto blanco o negro, a definir</dd></div>
-          <div><dt>Costados a la vista</dt><dd>como los frentes: petiribí 20 mm abajo y en la columna, melamina negra texturada en las alacenas</dd></div>
+          <div><dt>Costados a la vista</dt><dd>como los frentes: petiribí 20 mm abajo, melamina negra texturada en la columna y en las alacenas</dd></div>
           <div><dt>Fondos</dt><dd>fibroplus 3 mm</dd></div>
           <div><dt>Cajas de cajón</dt><dd>melamina blanca 18 mm</dd></div>
           <div><dt>Guías mesada y columna</dt><dd>telescópicas 450 mm, cierre suave</dd></div>
