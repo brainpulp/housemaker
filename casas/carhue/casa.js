@@ -162,7 +162,7 @@ const params=[
 
 function build(p){
   /* Maxi 15/10: opción de diseño para la puerta del baño piletero P-26: en M-26 (desde la cocina norte, como está) o en el tramo este de M-24 (desde la cocina, frente al baño) */
-  {const a=M.ABERTURAS.find(o=>o.id==='P-26');if(a){if(!a._orig)a._orig={muro:a.muro,d:a.d,w:a.w};Object.assign(a,p.p26==='m24'?{muro:'M-24',d:134,w:78,_var:'m24'}:{...a._orig,_var:''});}}
+  {const a=M.ABERTURAS.find(o=>o.id==='P-26');if(a){if(!a._orig)a._orig={muro:a.muro,d:a.d,w:a.w};Object.assign(a,p.p26==='m24'?{muro:'M-24',d:80,w:78,_var:'m24'}/* Maxi 25/11: se corre 54 cm hacia la pared de la arcada (M-29) para que entre la heladera entre la puerta y la línea de M-26 */:{...a._orig,_var:''});}}
   const parts=[];const Pt=(id,name,cat,geos,info,ex={})=>{const al=N.alias(id);parts.push({id,name:al?`${id} · ${al}`:name,alias:al,cat,geos:[].concat(geos),info:{...info,fn:(N.nota(id)?`<b>Tu nota:</b> ${N.nota(id)}<br>`:'')+(info.fn||'')},...ex});};
   const ex=d=>({group:d.nivel?NIV[d.nivel]:undefined,opt:{op:d.estado==='proyecto'?.35:d.estado==='demoler'?.45:undefined}});
   const base=d=>({fn:d.nota||'',sec:'',med:'',u:[...M.DUDAS.filter(x=>x.ref.includes(d.id)).map(x=>x.id)].join(' · ')||''});
@@ -333,6 +333,11 @@ function build(p){
     if((a.tipo==='ventana'||balcon)&&!a.abre){g.push(pane(a.d+5,a.d+a.w-5,s0+(a.tipo==='ventana'?5:0),s1-5));if(a.w>150&&!a.panos)g.push(pane(a.d+a.w/2-2,a.d+a.w/2+2,s0,s1));
       if(a.panos>1){/* parantes de madera que reparten el vidrio en paños iguales (Maxi 14/10: V-44 en tres) */const pr=[];for(let k=1;k<a.panos;k++){const d=a.d+a.w*k/a.panos;pr.push(horiz?box(ax+d-2.5,ax+d+2.5,s0+zoff,s1+zoff,ay-(m.e/2+1),ay+(m.e/2+1)):box(ax-(m.e/2+1),ax+(m.e/2+1),s0+zoff,s1+zoff,ay+d-2.5,ay+d+2.5));}
         Pt(a.id+'p',`${a.id} · parantes`,'roble',pr,{fn:`Parantes de 5 que reparten el vidrio en ${a.panos} paños de ${f1(a.w/a.panos/100)} m.`},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id]});}}
+    else if(a.tipo==='puerta'&&a.id==='P-26'){/* Maxi 25/11: puerta del baño piletero de vidrio entero con travesaños: bastidor de madera (parantes de 9, zócalo de 20, cabezal de 9)
+         y tres travesaños de 3 que parten el vidrio acanalado (estriado vertical) en cuatro paños iguales */
+      const d0=a.d+5,d1=a.d+a.w-5,zt=s1-5,zg0=20,zg1=zt-9;g.push(pane(d0,d0+9,0,zt),pane(d1-9,d1,0,zt),pane(d0+9,d1-9,0,zg0),pane(d0+9,d1-9,zg1,zt));
+      const nT=3,st=(zg1-zg0)/(nT+1);for(let k=1;k<=nT;k++){const z=zg0+st*k;g.push(pane(d0+9,d1-9,z-1.5,z+1.5));}
+      Pt(a.id+'v',`${a.id} · vidrio acanalado`,'glass',[pane(d0+9,d1-9,zg0,zg1)],{fn:'Vidrio acanalado (estriado vertical) de 4 mm en cuatro paños, entre los travesaños de la hoja.'},{group:'Aberturas',tags:[m.nivel,'aberturas',a.id],opt:{noEdges:true}});}
     else if(a.tipo==='puerta')g.push(pane(a.d+5,a.d+a.w-5,0,s1-5));
     if(s0>0)g.push(...(horiz?[box(ax+a.d,ax+a.d+a.w,s0,s0+5,ay-(m.e/2+1),ay+(m.e/2+1))]:[box(ax-(m.e/2+1),ax+(m.e/2+1),s0,s0+5,ay+a.d,ay+a.d+a.w)]));
     if(zoff)g.forEach(q=>q.translate(0,zoff,0));const nfr=3+(s0>0?1:0);const fr=[...g.slice(0,3),...(s0>0?[g[g.length-1]]:[])];const rest=g.slice(3,s0>0?g.length-1:g.length);
