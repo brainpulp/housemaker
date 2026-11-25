@@ -49,8 +49,8 @@ for r in rows:
     elif L < A and not ls:
         L, A = A, L
     color = MATS[mat]['nombre']
-    if mat == 'Fibroplus 3':                 # fondos de los muebles en negro (cajas negras); pisos de los cajones en blanco (cajas blancas)
-        color = 'Fibroplus 3 mm negro' if r[ix['Grupo']] == 'Cajoneras' else 'Fibroplus 3 mm blanco'
+    if mat == 'Fibroplus 3':                 # todo el fibroplus blanco: fondos de los muebles y pisos de los cajones (Maxi 25/11)
+        color = 'Fibroplus 3 mm blanco'
     nb = 'lleva 2 bisagras cazoleta' if 'bisagras cazoleta' in nota else ('se abre hacia arriba con brazo' if 'hacia arriba' in nota else '')
     piezas.append(dict(color=color, nb=nb, mat=mat, nombre=nombre, cant=cant, L=L, A=A, esp=esp, lados=tuple(sorted(ls)), nota=nota, dep=dep_heladera(nombre)))
 

@@ -6,7 +6,7 @@ d = json.load(open(sys.argv[1])); filas, tot = d['filas'], d['tot']
 c = lambda x, n=2: f'{x:,.{n}f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 SW = {'Melamina negra lisa 18 mm': ('#16171a', '#2a2c31', 'Lisa'), 'Melamina negra texturada 18 mm': ('#1d1e22', 'url(#tx)', 'Texturada, con veta'),
       'Melamina blanca 18 mm': ('#f4f3ef', '#ffffff', 'Cajas de los cajones'), 'Fibroplus 3 mm negro': ('#25262a', '#33353a', 'Fondos de los muebles'),
-      'Fibroplus 3 mm blanco': ('#e9e7e0', '#f6f5f1', 'Pisos de los cajones')}
+      'Fibroplus 3 mm blanco': ('#e9e7e0', '#f6f5f1', 'Fondos de los muebles y pisos de los cajones')}
 
 def glifo(f):
     # rectángulo con los lados que llevan canto marcados en grueso (L = lados horizontales del dibujo)
@@ -88,7 +88,7 @@ footer{{color:var(--soft);font-size:14px}}
 @media(max-width:600px){{table{{font-size:13px}}.stack thead{{display:none}}.stack tr{{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}}.stack td{{display:flow-root;border:0;padding:3px 0;padding-inline-start:6.5em;text-align:start;white-space:normal}}.stack td::before{{content:attr(data-l);float:inline-start;width:6em;margin-inline-start:-6.5em;color:var(--soft)}}.stack td:empty{{display:none}}tr.dep td:first-child{{box-shadow:none;padding-left:6.5em}}}}
 </style><script>new MutationObserver(()=>{{for(const c of document.querySelectorAll('.stack td:not([data-l])')){{let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}}}).observe(document,{{childList:true,subtree:true}})</script></head><body>
 <header class="band"><h1>Cocina Arcos: lista de corte de placas</h1>
-<p class="lead">Pedido de presupuesto de corte y canteado. {len(filas)} medidas, {sum(f["cant"] for f in filas)} piezas, en cinco placas distintas. La madera maciza no está incluida.</p>
+<p class="lead">Pedido de presupuesto de corte y canteado. {len(filas)} medidas, {sum(f["cant"] for f in filas)} piezas, en {len(tot)} placas distintas. La madera maciza no está incluida.</p>
 <div class="sws">{"".join(hero)}</div></header>
 <section class="band"><ul class="notas">
 <li><b>Medidas</b>Finales, en milímetros: largo × ancho × espesor. El canto de 0,45 mm no se descuenta.</li>
