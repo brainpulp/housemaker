@@ -4,7 +4,7 @@
    34 cm entre el nivel del descanso y la huella de arriba del módulo de abajo → 2 alzadas de 17, no de 18. El alisado sube el piso 2–3 cm.
    Arranque decidido por Maxi el 12/11: triángulos a 17 + 17; módulo de abajo de 3 huellas apoyado en el contrapiso; el primer escalón queda en 15.
    Alturas desde el piso terminado (z 0); contrapiso a −3. Se arma desde el piso hacia arriba: con 8 huellas arriba llega a +2,47,
-   y el entrepiso del modelo está a +2,62 (diferencia a medir: o el modelo está alto, o el tramo de arriba tiene otra cantidad de huellas).
+   y Maxi midió el entrepiso a 2,67 sobre el piso de PB actual (25/11; en el modelo +2,66): la diferencia de ~19 es una alzada que falta en algún lado.
    Postecito de 3″×3″ en la esquina interior del giro: se abulona de costado al limón de arriba y después al de abajo. El armazón del descanso (vigas, poste exterior, apoyo en la columna C-01) es una propuesta.
    geo: el de motor/visor3d.js; Pt(id,nombre,cat,geos,info,ex); o = {X0,X1,YE,H_EP,COL}. Coordenadas de Carhué (cm), z hacia arriba. */
 export function escaleraObra(geo,Pt,p,o){const {box,prism,rod,minus,f1}=geo;

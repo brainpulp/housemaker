@@ -6,7 +6,7 @@ export const TOURS_CARHUE = (() => {
       {walk:[[1600,420],[1880,780]],lvl:0},{look:[1950,160,1500],t:2.5},
       {walk:[[2150,560],[2150,250],[1950,70],[1935,-120]],lvl:0},{look:[1866,120,-170],t:2},{walk:[[1935,-420]],lvl:0},{look:[1935,150,-700],t:1.5}]},
     {id:'entrepiso',n:'Caminata: subir al entrepiso',tipo:'walk',seg:[
-      {walk:[[1900,420],[1650,560]],lvl:0},{stair:'ep'},{look:[2000,150,450],t:2.5},{walk:[[1250,330],[1120,250]],lvl:262},{look:[750,170,350],t:2}]},
+      {walk:[[1900,420],[1650,560]],lvl:0},{stair:'ep'},{look:[2000,150,450],t:2.5},{walk:[[1250,330],[1120,250]],lvl:266},{look:[750,170,350],t:2}]},
     {id:'altillo',n:'Caminata: subir al altillo',tipo:'walk',seg:[
       {walk:[[1950,250],[2050,-30],[2250,-60]],lvl:0},{stair:'alt'},{walk:[[2103,-310],[2103,-420],[2100,-560]],lvl:262},{look:[1900,330,-700],t:2},{look:[2300,330,-450],t:2}]},
     {id:'jardin-pileta',n:'Caminata: jardín, quincho y pileta',tipo:'walk',seg:[

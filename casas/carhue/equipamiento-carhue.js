@@ -3,7 +3,7 @@
 export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
   const R90=90;/* contra M-20 (cara interior x 1834,5), frente hacia el este */
   const xw=d=>1834.5+d/2;
-  const H_EP=262;/* cara superior del piso del entrepiso */
+  const H_EP=266,H_ALT=262;/* cara superior del piso del entrepiso (Maxi 25/11: 2,67 sobre el piso de PB sin terminar) y del altillo (estimado) */
   const AMB={
     cocina:{n:'Cocina',activo:'E',vista:{p:[2330,430,240],t:[1935,60,-280]},esc:()=>({
       A:{nombre:'Como está + isla',items:[/* Maxi 15/10: heladera contra el metro de pared al sur de la arcada (Maxi 9/11: la arcada está en M-29, 2 m detrás del hastial; la heladera, de espaldas a M-29); mesada a lo largo de la pared sur; isla adosada a la punta este de la mesada, grande, con las hornallas y banquetas del lado este. Las calderas van al sucucho del oeste (capa Calor). */
@@ -91,7 +91,7 @@ export function equipCarhue({ it, itA, mover, SILLAS, MESA3, PISO }) {
       A:{nombre:'Escritorio mirando al living',items:[I('octet',1280,190,0,{modelo:'desk'})/* Maxi 22/11: escritorio Octet, el «desk» que diseñó en la página Octet */,I('silla',1215,190,90),I('placard',1062,102,90,{L:150,D:60,H:200,fr:'roble'}),I('butaca',1110,520,45,{tela:'mostaza'}),I('ratona',1190,560,0,{L:50,D:50,H:45}),I('alfombra',1180,300,0,{L:200,D:260})]},
       B:{nombre:'Dos puestos enfrentados',items:[I('escritorio',1230,190,0,{L:160,D:70}),I('escritorio',1230,260,180,{L:160,D:70}),I('silla',1230,130,0),I('silla',1230,320,180),I('placard',1062,102,90,{L:150,D:60,H:200,fr:'roble'}),I('butaca',1250,520,180,{tela:'petroleo'})]},
       C:{nombre:'Escritorio largo mirando al living',items:[I('escritorio',1285,215,-90,{L:300,D:60}),I('silla',1225,140,90),I('silla',1225,290,90),I('placard',1062,102,90,{L:150,D:60,H:200,fr:'roble'}),I('sofa',1170,540,0,{L:180,D:85,tela:'lino'})]}};}},
-    altillo:{n:'Altillo (EP)',nivel:'EP',piso:H_EP,vista:{p:[2550,700,-300],t:[2100,300,-560]},esc:()=>{const I=itA('altillo');return {
+    altillo:{n:'Altillo (EP)',nivel:'EP',piso:H_ALT,vista:{p:[2550,700,-300],t:[2100,300,-560]},esc:()=>{const I=itA('altillo');return {
       /* el techo baja hacia x 1835 y x 2365 (cumbrera en x ≈ 2103, sobre P-34): alto libre: 2,25 en la cumbrera, 1,60 a 1 m de ella, bajo los cabios 0,49 a 30 cm de la pared, así que los pies quedan a 0,72 de la pared (Maxi 14/10: tocaban los cabios); las camas van de través con la cabecera hacia el centro (la cabeza bajo lo alto, los pies hacia el alero; Maxi 14/10) y la cucheta (1,65) sólo entra bajo la cumbrera, a lo largo (Maxi 14/10: cuarto de chicos; queen como opción) */
       A:{nombre:'Cuatro camas single, cabeceras al centro',items:[I('cama',1980,-690,-90,{L:90,D:190}),I('cama',1980,-480,-90,{L:90,D:190}),I('cama',2226,-690,90,{L:90,D:190}),I('cama',2226,-480,90,{L:90,D:190}),I('alfombra',2103,-560,90,{L:240,D:110}),I('comoda',2103,-390,180,{L:100,D:45})]},
       C:{nombre:'Cucheta bajo la cumbrera + dos single + juego',items:[I('cucheta',2103,-662,0,{L:90,D:190}),I('cama',1980,-700,-90,{L:90,D:190}),I('cama',2226,-700,90,{L:90,D:190}),I('alfombra',2103,-450,0,{L:220,D:150}),I('banco',1900,-440,90,{L:150,D:38,H:40}),I('biblioteca',2310,-440,-90,{L:150,D:30,H:80})]},
