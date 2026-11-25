@@ -27,7 +27,7 @@ function mesada(p) {
   const mods = []; if (p.mods && p.mods.length) { const t = p.mods.reduce((a, b) => a + b, 0); for (const w of p.mods) mods.push({ w: w * resto / t, tipo: 'caj' }); } /* Maxi 13/11: anchos a mano */ else for (let i = 0; i < n; i++) mods.push({ w: resto / n, tipo: 'caj' });
   if (band > 0) { if ((p.bandLado || 1) < 0) mods.unshift({ w: band, tipo: 'band' }); else mods.push({ w: band, tipo: 'band' }); }
   if (cie > 0) { if ((p.ciegoLado || 1) < 0) mods.unshift({ w: cie, tipo: 'ciego' }); else mods.push({ w: cie, tipo: 'ciego' }); }
-  mods.forEach((x, i) => { if (x.tipo !== 'caj') return; if ((p.tacho || []).includes(i)) x.tipo = 'tacho'; /* Maxi 25/11: módulo de la basura = cajón arriba + extraíble con tachos */ else if (pu.includes(i)) x.tipo = 'pu'; else if (pu.some(e => e && typeof e === 'object' && e.i === i)) { const q = pu.find(e => e && e.i === i); x.tipo = 'pu'; x.n = q.n || 2; } }); /* Maxi 20/11: {i, n:1} = una sola puerta */
+  mods.forEach((x, i) => { if (x.tipo !== 'caj') return; if (p.tachoArriba && [].concat(p.tacho ?? []).includes(i)) x.tipo = 'tacho'; /* Maxi 25/11: módulo de la basura = cajón arriba + extraíble con tachos */ else if (pu.includes(i)) x.tipo = 'pu'; else if (pu.some(e => e && typeof e === 'object' && e.i === i)) { const q = pu.find(e => e && e.i === i); x.tipo = 'pu'; x.n = q.n || 2; } }); /* Maxi 20/11: {i, n:1} = una sola puerta */
   const caj = mods.filter(x => x.tipo === 'caj'), pus = mods.filter(x => x.tipo === 'pu'), tac = mods.filter(x => x.tipo === 'tacho');
   const tapaL = L + (p.tapaMas || 0), tapaD = p.tapaD || D + 1, zoc = p.zocalo || 0, frenteH = H - 13;
   return {

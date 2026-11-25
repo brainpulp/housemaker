@@ -115,6 +115,15 @@ export function catalogoMuebles(THREE){
     for(const [a,b] of [[xa,xa+1.3],[xb-1.3,xb]])g.push([B(a,b,ya+2,ya+6,zf-Dc,zf-.3),'acero']);
     for(const [a,b] of [[xa+1.3,xa+2.2],[xb-2.2,xb-1.3]])g.push([B(a,b,ya+2.5,ya+5.5,zf-Dc,zf-.3),'acero',mv]);
     if(tirador)g.push([...tir((xl+xr)/2,yb-4,zf+2,Math.min(24,(xr-xl)*.5)),mv]);return g;}
+  /* Maxi 25/11 (Carhué): módulo del tacho: un solo frente de alto completo sobre guías de extracción total con cierre suave, que saca un bastidor con dos tachos */
+  function tachoExt(id,xl,xr,xa,xb,ya,yb,zb,zf,fr){const g=[],Dc=Math.max(20,zf-zb-2.3),mv={mov:{id,tipo:'desl',eje:[0,0,1],max:Math.min(50,Dc*.9)}};
+    g.push([FR(xl,xr,ya,yb,zf),fr,mv]);
+    g.push([B(xa+2.2,xb-2.2,ya+1.5,ya+3,zf-Dc,zf-.3),'acero',mv],[B(xa+2.2,xb-2.2,ya+3,ya+30,zf-Dc,zf-Dc+1.2),'acero',mv]);/* bastidor: piso y respaldo */
+    const n=2,w=(xb-xa-4.4-1.5*(n+1))/n,h=Math.min(yb-ya-16,45),d=Math.min(Dc-6,42),z1=zf-3,z0=z1-d;
+    for(let k=0;k<n;k++){const x0=xa+2.2+1.5+k*(w+1.5);g.push([B(x0,x0+w,ya+3,ya+3+h,z0,z1),'negro',mv]);}
+    for(const [a,b] of [[xa,xa+1.3],[xb-1.3,xb]])g.push([B(a,b,ya+2,ya+6,zf-Dc,zf-.3),'acero']);
+    for(const [a,b] of [[xa+1.3,xa+2.2],[xb-2.2,xb-1.3]])g.push([B(a,b,ya+2.5,ya+5.5,zf-Dc,zf-.3),'acero',mv]);
+    g.push([...tir((xl+xr)/2,yb-4,zf+2,Math.min(24,(xr-xl)*.5)),mv]);return g;}
   /* puerta batiente con bisagras cazoleta (Ø35 embutida en la puerta, brazo, base atornillada al lateral); lado −1: bisagras a la izquierda (−x) */
   function puerta(id,xl,xr,xa,xb,y0,y1,zf,fr,lado=-1,tirador=true){const g=[],hx=lado<0?xl+.15:xr-.15,xs=lado<0?xa:xb;
     const mv={mov:{id,tipo:'giro',eje:[0,1,0],max:(lado<0?-1:1)*100*Math.PI/180,pivot:[hx,0,zf]}};
@@ -265,11 +274,10 @@ export function catalogoMuebles(THREE){
       for(let i=0;i<mods.length;i++){const [xl,xr,xa,xb]=modX(-p.L/2,p.L/2,mods,i);
         if(i===iC){g.push([FR(xl,xr,y0,y1,zf),p.fr]);continue;}
         if(i===iB){g.push(...bandejero('bj',xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}
-        /* Maxi 20/11 (Carhué): una entrada de «puertas» puede ser {i, n:1, lado} = una sola puerta (lado −1: bisagras a −x), con estante al medio */
-        {const q=pu.find(e=>e&&typeof e==='object'&&e.i===i);if(q&&q.n===1){g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}`,xl,xr,xa,xb,y0,y1,zf,p.fr,q.lado<0?-1:1));continue;}}
-        /* Maxi 25/11 (Arcos): «tacho» = índices de módulos para la basura: arriba el cajón finito (bolsas, repasadores) y abajo un extraíble del alto de las dos filas de abajo,
+        /* Maxi 25/11 (Carhué): «tacho» = índice (o lista) de los módulos que llevan el tacho extraíble; cuenta como «puertas» (con el ciego y el bandejero) */
+        /* Maxi 25/11 (Arcos): con «tachoArriba», el módulo de «tacho» va distinto: arriba el cajón finito (bolsas, repasadores) y abajo un extraíble del alto de las dos filas de abajo,
            una caja baja de 18 sobre guías telescópicas con tachos rectangulares sueltos adentro («tachos» = cuántos, 3 por omisión: húmedos, reciclables y vidrio u orgánicos) */
-        if((p.tacho||[]).includes(i)){const [ya,yb]=filaY(y0,y1,filas,filas-1),yt=ya,Dc=Math.max(20,zf-zb-2.3),mv={mov:{id:`t${i}`,tipo:'desl',eje:[0,0,1],max:Math.min(50,Dc*.9)}};
+        if([].concat(p.tacho??[]).includes(i)&&p.tachoArriba){const [ya,yb]=filaY(y0,y1,filas,filas-1),yt=ya,Dc=Math.max(20,zf-zb-2.3),mv={mov:{id:`t${i}`,tipo:'desl',eje:[0,0,1],max:Math.min(50,Dc*.9)}};
           g.push(...cajon(`c${i}t`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));
           g.push([FR(xl,xr,y0,yt,zf),p.fr,mv],[...tir((xl+xr)/2,yt-4,zf+2,Math.min(24,(xr-xl)*.5)),mv]);
           g.push([B(xa+2.2,xb-2.2,y0+1.5,y0+3.3,zf-Dc,zf-.3),CAJ,mv],[B(xa+2.2,xa+4,y0+3.3,y0+18,zf-Dc,zf-.3),CAJ,mv],[B(xb-4,xb-2.2,y0+3.3,y0+18,zf-Dc,zf-.3),CAJ,mv],[B(xa+4,xb-4,y0+3.3,y0+18,zf-Dc,zf-Dc+1.8),CAJ,mv]);
@@ -277,6 +285,9 @@ export function catalogoMuebles(THREE){
           for(const [a,b] of [[xa+1.3,xa+2.2],[xb-2.2,xb-1.3]])g.push([B(a,b,y0+2.5,y0+5.5,zf-Dc,zf-.3),'acero',mv]);
           const nt=Math.max(1,p.tachos||3),w=(xb-xa-9)/nt,ht=Math.min(48,yt-y0-9);for(let k=0;k<nt;k++){const a=xa+4.5+k*w;g.push([R(a+.6,a+w-.6,y0+3.3,y0+3.3+ht,zf-Dc+3,zf-3,1.5),'grafito',mv]);}
           continue;}
+        if([].concat(p.tacho??[]).includes(i)){g.push(...tachoExt(`t${i}`,xl,xr,xa,xb,y0,y1,zb,zf,p.fr));continue;}
+        /* Maxi 20/11 (Carhué): una entrada de «puertas» puede ser {i, n:1, lado} = una sola puerta (lado −1: bisagras a −x), con estante al medio */
+        {const q=pu.find(e=>e&&typeof e==='object'&&e.i===i);if(q&&q.n===1){g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}`,xl,xr,xa,xb,y0,y1,zf,p.fr,q.lado<0?-1:1));continue;}}
         if(pu.includes(i)){const xm=(xl+xr)/2;g.push([B(xa,xb,(y0+y1)/2-.9,(y0+y1)/2+.9,zb+.8,zf-2),MEL],...puerta(`p${i}a`,xl,xm,xa,xb,y0,y1,zf,p.fr,-1),...puerta(`p${i}b`,xm,xr,xa,xb,y0,y1,zf,p.fr,1));continue;}
         for(let j=0;j<filas;j++){const [ya,yb]=filaY(y0,y1,filas,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xb,ya,yb,zb,zf,p.fr));}}return g;}},
   isla:{n:'Isla con barra y laterales de piedra',cat:'cocina',p:{L:200,D:90,H:90,vol:30,fr:'madOsc',top:'granito',top2:'',corte:0,filas:3},g:p=>{const z0=-p.D/2+p.vol;
