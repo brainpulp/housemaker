@@ -44,7 +44,8 @@ function islaMesa(p) {
   return {
     t: 'islaMesa', L, D, Lb, Db, H, Hb, tapaBloque: { L: Lb, D: Db, m2: m2(Lb, Db) },
     laterales: { lados: [Db, Db, Lb], alto: Hb - 4, m2: m2(Db + Db + Lb, Hb - 4) },
-    columnas: cols, anchoCol: ancho / cols, filas: filC, cajones: cols * filC, falso, ciego: cie, modulos: cols,
+    columnas: cols, anchoCol: ancho / cols, filas: p.horno ? 0 : filC, cajones: p.horno ? 0 : cols * filC, falso, ciego: cie, modulos: p.horno ? 0 : cols, /* con horno, el mueble de la península se hace en obra: no entra en las carcasas */
+    horno: p.horno ? { L: p.horno.L ?? 60, H: p.horno.H ?? 60, y0: p.horno.y0 ?? 12 } : null, /* Maxi 26/11 (Carhué): horno bajo el anafe; ese módulo no lleva cajones y el mueble se hace en obra */
     mesa: { L, D, m2: Math.round((L * D - Lb * Db) / 1e3) / 10 }, timon: { L: 50, H }, fondoCajon: Db - 17,
   };
 }

@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.72', fecha:'2026-11-25',
+  nombre:'Carhué', version: '1.1.73', fecha:'2026-11-26',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-26', v:'1.1.73', txt:'Maxi 26/11: el horno va bajo el anafe, en la península (opción 3). Horno empotrable de 0,60 × 0,60 centrado bajo el anafe, de +0,12 a +0,72, con la tira fija de 0,14 arriba; ese módulo ya no lleva los dos cajones de ollas. El mueble que lo rodea (rellenos y zócalo) se hace en obra, no en placa. El anafe es Sagaz y Maxi confirma que admite horno abajo.'},
   {fecha:'2026-11-25', v:'1.1.72', txt:'Maxi 25/11: la puerta del baño piletero (P-26, en M-24) es de vidrio entero con travesaños: bastidor de madera y tres travesaños que parten el vidrio acanalado en cuatro paños. Se corre 54 cm hacia la pared de la arcada para que entre la heladera, que pasa a ir contra M-24, entre la puerta y la línea de M-26.'},
   {fecha:'2026-11-25', v:'1.1.71', txt:'Maxi 25/11: (1) estante de madera de 0,30 de fondo justo arriba de las ventanas de la cocina (+1,95), a lo largo de toda la pared de las ventanas (5,32, de la arcada hasta el living), con ménsulas ocultas; la tira LED de la mesada pasa bajo su borde. (2) Mesa larga del comedor de 4,50 (antes 4,00), tablón de 4″ con canto vivo, sobre dos placas macizas del mismo tablón con patín y una viga entre ellas; 12 sillas (5 por lado y 2 cabeceras).'},
   {fecha:'2026-11-25', v:'1.1.70', txt:'Maxi 25/11: los dos triángulos del descanso de la escalera al entrepiso (como está en obra) se ven otra vez armados con tablones paralelos a la diagonal: 3 por triángulo, con junta de 4 mm.'},

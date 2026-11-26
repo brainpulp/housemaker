@@ -482,7 +482,13 @@ export function catalogoMuebles(THREE){
            «falso» = alto de un frente fijo arriba (bajo el anafe va la caja del anafe y el gas): debajo, dos cajones de ollas */
         const yF=p.Hb-4-(p.falso||0),filC=p.falso?2:filas;
         if(p.ciego)g.push([FR(xC,p.L/2-4,10,p.Hb-4,zf),p.fr]);if(p.falso)g.push([FR(xb+4,xC,yF,p.Hb-4,zf),p.fr]);
-        for(let i=0;i<modsC;i++){const [xl,xr,xa,xq]=modX(xb+4,xC,modsC,i);for(let j=0;j<filC;j++){const [ya,yb]=filaY(10,yF,filC,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xq,ya,yb,zb+4,zf,p.fr));}}
+        /* Maxi 26/11 (Carhué): «horno» = {x, L, H} horno empotrado bajo el anafe, centrado en x (local); el resto del frente queda fijo, sin cajones (el mueble se hace en obra) */
+        const hz=p.horno?{L:60,H:60,y0:12,...p.horno}:null;
+        if(hz){const x0=Math.max(xb+4,hz.x-hz.L/2),x1=Math.min(xC,hz.x+hz.L/2),y1=Math.min(yF,hz.y0+hz.H);
+          if(x0-(xb+4)>1)g.push([FR(xb+4,x0,10,yF,zf),p.fr]);if(xC-x1>1)g.push([FR(x1,xC,10,yF,zf),p.fr]);g.push([FR(x0,x1,10,hz.y0,zf),p.fr]);if(yF-y1>1)g.push([FR(x0,x1,y1,yF,zf),p.fr]);
+          const xm=(x0+x1)/2;g.push([B(x0+.3,x1-.3,hz.y0,y1,zf,zf+2),'negro'],[B(x0+4,x1-4,hz.y0+6,y1-16,zf+2,zf+2.4),'vidrioN'],tir(xm,y1-13,zf+2,x1-x0-16));
+          for(const dx of [-.32,.32])g.push([B(xm+dx*(x1-x0)-1.5,xm+dx*(x1-x0)+1.5,y1-7.5,y1-4.5,zf+2,zf+3.8),'acero']);}/* perillas */
+        else for(let i=0;i<modsC;i++){const [xl,xr,xa,xq]=modX(xb+4,xC,modsC,i);for(let j=0;j<filC;j++){const [ya,yb]=filaY(10,yF,filC,j);g.push(...cajon(`c${i}${j}`,xl,xr,xa,xq,ya,yb,zb+4,zf,p.fr));}}
         /* tapa en L de una pieza, con canto vivo irregular (±2,5 cm) en los dos bordes largos (Maxi 4/11: «borde vivo en ambos lados»); rectos: las puntas y el borde contra el bloque */
         {const e=p.canto==='recto'?()=>0:(x,f)=>1.6*Math.sin(x*.045+f)+.9*Math.sin(x*.13+2.1*f)+.45*Math.sin(x*.41+f)/* Maxi 7/11 (Carhué): canto:'recto' = bordes rectos, sin canto vivo */,n=Math.max(8,Math.round(p.L/4)),sh=new THREE.Shape();
           sh.moveTo(-p.L/2,-p.D/2-e(-p.L/2,.7));for(let i=1;i<=n;i++){const x=-p.L/2+p.L*i/n;sh.lineTo(x,-p.D/2-e(x,.7));}/* borde −z, largo entero */

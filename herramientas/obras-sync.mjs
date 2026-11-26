@@ -28,9 +28,10 @@ const CAMPOS = {
   tapaBloque: ps => ({ medidas: `${m(ps[0].tapaBloque.L)} × ${m(ps[0].tapaBloque.D)}`, cant: ps[0].tapaBloque.m2 }),
   laterales: ps => { const l = ps[0].laterales; return { medidas: `${l.lados.map(m).join(' + ')} × ${m(l.alto)} de alto`, cant: l.m2 }; },
   frentesCajones: ps => ({ medidas: ((new Set(ps[0].anchosCaj || [])).size > 1 ? `${ps[0].columnasCaj} columnas (${ps[0].anchosCaj.map(m).join(' · ')}) × ${ps[0].filas} cajones` : `${ps[0].columnasCaj} columnas de ${m(ps[0].anchoCaj)} × ${ps[0].filas} cajones`) + (ps[0].tachos && ps[0].tachoArriba ? ` + basura de ${m(ps[0].anchoTacho)} (cajón arriba + extraíble con ${ps[0].cantTachos} tachos)` : ''), cant: ps[0].cajones + (ps[0].tachoArriba ? ps[0].tachos || 0 : 0) }),
-  cajasCajones: ps => { const p = ps[0], w = p.t === 'mesada' ? p.anchoCaj : p.anchoCol, va = p.t === 'mesada' && (new Set(p.anchosCaj || [])).size > 1; return { medidas: `${p.cajones} cajas${p.falso ? ' de ollas' : ''} de ${va ? p.anchosCaj.map(x => '~' + m(x - 4)).join(' · ') : '~' + m(w - 4)} de ancho, ${m(p.fondoCajon)} de fondo` + (p.tachos && p.tachoArriba ? ` + ${p.tachos} caja baja de basura (${m(p.anchoTacho - 4)} × ${m(p.fondoCajon)}, 18 de alto)` : ''), cant: p.cajones }; },
+  cajasCajones: ps => { const p = ps[0]; if (p.t === 'islaMesa' && p.horno) return { medidas: 'ninguna: el horno va bajo el anafe', cant: 0 }; const w = p.t === 'mesada' ? p.anchoCaj : p.anchoCol, va = p.t === 'mesada' && (new Set(p.anchosCaj || [])).size > 1; return { medidas: `${p.cajones} cajas${p.falso ? ' de ollas' : ''} de ${va ? p.anchosCaj.map(x => '~' + m(x - 4)).join(' · ') : '~' + m(w - 4)} de ancho, ${m(p.fondoCajon)} de fondo` + (p.tachos && p.tachoArriba ? ` + ${p.tachos} caja baja de basura (${m(p.anchoTacho - 4)} × ${m(p.fondoCajon)}, 18 de alto)` : ''), cant: p.cajones }; },
   panelCiego: ps => ({ medidas: `${m(ps[0].ciego)} × ${m(ps[0].frenteH)}`, cant: ps[0].ciego ? 1 : 0 }),
-  frentesBloque: ps => { const p = ps[0]; const partes = [`${p.cajones} cajones${p.falso ? ' de ollas' : ''} de ~${m(p.anchoCol)}`];
+  frentesBloque: ps => { const p = ps[0]; if (p.horno) return { medidas: `sin cajones: horno empotrable de ${m(p.horno.L)} bajo el anafe; tira fija de ${m(p.falso)} arriba, rellenos a los lados` + (p.ciego ? ` y panel fijo de ${m(p.ciego)} del lado de la mesada` : '') + ', se hacen en obra' };
+    const partes = [`${p.cajones} cajones${p.falso ? ' de ollas' : ''} de ~${m(p.anchoCol)}`];
     if (p.falso) partes.push(`tira fija de ${m(p.falso)} bajo el anafe`); if (p.ciego) partes.push(`panel fijo de ${m(p.ciego)} del lado de la mesada`);
     return p.falso || p.ciego ? { medidas: partes.join(' + ') } : { medidas: `${p.columnas} columnas × ${p.filas} cajones`, cant: p.cajones }; },
   frentesJuego: ps => ({ medidas: `${ps[0].columnas} columnas × ${ps[0].filas} cajones` }),
@@ -61,6 +62,7 @@ const CAMPOS = {
   revestimiento: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].H)}`, cant: n1(ps[0].L * ps[0].H / 1e4) }),
   estante: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].D)} × ${ps[0].e} cm, a ${m(ps[0].z)}` }),
   tacho: ps => ({ medidas: `frente de ${m(ps[0].anchoTacho)} × ${m(ps[0].frenteH)} + doble tacho extraíble con guías de extracción total y cierre suave`, cant: ps[0].tachos }),
+  horno: ps => { const p = ps[0]; return { medidas: p.horno ? `empotrable de ${m(p.horno.L)} × ${m(p.horno.H)}, bajo el anafe (nicho ~0,56–0,57 de ancho × 0,59 de alto × 0,55 de fondo)` : 'ya no está en el modelo', cant: p.horno ? 1 : 0 }; },
   columna: ps => ({ medidas: `${m(ps[0].L)} × ${m(ps[0].D)} × ${m(ps[0].H)}, ${ps[0].cajones} cajones${ps[0].puertas ? ' + puerta' : ''}` }),
 };
 /* tipos que se compran: si aparece una pieza de estos sin fila, se agrega */
