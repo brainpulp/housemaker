@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import json, html
-D = json.load(open('/tmp/claude-0/-home-claude/9c8c0de3-7246-56bd-a7b2-5beeea377371/scratchpad/desp/data.json'))
+import json, html, os
+D = json.load(open(os.environ.get('DESP', '/tmp/desp') + '/data.json'))
 E = html.escape
 c = lambda x: (f'{x:.1f}'.rstrip('0').rstrip('.')).replace('.', ',')
 
@@ -41,7 +41,7 @@ def planta():
     s.append(label(36, 28, 'rincón', 6, 'lbg')); s.append(label(36, 36, 'sin uso', 6, 'lbg'))
     s.append(rect(4, 61.5, 64, 90, 'box'))
     s.append(rect(68, 61.5, 2, 90, 'front'))
-    s.append(label(36, 104, 'cajonera', 6.5)); s.append(label(36, 112, 'península', 6.5))
+    s.append(label(36, 104, 'horno', 6.5)); s.append(label(36, 112, '(en obra)', 6.5))  # Maxi 26/11
     s.append('<path class="arrow" d="M 74 106.5 L 86 106.5 M 82 103 L 86 106.5 L 82 110"/>')
     # mesada
     x = 74.0
@@ -105,23 +105,26 @@ def alzado_mesada():
     return f'<svg viewBox="35 -6 535 130" role="img" aria-label="Vista de frente de la mesada">{"".join(s)}</svg>'
 
 def alzado_peninsula():
+    # Maxi 26/11: bajo el anafe va el horno empotrable de 0,60; el mueble que lo rodea se hace en obra (no entra en el despiece)
     FS[0]=.62
     Y = lambda h: 100 - h
     s = []
     s.append(rect(0, Y(90), 4, 90, 'steel')); s.append(rect(94, Y(90), 4, 90, 'steel'))
     s.append(rect(0, Y(90), 98, 4, 'steel'))
     s.append(label(49, Y(87.5) + 1, 'chapa (no incluida)', 4.6, 'lbw'))
-    s.append(rect(4, Y(10), 90, 10, 'zoc'))
-    for a, b, f in [(10, 47.2, 1), (47.2, 72, 1), (72, 86, 0)]:
-        s.append(rect(4.2, Y(b) + .2, 89.6, b - a - .4, 'frontF'))
-        if f: s.append(f'<line class="unero" x1="{41}" y1="{Y(b)+1.6}" x2="{57}" y2="{Y(b)+1.6}"/>')
-    s.append(label(49, Y(79) + 2, 'fijo (anafe y gas detrás)', 4.8, 'lbg'))
-    s.append(dim_h(4, 94, Y(-8), '90', False))
-    s.append(dim_v(104, Y(10), Y(0), '10', False)); s.append(dim_v(104, Y(47.2), Y(10), '37,2', False))
-    s.append(dim_v(104, Y(72), Y(47.2), '24,8', False)); s.append(dim_v(104, Y(86), Y(72), '14', False))
+    s.append('<path class="ghost" d="M 4 100 L 94 100 L 94 14 L 4 14 Z"/>')
+    s.append(f'<rect x="15" y="{Y(72)}" width="60" height="60" fill="#1d1d1f" stroke="#000" stroke-width=".4"/>')
+    s.append(f'<rect x="19" y="{Y(66)}" width="52" height="38" fill="#3a3a3c"/>')
+    s.append(f'<line x1="23" y1="{Y(69)}" x2="67" y2="{Y(69)}" stroke="#bbb" stroke-width="1.2"/>')
+    s.append(f'<text x="45" y="{Y(44)}" font-size="{6*.62}" fill="#fff" text-anchor="middle">horno 60</text>')
+    s.append(label(49, Y(79) + 2, 'en obra (anafe y gas detrás)', 4.8, 'lbg'))
+    s.append(label(9.5, Y(40), 'obra', 4, 'lbg')); s.append(label(84.5, Y(40), 'obra', 4, 'lbg'))
+    s.append(dim_h(4, 15, Y(-8), '11', False)); s.append(dim_h(15, 75, Y(-8), '60', False)); s.append(dim_h(75, 94, Y(-8), '19', False))
+    s.append(dim_v(104, Y(12), Y(0), '12', False)); s.append(dim_v(104, Y(72), Y(12), '60', False))
+    s.append(dim_v(104, Y(86), Y(72), '14', False))
     s.append(dim_v(128, Y(90), Y(0), '90', False))
     FS[0]=1.0
-    return f'<svg viewBox="-10 -6 160 130" role="img" aria-label="Vista de frente de la cajonera de la península">{"".join(s)}</svg>'
+    return f'<svg viewBox="-10 -6 160 130" role="img" aria-label="Vista de frente de la península: horno bajo el anafe">{"".join(s)}</svg>'
 
 def corte():
     FS[0]=.7
@@ -165,10 +168,10 @@ tots = ''.join(f'<tr><td>{E(m)}</td><td class="n">{e}</td><td class="n">{str(a).
 R = D['resumen']
 csv_rows = [['Grupo', 'Pieza', 'Cant', 'Largo mm', 'Ancho mm', 'Esp mm', 'Material', 'Tapacanto', 'Nota']] + [[p['g'], p['pieza'], p['cant'], p['L'], p['A'], p['esp'], p['mat'], p['canto'], p['nota']] for p in D['piezas']]
 
-page = open('/tmp/claude-0/-home-claude/9c8c0de3-7246-56bd-a7b2-5beeea377371/scratchpad/desp/plantilla.html').read()
+page = open(os.environ.get('DESP', '/tmp/desp') + '/plantilla.html').read()
 for k, v in {'{{PLANTA}}': planta(), '{{ALZ_M}}': alzado_mesada(), '{{ALZ_P}}': alzado_peninsula(), '{{CORTE}}': corte(),
              '{{DESP}}': desp, '{{HERR}}': herr, '{{TOTS}}': tots, '{{NCAJ}}': str(R['n_caj_total']), '{{NCAJM}}': str(R['n_caj_m']),
              '{{CSV}}': json.dumps(csv_rows, ensure_ascii=False).replace('</', '<\\/')}.items():
     page = page.replace(k, v)
-open('/tmp/claude-0/-home-claude/9c8c0de3-7246-56bd-a7b2-5beeea377371/scratchpad/desp/cocina-carhue-muebles.html', 'w').write(page)
+open(os.environ.get('DESP', '/tmp/desp') + '/cocina-carhue-muebles.html', 'w').write(page)
 print('ok', len(page))

@@ -73,10 +73,10 @@ export function equipArcos({ itA }) {
       A: { nombre: 'Con vestidor detrás de la cama', items: [/* el tabique es parte del edificio: lo pone la opción de diseño «Cuarto de Andrés» (casa.js) */
         I('vestidor', 170.5, 3325, 0, { L: 307, D: 60, H: 307, mods: 'largo:80|doble:100|cajones:60|zapatos:69', mad: 'petiribi', car: 'blanco', mal: 240 }),
         I('espejo', 16.5, 3401, 90, { L: 60, D: 3, H: 170 }, 30),
-        I('camaDoble', 169.5, 3566, 0, { L: 170, D: 215 }), I('mesaLuzM', 62, 3480, 0, { L: 45, D: 40 }), I('mesaLuzM', 277, 3480, 0, { L: 45, D: 40 }),
+        I('camaDoble', 169.5, 3566, 0, { L: 203, D: 215 }), I('mesaLuzM', 45.5, 3480, 0, { L: 45, D: 40 }), I('mesaLuzM', 293.5, 3480, 0, { L: 45, D: 40 }),
         I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 32, 3740, 90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 355, 3815, -135, { tela: 'lino' })] },
       B: { nombre: 'Con placard contra el baño', items: [I('placard', 170.5, 3325, 0, { L: 307, D: 60, H: 300, fr: 'petiribi' }),
-        I('camaDoble', 122.5, 3610, 90, { L: 170, D: 215 }), I('mesaLuzM', 37, 3497, 90, { L: 45, D: 40 }), I('mesaLuzM', 37, 3723, 90, { L: 45, D: 40 }),
+        I('camaDoble', 122.5, 3610, 90, { L: 203, D: 215 }), I('mesaLuzM', 37, 3480.5, 90, { L: 45, D: 40 }), I('mesaLuzM', 37, 3739.5, 90, { L: 45, D: 40 }),
         I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 403, 3510, -90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 330, 3560, -150, { tela: 'lino' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     /* Maxi 22/11: cuarto de Isolda (cuarto NE del 1P): de huéspedes, pero usado como sala de TV, con sofá cama. 4,16 × 4,36; la única pared llena es la medianera norte
@@ -95,16 +95,16 @@ export function equipArcos({ itA }) {
     dormitorio: { n: 'Dormitorio principal (2P)', nivel: 'P2', piso: P2, vista: { p: [560, 930, 3050], t: [300, 620, 2650] }, esc: () => { const I = itA('dormitorio'); return {
       /* Maxi 22/11: armario bajo que hace de tabique, en isla (se pasa al vestidor por las dos puntas: 0,80 contra la pared del palier, cuya cara está en x 6,26
          como en el SketchUp, y del lado de la medianera sur, donde arranca la escalerita al vestidor de la terraza, E-06), con la cama queen apoyada del lado del jardín,
-         mirando al oeste. Atrás, pasillo de 1,00 y un mueble bajo contra la ventana a la terraza. Los dos laqueados índigo y con la tapa a +7,57, el nivel de la
+         mirando al oeste. Atrás, pasillo de 1,00 y un mueble bajo contra la ventana a la terraza. Los dos laqueados gris oscuro cálido (Maxi 26/11; antes índigo) y con la tapa a +7,57, el nivel de la
          terraza y del alféizar (Maxi): las tapas, macizas de 4 cm, hacen una pasarela junto a la ventana que llega al descanso de la escalerita.
          Adentro, divisiones de vestidor: colgar largo, estante con barral debajo, estantes, cajones y zapatero. */
-      A: { nombre: 'Cama contra el armario-tabique, vestidor detrás', items: [I('armarioBajo', 375.5, 2899, 0, { L: 341, D: 60, H: 144, tapa: 4, mods: 'colgar:80|cajones:60|estantes:60|zapatos:60|colgarE:81', mad: 'indigo' }),
-        I('camaDoble', 375.5, 2761.5, 180, { L: 170, D: 215 }), I('mesaLuzM', 268, 2848, 180, { L: 45, D: 40 }), I('mesaLuzM', 483, 2848, 180, { L: 45, D: 40 }),
-        I('armarioBajo', 412.5, 3054, 180, { L: 415, D: 50, H: 144, tapa: 4, mods: 'estantes:70|cajones:70|zapatos:70|cajones:70|estantes:70|colgarE:65', mad: 'indigo' }),
+      A: { nombre: 'Cama contra el armario-tabique, vestidor detrás', items: [I('armarioBajo', 375.5, 2899, 0, { L: 341, D: 60, H: 144, tapa: 4, mods: 'colgar:80|cajones:60|estantes:60|zapatos:60|colgarE:81', mad: 'grisCalido' }),
+        I('camaDoble', 375.5, 2761.5, 180, { L: 203, D: 215 }) /* Maxi 26/11: queen (antes 1,70, que daba una cama de una plaza) */, I('mesaLuzM', 251.5, 2848, 180, { L: 45, D: 40 }), I('mesaLuzM', 499.5, 2848, 180, { L: 45, D: 40 }),
+        I('armarioBajo', 412.5, 3054, 180, { L: 415, D: 50, H: 144, tapa: 4, mods: 'estantes:70|cajones:70|zapatos:70|cajones:70|estantes:70|colgarE:65', mad: 'grisCalido' }),
         /* Maxi 22/11: cómodas que ya tiene, contra la medianera sur (la pared lejos de la puerta), dejando libre el paso al vestidor */
         I('comodaB', 41, 2520, 90, { L: 160, D: 50, H: 80 }), I('comodaB', 41, 2700, 90, { L: 160, D: 50, H: 80 }),
         I('butacaAm', 540, 2475, -135, { tela: 'lino' })] },
-      B: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2865, 90, { L: 170, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
+      B: { nombre: 'Cabecera a la medianera sur', items: [I('camaDoble', 125, 2848, 90, { L: 203, D: 215 }), I('butacaAm', 420, 2480, 180, { tela: 'lino' })] },
       C: { nombre: 'Mirando al jardín', items: [I('camaDoble', 400, 2970, 180, { L: 220, D: 215 }), I('butacaAm', 150, 2500, 135, { tela: 'mostaza' })] },
       D: { nombre: 'Vacío', items: [] } }; } },
     vestidor: { n: 'Vestidor (terraza)', piso: TZ, vista: { p: [300, 1000, 3200], t: [100, 760, 3400] }, esc: () => { const I = itA('vestidor'); return {
@@ -145,5 +145,7 @@ export function equipArcos({ itA }) {
   /* 5/11 (noche): la chaise del sillón del foso ocupa todo el lado norte; si el A guardado tiene el sillón de antes, se repone (una vez) */
   const alMezclar7 = (a, k, s, migrar) => { alMezclar6(a, k, s, migrar); if (k !== 'mue' || a !== 'estar' || s.migr.includes('chaiseNorte0511')) return; s.migr.push('chaiseNorte0511');
     if ((s.esc.A?.items || []).some(m => m.t === 'sofaLcb')) s.esc.A = AMB.estar.esc().A; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
-  return { inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar7 };
+  /* Maxi 26/11: la cama del dormitorio principal pasa a queen (2,03 de modelo); en «Cabecera a la medianera sur» se corre 17 cm al norte para no tocar la escalerita E-06 */
+  const MUT = { mue: { dormitorio: [['camaQueenB2611', items => { for (const m of items) if (m.t === 'camaDoble' && Math.abs(m.x - 125) < 3 && Math.abs(m.y - 2865) < 3) m.y = 2848; }]] } };
+  return { mut: MUT, inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar7 };
 }
