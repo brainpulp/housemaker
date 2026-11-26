@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.75', fecha:'2026-11-26',
+  nombre:'Carhué', version: '1.1.76', fecha:'2026-11-26',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -288,6 +288,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-26', v:'1.1.76', txt:'Camas queen y king más grandes: el modelo de la cama de Arcos a su tamaño natural (2,40 la queen, 2,70 la king, con el respaldo de pared); a 2,03 todavía parecía de una plaza.'},
   {fecha:'2026-11-26', v:'1.1.75', txt:'Maxi 26/11: en la realidad hay 0,80 entre la pared M-26 y la puerta del baño piletero (el modelo daba 0,48): la puerta queda en ese lugar (y −5,055 a −4,275 sobre M-24) y la heladera, centrada en esos 0,80.'},
   {fecha:'2026-11-26', v:'1.1.74', txt:'Camas matrimoniales de 1,60 y 1,80: el mismo modelo que la del dormitorio principal de Arcos (Maxi 26/11), en tamaño queen o king. Mesas de luz corridas lo que creció la cama.'},
   {fecha:'2026-11-26', v:'1.1.73', txt:'Maxi 26/11: el horno va bajo el anafe, en la península (opción 3). Horno empotrable de 0,60 × 0,60 centrado bajo el anafe, de +0,12 a +0,72, con la tira fija de 0,14 arriba; ese módulo ya no lleva los dos cajones de ollas. El mueble que lo rodea (rellenos y zócalo) se hace en obra, no en placa. El anafe es Sagaz y Maxi confirma que admite horno abajo.'},

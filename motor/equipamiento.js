@@ -142,14 +142,16 @@ export function initEquipamiento(visor,stage,D){
   /* Maxi 26/11: «usá la cama del dormitorio principal de Arcos en todos los proyectos que necesiten una queen o king» y «esa es de una plaza: la misma, pero queen».
      El modelo (camaDoble) tiene un respaldo de pared más ancho que la cama: con L = 170 la ropa de cama medía 1,38 (0,81 de L). Para un colchón de A cm: L = (A + 5) / 0,812
      (queen 160 → 2,03; king 180 → 2,28), 2,15 de largo. Las mesas de luz pegadas a la cama se corren lo que crece cada lado. */
-  const LQ=A=>Math.round((A+5)/.812),PIES=r=>[Math.sin(r*Math.PI/180),Math.cos(r*Math.PI/180)];
+  /* Maxi 26/11, de nuevo: «siguen siendo de una plaza»: la ropa de cama de 1,64 (L 2,03) todavía se veía chica. El modelo a su tamaño natural (L 2,40) es una queen con el acolchado colgando;
+     king = 2,40 × 180/160 = 2,70. */
+  const LQ=A=>Math.round(240*A/160),PIES=r=>[Math.sin(r*Math.PI/180),Math.cos(r*Math.PI/180)];
   const ensanchar=(items,m,L1)=>{const L0=m.p.L,d=(L1-L0)/2;if(d<=0)return;const [fx,fy]=PIES(m.r||0),[lx,ly]=[fy,-fx];
     for(const n of items){if(!/^mesaLuz/.test(n.t))continue;const vx=n.x-m.x,vy=n.y-m.y,lat=vx*lx+vy*ly,lon=vx*fx+vy*fy,w=(n.p&&n.p.L)||45;
       if(lon<0&&lon>-m.p.D/2-5&&Math.abs(Math.abs(lat)-(L0/2+w/2))<8){const sg=Math.sign(lat);n.x+=sg*d*lx;n.y+=sg*d*ly;}}
     m.p={...m.p,L:L1};};
-  const camaQK=(items,m)=>{if(m.t==='camaDoble'&&m.p&&m.p.L<200){ensanchar(items,m,LQ(160));return 1;}
+  const camaQK=(items,m)=>{if(m.t==='camaDoble'&&m.p&&m.p.L<235){ensanchar(items,m,LQ(160));return 1;}
     if(m.t!=='cama'||!m.p||!(m.p.L>=160))return 0;const [fx,fy]=PIES(m.r||0);m.x=(m.x||0)+7.5*fx;m.y=(m.y||0)+7.5*fy;m.t='camaDoble';m.p={...m.p,D:215};delete m.p.H;ensanchar(items,m,LQ(m.p.L));return 1;};
-  const GMUT=[['camaDoble2611b',items=>{let c=0;for(const m of [...items])c+=camaQK(items,m);return c;}]];
+  const GMUT=[['camaDoble2611c',items=>{let c=0;for(const m of [...items])c+=camaQK(items,m);return c;}]];
   const migrar=[];
   function mezclar(a,k,d){/* copia profunda: lo que devuelve la base del artifact viene congelado y asignarle x/y fallaba en silencio (Maxi 15/10: «no se mueve ningún mueble») */d=JSON.parse(JSON.stringify(d||{}));/* lo guardado manda; los escenarios nuevos de fábrica que no estén ni borrados se suman */const def=CAPA[k].esc(a);const s={activo:d.activo||'A',esc:{...(d.esc||{})},borrados:d.borrados||[],migr:[...(d.migr||[])]};
     for(const e in def)if(!s.esc[e]&&!s.borrados.includes(e))s.esc[e]=def[e];if(!s.esc[s.activo])s.activo=Object.keys(s.esc)[0];
