@@ -160,7 +160,7 @@ const params=[
 
 function build(p){
   /* Maxi 15/10: opción de diseño para la puerta del baño piletero P-26: en M-26 (desde la cocina norte, como está) o en el tramo este de M-24 (desde la cocina, frente al baño) */
-  {const a=M.ABERTURAS.find(o=>o.id==='P-26');if(a){if(!a._orig)a._orig={muro:a.muro,d:a.d,w:a.w};Object.assign(a,p.p26==='m24'?{muro:'M-24',d:80,w:78,_var:'m24'}/* Maxi 25/11: se corre 54 cm hacia la pared de la arcada (M-29) para que entre la heladera entre la puerta y la línea de M-26 */:{...a._orig,_var:''});}}
+  {const a=M.ABERTURAS.find(o=>o.id==='P-26');if(a){if(!a._orig)a._orig={muro:a.muro,d:a.d,w:a.w};Object.assign(a,p.p26==='m24'?{muro:'M-24',d:94.5,w:78,_var:'m24'}/* Maxi 26/11: en la realidad hay 0,80 entre la cara de M-26 (y −3,475) y la puerta; ahí va la heladera */:{...a._orig,_var:''});}}
   const parts=[];const Pt=(id,name,cat,geos,info,ex={})=>{const al=N.alias(id);parts.push({id,name:al?`${id} · ${al}`:name,alias:al,cat,geos:[].concat(geos),info:{...info,fn:(N.nota(id)?`<b>Tu nota:</b> ${N.nota(id)}<br>`:'')+(info.fn||'')},...ex});};
   const ex=d=>({group:d.nivel?NIV[d.nivel]:undefined,opt:{op:d.estado==='proyecto'?.35:d.estado==='demoler'?.45:undefined}});
   const base=d=>({fn:d.nota||'',sec:'',med:'',u:[...M.DUDAS.filter(x=>x.ref.includes(d.id)).map(x=>x.id)].join(' · ')||''});
