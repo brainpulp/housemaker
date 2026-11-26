@@ -7,7 +7,7 @@
 - **Base de datos:** la capacidad `db` (+ `user`). Cada casa tiene sus colecciones con prefijo: `carhue_vistas`, `arcos_equipamiento`, `cocinas_ediciones`, `octet_octet`, `laboratorio_recetas`… (`motor/nombres.js` pone el prefijo a partir de `window.__casa`, que define la cáscara). Lo guardado en los artifacts viejos se copió acá el 8/11 (150 documentos).
 - **Última casa abierta (14/11/2026):** la cáscara guarda en este navegador la última casa abierta (`hub:ultima`, fuera del prefijo por casa) y, si la página se abre sin `?casa=` ni `#`, vuelve a ella: así una publicación no manda a Maxi de vuelta al índice. «⌂ Proyectos» va a `#indice`, que muestra el índice y olvida la última casa; una casa que no abre también se olvida.
 - **Almacén local:** la cáscara separa el `localStorage` por casa (prefijo `<casa>:`), así las preferencias de una casa no pisan las de otra.
-- **Motor publicado:** 4c5e71b (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
+- **Motor publicado:** 35fd0a5 (commit del último cambio en `motor/` que tiene el artifact; lo actualiza quien publica y la tarea nocturna).
 - **Versiones publicadas:** las de `META.version` de cada `casas/<casa>/modelo.js` al momento de publicar (se ven en el índice).
 
 - **Índice con miniaturas (22/11/2026):** el índice es una lista con una miniatura del 3D de cada casa y datos (versión, piezas, dudas, cambios y el último cambio). Las miniaturas y la cantidad de piezas salen de `node herramientas/miniaturas.mjs [casa …]` (con las páginas de prueba armadas y dist servido en :8765), que escribe `casas/<casa>/miniatura.jpg` y `ficha.json`. Regenerarlas cuando una casa cambie bastante de aspecto.
