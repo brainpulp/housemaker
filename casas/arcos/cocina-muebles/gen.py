@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Cocina de Arcos: diagrama para el carpintero + despiece (Maxi 20/11/2026), con el mismo formato que la de Carhué
 # (casas/carhue/cocina-muebles). Medidas del escenario A de la cocina (casas/arcos/equipamiento-arcos.js, versión 0.10.45):
-# mesada de 3,92 = 4 columnas de 93,75 + bandejero de 17, columna del horno de 60, alacena sobre la heladera, alacenas altas
+# mesada de 3,875 = 4 columnas de 92,625 + bandejero de 17 (antes 3,92; Maxi 25/11: heladera de 0,80 en hueco de 0,82), columna del horno de 60, alacena sobre la heladera, alacenas altas
 # de 2,11 (con bandejero de 30) y 1,81, estante, y el bloque de la isla de 1,60 × 0,70 con 2 columnas de 76.
 # Materiales: los de la tabla de Compras de Obras (arcos-01…29).
 # Maxi 25/11: columna del horno de 60 (versión 0.10.56), módulo de basura en la columna 2 (cajón finito + extraíble con 3 tachos),
@@ -17,15 +17,16 @@ c = lambda x: (f'{x:.2f}'.rstrip('0').rstrip('.')).replace('.', ',')
 
 # ---------- medidas del modelo (cm) ----------
 H_CAJ, ZOC, D_CAJ = 77.0, 10.0, 60.0           # mesada: caja de 10 a 87, fondo 60 + frente 2
-MODS = [93.75] * 4                              # columnas de la mesada, del lado de la columna del horno hacia el ventanal
+MODS = [92.625] * 4                             # columnas de la mesada, del lado de la columna del horno hacia el ventanal
 BAND = 17.0                                     # bandejero bajo mesada, en la punta del ventanal
 PUERTA_IDX = 2                                  # la 3.ª columna va bajo la bacha: dos puertas con estante
 TACHO_IDX = 1                                   # la 2.ª, pegada a la bacha del lado de la heladera: cajón finito arriba y extraíble de basura abajo (Maxi 25/11)
 ROWS = [36.19, 25.41, 15.40]                    # 47 / 33 / 20 % de 77
 COL_W, COL_D, COL_H = 60.0, 62.0, 228.0         # columna del horno (caja de 10 a 228)
-ALH_W, ALH_D, ALH_H, ALH_Z = 75.0, 62.0, 38.0, 190.0   # alacena sobre la heladera
+HEL_W, HEL_H, HEL_D, HUECO = 80.0, 190.0, 70.0, 82.0   # heladera de Maxi (25/11) y su hueco, 1 cm por lado
+ALH_W, ALH_D, ALH_H, ALH_Z = 81.5, 62.0, 33.0, 195.0   # alacena sobre la heladera: 0,5 de luz contra la pared, 5 cm de ventilación arriba de la heladera
 AL_D, AL_H, AL_Z = 35.0, 78.0, 150.0            # alacenas altas
-AL_PUERTAS = [90.5] * 4; AL_BAND = 30.0
+AL_PUERTAS = [89.375] * 4; AL_BAND = 30.0
 I_W, I_H, I_D = 76.0, 76.0, 64.0                # isla: columnas de cajones (de 10 a 86), fondo de la caja
 I_ROWS = [35.72, 25.08, 15.20]
 J = 0.4
@@ -60,7 +61,7 @@ add('Frentes', 'Alacena alta: bandejero (30)', 1, mm(AL_H - J), mm(AL_BAND - J),
 for k in range(2):
     for r, n in zip(I_ROWS, ['abajo', 'medio', 'arriba']):
         add('Frentes', f'Isla: cajón {n}, columna {k+1}', 1, mm(I_W - J), mm(r - J), 20, PET, '', '')
-add('Frentes', 'Estante de pared (3,92)', 1, 3920, 150, 20, PET, '', 'a 1,30 del piso, bajo las alacenas')
+add('Frentes', f'Estante de pared ({(sum(MODS) + BAND) / 100:.3f})'.replace('.', ','), 1, mm(sum(MODS) + BAND), 150, 20, PET, '', 'a 1,30 del piso, bajo las alacenas')
 
 # ---------- cajoneras (cajas del mueble) ----------
 def cajonera(t, W, H, D, estante=False, techo=False, nota='', vista=None):
@@ -80,7 +81,7 @@ for i, W in enumerate(MODS):
 cajonera('Mesada, bandejero (17)', BAND, H_CAJ, D_CAJ, vista=(PET, 20, 'punta del ventanal'))
 cajonera('Columna del horno (60)', COL_W, COL_H - 10, COL_D - 2, techo=True, nota='alto 2,18 sobre zócalo de 10', vista=(NEGT, 18, 'lado de la mesada'))
 add('Cajoneras', 'Columna del horno: estantes que enmarcan el horno', 2, mm(COL_W - 3.6), mm(COL_D - 2 - .3), 18, NEG, '1 largo', 'fijos, a 0,79 y 1,40 del piso; hueco libre de 56 × 59')
-cajonera('Alacena sobre la heladera (75)', ALH_W, ALH_H, ALH_D - 2, techo=True)
+cajonera(f'Alacena sobre la heladera ({c(ALH_W)})', ALH_W, ALH_H, ALH_D - 2, techo=True)
 for k, W in enumerate(AL_PUERTAS):
     cajonera(f'Alacena alta {k+1}', W, AL_H, AL_D - 2, estante=True, techo=True)
 cajonera('Alacena alta, bandejero (30)', AL_BAND, AL_H, AL_D - 2, techo=True, vista=(NEGT, 18, 'punta del ventanal'))
@@ -122,10 +123,10 @@ for p in piezas:
 # ---------- herrajes ----------
 n_caj_m = 3 * (len(MODS) - 1) - 1   # el módulo de basura tiene cajón + extraíble
 herr = [
-    ('Guías telescópicas de extracción total con cierre suave, 450 mm', n_caj_m + 2, 'par', f'{n_caj_m} de la mesada (con el extraíble de basura) y 2 de la columna del horno. En Compras: genéricas; para los cajones de 0,94 cargados conviene Häfele 45 kg (como en Carhué). Las cajas del despiece van con 13 mm por lado'),
+    ('Guías telescópicas de extracción total con cierre suave, 450 mm', n_caj_m + 2, 'par', f'{n_caj_m} de la mesada (con el extraíble de basura) y 2 de la columna del horno. En Compras: genéricas; para los cajones de 0,93 cargados conviene Häfele 45 kg (como en Carhué). Las cajas del despiece van con 13 mm por lado'),
     ('Guías telescópicas de extracción total con cierre suave, 500 mm', 6, 'par', 'isla'),
     ('Bisagras cazoleta 35 mm, cierre suave', 8, 'u', 'bacha (4), puerta de la columna (2), alacena de la heladera (2)'),
-    ('Brazos para puerta proyectable hacia arriba (Häfele Free Flap o Blum Aventos)', 4, 'juego', 'alacenas altas, puertas de 0,90 × 0,78'),
+    ('Brazos para puerta proyectable hacia arriba (Häfele Free Flap o Blum Aventos)', 4, 'juego', 'alacenas altas, puertas de 0,89 × 0,78'),
     ('Herraje de bandejero extraíble 15 cm, bajo mesada', 1, 'u', 'con 2 o 3 bandejas de alambre'),
     ('Tachos de basura sueltos para el extraíble', 3, 'u', 'entran parados en la caja baja de la columna 2'),
     ('Herraje de bandejero extraíble 30 cm, alacena', 1, 'u', 'con bandejas de alambre'),
@@ -163,17 +164,20 @@ def dim_v(x, y0, y1, txt, left=True, size=7):
 def rect(x, y, w, h, cls): return f'<rect class="{cls}" x="{x}" y="{y}" width="{w}" height="{h}"/>'
 def label(x, y, t, size=7, cls='lb', anc='middle'): size *= FS[0]; return f'<text class="{cls}" x="{x}" y="{y}" font-size="{size}" text-anchor="{anc}">{t}</text>'
 
-# u: cm desde el borde de la heladera del lado del depósito (este) hacia el ventanal; mirando a la medianera sur
-U_COL = 75.5; U_MES = U_COL + COL_W   # la columna a 0,5 de la heladera; la mesada pegada a la columna
+# u: cm desde la pared del depósito (este) hacia el ventanal; mirando a la medianera sur
+U_HEL = (HUECO - HEL_W) / 2   # la heladera, 1 cm de la pared y 1 de la torre
+U_COL = HUECO; U_MES = U_COL + COL_W   # la torre a 0,82 de la pared; la mesada pegada a la torre
+L_RUN = sum(MODS) + BAND
 XS = [U_MES]
 for W in MODS: XS.append(XS[-1] + W)
-U_BAND1 = XS[-1] + BAND   # 527,5
-U_BACHA = U_BAND1 - 158   # eje de la bacha a 1,58 de la punta del ventanal
+U_BAND1 = XS[-1] + BAND   # 529,5
+U_BACHA = U_BAND1 - BAND - MODS[0] * 1.5   # eje de la bacha: centro de la columna 3
 
 def planta():
     s = []
     s.append(rect(-20, -12, 580, 12, 'wall')); s.append(label(270, -4, 'MEDIANERA SUR', 6, 'lbw'))
-    s.append(rect(0, 0, 75, 70, 'ghost')); s.append(label(37.5, 38, 'heladera', 6, 'lbg'))
+    s.append(rect(-12, -12, 12, 92, 'wall'))
+    s.append(rect(U_HEL, 0, HEL_W, HEL_D, 'ghost')); s.append(label(U_HEL + HEL_W / 2, 38, 'heladera', 6, 'lbg'))
     s.append(rect(U_COL, 0, COL_W, 60, 'box')); s.append(rect(U_COL, 60, COL_W, 2, 'front')); s.append(label(U_COL + COL_W / 2, 34, 'horno', 6, 'lbg'))
     for i, W in enumerate(MODS):
         s.append(rect(XS[i], 0, W, 60, 'box')); s.append(rect(XS[i], 60, W, 2, 'front')); s.append(label(XS[i] + W / 2, 34, f'{i+1}', 9, 'num'))
@@ -182,32 +186,32 @@ def planta():
     s.append('<path class="arrow" d="M 180 66 L 180 78 M 176.5 74 L 180 78 L 183.5 74"/>')
     # isla: bloque de 160 × 70 (chapa en los costados y atrás), mesa de madera en L
     v0 = 167.0
-    s.append('<path class="ghost" d="M 234.5 {a} L 374.5 {a} L 374.5 {b} L 74.5 {b} L 74.5 {c} L 234.5 {c} Z"/>'.format(a=v0, b=v0 + 120, c=v0 + 70))
-    s.append(label(300, v0 + 100, 'mesa de madera (no incluida)', 6, 'lbg'))
-    s.append(rect(74.5, v0, 160, 70, 'steel')); s.append(rect(78.5, v0, 152, 66, 'paper'))
-    s.append(rect(78.5, v0 + 2, 76, 64, 'box')); s.append(rect(154.5, v0 + 2, 76, 64, 'box'))
-    s.append(rect(78.5, v0, 152, 2, 'front'))
-    s.append(label(116.5, v0 + 38, 'I1', 8, 'num')); s.append(label(192.5, v0 + 38, 'I2', 8, 'num'))
-    s.append('<path class="arrow" d="M 154.5 {0} L 154.5 {1} M 151 {2} L 154.5 {1} L 158 {2}"/>'.format(v0 - 2, v0 - 14, v0 - 10))
-    s.append(label(154.5, v0 - 18, 'cajones hacia la mesada', 5.5, 'lbg'))
+    s.append('<path class="ghost" d="M 236.5 {a} L 376.5 {a} L 376.5 {b} L 76.5 {b} L 76.5 {c} L 236.5 {c} Z"/>'.format(a=v0, b=v0 + 120, c=v0 + 70))
+    s.append(label(302, v0 + 100, 'mesa de madera (no incluida)', 6, 'lbg'))
+    s.append(rect(76.5, v0, 160, 70, 'steel')); s.append(rect(80.5, v0, 152, 66, 'paper'))
+    s.append(rect(80.5, v0 + 2, 76, 64, 'box')); s.append(rect(156.5, v0 + 2, 76, 64, 'box'))
+    s.append(rect(80.5, v0, 152, 2, 'front'))
+    s.append(label(118.5, v0 + 38, 'I1', 8, 'num')); s.append(label(194.5, v0 + 38, 'I2', 8, 'num'))
+    s.append('<path class="arrow" d="M 156.5 {0} L 156.5 {1} M 151 {2} L 156.5 {1} L 158 {2}"/>'.format(v0 - 2, v0 - 14, v0 - 10))
+    s.append(label(156.5, v0 - 18, 'cajones hacia la mesada', 5.5, 'lbg'))
     # cotas
-    s.append(dim_h(0, 75, 92, '75', False)); s.append(dim_h(U_COL, U_MES, 92, c(COL_W), False))
+    s.append(dim_h(0, U_COL, 92, c(HUECO), False)); s.append(dim_h(U_COL, U_MES, 92, c(COL_W), False))
     for a, b in zip(XS, XS[1:]): s.append(dim_h(a, b, 92, c(b - a), False))
     s.append(dim_h(XS[-1], U_BAND1, 82, '17', False, 5))
-    s.append(dim_h(U_MES, U_BAND1, 112, '392 (mesada)', False))
+    s.append(dim_h(U_MES, U_BAND1, 112, f'{c(L_RUN)} (mesada)', False))
     s.append(dim_v(545, 0, 62, '62', False))
     s.append(dim_v(545, 62, v0, '105 pasillo', False))
     s.append(dim_v(545, v0, v0 + 70, '70', False))
-    s.append(dim_h(74.5, 234.5, v0 + 140, '160 (bloque)', False))
-    s.append(dim_h(78.5, 154.5, v0 + 128, '76', False, 5)); s.append(dim_h(154.5, 230.5, v0 + 128, '76', False, 5))
+    s.append(dim_h(76.5, 236.5, v0 + 140, '160 (bloque)', False))
+    s.append(dim_h(80.5, 156.5, v0 + 128, '76', False, 5)); s.append(dim_h(156.5, 232.5, v0 + 128, '76', False, 5))
     return f'<svg viewBox="-35 -20 640 335" role="img" aria-label="Planta de la cocina de Arcos con medidas">{"".join(s)}</svg>'
 
 def alzado():
     Y = lambda h: 240 - h
     s = []
-    s.append(rect(0, Y(190), 75, 190, 'ghost')); s.append(label(37.5, Y(100), 'heladera', 6, 'lbg'))
+    s.append(rect(U_HEL, Y(HEL_H), HEL_W, HEL_H, 'ghost')); s.append(label(U_HEL + HEL_W / 2, Y(100), 'heladera', 6, 'lbg'))
     # alacena sobre la heladera
-    s.append(rect(0.2, Y(228) + .2, 75 - .4, 38 - .4, 'frontN'))
+    s.append(rect(0.2, Y(228) + .2, ALH_W - .4, ALH_H - .4, 'frontN'))
     # columna del horno
     x = U_COL
     for a, b in [(10, 51), (51, 79)]:
@@ -216,16 +220,16 @@ def alzado():
     s.append(rect(x + .2, Y(228) + .2, COL_W - .4, 86 - .4, 'frontN')); s.append(label(x + COL_W / 2, Y(190), 'C', 8, 'numw'))
     s.append(rect(x, Y(10), COL_W, 10, 'zoc'))
     # inox y estante
-    s.append(rect(U_MES, Y(150), 392, 60, 'inox')); s.append(label(U_MES + 196, Y(142), 'revestimiento de inox (no incluido)', 5, 'lbg'))
-    s.append(rect(U_MES, Y(132), 392, 2, 'front')); s.append(label(U_MES + 392 - 2, Y(133.5), 'estante 15 de fondo', 5, 'lbg', 'end'))
+    s.append(rect(U_MES, Y(150), L_RUN, 60, 'inox')); s.append(label(U_MES + L_RUN / 2, Y(142), 'revestimiento de inox (no incluido)', 5, 'lbg'))
+    s.append(rect(U_MES, Y(132), L_RUN, 2, 'front')); s.append(label(U_MES + L_RUN - 2, Y(133.5), 'estante 15 de fondo', 5, 'lbg', 'end'))
     # alacenas altas
     xa = U_MES
     for k, W in enumerate(AL_PUERTAS):
         s.append(rect(xa + .2, Y(228) + .2, W - .4, 78 - .4, 'frontN')); s.append(label(xa + W / 2, Y(185), f'A{k+1}', 8, 'numw')); xa += W
     s.append(rect(xa + .2, Y(228) + .2, AL_BAND - .4, 78 - .4, 'frontN')); s.append(label(xa + AL_BAND / 2, Y(185), 'B', 7, 'numw'))
     # mesada
-    s.append(rect(U_MES, Y(90), 392, 3, 'stone')); s.append(label(U_MES + 196, Y(91.5) + 1.8, 'granito (no incluido)', 4.5, 'lbw'))
-    s.append(rect(U_MES + 4, Y(10), 392 - 4, 10, 'zoc'))
+    s.append(rect(U_MES, Y(90), L_RUN, 3, 'stone')); s.append(label(U_MES + L_RUN / 2, Y(91.5) + 1.8, 'granito (no incluido)', 4.5, 'lbw'))
+    s.append(rect(U_MES + 4, Y(10), L_RUN - 4, 10, 'zoc'))
     for i, W in enumerate(MODS):
         x = XS[i]
         if i == PUERTA_IDX:
@@ -246,7 +250,7 @@ def alzado():
     s.append(rect(XS[-1] + .2, Y(87) + .2, BAND - .4, 77 - .4, 'frontN'))
     # cotas
     for a, b in zip(XS, XS[1:]): s.append(dim_h(a, b, Y(-8), c(b - a), False))
-    s.append(dim_h(XS[-1], U_BAND1, Y(-18), '17', False, 5)); s.append(dim_h(0, 75, Y(-8), '75', False)); s.append(dim_h(U_COL, U_MES, Y(-8), c(COL_W), False))
+    s.append(dim_h(XS[-1], U_BAND1, Y(-18), '17', False, 5)); s.append(dim_h(0, U_COL, Y(-8), c(HUECO), False)); s.append(dim_h(U_COL, U_MES, Y(-8), c(COL_W), False))
     xa = U_MES; ax = [xa]
     for W in AL_PUERTAS + [AL_BAND]: ax.append(ax[-1] + W)
     for a, b in zip(ax, ax[1:]): s.append(dim_h(a, b, Y(236), c(b - a), True))
@@ -254,7 +258,7 @@ def alzado():
     s.append(dim_v(X, Y(10), Y(0), '10', False)); s.append(dim_v(X, Y(46.19), Y(10), '36,2', False)); s.append(dim_v(X, Y(71.6), Y(46.19), '25,4', False)); s.append(dim_v(X, Y(87), Y(71.6), '15,4', False))
     s.append(dim_v(X + 30, Y(90), Y(0), '90', False)); s.append(dim_v(X + 30, Y(130), Y(90), '40', False)); s.append(dim_v(X + 30, Y(150), Y(130), '20', False)); s.append(dim_v(X + 30, Y(228), Y(150), '78', False))
     s.append(dim_v(X + 58, Y(228), Y(0), '228', False))
-    s.append(dim_v(-6, Y(228), Y(190), '38', True)); s.append(dim_v(-6, Y(51), Y(10), '41', True)); s.append(dim_v(-6, Y(79), Y(51), '28', True)); s.append(dim_v(-6, Y(228), Y(142), '86', True))
+    s.append(dim_v(-6, Y(228), Y(ALH_Z), c(ALH_H), True)); s.append(dim_v(-6, Y(51), Y(10), '41', True)); s.append(dim_v(-6, Y(79), Y(51), '28', True)); s.append(dim_v(-6, Y(228), Y(142), '86', True))
     return f'<svg viewBox="-40 -6 680 270" role="img" aria-label="Vista de frente de la pared de la cocina de Arcos">{"".join(s)}</svg>'
 
 def alzado_isla():
@@ -313,27 +317,28 @@ carp = f'''
         <div class="scope">
           <div class="item">
             <b>Mesada contra la medianera</b>
-            <div class="big">3,92 m</div>
+            <div class="big">3,875 m</div>
             <ul>
-              <li>4 columnas de 0,94 (93,75) y un bandejero de 0,17 en la punta del ventanal</li>
+              <li>4 columnas de 0,93 (92,6) y un bandejero de 0,17 en la punta del ventanal</li>
               <li>Columnas 1 y 4: 3 cajones cada una. Columna 2, la de la basura: cajón finito arriba y abajo un extraíble con 3 tachos sueltos. Columna 3, bajo la bacha: 2 puertas con estante y recorte atrás para el desagüe</li>
               <li>Caja de 0,77 de alto sobre zócalo de 0,10 (0,87 sin la tapa); 0,62 de fondo con el frente</li>
             </ul>
           </div>
           <div class="item">
             <b>Columna del horno y alacena de la heladera</b>
-            <div class="big">0,60 + 0,75 m</div>
+            <div class="big">0,60 + 0,815 m</div>
             <ul>
               <li>Columna de 0,60 × 0,62 × 2,28: 2 cajones abajo (0,41 y 0,28), nicho del horno de 56 × 59 libres y puerta arriba de 0,86</li>
-              <li>Alacena de 0,75 × 0,62 × 0,38 sobre la heladera, de 1,90 a 2,28, con una puerta</li>
+              <li>Alacena de 0,815 × 0,62 × 0,33 sobre la heladera, de 1,95 a 2,28, con una puerta; 5 cm de ventilación sobre la heladera y 0,5 de luz contra la pared</li>
+              <li>Hueco de la heladera: 0,82 de ancho entre la pared del depósito y la torre (heladera de 0,80 × 1,90 × 0,70, 1 cm por lado)</li>
             </ul>
           </div>
           <div class="item">
             <b>Alacenas altas y estante</b>
-            <div class="big">3,92 m</div>
+            <div class="big">3,875 m</div>
             <ul>
-              <li>4 puertas de 0,90 que se abren hacia arriba, más un bandejero vertical de 0,30; 0,35 de fondo, de 1,50 a 2,28</li>
-              <li>Estante de petiribí de 3,92 × 0,15 a 1,30</li>
+              <li>4 puertas de 0,89 (89,4) que se abren hacia arriba, más un bandejero vertical de 0,30; 0,35 de fondo, de 1,50 a 2,28</li>
+              <li>Estante de petiribí de 3,875 × 0,15 a 1,30</li>
             </ul>
           </div>
           <div class="item">
@@ -390,7 +395,6 @@ carp = f'''
       <div class="sheet">
         <h2>A definir antes de cortar</h2>
         <ul>
-          <li><b>Heladera:</b> el hueco es de 0,75 de ancho × 1,90 de alto; se ajusta con las medidas de la heladera que va (Maxi las pasa).</li>
           <li><b>Bajo el anafe:</b> el cajón de arriba de la isla queda debajo del anafe de 5 hornallas. En Carhué ahí va un frente fijo de 0,14 y dos cajones; acá habría que hacer lo mismo o confirmar que el anafe deja lugar.</li>
           <li><b>Tiradores:</b> en el modelo son barras negras; en Carhué es uñero fresado.</li>
         </ul>
