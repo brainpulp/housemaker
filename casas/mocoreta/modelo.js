@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.48', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.49', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -284,6 +284,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-27', v: '0.10.49', txt: 'Ahora sí, la cama de arriba es la de Arcos (queen): el cambio del 26/11 sólo alcanzaba a lo guardado y no a los escenarios de fábrica.' },
   { fecha: '2026-11-26', v: '0.10.48', txt: 'La cama queen, más grande: el modelo de Arcos a su tamaño natural (2,40 con el respaldo de pared).' },
   { fecha: '2026-11-26', v: '0.10.47', txt: 'La cama matrimonial (arriba) es el mismo modelo que la del dormitorio principal de Arcos, en tamaño queen (Maxi 26/11).' },
   { fecha: '2026-11-23', v: '0.10.46', txt: 'Puertas del pasillo norte que se abren con un toque (o arrastrándolas): P-01 al dormitorio oeste, P-02 al cuarto intermedio y una nueva, P-03, la del baño, 2,00 al este de P-02 (a confirmar). El armario del pasillo ahora es empotrado: ocupa el lugar del placar del dormitorio de atrás y desde el pasillo sólo se ven sus dos puertas pivotantes, de la misma madera que la casa, que abren del centro hacia afuera.' },
