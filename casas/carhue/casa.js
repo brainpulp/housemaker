@@ -155,6 +155,8 @@ const params=[
   {id:'luTipo',label:'Lucarnas',type:'select',value:'1',quick:true,group:'Ver',options:[['1','Una hoja'],['2','Dos hojas plegables (tipo garage)'],['3','Corrediza hacia arriba (una hoja)'],['4','Corrediza hacia el costado (una hoja)']],help:'Marco móvil de una pieza que gira sobre el borde de arriba, o partido en dos hojas que se pliegan.'},
   {id:'escB3G',label:'B3 huella',type:'number',slider:true,value:20,min:16,max:26,step:1,unit:'cm',quick:true,showIf:P=>P.escAlt==='B3',group:'Ver',help:'Profundidad de cada escalón del tramo recto. Menos = más empinada.'},
   {id:'escB3n',label:'B3 alzadas',type:'number',slider:true,value:14,min:12,max:16,step:1,quick:true,showIf:P=>P.escAlt==='B3',group:'Ver',help:'Cantidad total de alzadas hasta +2,62.'},
+  /* Maxi 25/11: idea para los baños con cerámica vieja (baño 1, baño 2 y baño piletero): en vez de microcemento, taparla con empapelado floreado de flores grandes */
+  {id:'banosRev',label:'Paredes de los baños',type:'select',value:'emp',quick:true,group:'Ver',options:[['emp','Empapelado floreado (idea 25/11)'],['micro','Microcemento'],['cer','Cerámica vieja (como está)']],help:'Baño 1, baño 2 y baño piletero. La altura de la cerámica no la tengo: el revestimiento va hasta +2,40 (supuesto).'},
   {id:'corte',label:'Corte horizontal',type:'select',value:'0',quick:true,group:'Ver',options:[['0','Sin corte'],['120','a +1,20 (planta baja)'],['400','a +4,00 (entrepiso)'],['270','a +2,70 (bajo el techo)']],help:'Saca todo lo que está por encima de esa altura, como una planta.'},
 ];
 
@@ -282,6 +284,18 @@ function build(p){
     else g=wallGeos(m,top);
     const cat=m.tipo==='vidrio'?'glass':m.tipo==='ladrillo'?'muro':'tabique';
     Pt(m.id,`${m.id} · ${m.nombre}`,cat,g,{...base(m),sec:`${m.tipo} · ${m.e} cm${m.carga?' · portante':''}`,med:`largo ${f1(Math.hypot(m.b[0]-m.a[0],m.b[1]-m.a[1])/100)} m · alto ${f1((m.id==='M-04'?507:top)/100)} m`},{...ex(m),tags:[m.nivel,'muros']});}
+  /* revestimiento de los baños de planta baja (Maxi 25/11): un paño de 6 mm contra la cara de cada pared, de 0 a REV_H, sin los vanos.
+     Los muros se buscan por el borde del local (la cara del muro cae sobre el borde del polígono). */
+  {const REV_H=240,T=.6,M_={emp:['empapelado','Empapelado floreado de flores grandes, sobre la cerámica vieja (idea de Maxi, 25/11; dibujo ilustrativo).','empapelado sobre cerámica existente'],micro:['microcemento','Microcemento sobre la cerámica vieja.','microcemento sobre cerámica existente'],cer:['ceramica','Cerámica vieja, como está (dibujo genérico de 15 × 15, no la real).','cerámica existente']}[p.banosRev||'emp'];
+    if(M_)for(const L of M.LOCALES.filter(l=>['L-02','L-03','L-11'].includes(l.id))){const xs=L.poly.map(q=>q[0]),ys=L.poly.map(q=>q[1]);const X0=Math.min(...xs),X1=Math.max(...xs),Y0=Math.min(...ys),Y1=Math.max(...ys);const g=[];
+      const lados=[{h:true,c:Y0,n:1,u0:X0,u1:X1},{h:true,c:Y1,n:-1,u0:X0,u1:X1},{h:false,c:X0,n:1,u0:Y0,u1:Y1},{h:false,c:X1,n:-1,u0:Y0,u1:Y1}];
+      for(const l of lados){const hue=[];/* vanos de los muros de ese lado, en coordenada a lo largo del borde */
+        for(const m of M.MUROS.filter(w=>w.nivel==='PB'&&w.a&&w.b)){const hz=Math.abs(m.b[0]-m.a[0])>=Math.abs(m.b[1]-m.a[1]);if(hz!==l.h)continue;const mc=hz?m.a[1]:m.a[0];if(Math.abs(Math.abs(mc-l.c)-m.e/2)>4)continue;
+          const ma=hz?Math.min(m.a[0],m.b[0]):Math.min(m.a[1],m.b[1]),mb=hz?Math.max(m.a[0],m.b[0]):Math.max(m.a[1],m.b[1]);if(mb<=l.u0||ma>=l.u1)continue;
+          for(const o of M.ABERTURAS.filter(o=>o.muro===m.id)){const d0=ma+o.d-(m._d0||0),d1=d0+o.w;if(d1>l.u0&&d0<l.u1)hue.push([d0,d1,o.s||0,(o.s||0)+o.h]);}}
+        const c0=l.c+(l.n>0?.2:-.2-T),c1=c0+T;const bx=(u0,u1,z0,z1)=>{u0=Math.max(u0,l.u0);u1=Math.min(u1,l.u1);if(u1-u0<1||z1-z0<1)return;g.push(l.h?box(u0,u1,z0,z1,c0,c1):box(c0,c1,z0,z1,u0,u1));};
+        hue.sort((a,b)=>a[0]-b[0]);let cur=l.u0;for(const [d0,d1,z0,z1] of hue){bx(cur,d0,0,REV_H);bx(d0,d1,0,Math.min(z0,REV_H));bx(d0,d1,Math.min(z1,REV_H),REV_H);cur=Math.max(cur,d1);}bx(cur,l.u1,0,REV_H);}
+      Pt('REV-'+L.id.slice(2),`REV-${L.id.slice(2)} · paredes del ${L.nombre.toLowerCase()}`,M_[0],g,{fn:M_[1]+' Hasta +2,40: la altura real de la cerámica no la tengo (supuesto).',sec:M_[2],med:`${L.nombre}, alto 2,40 m`,u:'D-16'},{group:NIV.PB,tags:['PB','baños']});}}
   /* aberturas: vidrio en ventanas y puertas balcón, hoja de madera en puertas */
   for(const a of M.ABERTURAS){const m=M.MUROS.find(w=>w.id===a.muro);if(!m||(m.nivel==='EP'&&!p.ep))continue;
     if(a.techo&&m.id==='M-04'){/* vano que copia la línea del techo a a.techo cm (V-04); con el dormer corrido, la de sus cabios */const y0=m.a[1]+a.d,y1=y0+a.w,z0=a.s||0,tz=y=>(DORM_CU(p,17,y)??roofZ(y,0))-a.techo,X0=0,X1=35,f=5;
@@ -993,7 +1007,7 @@ function build(p){
       /* etiquetas de nombre: sólo al seleccionar (Maxi, 12/10) */}};
 }
 
-const COL={washi:'#f3eee2',esmerilado:'#e3ecef',muro:'#cdc5b7',tabique:'#e2dbcf',glass:'#9fc4cf',techo:'#737a80',lucernario:'#8fa6b0',cabio:'#a9743f',ep:'#d9b98a',piso:'#eceae4',col:'#7f4429',deck:'#c7a56f',agua:'#6fb6d6',chapon:'#17191b',arbusto:'#4f7438',pileta:'#1f9ad6',herraje:'#2f3337',perno:'#a3a8ad',baldosa:'#b9806a',adoquin:'#8f8d88',tierra:'#4a3b2e',arbol:'#5c8a4f',corteza:'#6b5a48',ladrillo:'#a0705a',roble:'#8a5a32',heladera:'#b8322a',mesada:'#8fae94',follaje:'#5f8a46',obj:'#8a8f8c',madera:'#b58a5a',acero:'#3a3f44',chapa:'#2a2e31'};
+const COL={empapelado:'#3d5a49',microcemento:'#c9c4ba',ceramica:'#e6e0cf',washi:'#f3eee2',esmerilado:'#e3ecef',muro:'#cdc5b7',tabique:'#e2dbcf',glass:'#9fc4cf',techo:'#737a80',lucernario:'#8fa6b0',cabio:'#a9743f',ep:'#d9b98a',piso:'#eceae4',col:'#7f4429',deck:'#c7a56f',agua:'#6fb6d6',chapon:'#17191b',arbusto:'#4f7438',pileta:'#1f9ad6',herraje:'#2f3337',perno:'#a3a8ad',baldosa:'#b9806a',adoquin:'#8f8d88',tierra:'#4a3b2e',arbol:'#5c8a4f',corteza:'#6b5a48',ladrillo:'#a0705a',roble:'#8a5a32',heladera:'#b8322a',mesada:'#8fae94',follaje:'#5f8a46',obj:'#8a8f8c',madera:'#b58a5a',acero:'#3a3f44',chapa:'#2a2e31'};
 const LIFT={techo:380,lucernario:380,cabio:380,glass:0,ep:170};
 const root=document.getElementById('modo-3d');
 /* hojas de M-43: corrimiento guardado en este navegador */
@@ -1049,7 +1063,7 @@ try{initMarcas(visor,document.querySelector('#modo-3d .stage'));}catch(e){consol
 /* teclado (WASD, flechas) y «caminar hasta acá» (W): motor/caminar.js, lo prende la barra de herramientas */
 /* aberturas (hojas corredizas, proyectantes, lucarnas): quedan en la base del artifact, así se mantienen entre sesiones y dispositivos */
 /* variables de diseño (todas menos las de «Ver») en la base: así los cambios valen en cualquier dispositivo (Maxi 14/10) */
-const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver'||/^esc(Tipo|Obra|N|Alto|Dy|Giro)$/.test(q.id)||/^(escAlt|escB3G|escB3n|escB3k|escB2k|p26|dormers|dmVent|dormAlt|luTipo|ventJ|pv56|ventV7|p03Est|m43Est)$/.test(q.id)/* Maxi 10/11 («otra vez me reseteaste las elecciones de diseño»): dormers, lucarnas, ventanas y hojas también se guardan en la casa; antes vivían sólo en el navegador y en housemaker arrancaban de cero */).map(q=>q.id));/* la escalera al entrepiso se guarda en la casa, no sólo en el navegador (Maxi 18/10); desde el 7/11 también la escalera al altillo y la puerta del baño piletero, que son las opciones que Cocinas copia */const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));
+const PDES=new Set(params.filter(q=>(q.group||'')!=='Ver'||/^esc(Tipo|Obra|N|Alto|Dy|Giro)$/.test(q.id)||/^(escAlt|escB3G|escB3n|escB3k|escB2k|p26|dormers|dmVent|dormAlt|luTipo|ventJ|pv56|ventV7|p03Est|m43Est|banosRev)$/.test(q.id)/* Maxi 10/11 («otra vez me reseteaste las elecciones de diseño»): dormers, lucarnas, ventanas y hojas también se guardan en la casa; antes vivían sólo en el navegador y en housemaker arrancaban de cero */).map(q=>q.id));/* la escalera al entrepiso se guarda en la casa, no sólo en el navegador (Maxi 18/10); desde el 7/11 también la escalera al altillo y la puerta del baño piletero, que son las opciones que Cocinas copia */const pdes=P=>Object.fromEntries(Object.entries(P).filter(([k])=>PDES.has(k)));
 visor.onParam=P=>{if(vdb)vdb.doc('estado/params').set({p:pdes(P),ts:new Date().toISOString()}).catch(()=>{});};
 N.getDb().then(db=>{if(!db)return;db.collection('estado').onSnapshot(snap=>{const d=snap.docs.find(x=>x.id==='params'&&x.exists);if(!d)return;const b=(d.data()||{}).p||{};
   const cur=pdes(visor.params);if(JSON.stringify(b)===JSON.stringify(Object.fromEntries(Object.keys(b).map(k=>[k,cur[k]]))))return;visor.setParams(b);},()=>{});});
@@ -1167,6 +1181,7 @@ const ZONAS=[{id:'esc-alt',nombre:'Escalera al altillo',piezas:/^(ESC-(A|D|E|S|B
   {id:'m43',nombre:'Gran corrediza M-43',piezas:/^(H-[1-4]v?|M-43[rpz]?)$/,params:['m43Est'],label:Object.fromEntries((params.find(q=>q.id==='m43Est').options)),vista:{p:[1300,420,700],t:[1000,360,300]}},
   /* Maxi 14/10: los dormers son opciones del faldón donde van: tocando las lucarnas, sus dormers o el techo mismo; el del altillo, tocando el altillo o su techo */
   {id:'faldon',nombre:'Faldón al jardín: dormers y lucarnas',piezas:/^(T-01|CAB-3|LU-\d+(z|m|m2|w|w2|v2|d|b|c|k|k2)?|DM-(1|2|C)[a-z0-9]*|VE-\d[a-z]*)$/,params:['dormers','luTipo'],solo:{luTipo:/^LU-/}/* Maxi 10/11: el tipo de hoja es de las lucarnas, no de las ventanas del dormer */,label:{...Object.fromEntries(params.find(q=>q.id==='dormers').options),...Object.fromEntries(params.find(q=>q.id==='luTipo').options)},vista:{p:[560,1050,1450],t:[560,430,560]}},
+  {id:'banosRev',nombre:'Paredes de los baños',piezas:/^REV-\d+$/,params:['banosRev'],label:Object.fromEntries(params.find(q=>q.id==='banosRev').options),vista:{p:[790,165,215],t:[430,110,55]}},
   {id:'altillo',nombre:'Altillo: dormer a la pileta',piezas:/^(T-06|CAB-6|CU-2|L-24|DM-3[a-z]*)$/,params:['dormAlt'],label:Object.fromEntries(params.find(q=>q.id==='dormAlt').options),vista:{p:[2550,900,-1500],t:[2150,380,-560]}}];
 {let vu=null;try{vu=initVistasUI();}catch(e){console.error('vistas',e);}
 try{initExplicaciones(visor,{explicaciones:EXPLICA,stage:document.querySelector('#modo-3d .stage')});}catch(e){console.error('explica',e);}

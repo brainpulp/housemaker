@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.78', fecha:'2026-11-26',
+  nombre:'Carhué', version: '1.1.79', fecha:'2026-11-27',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -235,6 +235,7 @@ export const IMPLANTACION = [
 
 /* Dudas numeradas: respondé por número. ref = elementos que cambian con la respuesta. */
 export const DUDAS = [
+  {id:'D-16', ref:['REV-02','REV-03','REV-11'], q:'Baños con cerámica vieja (baño 1, baño 2 y baño piletero): ¿hasta qué altura llega la cerámica? Puse el empapelado (o el microcemento) hasta +2,40, sin los vanos.'},
   {id:'D-15', ref:['VM-1','C-07','M-17','TIR-1','V-07'], q:'Frente del ala corrido 1,44 (19/10): la viga VM-1 la puse en y 3,45 (en línea con M-15), de 10×20, con C-07 en x 13,28. ¿Es así? ¿Los tirantes del entrepiso van este-oeste (como están dibujados) y apoyan en VM-1? La ventana V-07 termina en x 11,88 y la cara de M-17 queda en 11,83: ¿la ventana está bien medida?'},
   {id:'D-14', ref:['PIL-1'], q:'Pileta (18/10): ¿la escalera del vaso está en la esquina noreste, bajando hacia el oeste, como la entiendo de las fotos 7 a 9? ¿A qué nivel queda el agua? ¿Dónde está exactamente la caja del filtro (la dibujé al norte del pozo, 1,1 × 1,1)?'},
   {id:'D-13', ref:['W-1','C-01','C-02','C-03'], q:'El perfil W (del quincho al baño del entrepiso): ¿a qué altura está y a qué distancia de la pared del patio? ¿Qué apoya en él: los cabios del techo de vidrio, los de la chapa, los dos? Lo dibujé a +3,50 en y 633. ¿Y en qué apoya el tramo que entra sobre el entrepiso?'},
@@ -288,6 +289,7 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
+  {fecha:'2026-11-25', v:'1.1.79', txt:'Maxi 25/11, idea para los baños con cerámica vieja (baño 1, baño 2 y baño piletero): en vez de microcemento, taparla con empapelado floreado de flores grandes. Nueva opción «Paredes de los baños» (tocando una pared de un baño): empapelado (por defecto), microcemento o la cerámica como está. Hasta +2,40 y sin los vanos; la altura real de la cerámica no la tengo.'},
   {fecha:'2026-11-27', v:'1.1.78', txt:'Pintar (Maxi 27/11): al elegir una pieza, el panel de selección trae «Color y material»: una paleta con todas las texturas de la casa (maderas con veta, deck, revoque, ladrillo, cemento, chapas, acero…), «liso» y un selector de color que tiñe la textura. Pinta la pieza entera; con doble clic sobre la pieza se elige sólo la parte tocada (otro clic, otra parte). «quitar» vuelve al original. Queda guardado en la página.'},
   {fecha:'2026-11-27', v:'1.1.77', txt:'Camas (Maxi 27/11): todas queen; las que eran king (2,70) vuelven a 2,40, con las mesas de luz arrimadas.'},
   {fecha:'2026-11-26', v:'1.1.76', txt:'Camas queen y king más grandes: el modelo de la cama de Arcos a su tamaño natural (2,40 la queen, 2,70 la king, con el respaldo de pared); a 2,03 todavía parecía de una plaza.'},
