@@ -7,7 +7,7 @@
    de ese archivo; 'supuesto' = lo deduje yo; 'medido' = medido en obra. */
 
 export const META = {
-  nombre:'Carhué', version: '1.1.78', fecha:'2026-11-27',
+  nombre:'Carhué', version: '1.1.79', fecha:'2026-11-27',
   resumen:'Planta tomada del modelo 3D de Onshape. Usos de los locales, entrepiso y alturas finas todavía a confirmar.',
 };
 
@@ -289,7 +289,8 @@ export const VIDEO = [
 ];
 
 export const CAMBIOS = [
-  {fecha:'2026-11-25', v:'1.1.78', txt:'Maxi 25/11, idea para los baños con cerámica vieja (baño 1, baño 2 y baño piletero): en vez de microcemento, taparla con empapelado floreado de flores grandes. Nueva opción «Paredes de los baños» (tocando una pared de un baño): empapelado (por defecto), microcemento o la cerámica como está. Hasta +2,40 y sin los vanos; la altura real de la cerámica no la tengo.'},
+  {fecha:'2026-11-25', v:'1.1.79', txt:'Maxi 25/11, idea para los baños con cerámica vieja (baño 1, baño 2 y baño piletero): en vez de microcemento, taparla con empapelado floreado de flores grandes. Nueva opción «Paredes de los baños» (tocando una pared de un baño): empapelado (por defecto), microcemento o la cerámica como está. Hasta +2,40 y sin los vanos; la altura real de la cerámica no la tengo.'},
+  {fecha:'2026-11-27', v:'1.1.78', txt:'Pintar (Maxi 27/11): al elegir una pieza, el panel de selección trae «Color y material»: una paleta con todas las texturas de la casa (maderas con veta, deck, revoque, ladrillo, cemento, chapas, acero…), «liso» y un selector de color que tiñe la textura. Pinta la pieza entera; con doble clic sobre la pieza se elige sólo la parte tocada (otro clic, otra parte). «quitar» vuelve al original. Queda guardado en la página.'},
   {fecha:'2026-11-27', v:'1.1.77', txt:'Camas (Maxi 27/11): todas queen; las que eran king (2,70) vuelven a 2,40, con las mesas de luz arrimadas.'},
   {fecha:'2026-11-26', v:'1.1.76', txt:'Camas queen y king más grandes: el modelo de la cama de Arcos a su tamaño natural (2,40 la queen, 2,70 la king, con el respaldo de pared); a 2,03 todavía parecía de una plaza.'},
   {fecha:'2026-11-26', v:'1.1.75', txt:'Maxi 26/11: en la realidad hay 0,80 entre la pared M-26 y la puerta del baño piletero (el modelo daba 0,48): la puerta queda en ese lugar (y −5,055 a −4,275 sobre M-24) y la heladera, centrada en esos 0,80.'},

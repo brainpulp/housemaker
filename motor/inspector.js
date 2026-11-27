@@ -54,6 +54,7 @@ export function initInspector(visor){
       <dl><dt>Tipo</dt><dd>${esc(txt(i.tipo)||CAT[p.cat]||p.cat||'—')}${p.group&&!i.tipo?` · ${esc(p.group)}`:''}</dd>${i.med?`<dt>Medidas</dt><dd>${esc(txt(i.med))}</dd>`:''}${i.sec?`<dt>Sección</dt><dd>${esc(txt(i.sec))}</dd>`:''}${caja?`<dt>Caja</dt><dd>${caja}</dd><dt>Posición</dt><dd>${posi}</dd>`:''}</dl>
       ${fn?`<div class="fn${fnOpen?'':' cut'}" data-a="fn" title="${fnOpen?'':'Ver todo'}">${esc(fn)}</div>`:''}
       ${visor.controlPieza?visor.controlPieza(p.id):''}
+      ${window.__pintura?window.__pintura.html(p.id):''}
       <textarea placeholder="Tu nota sobre ${esc(p.id)}…" data-nota>${esc(N.nota(p.id))}</textarea>
       ${visor.borrarPieza?`<div class="acts"><button class="ib" data-a="del" title="Se puede deshacer (Ctrl/⌘ Z)">Borrar pieza</button>${visor.parteTocada&&visor.parteTocada(p.id)?`<button class="ib" data-a="delp" title="Sólo la parte que tocaste (se puede deshacer)">Borrar sólo esta parte</button>`:''}</div>`:''}
       <div class="acts"><button class="ib" data-a="eye">${oculto?EO+' Mostrar':E+' Esconder'}</button>${visor.toggleTransp?`<button class="ib" data-a="transp" title="Se ve a través y no tapa lo de atrás al tocar"${visor.isTransp(id)?' style="background:var(--accent-soft);color:var(--ink)"':''}>◌ ${visor.isTransp(id)?'Opaca':'Transparente'}</button>`:''}<button class="ib" data-a="fit" title="Encuadrar (F)">◎ Encuadrar</button><span style="flex:1"></span><button class="ib" data-a="desel" title="Soltar la selección (Esc)">✕</button></div>`;

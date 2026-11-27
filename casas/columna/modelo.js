@@ -1,7 +1,7 @@
 /* Mocoretá · columna de elevación — detalle de UNA columna del sistema para subir y bajar la casa (la del par 6, norte, que lleva el motor de la fila).
    Es un modelo de detalle para el ingeniero, aparte del modelo de la casa: las piezas están a medida de catálogo o de cálculo, no esquemáticas.
    Coordenadas en cm: x hacia afuera de la casa (0 = cara exterior de la columna vieja), y hacia arriba (0 = terreno), z a lo largo de la fila (0 = eje de la columna). */
-export const META = { nombre: 'Mocoretá · columna', version: '0.1.4', fecha: '2026-11-22', lugar: 'Ingeniero Maschwitz',
+export const META = { nombre: 'Mocoretá · columna', version: '0.1.5', fecha: '2026-11-27', lugar: 'Ingeniero Maschwitz',
   resumen: 'Detalle para el ingeniero de una columna del sistema para subir y bajar Mocoretá: columna doble con ranura, husillo a tracción, gato, ejes, motor y uniones a la madera.' };
 export const NIVELES = { PB: { nombre: 'Terreno', z: 0 } };
 export const LOCALES = [];
@@ -13,6 +13,7 @@ export const DUDAS = [
   { id: 'D-C5', ref: ['M-01', 'M-02', 'M-03'], q: 'Madera: columna vieja de 15 × 15 y viga perimetral de 15 × 30 (Maxi); viga transversal de piso 7 × 25 (Maxi). Las uniones existentes no se conocen (55 años).', conf: 'estimado' },
 ];
 export const CAMBIOS = [
+  { fecha: '2026-11-27', v: '0.1.5', txt: 'Pintar (Maxi 27/11): al elegir una pieza, el panel de selección trae «Color y material»: una paleta con todas las texturas de la casa (maderas con veta, deck, revoque, ladrillo, cemento, chapas, acero…), «liso» y un selector de color que tiñe la textura. Pinta la pieza entera; con doble clic sobre la pieza se elige sólo la parte tocada (otro clic, otra parte). «quitar» vuelve al original. Queda guardado en la página.' },
   { fecha: '2026-11-22', v: '0.1.4', txt: 'Chapones soldados dentro de la ranura que hermanan los dos UPN, sólo donde no pasa la ménsula: dos abajo y uno arriba, más el taco del cabezal.' },
   { fecha: '21/11/2026', v: '0.1.3', txt: 'Se mueve arrastrando: agarrá la madera, el gato, la ménsula, el motor o los ejes y arrastrá hacia arriba o hacia abajo; la casa sube y baja con todo lo que viaja con ella, y el husillo y la columna doble quedan fijos.' },
   { fecha: '21/11/2026', v: '0.1.2', txt: 'Arranca en dibujo Técnico (caras claras, aristas negras). El modo se cambia en la barra de abajo, «Dibujo», junto a «Gráficos».' },
