@@ -7,6 +7,8 @@
 export function initCorredizas(visor, HOJAS, pref = 'casa') {
   const KEY = pref + '-corredizas'; let MOV = {}; try { MOV = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
   const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(MOV)); } catch (e) {} };
+  /* posición de arranque (HOJAS[k].def), para lo que nunca se movió en este navegador (Maxi 27/11: «las puertas, por default abiertas») */
+  for (const [k, h] of Object.entries(HOJAS)) if (MOV[k] == null && h.def != null) MOV[k] = h.def;
   const base = id => id.replace(/[a-z]$/, ''), clave = id => HOJAS[base(id)] ? base(id) : null;
   const fmt = v => (Math.abs(v) / 100).toFixed(2).replace('.', ','), fmtK = (k, v) => HOJAS[k] && (HOJAS[k].giro || HOJAS[k].bis) ? Math.round(v) + '°' : fmt(v) + ' m';
   const gir = H => typeof H.giro === 'function' ? H.giro() : H.giro;

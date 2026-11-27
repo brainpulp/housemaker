@@ -13,7 +13,7 @@ import * as CARHUE from './fuente-carhue.js';
 import * as ARCOS from './fuente-arcos.js';
 import { MO } from './mocoreta.js';
 
-export const META = { nombre: 'Cocinas', version: '0.1.60', fecha: '2026-11-26',
+export const META = { nombre: 'Cocinas', version: '0.1.61', fecha: '2026-11-27',
   resumen: 'Las tres cocinas (Carhué, Mocoretá, Arcos) recortadas de sus casas y puestas en una misma escena, sin techo, para diseñarlas en detalle.',
   ejes: 'x de sur a norte, y de oeste a este; piso de Mocoretá y Carhué en 0, el de Arcos en +0,51 (su estar hundido en +0,01). Mocoretá en y 0–6,30, Carhué en 9,30–19,10, Arcos en 20,10–27,55. Cada pieza lleva el prefijo de su casa: MO:, CH:, AR:.',
   planta: { vb: { x: -200, y: -150, w: 1000, h: 3050 }, casa: { cx: 280, cy: 1370, w: 900, h: 2900 }, lote: { cx: 280, cy: 1370, w: 900, h: 2900 }, ejesExt: { x0: -60, x1: 600, y0: -60, y1: 2800 }, ghost: 'PB',
@@ -186,6 +186,7 @@ export const INVENTARIO = {
 };
 
 export const CAMBIOS = [
+  {fecha:'2026-11-27', v:'0.1.61', txt:'Mocoretá (Maxi 27/11): todos los frentes de cajones, negros; las dos bajo mesadas eran de madera clara.'},
   {fecha:'2026-11-26', v:'0.1.60', txt:'Carhué (Maxi 26/11): el horno va bajo el anafe, en la península. Horno empotrable de 0,60 × 0,60 en lugar de los dos cajones de ollas; el mueble que lo rodea se hace en obra. Igual que en el modelo de Carhué.'},
   {fecha:'2026-11-25', v:'0.1.59', txt:'Arcos (Maxi 25/11): heladera de 0,80 × 1,90 × 0,70 en un hueco de 0,82; mesada y alacenas de 3,875; mueble sobre la heladera de 0,815 × 0,33, de 1,95 a 2,28. Igual que en el modelo de Arcos.'},
   {fecha:'2026-11-25', v:'0.1.58', txt:'Arcos (Maxi 25/11): todas las cajas de los muebles en melamina negra y el mueble sobre la heladera negro. Igual que en el modelo de Arcos.'},

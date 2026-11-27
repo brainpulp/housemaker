@@ -45,6 +45,8 @@ export function initRealismo(visor,datos={}){
     ceramica:mk(512,512,(x,w,h)=>{x.fillStyle='#bdb6a6';x.fillRect(0,0,w,h);const n=4,s=w/n;for(let i=0;i<n;i++)for(let j=0;j<n;j++){const k=rnd();x.fillStyle=`rgb(${226+k*14|0},${221+k*12|0},${204+k*10|0})`;x.fillRect(i*s+2,j*s+2,s-4,s-4);x.globalAlpha=.25;x.fillStyle='#ffffff';x.fillRect(i*s+6,j*s+6,s*.4,s*.12);x.globalAlpha=1;}}),
     microcemento:mk(512,512,(x,w,h)=>{x.fillStyle='#c9c4ba';x.fillRect(0,0,w,h);noise(x,w,h,1600,.06,v=>v>.5?'#bdb7ac':'#d4cfc6');for(let i=0;i<40;i++){x.strokeStyle='#b3ada2';x.globalAlpha=.08;x.lineWidth=20+rnd()*40;x.beginPath();const y=rnd()*h;x.moveTo(0,y);x.quadraticCurveTo(w/2,y+rnd()*80-40,w,y+rnd()*40-20);x.stroke();}x.globalAlpha=1;}),
   };
+  /* Maxi 27/11: «las paredes tan oscuras como el piso o un puntito más»: la madera de las paredes es la misma imagen con su propio tono (maderaPared), para poder oscurecerla aparte */
+  T.maderaPared=T.madera.clone();T.maderaPared.needsUpdate=true;
   /* categoría → [textura, tamaño del paño en cm] */
   const PIEDRA=new Set(datos.piedra??['M-05','M-27','M-06','M-07','M-22']);/* M-22: misma terminación que M-05 en su cara de afuera (norte, +x) — Maxi 14/10 *//* piedra: textura sacada de la foto de Maxi (pared de piedra partida en junta seca), ~3,3 × 2,0 m por paño; la misma imagen da el relieve */
   const stoneTex=PIEDRA.size?new THREE.TextureLoader().load('vid/piedra.jpg'):new THREE.Texture();stoneTex.wrapS=stoneTex.wrapT=THREE.RepeatWrapping;stoneTex.colorSpace=THREE.SRGBColorSpace;stoneTex.anisotropy=8;stoneTex.repeat.set(200/330,1);
@@ -54,7 +56,7 @@ export function initRealismo(visor,datos={}){
   /* tonos (Maxi 18/11: «la madera más oscura; dame una manera de editarla en tiempo real»): cada textura se multiplica por un tinte.
      La casa da los suyos (datos.tintes = {madera:'#…'}); el botón «tonos» de la barra de abajo los cambia en vivo y los guarda en este navegador */
   const TKEY='hm-tintes2:'+/* Maxi 22/11: «la madera queda negra»: se descartan los tonos guardados antes */location.pathname.replace(/[^/]*$/,'');let TIN0={...(datos.tintes||{})},TIN={...TIN0};try{Object.assign(TIN,JSON.parse(localStorage.getItem(TKEY)||'{}'));}catch(e){}
-  const NOMT={madera:'Madera',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',empapelado:'Empapelado',ceramica:'Cerámica',microcemento:'Microcemento',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
+  const NOMT={madera:'Madera',maderaPared:'Madera de las paredes',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',empapelado:'Empapelado',ceramica:'Cerámica',microcemento:'Microcemento',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
   const texDe=m=>m&&m.map?Object.keys(T).find(k=>T[k]===m.map):null;
   function materiales(){const out=[woodMat,stoneMat];scene.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material))if(m&&m.map&&!out.includes(m))out.push(m);});return out;}
   function aplicarTintes(){for(const m of materiales()){const k=texDe(m);if(k&&k!=='pasto'&&m.userData.real!==false)m.color.set(TIN[k]||'#ffffff');}window.__despertar&&window.__despertar();}
