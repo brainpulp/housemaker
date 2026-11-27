@@ -15,12 +15,17 @@ export function equipMocoreta({ itA }) {
         I('isla', 300, 265, 0, { L: 220, D: 90, vol: 0, fr: 'negro', top: 'madRust' }), I('mesada', 150, 265, 0, { L: 80, D: 90, H: 91, fr: 'negro', top: 'granito', puertas: [0], tapaMas: 20, tapaLado: 1, tapaD: 90 }), I('anafe', 158, 265, 0, { L: 90, D: 52, n: 5 }, 91),
         I('mesaTablas', 267, 530, 0, { L: 280, D: 120, P: 20, mad: 'pinotea' }), ...sillas(I, 267, 530, 280, 120, 3),
         I('alacena', 124, 17.5, 0, { L: 248, D: 35, H: 70, fr: 'madClara' }, 150),
+        /* Maxi 27/11: «equipá los 2 baños». Baño de abajo (2,00 × 3,31, de MC-05 a MC-01, del ventanal sur a MC-03; la puerta P-03 abre hacia adentro desde el pasillo):
+           ducha a lo ancho contra el ventanal sur, piso sin plato y mampara fija; inodoro contra MC-05, vanitory con espejo contra MC-01, toallero junto a la puerta. Ubicación propuesta */
+        ...BANO_PB(J),
         ] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* piso alto (hipótesis del segundo piso; Maxi 15/11: «equipá el dormitorio de arriba y la oficina»). Sólo se ve con el segundo piso prendido. Medidas y ubicación supuestas */
     alto: { n: 'Piso alto (hipótesis)', piso: 328, ver: p => p.piso2 === 'A' || p.piso2 === 'B', vista: { p: [1500, 900, 2900], t: [300, 380, 1800] }, esc: () => { const I = itA('alto'); return {
       A: { nombre: 'Dormitorio y oficina', items: [
         I('cama', 300, 1492, 180, { L: 160, D: 200 }), I('mesaLuz', 190, 1572, 180), I('mesaLuz', 410, 1572, 180), I('alfombra', 300, 1440, 0, { L: 260, D: 170 }), I('placard', 45, 1380, 90, { L: 150, D: 60, H: 240 }),
+        /* Maxi 27/11: baño lineal de arriba, en el ensanche (1,40 × 2,53; se entra desde el dormitorio por la punta oeste): vanitory, inodoro y ducha en fila contra la pared sur */
+        ...BANO_PA(I),
         I('escritorio', 300, 2350, 180, { L: 160, D: 70 }), I('silla', 300, 2290, 0), I('bibliotecaGrilla', 32, 2270, 90, { L: 200, D: 35, H: 200 }) /* Maxi 22/11: igual a la de abajo (BI-01) */, I('butaca', 170, 2090, 90), I('alfombra', 260, 2200, 0, { L: 240, D: 170 })] },
       B: { nombre: 'Vacío', items: [] } }; } },
     /* el jardín: sin muebles; es el ambiente donde el motor pone la capa Plantas */
@@ -65,7 +70,13 @@ export function equipMocoreta({ itA }) {
     for (const [x, y, e, h, s] of [[-900, 2900, 'Ash Large', 1700, 2], [-900, 2500, 'Oak Large', 1800, 1], [-1100, 2000, 'Pino', 2100, 2], [-800, 1500, 'Ash Large', 1700, 3], [-1200, 1050, 'Pino', 2200, 4], [-900, 600, 'Oak Large', 1800, 2], [-1150, 100, 'Ash Large', 1600, 1], [-800, -350, 'Pino', 2000, 3], [-1000, -800, 'Oak Large', 1700, 3]]) P('arbol', x, y, e, h, s);
     return { A: { nombre: 'Jardín de hoy (desde la foto y el video del norte)', items: it }, B: { nombre: 'Sin plantas', items: [] } }; }
   /* Maxi 22/11: la biblioteca de la oficina de arriba pasa a ser igual a la de abajo, también en lo ya guardado */
+  const BANO_PB = I => [I('duchaPiso', 62, 692.5, 0, { L: 100, D: 200 }), I('mampara', 112, 652.5, 90, { L: 120, perfil: 'izq' }), I('duchaGrohe', 62, 633.5, 0, {}, 4),
+    I('inodoroK', 170, 630, 0), I('vanitoryM', 210, 766.5, 180), I('espejo', 210, 790.5, 180, { L: 80, H: 85 }), I('toallero', 338, 620, -90)];
+  const BANO_PA = I => [I('vanitoryM', -108, 1259.5, 90), I('espejo', -132.5, 1259.5, 90, { L: 80, H: 85 }), I('inodoroK', -96.5, 1335, 90),
+    I('duchaPiso', -64.5, 1408.5, 0, { L: 139, D: 97 }), I('mampara', -96, 1360, 0, { L: 76, perfil: 'izq' }), I('duchaGrohe', -64.5, 1416, 180, {}, 4), I('toallero', 1, 1335, -90)];
+  /* lo ya guardado recibe los baños si no los tiene */
+  const conBano = (amb, mk, cerca) => items => { if (items.some(m => /^(inodoro|vanitory|ducha)/.test(m.t) && cerca(m))) return; if (!items.some(m => m.t === 'isla' || m.t === 'cama' || m.t === 'camaDoble')) return; const I = itA(amb + '_b'); items.push(...mk(I).map((m, i) => ({ ...m, id: amb + '_bano27_' + i }))); };
   /* Maxi 23/11: el armario del pasillo es empotrado (AR-01, parte de la casa): se saca el mueble que se había agregado */
-  const MUT = { mue: { interior: [['armarioPasillo2311', () => {}], ['armarioEmpotrado2311', items => { for (let i = items.length - 1; i >= 0; i--) if (items[i].t === 'placard' && Math.abs(items[i].y - 435) < 6) items.splice(i, 1); }]], alto: [['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
+  const MUT = { mue: { interior: [['banoPB2711', conBano('interior', BANO_PB, m => m.x > 0 && m.y > 580 && m.y < 800)], ['armarioPasillo2311', () => {}], ['armarioEmpotrado2311', items => { for (let i = items.length - 1; i >= 0; i--) if (items[i].t === 'placard' && Math.abs(items[i].y - 435) < 6) items.splice(i, 1); }]], alto: [['banoPA2711', conBano('alto', BANO_PA, m => m.x < 10 && m.y > 1190 && m.y < 1470)], ['bibliotecaGrilla2211', items => { for (const m of items) if (m.t === 'biblioteca') { m.t = 'bibliotecaGrilla'; m.p = { ...(m.p || {}), D: 35 }; } }]] } };
   return { mut: MUT, inicial: 'interior', AMB, veg: escVeg, orden: ['interior', 'alto', 'deckN', 'deckS', 'exterior'], luces: escLuces, cal: sin('Sin calefacción') };
 }
