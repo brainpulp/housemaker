@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.53', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.54', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -284,6 +284,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-27', v: '0.10.54', txt: 'Las paredes de madera, un punto más oscuras que el piso (tenían el mismo tono y con la luz se veían más claras). Tienen su propio tono en «tonos» (Madera de las paredes) para ajustarlo en vivo.' },
   { fecha: '2026-11-27', v: '0.10.53', txt: 'Todos los frentes de cajones, negros: las dos bajo mesadas de la cocina (eran de madera clara), los cajoncitos de las bibliotecas de abajo y de arriba. Las puertas interiores arrancan abiertas (se cierran con un toque).' },
   { fecha: '2026-11-27', v: '0.10.52', txt: 'La pared de la cocina (MC-01) está 2 m más al este, como en la realidad (y 10,00): con ella se corren la cocina, el comedor, el tabique de la heladera, el baño (sigue de 2,00) y su puerta. El cuarto del medio pasa de 1,78 a 3,78; el pasillo norte llega hasta la pared de la cocina. La mesa del comedor queda apretada contra el sillón: la acerqué 0,60 a la isla para que entren las sillas.' },
   { fecha: '2026-11-27', v: '0.10.51', txt: 'Baños equipados (ubicación propuesta). Abajo: ducha a lo ancho contra el ventanal sur con piso sin plato y mampara fija, inodoro contra la pared oeste, vanitory con espejo contra la pared de la cocina, toallero junto a la puerta. Arriba, el baño lineal del ensanche: vanitory, inodoro y ducha en fila contra la pared sur, con mampara.' },
