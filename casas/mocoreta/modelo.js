@@ -7,7 +7,7 @@
    Módulos: 6, de 4,00, numerados de ESTE a OESTE (Maxi): el módulo k va del par de columnas k al k+1. El par 1 está en y 2400 y el 7 en y 0.
    Lo que Maxi dijo va con conf 'estimado' (él dio medidas aproximadas); lo que supuse yo va con conf 'supuesto' y preguntado en DUDAS. */
 
-export const META = { nombre: 'Mocoretá', version: '0.10.50', fecha: '2026-11-22',
+export const META = { nombre: 'Mocoretá', version: '0.10.51', fecha: '2026-11-22',
   resumen: 'Casa de madera sobre pilotes en Ingeniero Maschwitz: 24,00 × 5,50 más 1,00 en voladizo al oeste, ventanales en casi todo el perímetro, deck de 4,00 al norte, deck chico al sur y chapa a un agua. Primera etapa: esqueleto y envolvente, según la descripción de Maxi.',
   ejes: 'x de sur a norte (0 en la fila sur de columnas), y de oeste a este (0 en el par de columnas del oeste); alturas sobre el piso interior.',
   planta: { vb: { x: -500, y: -350, w: 2100, h: 3000 }, casa: { cx: 275, cy: 1150, w: 560, h: 2510 }, lote: { cx: 500, cy: 1150, w: 1900, h: 2900 }, ejesExt: { x0: -330, x1: 1480, y0: -180, y1: 2480 }, ghost: 'PB',
@@ -284,6 +284,7 @@ export const BARANDAS = [], DECK = [], CHIMENEAS = [], CLARABOYAS = [];
 export const VIDEO = [];
 
 export const CAMBIOS = [
+  { fecha: '2026-11-27', v: '0.10.51', txt: 'Baños equipados (ubicación propuesta). Abajo: ducha a lo ancho contra el ventanal sur con piso sin plato y mampara fija, inodoro contra la pared oeste, vanitory con espejo contra la pared de la cocina, toallero junto a la puerta. Arriba, el baño lineal del ensanche: vanitory, inodoro y ducha en fila contra la pared sur, con mampara.' },
   { fecha: '2026-11-27', v: '0.10.50', txt: 'Frente del dormitorio a la terraza: la puerta corrediza y los paños fijos comparten las líneas. Travesaños de la hoja a la altura de los de los fijos, parante central sobre la línea del módulo y un zócalo de madera abajo de los fijos hasta la altura de la hoja (antes el vidrio bajaba por debajo del deck). Variantes (tocá el frente): repartido alineado, sólo parantes sin travesaños, u hoja de un solo vidrio.' },
   { fecha: '2026-11-27', v: '0.10.49', txt: 'Ahora sí, la cama de arriba es la de Arcos (queen): el cambio del 26/11 sólo alcanzaba a lo guardado y no a los escenarios de fábrica.' },
   { fecha: '2026-11-26', v: '0.10.48', txt: 'La cama queen, más grande: el modelo de Arcos a su tamaño natural (2,40 con el respaldo de pared).' },

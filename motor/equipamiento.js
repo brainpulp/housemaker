@@ -119,13 +119,13 @@ export function initEquipamiento(visor,stage,D){
   /* Maxi 26/11, de nuevo: «siguen siendo de una plaza»: la ropa de cama de 1,64 (L 2,03) todavía se veía chica. El modelo a su tamaño natural (L 2,40) es una queen con el acolchado colgando;
      king = 2,40 × 180/160 = 2,70. */
   const LQ=A=>Math.round(240*A/160),PIES=r=>[Math.sin(r*Math.PI/180),Math.cos(r*Math.PI/180)];
-  const ensanchar=(items,m,L1)=>{const L0=m.p.L,d=(L1-L0)/2;if(d<=0)return;const [fx,fy]=PIES(m.r||0),[lx,ly]=[fy,-fx];
+  const ensanchar=(items,m,L1)=>{const L0=m.p.L,d=(L1-L0)/2;if(!d)return;const [fx,fy]=PIES(m.r||0),[lx,ly]=[fy,-fx];
     for(const n of items){if(!/^mesaLuz/.test(n.t))continue;const vx=n.x-m.x,vy=n.y-m.y,lat=vx*lx+vy*ly,lon=vx*fx+vy*fy,w=(n.p&&n.p.L)||45;
       if(lon<0&&lon>-m.p.D/2-5&&Math.abs(Math.abs(lat)-(L0/2+w/2))<8){const sg=Math.sign(lat);n.x+=sg*d*lx;n.y+=sg*d*ly;}}
     m.p={...m.p,L:L1};};
-  const camaQK=(items,m)=>{if(m.t==='camaDoble'&&m.p&&m.p.L<235){ensanchar(items,m,LQ(160));return 1;}
-    if(m.t!=='cama'||!m.p||!(m.p.L>=160))return 0;const [fx,fy]=PIES(m.r||0);m.x=(m.x||0)+7.5*fx;m.y=(m.y||0)+7.5*fy;m.t='camaDoble';m.p={...m.p,D:215};delete m.p.H;ensanchar(items,m,LQ(m.p.L));return 1;};
-  const GMUT=[['camaDoble2611c',items=>{let c=0;for(const m of [...items])c+=camaQK(items,m);return c;}]];
+  const camaQK=(items,m)=>{if(m.p&&m.p.tam==='plaza')return 0;/* Maxi 27/11: «queen salvo en el cuarto de Andrés»: tam:'plaza' la deja como está */if(m.t==='camaDoble'&&m.p&&(m.p.L<235||m.p.L>245)){ensanchar(items,m,LQ(160));return 1;}/* Maxi 27/11: todas queen (las king de 2,70 también vuelven a 2,40) */
+    if(m.t!=='cama'||!m.p||!(m.p.L>=160))return 0;const [fx,fy]=PIES(m.r||0);m.x=(m.x||0)+7.5*fx;m.y=(m.y||0)+7.5*fy;m.t='camaDoble';m.p={...m.p,D:215};delete m.p.H;ensanchar(items,m,LQ(160));return 1;};
+  const GMUT=[['camaQueen2711',items=>{let c=0;for(const m of [...items])c+=camaQK(items,m);return c;}]];
   const CAPA={mue:{CAT,col:'equipamiento',esc:a=>{const e=AMB[a].esc();if(MOD3D[a])for(const x of Object.values(e))MOD3D[a](x.items);/* también los escenarios de fábrica pasan por las mutaciones del motor (camas queen/king, 26/11) */for(const x of Object.values(e))for(const [,fn] of GMUT)fn(x.items||[]);return e;}},luz:{CAT:CL,col:'iluminacion',esc:a=>escLuces(a,itA('L'+a))},veg:{CAT:CV,col:'vegetacion',esc:a=>a==='exterior'?escVeg():{A:{nombre:'Sin plantas',items:[]}}},cal:{CAT:CCAL,col:'calefaccion',esc:a=>escCal(a,itA('C'+a))}};
   let vegCapas={bajo:true,medio:true,arbol:true};try{Object.assign(vegCapas,JSON.parse(localStorage.getItem('carhue-veg-capas')||'{}'));}catch(e){}
   const catOf=(t,k)=>CAPA[k].CAT[t];

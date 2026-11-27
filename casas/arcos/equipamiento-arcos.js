@@ -73,10 +73,10 @@ export function equipArcos({ itA }) {
       A: { nombre: 'Con vestidor detrás de la cama', items: [/* el tabique es parte del edificio: lo pone la opción de diseño «Cuarto de Andrés» (casa.js) */
         I('vestidor', 170.5, 3325, 0, { L: 307, D: 60, H: 307, mods: 'largo:80|doble:100|cajones:60|zapatos:69', mad: 'petiribi', car: 'blanco', mal: 240 }),
         I('espejo', 16.5, 3401, 90, { L: 60, D: 3, H: 170 }, 30),
-        I('camaDoble', 179.5, 3566, 0, { L: 240, D: 215 }), I('mesaLuzM', 37, 3480, 0, { L: 45, D: 40 }), I('mesaLuzM', 322, 3480, 0, { L: 45, D: 40 }),
+        I('camaDoble', 169.5, 3566, 0, { L: 170, D: 215, tam: 'plaza' }), I('mesaLuzM', 62, 3480, 0, { L: 45, D: 40 }), I('mesaLuzM', 277, 3480, 0, { L: 45, D: 40 }),
         I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 32, 3740, 90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 355, 3815, -135, { tela: 'lino' })] },
       B: { nombre: 'Con placard contra el baño', items: [I('placard', 170.5, 3325, 0, { L: 307, D: 60, H: 300, fr: 'petiribi' }),
-        I('camaDoble', 122.5, 3625, 90, { L: 240, D: 215 }), I('mesaLuzM', 37, 3482.5, 90, { L: 45, D: 40 }), I('mesaLuzM', 37, 3767.5, 90, { L: 45, D: 40 }),
+        I('camaDoble', 122.5, 3610, 90, { L: 170, D: 215, tam: 'plaza' }), I('mesaLuzM', 37, 3497, 90, { L: 45, D: 40 }), I('mesaLuzM', 37, 3723, 90, { L: 45, D: 40 }),
         I('escritorioM', 194, 3859, 180, { L: 150, D: 70 }), I('sillaCover', 194, 3792, 0), I('biblioteca', 403, 3510, -90, { L: 120, D: 32, H: 200, mad: 'petiribi' }), I('butacaAm', 330, 3560, -150, { tela: 'lino' })] },
       C: { nombre: 'Vacío', items: [] } }; } },
     /* Maxi 22/11: cuarto de Isolda (cuarto NE del 1P): de huéspedes, pero usado como sala de TV, con sofá cama. 4,16 × 4,36; la única pared llena es la medianera norte
@@ -147,8 +147,12 @@ export function equipArcos({ itA }) {
     if ((s.esc.A?.items || []).some(m => m.t === 'sofaLcb')) s.esc.A = AMB.estar.esc().A; if (!migrar.some(([x, y]) => x === a && y === k)) migrar.push([a, k]); };
   /* Maxi 26/11: la cama del dormitorio principal pasa a queen (2,03 de modelo); en «Cabecera a la medianera sur» se corre 17 cm al norte para no tocar la escalerita E-06 */
   const MUT = { mue: { dormitorio: [['camaQueenB2611c', items => { for (const m of items) if (m.t === 'camaDoble' && Math.abs(m.x - 125) < 3 && (Math.abs(m.y - 2865) < 3 || Math.abs(m.y - 2848) < 3)) m.y = 2828;
-      }], ['camaQueenAndres2611c', () => {}]], cuartoSE: [['camaQueenSE2611c', items => { /* la cama de Andrés, a 2,40, se corre para que las mesas de luz no toquen las paredes */
-        const c = items.find(m => m.t === 'camaDoble'); if (!c) return; const d = c.r === 90 && Math.abs(c.y - 3610) < 3 ? [0, 15] : c.r === 0 && Math.abs(c.x - 169.5) < 3 ? [10, 0] : null; if (!d) return;
+      }], ['camaQueenAndres2611c', () => {}]], cuartoSE: [['camaAndres2711', items => { /* Maxi 27/11: «las camas van queen, salvo en el cuarto de Andrés»: vuelve a la de 1,70 y las mesas de luz a su lugar */
+        const c = items.find(m => m.t === 'camaDoble'); if (!c || c.p.L < 235) { if (c) c.p.tam = 'plaza'; return; } const r = (c.r || 0) * Math.PI / 180, lx = Math.cos(r), ly = -Math.sin(r), d = (c.p.L - 170) / 2;
+        if (c.r === 0 && Math.abs(c.x - 179.5) < 3) c.x = 169.5; if (c.r === 90 && Math.abs(c.y - 3625) < 3) c.y = 3610;
+        for (const n of items) if (n.t === 'mesaLuzM') { const lat = (n.x - c.x) * lx + (n.y - c.y) * ly; if (Math.abs(Math.abs(lat) - (c.p.L / 2 + 22.5)) < 30) { const t = Math.sign(lat) * (170 / 2 + 22.5); const lon = (n.x - c.x) * (-ly) + (n.y - c.y) * lx; n.x = c.x + t * lx - lon * ly; n.y = c.y + t * ly + lon * lx; } }
+        c.p = { ...c.p, L: 170, tam: 'plaza' }; }], ['camaQueenSE2611c', items => { /* la cama de Andrés, a 2,40, se corre para que las mesas de luz no toquen las paredes */
+        const c = items.find(m => m.t === 'camaDoble'); if (!c || c.p.tam === 'plaza') return; const d = c.r === 90 && Math.abs(c.y - 3610) < 3 ? [0, 15] : c.r === 0 && Math.abs(c.x - 169.5) < 3 ? [10, 0] : null; if (!d) return;
         for (const m of items) if (m === c || (m.t === 'mesaLuzM' && Math.hypot(m.x - c.x, m.y - c.y) < 190)) { m.x += d[0]; m.y += d[1]; } }]] } };
   return { mut: MUT, inicial: 'living', AMB, orden: Object.keys(AMB), alMezclar: alMezclar7 };
 }
