@@ -2,6 +2,7 @@
    cielo nublado, luz suave con sombras, como en las fotos. Se aplica sobre lo que arma el visor,
    sin tocar el modelo. Las texturas se dibujan en canvas: no hay imágenes externas. */
 /* datos (de la casa): {piedra,ladrillo,blanco} = ids de muros con esa terminación; sin datos, los de Carhué. cats = categoría → textura extra. */
+import { initPintura } from './pintura.js';
 export function initRealismo(visor,datos={}){
   const {THREE,scene,renderer}=visor;
   /* ---------- texturas ---------- */
@@ -44,7 +45,7 @@ export function initRealismo(visor,datos={}){
   const NOMT={madera:'Madera',maderaPared:'Madera de las paredes',pino:'Machimbre (pino)',eucalipto:'Eucalipto',deck:'Deck',revoque:'Revoque',tabique:'Tabique',ladrillo:'Ladrillo',chapa:'Chapa',zincalum:'Zincalum',chapaNegra:'Chapa negra',cemento:'Cemento',pasto:'Pasto',acero:'Acero'};
   const texDe=m=>m&&m.map?Object.keys(T).find(k=>T[k]===m.map):null;
   function materiales(){const out=[woodMat,stoneMat];scene.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material))if(m&&m.map&&!out.includes(m))out.push(m);});return out;}
-  function aplicarTintes(){for(const m of materiales()){const k=texDe(m);if(k&&k!=='pasto'&&m.userData.real!==false)m.color.set(TIN[k]||'#ffffff');}window.__despertar&&window.__despertar();}
+  function aplicarTintes(){for(const m of materiales()){const k=texDe(m);if(k&&k!=='pasto'&&m.userData.real!==false&&!m.userData.pint)m.color.set(TIN[k]||'#ffffff');}window.__despertar&&window.__despertar();}
   woodMat.color.set(TIN.pino||'#ffffff');
   {const bar=document.querySelector('#modo-3d .bottombar');if(bar){const b=document.createElement('button');b.className='btn mini';b.textContent='tonos';b.title='Tono de las texturas (madera, deck…), en vivo';bar.appendChild(b);
     const pop=document.createElement('div');pop.hidden=true;pop.style.cssText='position:absolute;bottom:34px;right:8px;z-index:9;background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.2);min-width:230px';
@@ -97,5 +98,7 @@ export function initRealismo(visor,datos={}){
             o.geometry.addGroup(st,P.count-st,cur);o.material=[p.mat,stoneMat];}}});
       if(pk&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.map=T[pk[0]];p.mat.color.set(TIN[pk[0]]||'#ffffff');p.mat.roughness=pk[0]==='chapa'||pk[0]==='zincalum'||pk[0]==='chapaNegra'?.55:pk[0]==='acero'?.5:.9;p.mat.metalness=pk[0]==='chapa'||pk[0]==='chapaNegra'?.35:0;p.mat.needsUpdate=true;}
       if(glass&&p.mat&&!p.mat.userData.real){p.mat.userData.real=true;p.mat.color.set('#a9c4cc');p.mat.roughness=.05;p.mat.metalness=.2;p.mat.opacity=Math.min(p.mat.opacity,.22);p.mat.needsUpdate=true;}}}
-  (function loop(){if(visor.parts!==last){last=visor.parts;try{decorate();}catch(e){console.error('realismo',e);}}requestAnimationFrame(loop);})();
+  /* Maxi 27/11: pintar lo elegido (color y material), sobre lo que deja el modo realista */
+  let pint=null;try{pint=initPintura(visor,{T,boxUV:(g,s,a,b)=>boxUV(g,s,a,b),tin:()=>TIN,stone:PIEDRA.size?stoneTex:null});}catch(e){console.error('pintura',e);}
+  (function loop(){if(visor.parts!==last){last=visor.parts;try{decorate();}catch(e){console.error('realismo',e);}try{pint&&pint.aplicar();}catch(e){console.error('pintura',e);}}requestAnimationFrame(loop);})();
 }
